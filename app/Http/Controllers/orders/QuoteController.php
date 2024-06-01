@@ -194,9 +194,8 @@ class QuoteController extends Controller
             'success' => 'Assign Complete'
         ], 201);
     }
-    public function pricing_quote(Request $request)
+    public function pricing_quote(Request $request)//chưa test
     {
-        //chưa test
         $input = json_decode($request->input('priced_quote'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
@@ -277,9 +276,8 @@ class QuoteController extends Controller
             'success' => 'Process Complete'
         ], 201);
     }
-    public function approve_quote(Request $request)
+    public function approve_quote(Request $request)//chưa test
     {
-        //chưa test
         $input = json_decode($request->input('approval'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
@@ -296,12 +294,8 @@ class QuoteController extends Controller
                 ]);
                 DB::commit();
             } else {
-                $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'quote_status_id' => 2,
-                    'production_price' => 0,
-                    'product_price' => 0,
-                    'profit_rate' => 0,
                     'note' => $input['note']
                 ]);
             }
@@ -313,9 +307,8 @@ class QuoteController extends Controller
             'Success' => 'Approve Successfully'
         ], 201);
     }
-    public function cancel_quote(Request $request)
+    public function cancel_quote(Request $request)//chưa test
     {
-        //chưa test
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
@@ -338,9 +331,8 @@ class QuoteController extends Controller
             'Success' => 'Cancel Successfully'
         ], 201);
     }
-    public function get_assigned_quote_sale(Request $request)
+    public function get_assigned_quote_sale(Request $request)//chưa test
     {
-        //chưa test
         $authorizationHeader = $request->header('Authorization');
         $token = null;
 
@@ -374,9 +366,8 @@ class QuoteController extends Controller
             $quote
         ]);
     }
-    public function get_quote_detail(Request $request)
+    public function get_quote_detail(Request $request)//chưa test
     {
-        //chưa test
         $input = json_decode($request->input('quote_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
