@@ -10,6 +10,8 @@ use App\Models\orders\Quote;
 use App\Models\items\Product_Diamond;
 use App\Models\items\Product_Metal;
 use App\Models\items\Product;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Models\accounts\Account;
 use Carbon\Carbon;
 
 class QuoteController extends Controller
@@ -72,12 +74,19 @@ class QuoteController extends Controller
     }
     public function get_quote_list_customer(Request $request)
     {
-        $input = json_decode($request->input('account_id'), true);
-        if (!isset($input) || $input == null) {
-            return response()->json([
-                'error' => 'No Input Received'
-            ], 404);
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
         }
+        $input = (int) $decodedToken['id'];
+
         $quote_list = DB::table('quote')->where('account_id', $input)->orderBy('quote_status_id', 'ASC')->get();
         $quote_list->map(function ($quote) {
             $quote->product = DB::table('product')->where('id', $quote->product_id)->first();
@@ -146,6 +155,7 @@ class QuoteController extends Controller
             $quote->product_price = 0;
             $quote->production_price = 0;
             $quote->profit_rate = 0;
+            $quote->total_price = 0;
             $quote->note = $note;
             $quote->created = Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s');
             $quote->save();
@@ -186,6 +196,7 @@ class QuoteController extends Controller
     }
     public function pricing_quote(Request $request)
     {
+        //chưa test
         $input = json_decode($request->input('priced_quote'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
@@ -194,104 +205,81 @@ class QuoteController extends Controller
         }
         $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
         $product_price = 0;
-        if ($quote->order_type_id == 1) {
-            DB::beginTransaction();
-            try {
-                if (isset($input['note']) && $input['note'] != null) {
-                    DB::table('quote')->where('id', $input['quote_id'])->update([
-                        'note' => $input['note']
-                    ]);
-                }
-                if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
-                    DB::table('product')->where('id', $quote->product_id)->update([
-                        'mounting_type_id' => $input['mounting_type_id']
-                    ]);
-                }
-                if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
-                    $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['image']));
-                    $destinationPath = public_path('image/Orders/' . $quote->product_id);
-                    if (!file_exists($destinationPath)) {
-                        mkdir($destinationPath, 0755, true);
-                    }
-                    $fileName = time() . '_' . $quote->product_id . '.jpg';
-                    $files = File::allFiles($destinationPath);
-                    foreach ($files as $file) {
-                        File::delete(public_path('image/Orders/' . $quote->product_id) . '/' . $file->getBaseName());
-                    }
-                    file_put_contents($destinationPath . '/' . $fileName, $fileData);
-                    $url = env('URL');
-                    $imageUrl = $url . 'Orders/' . $quote->product_id . '/' . $fileName;
-                    DB::table('product')->where('id', $quote->product_id)->update([
-                        'imageUrl' => $imageUrl
-                    ]);
-                }
-                if (isset($input['diamond_list']) && $input['diamond_list'] != null) {
-                    foreach ($input['diamond_list'] as $diamond1) {
-                        $product_diamond = new Product_Diamond();
-                        $product_diamond->product_id = $quote->product_id;
-                        $product_diamond->diamond_id = $diamond1->diamond->id;
-                        $product_diamond->diamond_color = $diamond1->diamond_color;
-                        $product_diamond->diamond_size = $diamond1->diamond_size;
-                        $product_diamond->diamond_clarity = $diamond1->diamond_clarity;
-                        $product_diamond->price_in_one = $diamond1->price_in_one;
-                        $product_diamond->count = $diamond1->count;
-                        $product_diamond->price = $diamond1->price;
-                        $product_diamond->diamond_shape = $diamond1->diamond_shape->id;
-                        $product_diamond->isAccepted = 0;
-                        $product_price += $product_diamond->price;
-                        $product_diamond->save();
-                    }
-                }
-                foreach ($input['metal_list'] as $metal1) {
-                    $product_metal = new Product_Metal();
-                    $product_metal->product_id = $quote->product_id;
-                    $product_metal->metal_id = $metal1->metal->id;
-                    $product_metal->price = $metal1->price;
-                    $product_metal->volume = $metal1->volume;
-                    $product_metal->weight = $metal1->weight;
-                    $product_metal->isAccepted = 0;
-                    $product_price += $product_metal->price;
-                    $product_metal->save();
-                }
 
-                Quote::where('id', $input['quote_id'])->update([
-                    'production_price' => $input['production_price'],
-                    'profit_rate' => $input['profic_rate'],
-                    'product_price' => $product_price
-                ]);
-                DB::commit();
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return response()->json($e->getMessage(), 500);
-            }
-            return response()->json([
-                'success' => 'Process Complete'
-            ], 201);
-        } else {
-            DB::beginTransaction();
-            try {
-                if (isset($input['note']) && $input['note'] != null) {
-                    DB::table('quote')->where('id', $input['quote_id'])->update([
-                        'note' => $input['note']
-                    ]);
-                }
-                Quote::where('id', $input['quote_id'])->update([
-                    'production_price' => $input['production_price'],
-                    'profit_rate' => $input['profic_rate'],
+        DB::beginTransaction();
+        try {
+            if (isset($input['note']) && $input['note'] != null) {
+                DB::table('quote')->where('id', $input['quote_id'])->update([
                     'note' => $input['note']
                 ]);
-                DB::commit();
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return response()->json($e->getMessage(), 500);
             }
-            return response()->json([
-                'success' => 'Process Complete'
-            ], 201);
+            if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
+                DB::table('product')->where('id', $quote->product_id)->update([
+                    'mounting_type_id' => $input['mounting_type_id']
+                ]);
+            }
+            if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
+                $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['image']));
+                $destinationPath = public_path('image/Orders/' . $quote->product_id);
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
+                $fileName = time() . '_' . $quote->product_id . '.jpg';
+                $files = File::allFiles($destinationPath);
+                foreach ($files as $file) {
+                    File::delete(public_path('image/Orders/' . $quote->product_id) . '/' . $file->getBaseName());
+                }
+                file_put_contents($destinationPath . '/' . $fileName, $fileData);
+                $url = env('URL');
+                $imageUrl = $url . 'Orders/' . $quote->product_id . '/' . $fileName;
+                DB::table('product')->where('id', $quote->product_id)->update([
+                    'imageUrl' => $imageUrl
+                ]);
+            }
+            if (isset($input['diamond_list']) && $input['diamond_list'] != null) {
+                foreach ($input['diamond_list'] as $diamond1) {
+                    $product_diamond = new Product_Diamond();
+                    $product_diamond->product_id = $quote->product_id;
+                    $product_diamond->diamond_id = $diamond1['diamond']['id'];
+                    $product_diamond->count = $diamond1['count'];
+                    $product_diamond->price = $diamond1['price'];
+                    $product_diamond->diamond_shape = $diamond1['diamond_shape']['id'];
+                    $product_diamond->is_accepted = true;
+                    $product_price += $product_diamond->price;
+                    $product_diamond->save();
+                }
+            }
+            foreach ($input['metal_list'] as $metal1) {
+                $product_metal = new Product_Metal();
+                $product_metal->product_id = $quote->product_id;
+                $product_metal->metal_id = $metal1['metal']['id'];
+                $product_metal->price = $metal1['price'];
+                $product_metal->volume = $metal1['volume'];
+                $product_metal->weight = $metal1['weight'];
+                $product_metal->is_accepted = true;
+                $product_price += $product_metal->price;
+                $product_metal->save();
+            }
+
+            Quote::where('id', $input['quote_id'])->update([
+                'production_price' => $input['production_price'],
+                'profit_rate' => $input['profic_rate'],
+                'product_price' => $product_price,
+                'total_price' => $product_price * ($input['profit_rate'] + 100) / 100 + $input['production_price']
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
         }
+
+        return response()->json([
+            'success' => 'Process Complete'
+        ], 201);
     }
     public function approve_quote(Request $request)
     {
+        //chưa test
         $input = json_decode($request->input('approval'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
@@ -309,11 +297,6 @@ class QuoteController extends Controller
                 DB::commit();
             } else {
                 $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
-                DB::table('product_diamond')->where('product_id', $quote->product_id)->delete();
-                DB::table('product_metal')->where('product_id', $quote->product_id)->delete();
-                DB::table('product')->where('product_id', $quote->product_id)->update([
-                    'mounting_size' => 0,
-                ]);
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'quote_status_id' => 2,
                     'production_price' => 0,
@@ -332,6 +315,7 @@ class QuoteController extends Controller
     }
     public function cancel_quote(Request $request)
     {
+        //chưa test
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
@@ -342,16 +326,8 @@ class QuoteController extends Controller
         try {
 
             $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
-            DB::table('product_diamond')->where('product_id', $quote->product_id)->delete();
-            DB::table('product_metal')->where('product_id', $quote->product_id)->delete();
-            DB::table('product')->where('product_id', $quote->product_id)->update([
-                'mounting_size' => 0,
-            ]);
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'quote_status_id' => 5,
-                'product_price' => 0,
-                'production_price' => 0,
-                'profit_rate' => 0,
                 'note' => $input['note']
             ]);
         } catch (\Exception $e) {
@@ -364,13 +340,27 @@ class QuoteController extends Controller
     }
     public function get_assigned_quote_sale(Request $request)
     {
-        $input = json_decode($request->input('account_id'), true);
-        if (!isset($input) || $input == null) {
-            return response()->json([
-                'error' => 'No Input Received'
-            ], 404);
+        //chưa test
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
         }
-        $quote = DB::table('quote')->where('saleStaff_id', $input['account_id'])->get();
+        $input = (int) $decodedToken['id'];
+        $account = Account::find($input);
+        if ($account->role_id != 2) {
+            return response()->json([
+                'error' => 'Invalid User (User is Unauthorized)'
+            ], 500);
+        }
+
+        $quote = DB::table('quote')->where('saleStaff_id', $input)->get();
         $quote->map(function ($quote) {
             $quote->product = DB::table('product')->where('product_id', $quote->product_id)->first();
             $quote->account = DB::table('account')->where('id', $quote->account_id)->first();
@@ -386,13 +376,14 @@ class QuoteController extends Controller
     }
     public function get_quote_detail(Request $request)
     {
+        //chưa test
         $input = json_decode($request->input('quote_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
             ], 404);
         }
-        $quote = DB::table('quote')->orderBy('quote_status_id', 'ASC')->first();
+        $quote = DB::table('quote')->where('id', $input)->first();
 
         $product = DB::table('product')->where('id', $quote->product_id)->first();
         $model = DB::table('model')->where('id', $product->model_id)->first();
@@ -456,6 +447,26 @@ class QuoteController extends Controller
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
         $quote->account = $account;
+        unset($quote->account_id);
+
+        $sale_staff = DB::table('account')->where('id', $quote->saleStaff_id)->first();
+        $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+        unset($sale_staff->role_id);
+        $quote->sale_staff = $sale_staff;
+        unset($quote->saleStaff_id);
+
+        $design_staff = DB::table('account')->where('id', $quote->designStaff_id)->first();
+        $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+        unset($design_staff->role_id);
+        $quote->design_staff = $design_staff;
+        unset($quote->designStaff_id);
+
+        $production_staff = DB::table('account')->where('id', $quote->productionStaff_id)->first();
+        $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+        unset($production_staff->role_id);
+        $quote->production_staff = $production_staff;
+        unset($quote->productionStaff_id);
+
         $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
         unset($quote->quote_status_id);
 

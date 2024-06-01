@@ -15,7 +15,7 @@ class Product_Metal extends Model
         'metal_id',
         'volume',
         'weight',
-        'isAccepted',
+        'is_accepted',
         'price'
     ];
 }

@@ -34,15 +34,15 @@ Route::group(['prefix' => 'admin'], function () {
         Route::group(['prefix' => 'order'], function () {
             Route::post('/get_order_list', [OrderController::class, 'get_order_list_admin']);
             Route::post('/reassign_order', [OrderController::class, 'reassign_order']);
-            Route::post('/cancel_order', [OrderController::class, 'cancel_order']);
+            Route::post('/cancel', [OrderController::class, 'cancel_order']);
             Route::post('/get_assigned_staff', [OrderController::class, 'get_assigned_staff']);
             Route::post('/request_design_process ', [QuoteController::class, 'request_design_process']);
             Route::post('/approve_design_process', [OrderController::class, 'approve_design_process']);
-            Route::post('/repricing_design_process', [QuoteController::class, 'repricing_design_process']);
-            Route::post('/confirm_payment', [QuoteController::class, 'confirm_payment']);
-            Route::post('/get_assigned_orders_sale', [QuoteController::class, 'get_assigned_orders_sale']);
-            Route::post('/get_assigned_orders_design ', [QuoteController::class, 'get_assigned_orders_design']);
-            Route::post('/get_assigned_orders_production ', [QuoteController::class, 'get_assigned_orders_production']);
+            Route::post('/repricing_design_process', [OrderController::class, 'repricing_design_process']);
+            Route::post('/confirm_payment', [OrderController::class, 'confirm_payment']);
+            Route::post('/get_assigned_orders_sale', [OrderController::class, 'get_assigned_orders_sale']);
+            Route::post('/get_assigned_orders_design ', [OrderController::class, 'get_assigned_orders_design']);
+            Route::post('/get_assigned_orders_production ', [OrderController::class, 'get_assigned_orders_production']);
         });
     });
 });
@@ -121,6 +121,9 @@ Route::group([], function () {
             Route::post('/add_order_template', [OrderController::class, 'add_order_template']);
             Route::post('/get_order_list', [OrderController::class, 'get_order_list_customer']);
             Route::post('/get_order_detail', [OrderController::class, 'get_order_detail']);
+            Route::post('/get_order_status_list', [OrderController::class, 'get_order_status_list']);
+            Route::post('/get_order_type_list', [OrderController::class, 'get_order_type_list']);
+            Route::post('/cancel_order', [OrderController::class, 'cancel_order']);
             Route::post('/get_production_status_list', [OrderController::class, 'get_production_status_list']);
             Route::post('/get_design_updating_list', [OrderController::class, 'get_design_updating_list']);
             Route::post('/get_production_process_list', [OrderController::class, 'get_production_process_list']);
