@@ -207,11 +207,9 @@ class QuoteController extends Controller
 
         DB::beginTransaction();
         try {
-            if (isset($input['note']) && $input['note'] != null) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'note' => $input['note']
                 ]);
-            }
             if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
                 DB::table('product')->where('id', $quote->product_id)->update([
                     'mounting_type_id' => $input['mounting_type_id']
@@ -335,8 +333,12 @@ class QuoteController extends Controller
         }
         DB::beginTransaction();
         try {
-
             $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
+            if($quote->quote_status_id == 4){
+                return response()->json([
+                    'error' => 'Quote has already been complete, action can\'t be perform'
+                ]);
+            }
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'quote_status_id' => 5,
                 'note' => $input['note']
@@ -395,41 +397,8 @@ class QuoteController extends Controller
         $quote = DB::table('quote')->where('id', $input)->first();
 
         $product = DB::table('product')->where('id', $quote->product_id)->first();
-        $model = DB::table('model')->where('id', $product->model_id)->first();
-        $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
-        $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
-        unset($model->mounting_type_id);
-        unset($model->mounting_style_id);
-
-        $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-        $model_shape->map(function ($model_shape) {
-            $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-            unset($model_shape->diamond_shape_id);
-            return $model_shape;
-        });
-        $model->model_diamond_shape = $model_shape;
-
-        $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
-        $model_diamond->map(function ($model_diamond) {
-            $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
-            unset($model_diamond->diamond_shape_id);
-            return $model_diamond;
-        });
-        $model->model_diamond = $model_diamond;
-
-        $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-        $model_metal->map(function ($model_metal) {
-            $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-            unset($model_metal->metal_id);
-            return $model_metal;
-        });
-        $model->model_metal = $model_metal;
-
-
         $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
         unset($product->mounting_type_id);
-        $product->model = $model;
-        unset($product->model_id);
 
         $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
         $product_diamond->map(function ($product_diamond) {

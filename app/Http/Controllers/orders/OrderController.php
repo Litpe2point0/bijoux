@@ -12,7 +12,6 @@ use App\Models\orders\Order;
 use App\Models\accounts\Account;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\File;
 
 class OrderController extends Controller
 {
@@ -243,7 +242,7 @@ class OrderController extends Controller
             'success' => 'Successfully reassign'
         ], 201);
     }
-    public function cancel(Request $request)//chưa test
+    public function cancel(Request $request) //chưa test
     {
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
@@ -265,16 +264,25 @@ class OrderController extends Controller
         }
         $id = (int) $decodedToken['id'];
         $account = Account::find($id);
-        if($account->role_id != 1 && $account->role_id != 5){
+        if ($account->role_id != 1 && $account->role_id != 5) {
             return response()->json([
                 'error' => 'Invalid User (User is Unauthorized)'
             ], 500);
         }
         DB::beginTransaction();
         try {
+            $order = DB::table('orders')->where('id', $input['order_id'])->first();
+            if ($order->order_status_id == 6) {
+                return response()->json([
+                    'error' => 'Order has already been complete, action can\'t be perform'
+                ]);
+            }
             DB::table('orders')->where('id', $input['order_id'])->update([
                 'order_status_id' => 7,
                 'note' => $input['note']
+            ]);
+            DB::table('design_process')->where('order_id', $input['order_id'])->update([
+                'design_process_status_id' => 4,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -313,32 +321,7 @@ class OrderController extends Controller
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
             unset($model->mounting_type_id);
             unset($model->mounting_style_id);
-
-            $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-            $model_shape->map(function ($model_shape) {
-                $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-                unset($model_shape->diamond_shape_id);
-                return $model_shape;
-            });
-            $model->model_diamond_shape = $model_shape;
-
-            $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
-            $model_diamond->map(function ($model_diamond) {
-                $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
-                unset($model_diamond->diamond_shape_id);
-                return $model_diamond;
-            });
-            $model->model_diamond = $model_diamond;
-
-            $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-            $model_metal->map(function ($model_metal) {
-                $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-                unset($model_metal->metal_id);
-                return $model_metal;
-            });
-            $model->model_metal = $model_metal;
         }
-
 
         $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
         unset($product->mounting_type_id);
@@ -601,6 +584,7 @@ class OrderController extends Controller
                 'mounting_size' => $input['mounting_size'],
                 'design_process_status_id' => 1,
                 'production_price' => 0,
+                'profit_rate' => 0,
                 'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s'),
             ]);
 
@@ -674,13 +658,17 @@ class OrderController extends Controller
             $order = DB::table('orders')->where('id', $design_process->order_id)->first();
             if ($input['approve']) {
                 if (DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 0) != null) {
-                    DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 1)->delete();
+                    DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 1)->update([
+                        'is_accepted' => 3
+                    ]);
                     DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 0)->update([
                         'is_accepted' => 1
                     ]);
                 }
                 if (DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 0) != null) {
-                    DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 1)->delete();
+                    DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 1)->update([
+                        'is_accepted' => 3
+                    ]);
                     DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 0)->update([
                         'is_accepted' => 1
                     ]);
@@ -740,7 +728,7 @@ class OrderController extends Controller
         ]);
         return response()->json([
             'success' => 'Cancel Successfully'
-        ],201);
+        ], 201);
     }
     public function get_design_process_status_list(Request $request) //chưa test
     {
@@ -811,41 +799,10 @@ class OrderController extends Controller
         $order = DB::table('order')->where('id', $design_process->order_id)->first();
 
         $product = DB::table('product')->where('id', $order->product_id)->first();
-        $model = DB::table('model')->where('id', $product->model_id)->first();
-        $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
-        $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
-        unset($model->mounting_type_id);
-        unset($model->mounting_style_id);
-
-        $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-        $model_shape->map(function ($model_shape) {
-            $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-            unset($model_shape->diamond_shape_id);
-            return $model_shape;
-        });
-        $model->model_diamond_shape = $model_shape;
-
-        $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
-        $model_diamond->map(function ($model_diamond) {
-            $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
-            unset($model_diamond->diamond_shape_id);
-            return $model_diamond;
-        });
-        $model->model_diamond = $model_diamond;
-
-        $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-        $model_metal->map(function ($model_metal) {
-            $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-            unset($model_metal->metal_id);
-            return $model_metal;
-        });
-        $model->model_metal = $model_metal;
-
 
         $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
         unset($product->mounting_type_id);
-        $product->model = $model;
-        unset($product->model_id);
+
 
         $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
         $product_diamond->map(function ($product_diamond) {
@@ -1030,156 +987,6 @@ class OrderController extends Controller
                 'error' => 'The condition to complete the Order hasn\'t met'
             ], 0);
         }
-    }
-    public function get_complete_order_list_sale(Request $request) //chưa test
-    {
-        $authorizationHeader = $request->header('Authorization');
-        $token = null;
-
-        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
-            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
-            try {
-                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
-            }
-        }
-        $input = (int) $decodedToken['id'];
-
-        $account = Account::find($input);
-        if ($account->role_id != 2) {
-            return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
-            ], 500);
-        }
-        $order_list_customize = DB::table('orders')->where('saleStaff_id', $input)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->whereNot('order_status_id', 7)->where('order_type_id', 1)->get();
-        $order_list_customize->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            unset($order->order_status_id);
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_type_id);
-            return $order;
-        });
-        $order_list_template = DB::table('orders')->where('saleStaff_id', $input)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->whereNot('order_status_id', 7)->where('order_type_id', 2)->get();
-        $order_list_template->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            unset($order->order_status_id);
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_type_id);
-            return $order;
-        });
-        return response()->json([
-            'order_list_customize' => $order_list_customize,
-            'order_list_template' => $order_list_template
-        ]);
-    }
-    public function get_complete_order_list_design(Request $request) //chưa test
-    {
-        $authorizationHeader = $request->header('Authorization');
-        $token = null;
-
-        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
-            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
-            try {
-                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
-            }
-        }
-        $input = (int) $decodedToken['id'];
-
-        $account = Account::find($input);
-        if ($account->role_id != 3) {
-            return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
-            ], 500);
-        }
-        $order_list_customize = DB::table('orders')->where('designStaff_id', $input)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->whereNot('order_status_id', 7)->where('order_type_id', 1)->get();
-        $order_list_customize->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            unset($order->order_status_id);
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_type_id);
-            return $order;
-        });
-        $order_list_template = DB::table('orders')->where('designStaff_id', $input)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->whereNot('order_status_id', 7)->where('order_type_id', 2)->get();
-        $order_list_template->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            unset($order->order_status_id);
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_type_id);
-            return $order;
-        });
-        return response()->json([
-            'order_list_customize' => $order_list_customize,
-            'order_list_template' => $order_list_template
-        ]);
-    }
-    public function get_complete_order_list_production(Request $request) //chưa test
-    {
-        $authorizationHeader = $request->header('Authorization');
-        $token = null;
-
-        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
-            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
-            try {
-                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
-            }
-        }
-        $input = (int) $decodedToken['id'];
-
-        $account = Account::find($input);
-        if ($account->role_id != 4) {
-            return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
-            ], 500);
-        }
-        $order_list_customize = DB::table('orders')->where('productionStaff_id', $input)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->whereNot('order_status_id', 3)->whereNot('order_status_id', 7)->where('order_type_id', 1)->get();
-        $order_list_customize->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            unset($order->order_status_id);
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_type_id);
-            return $order;
-        });
-        $order_list_template = DB::table('orders')->where('productionStaff_id', $input)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->whereNot('order_status_id', 7)->where('order_type_id', 2)->get();
-        $order_list_template->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            unset($order->order_status_id);
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_type_id);
-            return $order;
-        });
-        return response()->json([
-            'order_list_customize' => $order_list_customize,
-            'order_list_template' => $order_list_template
-        ]);
     }
     public function get_product_detail(Request $request) //chưa test
     {
