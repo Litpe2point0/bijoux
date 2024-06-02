@@ -62,10 +62,93 @@ class MetalController extends Controller
         }
         DB::beginTransaction();
         try {
+            $product_metal = DB::table('product_metal')->where('metal_id', $input['id'])->groupby('product_id')->get();
             DB::table('metal')->where('id', $input['id'])->update([
                 'buy_price_per_gram' => $input['buy_price_per_gram'],
                 'sale_price_per_gram'=> $input['sale_price_per_gram'],
             ]);
+            foreach ($product_metal as $product) {
+                $metal_list = DB::table('product_metal')->where('product_id', $product->product_id)->get();
+                foreach ($metal_list as $metal) {
+                    if ($metal->status == 1) {
+                        DB::table('product_metal')->where('metal_id', $metal->metal_id->where('status', 3))->delete();
+                        DB::table('product_metal')->where('metal_id', $metal->metal_id->where('status', 1))->update([
+                            'status' => 3
+                        ]);
+                        DB::table('product_metal')->insert([
+                            'product_id' => $product->product_id,
+                            'metal_id' => $metal->metal_id,
+                            'volume' => $metal->volume,
+                            'weight' => $metal->weight,
+                            'price' => $input['sale_price_per_gram'] * $metal->weight,
+                            'status' => 1
+                        ]);
+                    }
+                    if ($metal->status == 0) {
+                        DB::table('product_metal')->where('metal_id', $metal->metal_id->where('status', 4))->delete();
+                        DB::table('product_metal')->where('metal_id', $metal->metal_id->where('status', 0))->update([
+                            'status' => 4
+                        ]);
+                        DB::table('product_metal')->insert([
+                            'product_id' => $product->product_id,
+                            'metal_id' => $metal->metal_id,
+                            'volume' => $metal->volume,
+                            'weight' => $metal->weight,
+                            'price' => $input['sale_price_per_gram'] * $metal->weight,
+                            'status' => 0
+                        ]);
+                    }
+                    if ($metal->status == 2) {
+                    }
+                    DB::table('product_metal')->where('metal_id', $metal->metal_id->where('status', 2))->update([
+                        'price' => $input['sale_price_per_gram'] * $metal->weight
+                    ]);
+                }
+            }
+            
+            foreach($product_metal as $product){
+                $order =  DB::table('orders')->where('product_id',$product->product_id)->first();
+                $profit_rate = $order->profit_rate;
+                $production_price = $order->production_price;
+                $product_price = 0;
+                $diamond_list = DB::table('product_diamond')->where('product_id',$order->product_id)->get();
+                $metal_list = DB::table('product_metal')->where('product_id',$order->product_id)->get();
+                foreach($diamond_list as $diamond){
+                    if($diamond->status == 1){
+                        $product_price += $diamond->price;
+                    }
+                }
+                foreach($metal_list as $metal){
+                    if($metal->status == 1){
+                        $product_price += $metal->price;
+                    }
+                }
+                DB::table('orders')->where('product_id',$product->product_id)->update([
+                    'product_price' => $product_price,
+                    'total_price' => $product_price * ($profit_rate+100)/100 + $production_price
+                ]);
+
+                $quote =  DB::table('quote')->where('product_id',$product->product_id)->first();
+                $profit_rate = $quote->profit_rate;
+                $production_price = $quote->production_price;
+                $product_price = 0;
+                $diamond_list = DB::table('product_diamond')->where('product_id',$quote->product_id)->get();
+                $metal_list = DB::table('product_metal')->where('product_id',$quote->product_id)->get();
+                foreach($diamond_list as $diamond){
+                    if($diamond->status == 1){
+                        $product_price += $diamond->price;
+                    }
+                }
+                foreach($metal_list as $metal){
+                    if($metal->status == 1){
+                        $product_price += $metal->price;
+                    }
+                }
+                DB::table('quote')->where('product_id',$product->product_id)->update([
+                    'product_price' => $product_price,
+                    'total_price' => $product_price * ($profit_rate+100)/100 + $production_price
+                ]);
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

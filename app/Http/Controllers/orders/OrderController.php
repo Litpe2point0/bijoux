@@ -116,7 +116,7 @@ class OrderController extends Controller
             'template_order_list' => $template_order_list
         ]);
     }
-    public function add_order_template(Request $request)
+    public function add_order_template(Request $request) //thêm nếu mà sp deactivated thì thêm ko đc
     {
         $input = json_decode($request->input('new_order'), true);
         $account_id = $input['account']['id'];
@@ -155,6 +155,13 @@ class OrderController extends Controller
 
             foreach ($metal_list as $metalO) {
                 $product_metal = new Product_Metal();
+                $metal = DB::table('metal')->where('id',$metalO['metal']['id'])->first();
+                if($metal->deactivated == true){
+                    DB::rollBack();
+                    return response()->json([
+                        'error' => 'An items that is include in this model is currently deactivated'
+                    ],0);
+                }
                 $product_metal->product_id = $product->id;
                 $product_metal->metal_id = $metalO['metal']['id'];
                 $product_metal->volume = $metalO['volume'];
@@ -169,6 +176,12 @@ class OrderController extends Controller
                 $product_diamond = new Product_Diamond();
                 if ($diamond0->Is_editable == 1) {
                     $diamond = DB::table('diamond')->where('size', $input['diamond_size'])->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
+                    if($diamond->deactivated == true){
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'An items that is include in this model is currently deactivated'
+                        ],0);
+                    }
                     $product_diamond->product_id = $product->id;
                     $product_diamond->diamond_id = $diamond->id;
                     $product_diamond->diamond_shape_id = $input['diamond_shape_id'];
@@ -178,6 +191,12 @@ class OrderController extends Controller
                     $product_diamond->save();
                 } else if ($diamond0->Is_editable == 0) {
                     $diamond = DB::table('diamond')->where('size', $diamond0->diamond_size_max)->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
+                    if($diamond->deactivated == true){
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'An items that is include in this model is currently deactivated'
+                        ],0);
+                    }
                     $product_diamond->product_id = $product->id;
                     $product_diamond->diamond_id = $diamond->id;
                     $product_diamond->diamond_shape_id = $diamond0->diamond_shape_id;
@@ -596,7 +615,7 @@ class OrderController extends Controller
                     $product_diamond->count = $diamond1['count'];
                     $product_diamond->price = $diamond1['price'];
                     $product_diamond->diamond_shape = $diamond1['diamond_shape']['id'];
-                    $product_diamond->is_accepted = false;
+                    $product_diamond->status = false;
                     $product_diamond->save();
                 }
             }
@@ -609,7 +628,7 @@ class OrderController extends Controller
                     $product_metal->price = $metal1['price'];
                     $product_metal->volume = $metal1['volume'];
                     $product_metal->weight = $metal1['weight'];
-                    $product_metal->is_accepted = false;
+                    $product_metal->status = false;
                     $product_metal->save();
                 }
             }
@@ -657,21 +676,39 @@ class OrderController extends Controller
             $design_process = DB::table('design_process')->where('id', $input['design_process_id'])->first();
             $order = DB::table('orders')->where('id', $design_process->order_id)->first();
             if ($input['approve']) {
-                if (DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 0) != null) {
-                    DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 1)->update([
-                        'is_accepted' => 3
+                if (DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0) != null) {
+                    DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 1)->update([
+                        'status' => 2
                     ]);
-                    DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 0)->update([
-                        'is_accepted' => 1
+                    DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->update([
+                        'status' => 1
                     ]);
+                    $product_diamond = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 4)->get();
+                    if ($product_diamond) {
+                        foreach ($product_diamond as $product) {
+                            DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 3)->where('diamond_id', $product_diamond->diamond_id)->delete();
+                            DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 4)->where('diamond_id', $product_diamond->diamond_id)->update([
+                                'status' => 3
+                            ]);
+                        }
+                    }
                 }
-                if (DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 0) != null) {
-                    DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 1)->update([
-                        'is_accepted' => 3
+                if (DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0) != null) {
+                    DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 1)->update([
+                        'status' => 2
                     ]);
-                    DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 0)->update([
-                        'is_accepted' => 1
+                    DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->update([
+                        'status' => 1
                     ]);
+                    $product_metal = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 4)->get();
+                    if ($product_metal) {
+                        foreach ($product_metal as $product) {
+                            DB::table('productproduct_metal_diamond')->where('product_id', $order->product_id)->where('status', 3)->where('metal_id', $product_metal->metal_id)->delete();
+                            DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 4)->where('metal_id', $product_metal->metal_id)->update([
+                                'status' => 3
+                            ]);
+                        }
+                    }
                 }
                 DB::table('design_process')->where('id', $input['design_process_id'])->update([
                     'design_process_status_id' => 3
@@ -699,8 +736,8 @@ class OrderController extends Controller
                     ]);
                 }
             } else {
-                DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 0)->delete();
-                DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 0)->delete();
+                DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->delete();
+                DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->delete();
                 DB::table('design_process')->where('id', $input['design_process_id'])->update([
                     'design_process_status_id' => 4
                 ]);
@@ -721,8 +758,8 @@ class OrderController extends Controller
         }
         $design_process = DB::table('design_process')->where('id', $input)->first();
         $order = DB::table('orders')->where('id', $design_process->order_id)->first();
-        DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 0)->delete();
-        DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 0)->delete();
+        DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->delete();
+        DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->delete();
         DB::table('design_process')->where('id', $input['design_process_id'])->update([
             'design_process_status_id' => 4
         ]);
@@ -760,7 +797,7 @@ class OrderController extends Controller
         }
 
         if ($account->role_id == 1) {
-            $design_list = DB::table('design_process')->orderBy('design_process_status_id', 'asc')->get();
+            $design_list = DB::table('design_process')->whereNot('design_process_status_id', 1)->orderBy('design_process_status_id', 'asc')->get();
         } else if ($account->role_id == 2) {
             $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 7)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
@@ -861,8 +898,36 @@ class OrderController extends Controller
         unset($design_process->design_process_status_id);
         unset($design_process->order_id);
 
+        $product_price = 0;
+        $product_diamond_current = DB::table('product_diamond')->where('id', $order->product_id)->get();
+        foreach ($product_diamond_current as $product) {
+            if ($product->status == 0) {
+                $product_price += $product->price;
+            }
+            if ($product->status == 1) {
+                $check = DB::table('product_diamond')->where('diamond_id', $product->diamond_id)->where('status', 0)->get();
+                if ($check == null) {
+                    $product_price += $product->price;
+                }
+            }
+        }
+        $product_metal_current = DB::table('product_metal')->where('id', $order->product_id)->get();
+        foreach ($product_metal_current as $product) {
+            if ($product->status == 0) {
+                $product_price += $product->price;
+            }
+            if ($product->status == 1) {
+                $check = DB::table('product_metal')->where('metal_id', $product->metal_id)->where('status', 0)->get();
+                if ($check == null) {
+                    $product_price += $product->price;
+                }
+            }
+        }
+        $design_process->total_price = $product_price * ($design_process->profit_rate + 100) / 100 + $design_process->production_price;
+        $design_process->product_price = $product_price;
+
         return response()->json([
-            'design_process_detail' => $design_process
+            'design_process' => $design_process
         ]);
     }
     public function add_design_updating(Request $request) //chưa test

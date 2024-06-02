@@ -236,24 +236,38 @@ class QuoteController extends Controller
             if (isset($input['diamond_list']) && $input['diamond_list'] != null) {
                 foreach ($input['diamond_list'] as $diamond1) {
                     $product_diamond = new Product_Diamond();
+                    $diamond = DB::table('diamond')->where('id',$diamond1['diamond']['id'])->first();
+                    if($diamond->deactivated == true){
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'An items that is include in this model is currently deactivated'
+                        ]);
+                    }
                     $product_diamond->product_id = $quote->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
                     $product_diamond->count = $diamond1['count'];
                     $product_diamond->price = $diamond1['price'];
                     $product_diamond->diamond_shape = $diamond1['diamond_shape']['id'];
-                    $product_diamond->is_accepted = true;
+                    $product_diamond->status = true;
                     $product_price += $product_diamond->price;
                     $product_diamond->save();
                 }
             }
             foreach ($input['metal_list'] as $metal1) {
                 $product_metal = new Product_Metal();
+                $metal = DB::table('metal')->where('id',$metal1['metal']['id'])->first();
+                    if($metal->deactivated == true){
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'An items that is include in this model is currently deactivated'
+                        ]);
+                    }
                 $product_metal->product_id = $quote->product_id;
                 $product_metal->metal_id = $metal1['metal']['id'];
                 $product_metal->price = $metal1['price'];
                 $product_metal->volume = $metal1['volume'];
                 $product_metal->weight = $metal1['weight'];
-                $product_metal->is_accepted = true;
+                $product_metal->status = true;
                 $product_price += $product_metal->price;
                 $product_metal->save();
             }
