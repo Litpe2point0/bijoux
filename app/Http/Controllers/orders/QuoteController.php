@@ -307,13 +307,31 @@ class QuoteController extends Controller
             'Success' => 'Approve Successfully'
         ], 201);
     }
-    public function cancel_quote(Request $request)//chưa test
+    public function cancel(Request $request)//chưa test
     {
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
             ], 404);
+        }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $id = (int) $decodedToken['id'];
+        $account = Account::find($id);
+        if($account->role_id != 1 && $account->role_id != 5){
+            return response()->json([
+                'error' => 'Invalid User (User is Unauthorized)'
+            ], 500);
         }
         DB::beginTransaction();
         try {

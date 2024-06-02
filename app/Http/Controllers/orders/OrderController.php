@@ -243,14 +243,32 @@ class OrderController extends Controller
             'success' => 'Successfully reassign'
         ], 201);
     }
-    public function cancel(Request $request)
+    public function cancel(Request $request)//chưa test
     {
-        //chưa test
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
             ], 404);
+        }
+
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $id = (int) $decodedToken['id'];
+        $account = Account::find($id);
+        if($account->role_id != 1 && $account->role_id != 5){
+            return response()->json([
+                'error' => 'Invalid User (User is Unauthorized)'
+            ], 500);
         }
         DB::beginTransaction();
         try {
@@ -380,28 +398,6 @@ class OrderController extends Controller
         return response()->json([
             'order_detail' => $order
         ]);
-    }
-    public function cancel_order(Request $request) //chưa test
-    {
-        $input = json_decode($request->input('cancel'), true);
-        if (!isset($input) || $input == null) {
-            return response()->json([
-                'error' => 'No Input Received'
-            ], 404);
-        }
-        DB::beginTransaction();
-        try {
-            DB::table('orders')->where('id', $input['order_id'])->update([
-                'order_status_id' => 7,
-                'note' => $input['note']
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json($e->getMessage(), 500);
-        }
-        return response()->json([
-            'success' => 'Cancel Successfully'
-        ], 201);
     }
     public function confirm_payment(Request $request)
     {
@@ -605,7 +601,7 @@ class OrderController extends Controller
                 'mounting_size' => $input['mounting_size'],
                 'design_process_status_id' => 1,
                 'production_price' => 0,
-                'created' => Carbon::now()->format('Y-m-d H:i:s'),
+                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s'),
             ]);
 
             if (isset($input['diamond_list']) && $input['diamond_list'] != null) {
@@ -726,6 +722,25 @@ class OrderController extends Controller
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
+    }
+    public function cancel_design_process(Request $request) //chưa test
+    {
+        $input = json_decode($request->input('design_process_id'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 404);
+        }
+        $design_process = DB::table('design_process')->where('id', $input)->first();
+        $order = DB::table('orders')->where('id', $design_process->order_id)->first();
+        DB::table('product_diamond')->where('product_id', $order->product_id)->where('is_accepted', 0)->delete();
+        DB::table('product_metal')->where('product_id', $order->product_id)->where('is_accepted', 0)->delete();
+        DB::table('design_process')->where('id', $input['design_process_id'])->update([
+            'design_process_status_id' => 4
+        ]);
+        return response()->json([
+            'success' => 'Cancel Successfully'
+        ],201);
     }
     public function get_design_process_status_list(Request $request) //chưa test
     {
@@ -907,7 +922,7 @@ class OrderController extends Controller
                 'order_id' => $input['order_id'],
                 'imageUrl' => $input['imageUrl'],
                 'content' => $input['content'],
-                'created' => Carbon::now()
+                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
             ]);
             DB::commit();
         } catch (\Exception $e) {
@@ -936,7 +951,7 @@ class OrderController extends Controller
             DB::table('production_status')->get()
         ]);
     }
-    public function add_production_process(Request $request)
+    public function add_production_process(Request $request) //chưa test
     {
         $input = json_decode($request->input('new_production_process'), true);
         if (!isset($input) || $input == null) {
@@ -944,14 +959,25 @@ class OrderController extends Controller
                 'error' => 'No Input Received'
             ], 404);
         }
+        $production_process = DB::table('production_process')->where('order_id', $input)->orderBy('created', 'desc')->first();
+        $previous_status = 0;
         DB::beginTransaction();
         try {
-            DB::table('production_updating')->insert([
-                'order_id' => $input['order_id'],
-                'production_status_id' => $input['production_status']['id'],
-                'imageUrl' => $input['imageUrl'],
-                'created' => Carbon::now()
-            ]);
+            if ($production_process != null) {
+                $previous_status = $production_process->production_status_id;
+            }
+            if ($input['production_status'] - $previous_status == 1) {
+                DB::table('production_updating')->insert([
+                    'order_id' => $input['order_id'],
+                    'production_status_id' => $input['production_status']['id'],
+                    'imageUrl' => $input['imageUrl'],
+                    'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                ]);
+            } else {
+                return response()->json([
+                    'error' => 'Production Status Can\'t be 2 status higher than the previous status'
+                ], 0);
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -961,7 +987,7 @@ class OrderController extends Controller
             'Success' => 'Production Process Added'
         ], 201);
     }
-    public function get_production_process_list(Request $request)
+    public function get_production_process_list(Request $request) //chưa test
     {
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {

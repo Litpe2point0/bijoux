@@ -5,18 +5,19 @@ namespace App\Models\items;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Metal extends Model
+class Diamond extends Model
 {
     use HasFactory;
-    protected $table = 'metal';
+    protected $table = 'diamond';
     public $timestamps=false;
     protected $primarykey = 'id';
     protected $fillable = [
-        'name',
-        'buy_price_per_gram',
-        'sale_price_per_gram',
-        'imageUrl',
-        'specific_weight',
+        'size',
+        'diamond_color_id',
+        'diamond_clarity_id',
+        'diamond_cut_id',
+        'diamond_origin_id',
+        'price',
         'deactivated',
         'created'
     ];

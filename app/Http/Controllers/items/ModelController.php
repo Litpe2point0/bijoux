@@ -9,7 +9,6 @@ use App\Models\items\_Model;
 use App\Models\items\Model_Diamond;
 use App\Models\items\Model_DiamondShape;
 use App\Models\items\Model_Metal;
-use Illuminate\Support\Facades\File;
 
 class ModelController extends Controller
 {
