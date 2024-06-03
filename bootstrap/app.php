@@ -3,6 +3,7 @@
 use App\Http\Middleware\checkUserLogin;
 use App\Http\Middleware\checkAdminLogin;
 use App\Http\Middleware\checkManager;
+use App\Http\Middleware\checkSaleStaff;
 use App\Http\Middleware\CorsMiddleware;
 
 use Illuminate\Foundation\Application;
@@ -27,6 +28,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->appendToGroup('checkManager', [
             checkManager::class,
+        ]);
+        $middleware->appendToGroup('checkSaleStaff', [
+            checkSaleStaff::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
