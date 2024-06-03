@@ -33,8 +33,15 @@ class DiamondController extends Controller
         if (isset($input['diamond_origin_id']) && $input['diamond_origin_id'] != null) {
             $query->where('diamond_origin_id', $input['diamond_origin_id']);
         }
+        $diamond_list = $query->get();
+        $diamond_list->map(function ($diamond) {
+            $OGurl = env('ORIGIN_URL');
+            $url = env('DIAMOND_URL');
+            $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
+            return $diamond;
+        });
         return response()->json([
-            $query->get()
+            $diamond_list
         ]);
     }
     public function deactivate(Request $request) //chưa test
@@ -170,8 +177,12 @@ class DiamondController extends Controller
                 'error' => 'No Input Received'
             ], 404);
         }
+        $diamond = DB::table('diamond')->where('id', $input)->first();
+        $OGurl = env('ORIGIN_URL');
+        $url = env('DIAMOND_URL');
+        $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
         return response()->json([
-            DB::table('diamond')->where('id', $input)->first()
+            $diamond
         ]);
     }
     public function get_shape_list() //chưa test

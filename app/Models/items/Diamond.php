@@ -13,6 +13,7 @@ class Diamond extends Model
     protected $primarykey = 'id';
     protected $fillable = [
         'size',
+        'imageUrl',
         'diamond_color_id',
         'diamond_clarity_id',
         'diamond_cut_id',

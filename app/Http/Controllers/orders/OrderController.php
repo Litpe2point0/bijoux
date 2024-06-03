@@ -17,22 +17,21 @@ class OrderController extends Controller
 {
     public function get_order_list_admin()
     {
-        $order_list = DB::table('orders')->orderBy('order_status_id', 'asc')->get();
-        $order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_status_id);
-            unset($order->order_type_id);
-            unset($order->account_id);
-            unset($order->product_id);
-            return $order;
-        });
         $customize_order_list = DB::table('orders')->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
             unset($order->order_status_id);
@@ -43,8 +42,19 @@ class OrderController extends Controller
         });
         $template_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
             unset($order->order_status_id);
@@ -54,7 +64,6 @@ class OrderController extends Controller
             return $order;
         });
         return response()->json([
-            'order_list' => $order_list,
             'customize_order_list' => $customize_order_list,
             'template_order_list' => $template_order_list
         ]);
@@ -74,22 +83,21 @@ class OrderController extends Controller
         }
         $input = (int) $decodedToken['id'];
 
-        $order_list = DB::table('orders')->where('account_id', $input)->orderBy('order_status_id', 'asc')->get();
-        $order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_status_id);
-            unset($order->order_type_id);
-            unset($order->account_id);
-            unset($order->product_id);
-            return $order;
-        });
         $customize_order_list = DB::table('orders')->where('account_id', $input)->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
             unset($order->order_status_id);
@@ -100,8 +108,19 @@ class OrderController extends Controller
         });
         $template_order_list = DB::table('orders')->where('account_id', $input)->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
             unset($order->order_status_id);
@@ -111,7 +130,6 @@ class OrderController extends Controller
             return $order;
         });
         return response()->json([
-            'order_list' => $order_list,
             'customize_order_list' => $customize_order_list,
             'template_order_list' => $template_order_list
         ]);
@@ -141,8 +159,7 @@ class OrderController extends Controller
                     'error' => 'Product is not available'
                 ], 404);
             }
-            $url = env('URL');
-            $imageUrl = $url . 'Final_templates/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id'] . '/main.jpg';
+            $imageUrl = 'main.jpg';
 
             $mounting_type_id = $model->mounting_type_id;
 
@@ -155,12 +172,12 @@ class OrderController extends Controller
 
             foreach ($metal_list as $metalO) {
                 $product_metal = new Product_Metal();
-                $metal = DB::table('metal')->where('id',$metalO['metal']['id'])->first();
-                if($metal->deactivated == true){
+                $metal = DB::table('metal')->where('id', $metalO['metal']['id'])->first();
+                if ($metal->deactivated == true) {
                     DB::rollBack();
                     return response()->json([
                         'error' => 'An items that is include in this model is currently deactivated'
-                    ],0);
+                    ], 0);
                 }
                 $product_metal->product_id = $product->id;
                 $product_metal->metal_id = $metalO['metal']['id'];
@@ -176,11 +193,11 @@ class OrderController extends Controller
                 $product_diamond = new Product_Diamond();
                 if ($diamond0->Is_editable == 1) {
                     $diamond = DB::table('diamond')->where('size', $input['diamond_size'])->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
-                    if($diamond->deactivated == true){
+                    if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
                             'error' => 'An items that is include in this model is currently deactivated'
-                        ],0);
+                        ], 0);
                     }
                     $product_diamond->product_id = $product->id;
                     $product_diamond->diamond_id = $diamond->id;
@@ -191,11 +208,11 @@ class OrderController extends Controller
                     $product_diamond->save();
                 } else if ($diamond0->Is_editable == 0) {
                     $diamond = DB::table('diamond')->where('size', $diamond0->diamond_size_max)->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
-                    if($diamond->deactivated == true){
+                    if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
                             'error' => 'An items that is include in this model is currently deactivated'
-                        ],0);
+                        ], 0);
                     }
                     $product_diamond->product_id = $product->id;
                     $product_diamond->diamond_id = $diamond->id;
@@ -338,6 +355,9 @@ class OrderController extends Controller
         if ($model != null) {
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('MODEL_URL');
+            $model->imageUrl = $OGurl . $url . $model->id . "/" . $model->imageUrl;
             unset($model->mounting_type_id);
             unset($model->mounting_style_id);
         }
@@ -346,10 +366,18 @@ class OrderController extends Controller
         unset($product->mounting_type_id);
         $product->model = $model;
         unset($product->model_id);
+        $OGurl = env('ORIGIN_URL');
+        $url = env('ORDER_URL');
+        $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
 
         $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
         $product_diamond->map(function ($product_diamond) {
-            $product_diamond->diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('DIAMOND_URL');
+            $diamond->imageUrl = $OGurl . $url . $diamond->id . "/" . $diamond->imageUrl;
+            $product_diamond->diamond = $diamond;
+
             $product_diamond->diamond_shape_id = DB::table('diamond_shape_id')->where('id', $product_diamond->diamond_shape_id)->first();
             unset($product_diamond->diamond_id);
             unset($product_diamond->diamond_shape_id);
@@ -359,7 +387,11 @@ class OrderController extends Controller
 
         $product_metal = DB::table('product_metal')->where('product_id', $product->id)->get();
         $product_metal->map(function ($product_metal) {
-            $product_metal->metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('METAL_URL');
+            $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
+            $product_metal->metal = $metal;
             unset($product_metal->metal_id);
             return $product_metal;
         });
@@ -371,24 +403,44 @@ class OrderController extends Controller
         $account = DB::table('account')->where('id', $order->account_id)->first();
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
+        if (!$account->google_id) {
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ACCOUNT_URL');
+            $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+        }
         $order->account = $account;
         unset($order->account_id);
 
         $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
         $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
         unset($sale_staff->role_id);
+        if (!$sale_staff->google_id) {
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ACCOUNT_URL');
+            $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . '/' . $sale_staff->id . "/" . $sale_staff->imageUrl;
+        }
         $order->sale_staff = $sale_staff;
         unset($order->saleStaff_id);
 
         $design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
         $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
         unset($design_staff->role_id);
+        if (!$design_staff->google_id) {
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ACCOUNT_URL');
+            $design_staff->imageUrl = $OGurl . $url . $design_staff->id . '/' . $design_staff->id . "/" . $design_staff->imageUrl;
+        }
         $order->design_staff = $design_staff;
         unset($order->designStaff_id);
 
         $production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
         $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
         unset($production_staff->role_id);
+        if (!$production_staff->google_id) {
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ACCOUNT_URL');
+            $production_staff->imageUrl = $OGurl . $url . $production_staff->id . '/' . $production_staff->id . "/" . $production_staff->imageUrl;
+        }
         $order->production_staff = $production_staff;
         unset($order->productionStaff_id);
 
@@ -396,6 +448,10 @@ class OrderController extends Controller
         unset($order->order_status_id);
         $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
         unset($order->order_type_id);
+
+        $OGurl = env('ORIGIN_URL');
+        $url = env('ORDER_URL');
+        $order->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
 
         return response()->json([
             'order_detail' => $order
@@ -415,18 +471,33 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order->saleStaff_id != null) {
             $current_sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
+            if (!$current_sale_staff->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $current_sale_staff->imageUrl = $OGurl . $url . $current_sale_staff->id . '/' . $current_sale_staff->id . "/" . $current_sale_staff->imageUrl;
+            }
             $current_sale_staff->role = DB::table('role')->where('id', $current_sale_staff->role_id)->first();
             unset($current_sale_staff->role_id);
         } else $current_sale_staff = null;
 
         if ($order->designStaff_id != null) {
             $current_design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
+            if (!$current_design_staff->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $current_design_staff->imageUrl = $OGurl . $url . $current_design_staff->id . '/' . $current_design_staff->id . "/" . $current_design_staff->imageUrl;
+            }
             $current_design_staff->role = DB::table('role')->where('id', $current_design_staff->role_id)->first();
             unset($current_design_staff->role_id);
         } else $current_design_staff = null;
 
         if ($order->productionStaff_id != null) {
             $current_production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
+            if (!$current_production_staff->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $current_production_staff->imageUrl = $OGurl . $url . $current_production_staff->id . '/' . $current_production_staff->id . "/" . $current_production_staff->imageUrl;
+            }
             $current_production_staff->role = DB::table('role')->where('id', $current_production_staff->role_id)->first();
             unset($current_production_staff->role_id);
         } else $current_production_staff = null;
@@ -447,18 +518,33 @@ class OrderController extends Controller
         $sale_list = $sale_query->where('role_id', 2)->get();
         $sale_list->map(function ($sale) {
             $sale->role = DB::table('role')->where('id', $sale->role_id)->first();
+            if (!$sale->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $sale->imageUrl = $OGurl . $url . $sale->id . '/' . $sale->id . "/" . $sale->imageUrl;
+            }
             unset($sale->role_id);
             return $sale;
         });
         $design_list = $design_query->where('role_id', 3)->get();
         $design_list->map(function ($design) {
             $design->role = DB::table('role')->where('id', $design->role_id)->first();
+            if (!$design->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $design->imageUrl = $OGurl . $url . $design->id . '/' . $design->id . "/" . $design->imageUrl;
+            }
             unset($design->role_id);
             return $design;
         });
         $production_list = $production_query->where('role_id', 4)->get();
         $production_list->map(function ($production) {
             $production->role = DB::table('role')->where('id', $production->role_id)->first();
+            if (!$production->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $production->imageUrl = $OGurl . $url . $production->id . '/' . $production->id . "/" . $production->imageUrl;
+            }
             unset($production->role_id);
             return $production;
         });
@@ -495,14 +581,25 @@ class OrderController extends Controller
         }
         $order_list = DB::table('orders')->where('saleStaff_id', $input)->get();
         $order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             unset($order->order_status_id);
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
             unset($order->order_type_id);
+            unset($order->product_id);
+            unset($order->account_id);
             return $order;
         });
         return response()->json([
@@ -532,14 +629,25 @@ class OrderController extends Controller
         }
         $order_list = DB::table('orders')->where('designStaff_id', $input)->get();
         $order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             unset($order->order_status_id);
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
             unset($order->order_type_id);
+            unset($order->product_id);
+            unset($order->account_id);
             return $order;
         });
         return response()->json([
@@ -569,14 +677,25 @@ class OrderController extends Controller
         }
         $order_list = DB::table('orders')->where('productionStaff_id', $input)->get();
         $order_list->map(function ($order) {
-            $order->product = DB::table('product')->where('id', $order->product_id)->first();
-            unset($order->product_id);
-            $order->account = DB::table('account')->where('id', $order->account_id)->first();
-            unset($order->account_id);
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             unset($order->order_status_id);
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
             unset($order->order_type_id);
+            unset($order->product_id);
+            unset($order->account_id);
             return $order;
         });
         return response()->json([
@@ -594,7 +713,7 @@ class OrderController extends Controller
         $order = DB::table('order')->where('id', $input['order_id'])->first();
 
         DB::beginTransaction();
-        try {
+        try { //check nếu imageUrl có localhost, thì không thêm j cả còn nếu là base64 thì thêm name vào
             DB::table('design_process')->insert([
                 'order_id' => $input['order_id'],
                 'imageUrl' => $input['imageUrl'],
@@ -710,11 +829,17 @@ class OrderController extends Controller
                         }
                     }
                 }
+
                 DB::table('design_process')->where('id', $input['design_process_id'])->update([
                     'design_process_status_id' => 3
                 ]);
+
                 DB::table('orders')->where('id', $design_process->order_id)->update([
-                    'production_price' => $design_process->production_price
+                    'production_price' => $design_process->production_price,
+                    'profit_rate' => $design_process->profit_rate,
+                    'mounting_type_id' => $design_process->mounting_type_id,
+                    'mounting_size' => $design_process->mounting_size,
+                    'imageUrl' => $design_process->imageUrl,
                 ]);
 
                 $product_price = 0;
@@ -1087,11 +1212,18 @@ class OrderController extends Controller
 
             $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
             $model_metal->map(function ($model_metal) {
-                $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+                $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+                $OGurl = env('ORIGIN_URL');
+                $url = env('METAL_URL');
+                $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
+                $model_metal->metal = $metal;
                 unset($model_metal->metal_id);
                 return $model_metal;
             });
             $model->model_metal = $model_metal;
+            $OGurl = env('ORIGIN_URL');
+            $url = env('MODEL_URL');
+            $model->imageUrl = $OGurl . $url . $model->id . '/' . $model->imageUrl;
         }
 
 
@@ -1102,7 +1234,11 @@ class OrderController extends Controller
 
         $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
         $product_diamond->map(function ($product_diamond) {
-            $product_diamond->diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('DIAMOND_URL');
+            $diamond->imageUrl = $OGurl . $url . $diamond->id . '/' . $diamond->imageUrl;
+            $product_diamond->diamond = $diamond;
             $product_diamond->diamond_shape_id = DB::table('diamond_shape_id')->where('id', $product_diamond->diamond_shape_id)->first();
             unset($product_diamond->diamond_id);
             unset($product_diamond->diamond_shape_id);
@@ -1112,11 +1248,18 @@ class OrderController extends Controller
 
         $product_metal = DB::table('product_metal')->where('product_id', $product->id)->get();
         $product_metal->map(function ($product_metal) {
-            $product_metal->metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('METAL_URL');
+            $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
+            $product_metal->metal = $metal;
             unset($product_metal->metal_id);
             return $product_metal;
         });
         $product->product_diamond = $product_metal;
+        $OGurl = env('ORIGIN_URL');
+        $url = env('ORDER_ID');
+        $product->imageUrl = $OGurl . $url . $product->id . '/' . $product->imageUrl;
 
         return response()->json([
             $product

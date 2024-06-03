@@ -17,6 +17,6 @@ class Product_Diamond extends Model
         'diamond_shape_id',
         'count',
         'price',
-        'is_accepted'
+        'status'
     ];
 }

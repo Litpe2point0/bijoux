@@ -70,8 +70,7 @@ class ModelController extends Controller
             $fileName = time() . '_' . $modelId . '.jpg';
             file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
-            $url = env('URL');
-            $model->imageUrl = $url . 'Mounting/mounting_model/' . $modelId . '/' . time() . '_' . $modelId . '.jpg';
+            $model->imageUrl = $fileName;
             $model->save();
 
             DB::commit();
@@ -84,7 +83,7 @@ class ModelController extends Controller
             'success' => "Register Successfully",
         ], 201);
     }
-    public function get_model_list(Request $request)
+    public function get_model_list(Request $request)//chưa test
     {
         $input = json_decode($request->input('model'), true);
 
@@ -137,6 +136,9 @@ class ModelController extends Controller
                 return $model_metal;
             });
             $model->model_metal = $model_metal;
+            $OGurl = env('ORIGIN_URL');
+            $url = env('MODEL_URL');
+            $model->imageUrl = $OGurl . $url . $model->id . $model->imageUrl;
             return $model;
         });
         $model_unavailable = $query_unavailable->where('isAvailable', false)->orderBy('deactivated', 'asc')->get();
@@ -169,6 +171,9 @@ class ModelController extends Controller
                 return $model_metal;
             });
             $model->model_metal = $model_metal;
+            $OGurl = env('ORIGIN_URL');
+            $url = env('MODEL_URL');
+            $model->imageUrl = $OGurl . $url . $model->id . $model->imageUrl;
             return $model;
         });
         return response()->json([
@@ -176,7 +181,7 @@ class ModelController extends Controller
             'model_unavailable' => $model_unavailable
         ]);
     }
-    public function get_model_detail(Request $request)
+    public function get_model_detail(Request $request)//chưa test
     {
         $input = json_decode($request->input('model_information'), true);
         if (!isset($input) || $input == null) {
@@ -214,7 +219,9 @@ class ModelController extends Controller
             return $model_metal;
         });
         $model->model_metal = $model_metal;
-
+        $OGurl = env('ORIGIN_URL');
+        $url = env('MODEL_URL');
+        $model->imageUrl = $OGurl . $url . $model->id . $model->imageUrl;
 
         return response()->json([
             'model' => $model
@@ -559,10 +566,17 @@ class ModelController extends Controller
             DB::table('mounting_type')->get()
         ]);
     }
-    public function get_mounting_style_list()
+    public function get_mounting_style_list()//chưa test
     {
+        $mounting_style_list = DB::table('mounting_style')->get();
+        $mounting_style_list->map(function ($mounting_style) {
+            $OGurl = env('ORIGIN_URL');
+            $url = env('STYLE_URL');
+            $mounting_style->imageUrl = $OGurl . $url.$mounting_style->id."/".$mounting_style->imageUrl;
+            return $mounting_style;
+        });
         return response()->json([
-            DB::table('mounting_style')->get()
+            $mounting_style_list
         ]);
     }
 }

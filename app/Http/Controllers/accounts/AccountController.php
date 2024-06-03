@@ -109,22 +109,67 @@ class AccountController extends Controller
             return response()->json(['error' => 'Invalid token'], 401);
         }
     }
-    public function get_account_list()
+    public function get_account_list()//chưa test
     {
+        $customer_list = Account::where('role_id', 5)->orderBy('deactivated', 'asc')->get();
+        $customer_list->map(function ($account) {
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            return $account;
+        });
+        $staff_list = Account::whereNot('role_id', 5)->whereNot('role_id', 1)->orderBy('deactivated', 'asc')->get();
+        $staff_list->map(function ($account) {
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            return $account;
+        });
         return response()->json([
-            'customer_list' => Account::where('role_id', 5)->orderBy('deactivated', 'asc')->get(),
-            'staff_list' => Account::whereNot('role_id', 5)->whereNot('role_id', 1)->orderBy('deactivated', 'asc')->get()
+            'customer_list' => $customer_list,
+            'staff_list' => $staff_list
         ]);
     }
-    public function get_staff_list()
+    public function get_staff_list()//chưa test
     {
+        $sale_staff_list = Account::where('role_id', 2)->orderBy('deactivated', 'asc')->get();
+        $sale_staff_list->map(function ($account) {
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            return $account;
+        });
+        $design_staff_list = Account::where('role_id', 3)->orderBy('deactivated', 'asc')->get();
+        $design_staff_list->map(function ($account) {
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            return $account;
+        });
+        $production_staff_list = Account::where('role_id', 4)->orderBy('deactivated', 'asc')->get();
+        $production_staff_list->map(function ($account) {
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            }
+            return $account;
+        });
         return response()->json([
-            'sale_staff_list' => Account::where('role_id', 2)->orderBy('deactivated', 'asc')->get(),
-            'design_staff_list' => Account::where('role_id', 3)->orderBy('deactivated', 'asc')->get(),
-            'production_staff_list' => Account::where('role_id', 4)->orderBy('deactivated', 'asc')->get()
+            'sale_staff_list' => $sale_staff_list,
+            'design_staff_list' => $design_staff_list,
+            'production_staff_list' => $production_staff_list
         ]);
     }
-    public function get_account_detail(Request $request)
+    public function get_account_detail(Request $request)//chưa test
     {
         $input = json_decode($request->input('account_infomation'), true);
         // $input = request(['account_id']);
@@ -137,6 +182,9 @@ class AccountController extends Controller
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();
+        $OGurl = env('ORIGIN_URL');
+        $url = env('ACCOUNT_URL');
+        $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
 
         $order_history = DB::table('orders')->where('account_id', $account->id)->get();
         $order_history->map(function ($order) {
@@ -281,8 +329,7 @@ class AccountController extends Controller
                 File::cleanDirectory($destinationPath); // Delete all files in the directory
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
-                $url = env('URL');
-                $updateData['imageUrl'] = $url . 'Accounts/' . $id . '/' . $fileName;
+                $updateData['imageUrl'] = $fileName;
             }
 
             $account->update($updateData);
@@ -340,8 +387,7 @@ class AccountController extends Controller
                 }
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
-                $url = env('URL');
-                $account->imageUrl = $url . 'Accounts/' . $accountId . '/' . $accountId . time() . '_' . $accountId . '.jpg';
+                $account->imageUrl = $fileName;
             }
             if (isset($input['email']) && $input['email'] != null) {
                 $account->email = $input['email'];
@@ -429,8 +475,8 @@ class AccountController extends Controller
                 $fileName = time() . '_' . $accountId . '.jpg';
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
-                $url = env('URL');
-                $account->imageUrl = $url . 'Accounts/' . $accountId . '/' . $accountId . time() . '_' . $accountId . '.jpg';
+
+                $account->imageUrl = $fileName;
                 $account->save();
             } else {
                 $fileName = time() . '_' . $accountId . '.jpg';
@@ -441,8 +487,7 @@ class AccountController extends Controller
                 $destinationFilePath = public_path('image/Accounts/' . $accountId . '/' . $fileName);
                 $sourceFilePath = public_path('image/Accounts/unknown.jpg');
                 File::copy($sourceFilePath, $destinationFilePath);
-                $url = env('URL');
-                $account->imageUrl = $url . 'Accounts/' . $accountId . '/' . $accountId . time() . '_' . $accountId . '.jpg';
+                $account->imageUrl = $fileName;
                 $account->save();
             }
 

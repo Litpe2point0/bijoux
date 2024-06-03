@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class MetalController extends Controller
 {
-    public function add(Request $request)//chưa test
+    public function add(Request $request) //chưa test
     {
         $input = json_decode($request->input('new_metal'), true);
         if (!isset($input) || $input == null) {
@@ -39,8 +39,7 @@ class MetalController extends Controller
             $fileName = time() . '_' . $metalId . '.jpg';
             file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
-            $url = env('URL');
-            $metal->imageUrl = $url . 'Metal/' . $metalId . '/' . Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s') . '_' . $metalId . '.jpg';
+            $metal->imageUrl = $fileName;
             $metal->save();
 
             DB::commit();
@@ -52,7 +51,7 @@ class MetalController extends Controller
             'success' => 'Metal successfulyl add'
         ], 201);
     }
-    public function update_price(Request $request)//chưa test
+    public function update_price(Request $request) //chưa test
     {
         $input = json_decode($request->input('new_metal'), true);
         if (!isset($input) || $input == null) {
@@ -65,7 +64,7 @@ class MetalController extends Controller
             $product_metal = DB::table('product_metal')->where('metal_id', $input['id'])->groupby('product_id')->get();
             DB::table('metal')->where('id', $input['id'])->update([
                 'buy_price_per_gram' => $input['buy_price_per_gram'],
-                'sale_price_per_gram'=> $input['sale_price_per_gram'],
+                'sale_price_per_gram' => $input['sale_price_per_gram'],
             ]);
             foreach ($product_metal as $product) {
                 $metal_list = DB::table('product_metal')->where('product_id', $product->product_id)->get();
@@ -105,48 +104,48 @@ class MetalController extends Controller
                     ]);
                 }
             }
-            
-            foreach($product_metal as $product){
-                $order =  DB::table('orders')->where('product_id',$product->product_id)->first();
+
+            foreach ($product_metal as $product) {
+                $order =  DB::table('orders')->where('product_id', $product->product_id)->first();
                 $profit_rate = $order->profit_rate;
                 $production_price = $order->production_price;
                 $product_price = 0;
-                $diamond_list = DB::table('product_diamond')->where('product_id',$order->product_id)->get();
-                $metal_list = DB::table('product_metal')->where('product_id',$order->product_id)->get();
-                foreach($diamond_list as $diamond){
-                    if($diamond->status == 1){
+                $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->get();
+                $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->get();
+                foreach ($diamond_list as $diamond) {
+                    if ($diamond->status == 1) {
                         $product_price += $diamond->price;
                     }
                 }
-                foreach($metal_list as $metal){
-                    if($metal->status == 1){
+                foreach ($metal_list as $metal) {
+                    if ($metal->status == 1) {
                         $product_price += $metal->price;
                     }
                 }
-                DB::table('orders')->where('product_id',$product->product_id)->update([
+                DB::table('orders')->where('product_id', $product->product_id)->update([
                     'product_price' => $product_price,
-                    'total_price' => $product_price * ($profit_rate+100)/100 + $production_price
+                    'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
                 ]);
 
-                $quote =  DB::table('quote')->where('product_id',$product->product_id)->first();
+                $quote =  DB::table('quote')->where('product_id', $product->product_id)->first();
                 $profit_rate = $quote->profit_rate;
                 $production_price = $quote->production_price;
                 $product_price = 0;
-                $diamond_list = DB::table('product_diamond')->where('product_id',$quote->product_id)->get();
-                $metal_list = DB::table('product_metal')->where('product_id',$quote->product_id)->get();
-                foreach($diamond_list as $diamond){
-                    if($diamond->status == 1){
+                $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->get();
+                $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->get();
+                foreach ($diamond_list as $diamond) {
+                    if ($diamond->status == 1) {
                         $product_price += $diamond->price;
                     }
                 }
-                foreach($metal_list as $metal){
-                    if($metal->status == 1){
+                foreach ($metal_list as $metal) {
+                    if ($metal->status == 1) {
                         $product_price += $metal->price;
                     }
                 }
-                DB::table('quote')->where('product_id',$product->product_id)->update([
+                DB::table('quote')->where('product_id', $product->product_id)->update([
                     'product_price' => $product_price,
-                    'total_price' => $product_price * ($profit_rate+100)/100 + $production_price
+                    'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
                 ]);
             }
             DB::commit();
@@ -156,9 +155,9 @@ class MetalController extends Controller
         }
         return response()->json([
             'success' => 'Price Update Successfully'
-        ],201);
+        ], 201);
     }
-    public function deactivate(Request $request)//chưa test
+    public function deactivate(Request $request) //chưa test
     {
         $input = json_decode($request->input('metal_id'), true);
         if (!isset($input) || $input == null) {
@@ -178,15 +177,22 @@ class MetalController extends Controller
         }
         return response()->json([
             'success' => 'Successfully deactivated'
-        ],201);
+        ], 201);
     }
-    public function get_list()//chưa test
+    public function get_list() //chưa test
     {
+        $metal = DB::table('metal')->get();
+        $metal->map(function ($metal) {
+            $OGurl = env('ORIGIN_URL');
+            $url = env('METAL_URL');
+            $metal->imageUrl = $OGurl . $url . $metal->id . "/" . $metal->imageUrl;
+            return $metal;
+        });
         return response()->json([
-            DB::table('metal')->get()
+            $metal
         ]);
     }
-    public function get_detail(Request $request)//chưa test
+    public function get_detail(Request $request) //chưa test
     {
         $input = json_decode($request->input('metal_id'), true);
         if (!isset($input) || $input == null) {
@@ -194,11 +200,15 @@ class MetalController extends Controller
                 'error' => 'No Input Received'
             ], 404);
         }
+        $metal = DB::table('metal')->where('id', $input)->first();
+        $OGurl = env('ORIGIN_URL');
+        $url = env('METAL_URL');
+        $metal->imageUrl = $OGurl . $url . $metal->id . "/" . $metal->imageUrl;
         return response()->json([
-            'metal' => DB::table('metal')->where('id',$input)->get()
+            'metal' => $metal
         ]);
     }
-    public function get_weight_price(Request $request)//chưa test
+    public function get_weight_price(Request $request) //chưa test
     {
         $input = json_decode($request->input('metal_information'), true);
         if (!isset($input) || $input == null) {
@@ -206,13 +216,13 @@ class MetalController extends Controller
                 'error' => 'No Input Received'
             ], 404);
         }
-        $metal = DB::table('metal')->where('id',$input['metal_id'])->first();
+        $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
         $weight = $metal->specific_weight * $input['volume'];
         $price = $weight * $metal->sale_price_per_gram;
-        $temp['weight'] =$weight;
+        $temp['weight'] = $weight;
         $temp['price'] = $price;
         return response()->json([
-            'weight_price' =>$temp
+            'weight_price' => $temp
         ]);
     }
 }
