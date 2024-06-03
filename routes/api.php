@@ -27,6 +27,7 @@ Route::group(['prefix' => 'admin'], function () {
             Route::post('/approve_quote_template', [QuoteController::class, 'approve_quote_template']);
             Route::post('/approve_quote_customize', [QuoteController::class, 'approve_quote_customize']);
             Route::post('/pricing_quote', [QuoteController::class, 'pricing_quote']);
+            Route::post('/approve_quote', [QuoteController::class, 'approve_quote'])->middleware('checkManager');
             Route::post('/assign_quote', [QuoteController::class, 'assign_quote']);
             Route::post('/get_assigned_quote_sale', [QuoteController::class, 'get_assigned_quote_sale']);
         });

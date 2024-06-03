@@ -76,7 +76,6 @@ class QuoteController extends Controller
 
             $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
             unset($quote->quote_status_id);
-            unset($quote->order_type_id);
             return $quote;
         });
 
@@ -121,7 +120,6 @@ class QuoteController extends Controller
 
             $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
             unset($quote->quote_status_id);
-            unset($quote->order_type_id);
             return $quote;
         });
         return response()->json([
@@ -134,7 +132,7 @@ class QuoteController extends Controller
             DB::table('quote_status')->get()
         ]);
     }
-    public function add_quote(Request $request) //chưa test
+    public function add_quote(Request $request)
     {
         $input = json_decode($request->input('new_quote'), true);
         if (!isset($input) || $input == null) {
@@ -191,7 +189,7 @@ class QuoteController extends Controller
             'Success' => 'Quote Create Successfully'
         ], 201);
     }
-    public function assigned_quote(Request $request)
+    public function assign_quote(Request $request)
     {
         $input = json_decode($request->input('assigned_information'), true);
         if (!isset($input) || $input == null) {
@@ -201,10 +199,25 @@ class QuoteController extends Controller
         }
         DB::beginTransaction();
         try {
+            if(!isset($input['saleStaff_id']) || $input['saleStaff_id'] == null){
+                $saleStaff_id = null;
+            } else {
+                $saleStaff_id = $input['saleStaff_id'];
+            }
+            if(!isset($input['designStaff_id']) || $input['designStaff_id'] == null){
+                $designStaff_id = null;
+            } else {
+                $designStaff_id = $input['designStaff_id'];
+            }
+            if(!isset($input['productionStaff_id']) || $input['productionStaff_id'] == null){
+                $productionStaff_id = null;
+            } else {
+                $productionStaff_id = $input['productionStaff_id'];
+            }
             DB::table('quote')->where('id', $input['quote_id'])->update([
-                'saleStaff_id' => $input['saleStaff_id'],
-                'designStaff_id' => $input['designStaff_id'],
-                'productionStaff_id' => $input['productionStaff_id'],
+                'saleStaff_id' => $saleStaff_id,
+                'designStaff_id' => $designStaff_id,
+                'productionStaff_id' => $productionStaff_id,
                 'quote_status_id' => 2
             ]);
             DB::commit();
@@ -216,7 +229,7 @@ class QuoteController extends Controller
             'success' => 'Assign Complete'
         ], 201);
     }
-    public function pricing_quote(Request $request) //chưa test
+    public function pricing_quote(Request $request)
     {
         $input = json_decode($request->input('priced_quote'), true);
         if (!isset($input) || $input == null) {
@@ -229,6 +242,13 @@ class QuoteController extends Controller
 
         DB::beginTransaction();
         try {
+            $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
+            if($quote->quote_status_id < 2){
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The selected Quote hasn\'t been assigned'
+                ],403);
+            }
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'note' => $input['note']
             ]);
@@ -238,7 +258,7 @@ class QuoteController extends Controller
                 ]);
             }
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
-                $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['image']));
+                $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
                 $destinationPath = public_path('image/Orders/' . $quote->product_id);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
@@ -268,7 +288,7 @@ class QuoteController extends Controller
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
                     $product_diamond->count = $diamond1['count'];
                     $product_diamond->price = $diamond1['price'];
-                    $product_diamond->diamond_shape = $diamond1['diamond_shape']['id'];
+                    $product_diamond->diamond_shape_id = $diamond1['diamond_shape']['id'];
                     $product_diamond->status = true;
                     $product_price += $product_diamond->price;
                     $product_diamond->save();
@@ -295,8 +315,9 @@ class QuoteController extends Controller
 
             Quote::where('id', $input['quote_id'])->update([
                 'production_price' => $input['production_price'],
-                'profit_rate' => $input['profic_rate'],
+                'profit_rate' => $input['profit_rate'],
                 'product_price' => $product_price,
+                'quote_status_id' => 3,
                 'total_price' => $product_price * ($input['profit_rate'] + 100) / 100 + $input['production_price']
             ]);
             DB::commit();
@@ -309,7 +330,7 @@ class QuoteController extends Controller
             'success' => 'Process Complete'
         ], 201);
     }
-    public function approve_quote(Request $request) //chưa test
+    public function approve_quote(Request $request)
     {
         $input = json_decode($request->input('approval'), true);
         if (!isset($input) || $input == null) {
@@ -320,18 +341,41 @@ class QuoteController extends Controller
 
         DB::beginTransaction();
         try {
-            if ($input['approve']) {
+            $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
+            if($quote->quote_status_id < 3){
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The selected Quote hasn\'t been priced'
+                ],403);
+            }
+            if ($input['approve'] || $input['approve'] == 1) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'quote_status_id' => 4,
                     'note' => $input['note']
                 ]);
-                DB::commit();
-            } else {
+                DB::table('orders')->insert([
+                    'product_id' => $quote->product_id,
+                    'account_id' => $quote->account_id,
+                    'deposit_has_paid' => 0,
+                    'product_price' => $quote->product_price,
+                    'profit_rate' => $quote->profit_rate,
+                    'production_price' => $quote->production_price,
+                    'total_price' => $quote->total_price,
+                    'order_type_id' => 2,
+                    'order_status_id' => 1,
+                    'note' => $quote->note,
+                    'saleStaff_id' => $quote->saleStaff_id,
+                    'designStaff_id' => $quote->designStaff_id,
+                    'productionStaff_id' => $quote->productionStaff_id,
+                    'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                ]);
+            } else if(!$input['approve'] || $input['approve'] == 0){
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'quote_status_id' => 2,
                     'note' => $input['note']
                 ]);
             }
+            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
