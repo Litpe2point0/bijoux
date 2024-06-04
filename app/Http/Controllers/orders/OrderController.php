@@ -17,7 +17,7 @@ class OrderController extends Controller
 {
     public function get_order_list_admin()
     {
-        $customize_order_list = DB::table('orders')->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
+        $customize_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -29,8 +29,9 @@ class OrderController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
@@ -40,7 +41,7 @@ class OrderController extends Controller
             unset($order->product_id);
             return $order;
         });
-        $template_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
+        $template_order_list = DB::table('orders')->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -52,8 +53,9 @@ class OrderController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
@@ -95,8 +97,9 @@ class OrderController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
@@ -118,8 +121,9 @@ class OrderController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
@@ -134,9 +138,14 @@ class OrderController extends Controller
             'template_order_list' => $template_order_list
         ]);
     }
-    public function add_order_template(Request $request) //thêm nếu mà sp deactivated thì thêm ko đc
+    public function add_order_template(Request $request)
     {
         $input = json_decode($request->input('new_order'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 404);
+        }
         $account_id = $input['account']['id'];
         $count = 1;
         $product_price = 0;
@@ -177,49 +186,61 @@ class OrderController extends Controller
                     DB::rollBack();
                     return response()->json([
                         'error' => 'An items that is include in this model is currently deactivated'
-                    ], 0);
+                    ], 403);
                 }
                 $product_metal->product_id = $product->id;
                 $product_metal->metal_id = $metalO['metal']['id'];
                 $product_metal->volume = $metalO['volume'];
                 $product_metal->weight = $metalO['weight'];
                 $product_metal->price = $metalO['price'];
-                $product_metal->isAccepted = true;
+                $product_metal->status = 1;
                 $product_metal->save();
                 $product_price += $metalO['price'];
             }
 
             foreach ($model_diamond as $diamond0) {
                 $product_diamond = new Product_Diamond();
-                if ($diamond0->Is_editable == 1) {
-                    $diamond = DB::table('diamond')->where('size', $input['diamond_size'])->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
+                if ($diamond0->is_editable == 1) {
+                    $diamond = DB::table('diamond')->where('size', $input['size'])->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
+                    if ($diamond == null) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'The selected diamond doesn\'t exist'
+                        ], 403);
+                    }
                     if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
                             'error' => 'An items that is include in this model is currently deactivated'
-                        ], 0);
+                        ], 403);
                     }
                     $product_diamond->product_id = $product->id;
                     $product_diamond->diamond_id = $diamond->id;
                     $product_diamond->diamond_shape_id = $input['diamond_shape_id'];
                     $product_diamond->count = $diamond0->count;
                     $product_diamond->price = $diamond->price * $diamond0->count;
-                    $product_diamond->isAccepted = true;
+                    $product_diamond->status = 1;
                     $product_diamond->save();
-                } else if ($diamond0->Is_editable == 0) {
+                } else if ($diamond0->is_editable == 0) {
                     $diamond = DB::table('diamond')->where('size', $diamond0->diamond_size_max)->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
+                    if ($diamond == null) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'The selected diamond doesn\'t exist'
+                        ], 403);
+                    }
                     if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
                             'error' => 'An items that is include in this model is currently deactivated'
-                        ], 0);
+                        ], 403);
                     }
                     $product_diamond->product_id = $product->id;
                     $product_diamond->diamond_id = $diamond->id;
                     $product_diamond->diamond_shape_id = $diamond0->diamond_shape_id;
                     $product_diamond->count = $diamond0->count;
                     $product_diamond->price = $diamond->price * $diamond0->count;
-                    $product_diamond->isAccepted = true;
+                    $product_diamond->status = 1;
                     $product_diamond->save();
                 }
             }
@@ -251,8 +272,7 @@ class OrderController extends Controller
     }
     public function reassign_order(Request $request)
     {
-        //chưa test
-        $input = json_decode($request->input('assigned_order'), true);
+        $input = json_decode($request->input('assigned_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
@@ -260,14 +280,25 @@ class OrderController extends Controller
         }
         DB::beginTransaction();
         try {
+            $order = DB::table('orders')->where('id', $input['order_id'])->first();
+            if($order->order_status_id == 7){
+                DB::rollback();
+                return response()->json([
+                    'error' => 'The selected Order has been cancelled'
+                ],403);
+            }
             $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : null;
             $designStaff_id = isset($input['designStaff_id']) ? $input['designStaff_id'] : null;
             $productionStaff_id = isset($input['productionStaff_id']) ? $input['productionStaff_id'] : null;
+            if(isset($input['note']) && $input['note'] != null){
+                DB::table('quote')->where('id', $input['quote_id'])->update([
+                    'note' => $input['note']
+                ]);
+            } 
             DB::table('orders')->where('id', $input['order_id'])->update([
                 'saleStaff_id' => $saleStaff_id,
                 'designStaff_id' => $designStaff_id,
-                'productionStaff_id' => $productionStaff_id,
-                'note' => $input['note']
+                'productionStaff_id' => $productionStaff_id
             ]);
             DB::commit();
         } catch (\Exception $e) {
@@ -278,7 +309,7 @@ class OrderController extends Controller
             'success' => 'Successfully reassign'
         ], 201);
     }
-    public function cancel(Request $request) //chưa test
+    public function cancel_order(Request $request)
     {
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
@@ -311,7 +342,7 @@ class OrderController extends Controller
             if ($order->order_status_id == 6) {
                 return response()->json([
                     'error' => 'Order has already been complete, action can\'t be perform'
-                ]);
+                ],403);
             }
             DB::table('orders')->where('id', $input['order_id'])->update([
                 'order_status_id' => 7,
@@ -320,6 +351,7 @@ class OrderController extends Controller
             DB::table('design_process')->where('order_id', $input['order_id'])->update([
                 'design_process_status_id' => 4,
             ]);
+            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
@@ -406,7 +438,7 @@ class OrderController extends Controller
         if (!$account->google_id) {
             $OGurl = env('ORIGIN_URL');
             $url = env('ACCOUNT_URL');
-            $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
         }
         $order->account = $account;
         unset($order->account_id);
@@ -417,7 +449,7 @@ class OrderController extends Controller
         if (!$sale_staff->google_id) {
             $OGurl = env('ORIGIN_URL');
             $url = env('ACCOUNT_URL');
-            $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . '/' . $sale_staff->id . "/" . $sale_staff->imageUrl;
+            $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
         }
         $order->sale_staff = $sale_staff;
         unset($order->saleStaff_id);
@@ -428,7 +460,7 @@ class OrderController extends Controller
         if (!$design_staff->google_id) {
             $OGurl = env('ORIGIN_URL');
             $url = env('ACCOUNT_URL');
-            $design_staff->imageUrl = $OGurl . $url . $design_staff->id . '/' . $design_staff->id . "/" . $design_staff->imageUrl;
+            $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
         }
         $order->design_staff = $design_staff;
         unset($order->designStaff_id);
@@ -439,7 +471,7 @@ class OrderController extends Controller
         if (!$production_staff->google_id) {
             $OGurl = env('ORIGIN_URL');
             $url = env('ACCOUNT_URL');
-            $production_staff->imageUrl = $OGurl . $url . $production_staff->id . '/' . $production_staff->id . "/" . $production_staff->imageUrl;
+            $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
         }
         $order->production_staff = $production_staff;
         unset($order->productionStaff_id);

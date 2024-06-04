@@ -116,7 +116,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
             }
             return $account;
         });
@@ -125,7 +125,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
             return $account;
         });
@@ -141,7 +141,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
             }
             return $account;
         });
@@ -150,7 +150,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
             }
             return $account;
         });
@@ -159,7 +159,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
             }
             return $account;
         });
@@ -184,7 +184,7 @@ class AccountController extends Controller
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
-        $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+        $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
 
         $order_history = DB::table('orders')->where('account_id', $account->id)->get();
         $order_history->map(function ($order) {

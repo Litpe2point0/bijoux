@@ -199,21 +199,21 @@ class QuoteController extends Controller
         }
         DB::beginTransaction();
         try {
-            if(!isset($input['saleStaff_id']) || $input['saleStaff_id'] == null){
-                $saleStaff_id = null;
-            } else {
-                $saleStaff_id = $input['saleStaff_id'];
+            $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
+            if($quote->quote_status_id == 5){
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The selected Quote has been cancelled'
+                ],403);
             }
-            if(!isset($input['designStaff_id']) || $input['designStaff_id'] == null){
-                $designStaff_id = null;
-            } else {
-                $designStaff_id = $input['designStaff_id'];
-            }
-            if(!isset($input['productionStaff_id']) || $input['productionStaff_id'] == null){
-                $productionStaff_id = null;
-            } else {
-                $productionStaff_id = $input['productionStaff_id'];
-            }
+            $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : null;
+            $designStaff_id = isset($input['designStaff_id']) ? $input['designStaff_id'] : null;
+            $productionStaff_id = isset($input['productionStaff_id']) ? $input['productionStaff_id'] : null;
+            if(isset($input['note']) && $input['note'] != null){
+                DB::table('quote')->where('id', $input['quote_id'])->update([
+                    'note' => $input['note']
+                ]);
+            } 
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'saleStaff_id' => $saleStaff_id,
                 'designStaff_id' => $designStaff_id,
@@ -247,6 +247,12 @@ class QuoteController extends Controller
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The selected Quote hasn\'t been assigned'
+                ],403);
+            }
+            if($quote->quote_status_id == 5){
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The selected Quote has been cancelled'
                 ],403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
@@ -348,6 +354,12 @@ class QuoteController extends Controller
                     'error' => 'The selected Quote hasn\'t been priced'
                 ],403);
             }
+            if($quote->quote_status_id == 5){
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The selected Quote has been cancelled'
+                ],403);
+            }
             if ($input['approve'] || $input['approve'] == 1) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'quote_status_id' => 4,
@@ -384,7 +396,7 @@ class QuoteController extends Controller
             'Success' => 'Approve Successfully'
         ], 201);
     }
-    public function cancel(Request $request) //chưa test
+    public function cancel(Request $request)
     {
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
@@ -416,12 +428,13 @@ class QuoteController extends Controller
             if ($quote->quote_status_id == 4) {
                 return response()->json([
                     'error' => 'Quote has already been complete, action can\'t be perform'
-                ]);
+                ],403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'quote_status_id' => 5,
                 'note' => $input['note']
             ]);
+            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
@@ -430,7 +443,7 @@ class QuoteController extends Controller
             'Success' => 'Cancel Successfully'
         ], 201);
     }
-    public function get_assigned_quote_sale(Request $request) //chưa test
+    public function get_assigned_quote_sale(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
         $token = null;
@@ -468,6 +481,7 @@ class QuoteController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
             }
+            unset($account->password);
             $quote->account = $account;
 
             $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
@@ -478,7 +492,7 @@ class QuoteController extends Controller
             $quote
         ]);
     }
-    public function get_quote_detail(Request $request) //chưa test
+    public function get_quote_detail(Request $request)
     {
         $input = json_decode($request->input('quote_id'), true);
         if (!isset($input) || $input == null) {
@@ -503,7 +517,7 @@ class QuoteController extends Controller
             $diamond->imageUrl = $OGurl . $url . $diamond->id . "/" . $diamond->imageUrl;
             $product_diamond->diamond = $diamond;
 
-            $product_diamond->diamond_shape_id = DB::table('diamond_shape_id')->where('id', $product_diamond->diamond_shape_id)->first();
+            $product_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
             unset($product_diamond->diamond_id);
             unset($product_diamond->diamond_shape_id);
             return $product_diamond;
@@ -520,7 +534,7 @@ class QuoteController extends Controller
             unset($product_metal->metal_id);
             return $product_metal;
         });
-        $product->product_diamond = $product_metal;
+        $product->product_metal = $product_metal;
 
         $quote->product = $product;
         unset($quote->product_id);
@@ -531,41 +545,48 @@ class QuoteController extends Controller
         if (!$account->google_id) {
             $OGurl = env('ORIGIN_URL');
             $url = env('ACCOUNT_URL');
-            $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
+            $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
         }
+        unset($account->password);
         $quote->account = $account;
         unset($quote->account_id);
 
         $sale_staff = DB::table('account')->where('id', $quote->saleStaff_id)->first();
+        $sale_staff->order_count = DB::table('orders')->where('saleStaff_id',$sale_staff->id)->whereNot('order_status_id',1)->whereNot('order_status_id',2)->count();
         $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
         unset($sale_staff->role_id);
         if (!$sale_staff->google_id) {
             $OGurl = env('ORIGIN_URL');
             $url = env('ACCOUNT_URL');
-            $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . '/' . $sale_staff->id . "/" . $sale_staff->imageUrl;
+            $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
         }
+        unset($sale_staff->password);
         $quote->sale_staff = $sale_staff;
         unset($quote->saleStaff_id);
 
         $design_staff = DB::table('account')->where('id', $quote->designStaff_id)->first();
+        $design_staff->order_count = DB::table('orders')->where('designStaff_id',$design_staff->id)->whereNot('order_status_id',1)->whereNot('order_status_id',2)->count();
         $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
         unset($design_staff->role_id);
         if (!$design_staff->google_id) {
             $OGurl = env('ORIGIN_URL');
             $url = env('ACCOUNT_URL');
-            $design_staff->imageUrl = $OGurl . $url . $design_staff->id . '/' . $design_staff->id . "/" . $design_staff->imageUrl;
+            $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
         }
+        unset($design_staff->password);
         $quote->design_staff = $design_staff;
         unset($quote->designStaff_id);
 
         $production_staff = DB::table('account')->where('id', $quote->productionStaff_id)->first();
+        $production_staff->order_count = DB::table('orders')->where('productionStaff_id',$production_staff->id)->whereNot('order_status_id',1)->whereNot('order_status_id',2)->whereNot('order_status_id',3)->count();
         $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
         unset($production_staff->role_id);
         if (!$production_staff->google_id) {
             $OGurl = env('ORIGIN_URL');
             $url = env('ACCOUNT_URL');
-            $production_staff->imageUrl = $OGurl . $url . $production_staff->id . '/' . $production_staff->id . "/" . $production_staff->imageUrl;
+            $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
         }
+        unset($production_staff->password);
         $quote->production_staff = $production_staff;
         unset($quote->productionStaff_id);
 

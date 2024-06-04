@@ -27,13 +27,12 @@ Route::group(['prefix' => 'admin'], function () {
             Route::post('/pricing_quote', [QuoteController::class, 'pricing_quote'])->middleware('checkSaleStaff');
             Route::post('/approve_quote', [QuoteController::class, 'approve_quote'])->middleware('checkManager');
             Route::post('/assign_quote', [QuoteController::class, 'assign_quote'])->middleware('checkManager');
-            Route::post('/get_assigned_quote_sale', [QuoteController::class, 'get_assigned_quote_sale'])->middleware('checkSaleStaff');
+            Route::post('/get_assigned_quote_sale', [QuoteController::class, 'get_assigned_quote_sale']);
         });
 
         Route::group(['prefix' => 'order'], function () {
             Route::post('/get_order_list', [OrderController::class, 'get_order_list_admin']);
-            Route::post('/reassign_order', [OrderController::class, 'reassign_order']);
-            Route::post('/cancel', [OrderController::class, 'cancel_order']);
+            Route::post('/reassign_order', [OrderController::class, 'reassign_order'])->middleware('checkManager');
             Route::post('/get_assigned_staff', [OrderController::class, 'get_assigned_staff']);
             Route::post('/request_design_process ', [QuoteController::class, 'request_design_process']);
             Route::post('/approve_design_process', [OrderController::class, 'approve_design_process']);
@@ -114,6 +113,7 @@ Route::group([], function () {
             Route::post('/get_quote_detail', [QuoteController::class, 'get_quote_detail']);
             Route::post('/get_final_template', [QuoteController::class, 'get_final_template']);
             Route::post('/add_quote', [QuoteController::class, 'add_quote']);
+            Route::post('/cancel', [QuoteController::class, 'cancel']);
         });
 
         Route::group(['prefix' => 'order'], function () {
@@ -122,7 +122,7 @@ Route::group([], function () {
             Route::post('/get_order_detail', [OrderController::class, 'get_order_detail']);
             Route::post('/get_order_status_list', [OrderController::class, 'get_order_status_list']);
             Route::post('/get_order_type_list', [OrderController::class, 'get_order_type_list']);
-            Route::post('/cancel_order', [OrderController::class, 'cancel_order']);
+            Route::post('/cancel', [OrderController::class, 'cancel_order']);
             Route::post('/get_production_status_list', [OrderController::class, 'get_production_status_list']);
             Route::post('/get_design_updating_list', [OrderController::class, 'get_design_updating_list']);
             Route::post('/get_production_process_list', [OrderController::class, 'get_production_process_list']);
