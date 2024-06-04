@@ -109,6 +109,7 @@ class OrderController extends Controller
             unset($order->product_id);
             return $order;
         });
+        
         $template_order_list = DB::table('orders')->where('account_id', $input)->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();

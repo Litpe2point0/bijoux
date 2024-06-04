@@ -9,6 +9,7 @@ use App\Models\items\_Model;
 use App\Models\items\Model_Diamond;
 use App\Models\items\Model_DiamondShape;
 use App\Models\items\Model_Metal;
+use Illuminate\Support\Facades\File;
 
 class ModelController extends Controller
 {
@@ -276,20 +277,20 @@ class ModelController extends Controller
 
             if (!empty($input['imageUrl'])) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                $destinationPath = public_path('image/Mounting/mounting_model/' . $modelId);
+                $destinationPath = public_path('image/Mounting/mounting_model/' . $input['id']);
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
 
-                $fileName = time() . '_' . $modelId . '.jpg';
+                $fileName = time() . '_' . $input['id'] . '.jpg';
                 File::cleanDirectory($destinationPath); // Delete all files in the directory
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
                 $updateData['imageUrl'] = $fileName;
             }
 
-            $model = DB::table('model')->where('id', $input['model_id'])->update($updateData);
+            DB::table('model')->where('id', $input['model_id'])->update($updateData);
 
             DB::commit();
         } catch (\Exception $e) {

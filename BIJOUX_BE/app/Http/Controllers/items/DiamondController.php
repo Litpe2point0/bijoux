@@ -84,8 +84,8 @@ class DiamondController extends Controller
                 $diamond_list = DB::table('product_diamond')->where('product_id', $product->product_id)->get();
                 foreach ($diamond_list as $diamond) {
                     if ($diamond->status == 1) {
-                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id->where('status', 3))->delete();
-                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id->where('status', 1))->update([
+                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id)->where('status', 3)->delete();
+                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id)->where('status', 1)->update([
                             'status' => 3
                         ]);
                         DB::table('product_diamond')->insert([
@@ -98,8 +98,8 @@ class DiamondController extends Controller
                         ]);
                     }
                     if ($diamond->status == 0) {
-                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id->where('status', 4))->delete();
-                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id->where('status', 0))->update([
+                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id)->where('status', 4)->delete();
+                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id)->where('status', 0)->update([
                             'status' => 4
                         ]);
                         DB::table('product_diamond')->insert([
@@ -112,10 +112,11 @@ class DiamondController extends Controller
                         ]);
                     }
                     if ($diamond->status == 2) {
+                        DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id)->where('status', 2)->update([
+                            'price' => $input['price'] * $diamond->count,
+                        ]);
                     }
-                    DB::table('product_diamond')->where('diamond_id', $diamond->diamond_id->where('status', 2))->update([
-                        'price' => $input['price'] * $diamond->count,
-                    ]);
+                    
                 }
             }
 

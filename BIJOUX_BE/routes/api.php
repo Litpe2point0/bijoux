@@ -135,4 +135,4 @@ Route::group([], function () {
     // Route::get('/get_account_list', [AccountController::class, 'get_account_list']);
     // Route::get('/get_staff_list', [AccountController::class, 'get_staff_list']);
     // Route::get('/get_staff_role_list', [AccountController::class, 'get_staff_role_list']);
-    Route::get('/get_image', [AccountController::class, 'get_image']);
+    // Route::get('/get_image', [AccountController::class, 'get_image']);
