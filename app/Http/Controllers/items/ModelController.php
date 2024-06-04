@@ -62,7 +62,7 @@ class ModelController extends Controller
             }
 
 
-            $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['image']));
+            $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
             $destinationPath = public_path('image/Mounting/mounting_model/' . $modelId);
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
@@ -254,6 +254,51 @@ class ModelController extends Controller
     }
     public function update(Request $request)
     {
+        $input = json_decode($request->input('model_information'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 404);
+        }
+        DB::beginTransaction();
+        try{
+
+            $updateData=[
+                'name' => $input['name'],
+                'mounting_type_id' => $input['mounting_type_id'],
+                'mounting_style_id' => $input['mounting_style_id'],
+                'base_width' => $input['base_width'],
+                'base_height' => $input['base_height'],
+                'volume' => $input['volume'],
+                'production_price' => $input['production_price'],
+                'profit_rate' => $input['profit_rate']
+            ];
+
+            if (!empty($input['imageUrl'])) {
+                $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
+                $destinationPath = public_path('image/Mounting/mounting_model/' . $modelId);
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
+
+                $fileName = time() . '_' . $modelId . '.jpg';
+                File::cleanDirectory($destinationPath); // Delete all files in the directory
+                file_put_contents($destinationPath . '/' . $fileName, $fileData);
+
+                $updateData['imageUrl'] = $fileName;
+            }
+
+            $model = DB::table('model')->where('id', $input['model_id'])->update($updateData);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
+        return response()->json([
+            'success' => 'model Update Successfully'
+        ], 201); 
     }
     public function set_available(Request $request)
     {
