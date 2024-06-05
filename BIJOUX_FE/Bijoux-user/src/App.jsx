@@ -41,7 +41,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/blogs" element={<Blog />} />
           <Route path="/profile" element={<Profile />}>
-            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/profile" element={<EditProfile />} />
             <Route path="/profile/view-quote" element={<Quote />} />
             <Route path="/profile/view-priced-quote" element={<PricedQuote />} />
             <Route path="/profile/view-order" element={<Order />} />
