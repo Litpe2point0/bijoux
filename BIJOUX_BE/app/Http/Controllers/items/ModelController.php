@@ -107,7 +107,7 @@ class ModelController extends Controller
             $query_unavailable->where('mounting_style_id', $input['mounting_style_id']);
         }
 
-        $model_available = $query_available->where('isAvailable', true)->orderBy('deactivated', 'asc')->get();
+        $model_available = $query_available->where('isAvailable', true)->orderBy('deactivated', 'asc')->orderBy('created', 'asc')->get();
         $model_available->map(function ($model) {
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
@@ -142,7 +142,7 @@ class ModelController extends Controller
             $model->imageUrl = $OGurl . $url . $model->id . $model->imageUrl;
             return $model;
         });
-        $model_unavailable = $query_unavailable->where('isAvailable', false)->orderBy('deactivated', 'asc')->get();
+        $model_unavailable = $query_unavailable->where('isAvailable', false)->orderBy('deactivated', 'asc')->orderBy('created', 'asc')->get();
         $model_unavailable->map(function ($model) {
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();

@@ -19,7 +19,7 @@ Route::group(['prefix' => 'admin'], function () {
             Route::post('/get_staff_role_list', [AccountController::class, 'get_staff_role_list']);
             Route::post('/get_staff_list', [AccountController::class, 'get_staff_list']);
             Route::post('/get_account_list', [AccountController::class, 'get_account_list']);
-            Route::post('/deactivate', [AccountController::class, 'deactivate'])->middleware(checkDeactivate::class);
+            Route::post('/set_deactivate', [AccountController::class, 'set_deactivate'])->middleware(checkDeactivate::class);
         });
 
         Route::group(['prefix' => 'quote'], function () {
@@ -34,9 +34,10 @@ Route::group(['prefix' => 'admin'], function () {
             Route::post('/get_order_list', [OrderController::class, 'get_order_list_admin']);
             Route::post('/reassign_order', [OrderController::class, 'reassign_order'])->middleware('checkManager');
             Route::post('/get_assigned_staff', [OrderController::class, 'get_assigned_staff']);
-            Route::post('/request_design_process ', [QuoteController::class, 'request_design_process']);
-            Route::post('/approve_design_process', [OrderController::class, 'approve_design_process']);
-            Route::post('/repricing_design_process', [OrderController::class, 'repricing_design_process']);
+            Route::post('/request_design_process ', [OrderController::class, 'request_design_process']);
+            Route::post('/approve_design_process', [OrderController::class, 'approve_design_process'])->middleware('checkManager');
+            Route::post('/cancel_design_process', [OrderController::class, 'cancel_design_process'])->middleware('checkManager');
+            Route::post('/pricing_design_process', [OrderController::class, 'pricing_design_process'])->middleware('checkSaleStaff');
             Route::post('/confirm_payment', [OrderController::class, 'confirm_payment']);
             Route::post('/get_assigned_orders_sale', [OrderController::class, 'get_assigned_orders_sale']);
             Route::post('/get_assigned_orders_design ', [OrderController::class, 'get_assigned_orders_design']);
@@ -58,7 +59,7 @@ Route::group(['prefix' => 'items'], function () {
 
         Route::middleware('checkManager')->group(function () {
             Route::post('/add', [ModelController::class, 'add']);
-            Route::post('/deactivate', [ModelController::class, 'deactivate']);
+            Route::post('/set_deactivate', [ModelController::class, 'set_deactivate']);
             Route::post('/delete', [ModelController::class, 'delete']);
             Route::post('/update', [ModelController::class, 'update']);
             Route::post('/set_available', [ModelController::class, 'set_available']);
