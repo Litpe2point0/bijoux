@@ -27,7 +27,6 @@
 //   );
 // };
 
-// export default Model_Page;
 
 import React, { createContext, useEffect, useState, useRef, useContext, useMemo } from "react";
 import Tab from 'react-bootstrap/Tab';
