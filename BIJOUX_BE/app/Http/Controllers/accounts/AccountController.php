@@ -50,7 +50,7 @@ class AccountController extends Controller
             'success' => 'Login successfully',
         ]);
     }
-    public function login_with_google(Request $request)
+    public function login_with_google(Request $request)//chưa test
     {
         $token = $request->input('tokenId');
 

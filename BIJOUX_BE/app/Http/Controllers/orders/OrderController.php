@@ -1005,7 +1005,7 @@ class OrderController extends Controller
                 foreach ($product_metal as $metal) {    
                     $product_price += $metal->price;
                 }
-                if (($product_price * ($order->profit_rate + 100) / 100 + $design_process->production_price) > ($order->total_price) * 50 / 100) {
+                if ((($product_price * ($order->profit_rate + 100) / 100 + $order->production_price)* 50/100) > (($design_process->total_price) * 50 / 100) * 1.05) {
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 1
                     ]);
