@@ -13,7 +13,7 @@ const ModelCard = (props) => {
   
   return (
 
-    <Card variant="soft" sx={{ width: "100%", height: '100%' }}>
+    <Card variant="soft" sx={{ width: "100%", height: '100%',  }}>
       <CardOverflow sx={{
         padding: 0,
         display: 'flex',
@@ -66,6 +66,7 @@ const ModelCard = (props) => {
                   title={(props.deactivated == 0 ? 'Deactivate':'Activate')+ ' Model [ID: #' + props.id+']'} >
                   <ModelActivate  model={props}  />
                 </Model_Switch>
+                
                 
               </ButtonGroup>
             </Grid>

@@ -16,7 +16,7 @@ const Modal_Button = (props) => {
     
     return (
       <>
-        <CButton className="w-100 h-100 px-1" style={{border:'none'}}  color={props.color} onClick={() => setVisible(!visible)} disabled={props.disabled}>
+        <CButton className="w-100 h-100 px-1" style={{border:'none'}}   color={props.color} onClick={() => setVisible(!visible)} disabled={props.disabled}>
           {props.content}
         </CButton>
         <CModal size='xl' className='custom-modal' backdrop="static"  visible={visible} onClose={() => setVisible(false)}>

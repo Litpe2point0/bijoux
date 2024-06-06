@@ -11,10 +11,12 @@ import { Switch } from '@mui/material';
 
 const Model_Switch = (props) => {
     const [visible, setVisible] = useState(false);
-    const [checked, setChecked] = useState(props.modelInfo.deactivated == 0);  
+    const [checked, setChecked] = useState(props.modelInfo.deactivated == 0);
+    const [isAccepted, setIsAccepted] = useState(false)
     const handleClose = (result) => {
         setChecked(result)
         setVisible(false);
+        setIsAccepted(true)
     };
     const handleSwitch = (e) => {
         setVisible(!visible)
@@ -22,15 +24,35 @@ const Model_Switch = (props) => {
         setChecked(check)
         console.log(check)
         setVisible(true)
-        
-      }
+
+    }
 
     return (
         <>
-            <Switch checked={checked} color={props.color} size="small" sx={{ width: '100%' }} onChange={handleSwitch} />
-            
-            <CModal size='xl' className='custom-modal' backdrop="static" visible={visible} onClose={() => setVisible(false)}>
-                <CModalHeader>
+            <Switch checked={checked} color={props.color} size="small" sx={{
+                
+                '& .MuiSwitch-thumb': {
+                    //boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
+                    width: 13,
+                    height: 13,
+                    //borderRadius: 6,
+                },
+                '& .MuiSwitch-track': {
+                    width: '100%',
+                    height: 8,
+                },
+
+            }} onChange={handleSwitch} />
+
+            <CModal size='xl' className='custom-modal' backdrop="static" visible={visible}
+                onClose={() => {
+                    setVisible(false);
+                    if (!isAccepted) {
+                        setChecked(!checked);
+                        setIsAccepted(false)
+                    }
+                }}>
+                <CModalHeader >
                     <CModalTitle>{props.title}</CModalTitle>
                 </CModalHeader>
                 <CModalBody>
