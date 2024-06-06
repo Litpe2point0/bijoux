@@ -1,0 +1,16 @@
+.quote-information-label {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #d19508;
+    margin-bottom: 0.5rem;
+}
+
+.sale-staff-id {
+    font-weight: 500;
+    color: rgb(31, 96, 183);
+}
+
+.sale-staff-id:hover {
+    cursor: pointer;
+    color: blue;
+}

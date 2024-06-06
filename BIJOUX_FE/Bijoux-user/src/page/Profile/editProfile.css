@@ -1,0 +1,19 @@
+.user-avatar-outer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 20%;
+    height: auto;
+}
+
+.user-avatar-img {
+    width: 100%;
+    height: auto;
+    max-width: 200px;
+    /* Adjust max-width as needed */
+    aspect-ratio: 1 / 1;
+    /* Ensures the image maintains a 1:1 aspect ratio */
+    border-radius: 50%;
+    object-fit: cover;
+}
