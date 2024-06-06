@@ -4,7 +4,9 @@ import ReactPaginate from 'react-paginate';
 import { get_account_list } from '../../../api/accounts/Account_Api';
 import { CCol, CRow, CSpinner } from '@coreui/react';
 import ModelCard from './ModelCard';
-import { useLocation, useNavigate,  } from 'react-router-dom';
+import { useLocation, useNavigate, } from 'react-router-dom';
+import ModelBanner from './ModelBanner';
+import Modal_Button from '../../component_items/Modal/ModalButton';
 
 
 const data = {
@@ -3438,38 +3440,49 @@ function Models({ currentModels }) {
 
 
 
-export default function Pagination({ itemsPerPage, completed }) {
+export default function Pagination({ mounting_model, completed }) {
   const navigate = useNavigate();
-    const query = useQuery();
+  const query = useQuery();
 
 
-  const [modelList, setModelList] = useState(null);
+  const [modelList, setModelList] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
+  const [sort, setSort] = useState(0);
 
-  const [currentModels, setCurrentItems] = useState(null);
+  const [currentModels, setCurrentModels] = useState(null);
   const [pageCount, setPageCount] = useState(0);
-  // Here we use item offsets; we could also use page offsets
-  // following the API or data you're working with.
+
+
   const [itemOffset, setItemOffset] = useState(0);
 
 
   useEffect(() => {
     const page = parseInt(query.get('page')) || 1;
+    const style_id = parseInt(query.get('style_id')) || '';
+
     const newOffset = (page - 1) * itemsPerPage;
+
+    setItemsPerPage(4)
     setItemOffset(newOffset);
+    setSort(style_id)
+
   }, [query, itemsPerPage]);
 
   useEffect(() => {
-    const setAttribute = async () => {
 
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      //alert('ngu1')
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const setAttribute = async () => {
+      //lấy dữ liệu của mounting_type và completed để lấy mảng tương ứng
+      await get_account_list({ signal });
+      await get_account_list({ signal });
+      await get_account_list({ signal });
+      await get_account_list({ signal });
+      await get_account_list({ signal });
+      await get_account_list({ signal });
 
       if (completed) {
         await get_account_list(data);
@@ -3482,47 +3495,123 @@ export default function Pagination({ itemsPerPage, completed }) {
 
       setLoading(false);
     }
+
     setAttribute()
+    return () => {
+      controller.abort();
+    };
 
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    console.log("sort", sort)
 
     const re_render = async () => {
       setLoading(true)
 
+      await get_account_list({ signal });
+      // await get_account_list({ signal });
+      // await get_account_list({ signal });
+      // await get_account_list({ signal });
+      // await get_account_list({ signal });
+      // await get_account_list({ signal });
 
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      await get_account_list();
-      //alert('ngu2')
-
-      const list = completed ? data.model_available : data.model_unavailable;
+      var list = completed ? data.model_available : data.model_unavailable;
       console.log("list", list)
+
+      if (sort != 0) {
+        list = list.filter((item) => { console.log("itemsssss", item.id == sort ? item : 'ngu'); return sort != 0 ? item.id == sort : item })
+      }
+
       setModelList(list)
 
       const endOffset = itemOffset + itemsPerPage;
 
 
-      setCurrentItems(list.slice(itemOffset, endOffset));
+      setCurrentModels(list.slice(itemOffset, endOffset));
       setPageCount(Math.ceil(list.length / itemsPerPage));
       setLoading(false);
     }
     re_render()
+
+    return () => {
+      controller.abort();
+    };
+
   }, [itemOffset, itemsPerPage]);
+
+
+  const itemsPerPageFromBanner = (itemsPerPage) => {
+    setItemsPerPage(itemsPerPage);
+  };
+
+  useEffect(() => {
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const re_render = async () => {
+      setLoading(true)
+
+      await get_account_list({ signal });
+      // await get_account_list({ signal });
+      // await get_account_list({ signal });
+      // await get_account_list({ signal });
+      // await get_account_list({ signal });
+      // await get_account_list({ signal });
+
+      const list = (completed ? data.model_available : data.model_unavailable).filter((item) => { console.log("itemsssss", item.id == sort ? item : 'ngu'); return sort != 0 ? item.id == sort : item });
+
+      setModelList(list)
+
+      const endOffset = itemOffset + itemsPerPage;
+
+
+      setCurrentModels(list.slice(itemOffset, endOffset));
+      setPageCount(Math.ceil(list.length / itemsPerPage));
+      setLoading(false);
+    }
+    re_render()
+
+    return () => {
+      controller.abort();
+    };
+
+  }, [sort])
 
   const handlePageClick = (event) => {
     const newOffset = event.selected * itemsPerPage % modelList.length;
     setItemOffset(newOffset);
-    navigate(`?page=${event.selected + 1}`);
+    navigate((sort != 0 ? `?style_id=${sort}` : '?') + `&page=${event.selected + 1}`);
   };
+  const handleSort = (style_id) => {
+    navigate(`?style_id=${style_id}`);
 
+    setItemsPerPage(48)
+    setItemOffset(0)
+    setSort(style_id)
+  }
   return (
     <div className='d-flex flex-column align-items-center h-100'>
+      <CRow className='w-100'>
+        <CCol md={6}>
+          <ModelBanner currentStyle={sort} currentItemsPerPage={itemsPerPage} itemsPerPageFromBanner={itemsPerPageFromBanner} handleSort={handleSort} />
+
+        </CCol>
+        <CCol md={6} className='d-flex justify-content-end'>
+          <div className='w-50'>
+            <Modal_Button
+              disabled={false}
+              title={"Add New " + (mounting_model.name || 'Model ?')}
+              content={<span className='text-light fw-bold'>Add New Model</span>}
+              color={"info"} >
+              {/* {assign_props.assignForm} */}
+            </Modal_Button>
+          </div>
+        </CCol>
+      </CRow>
+
       {loading
         ?
         <div className="d-flex justify-content-center align-items-center h-100" style={{ minHeight: '50vh' }}><CSpinner color="primary" /></div>

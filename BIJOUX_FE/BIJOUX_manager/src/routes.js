@@ -9,7 +9,7 @@ const Quote_Price_Page_Manager = React.lazy(() => import('./views/Manager/Quote_
 const Order_Page_Manager = React.lazy(() => import('./views/Manager/Order_Page'));
 const Order_Price_Page_Manager = React.lazy(() => import('./views/Manager/Order_Price'));
 
-const Model_Page= React.lazy(() => import('./views/Manager/Model_Page'));
+const Model_Page = React.lazy(() => import('./views/Manager/Model_Page'));
 const Ring_Page = React.lazy(() => import('./views/Manager/Order_Price'));
 const Band_Page = React.lazy(() => import('./views/Manager/Order_Price'));
 const Pendant_Page = React.lazy(() => import('./views/Manager/Order_Price'));
@@ -94,21 +94,21 @@ const routes = [
   { path: '/orders_manager/price_reporting', name: 'Orders\'s Price Reporting', element: Order_Price_Page_Manager },
 
   { path: '/mounting', name: 'Mounting', element: null, exact: true },
-  { path: '/mounting/ring/table', name: 'Ring Models Management', element: Model_Page , props: {model_type: 'ring'}},
-  { path: '/mounting/band/table', name: 'Band Models Management', element: Band_Page },
-  { path: '/mounting/pendant/table', name: 'Pendant Models Management', element: Pendant_Page },
+  { path: '/mounting/ring/table', name: 'Ring Models Management', element: Model_Page, props: { mounting_model: { id: 1, name: 'Ring' } } },
+  { path: '/mounting/band/table', name: 'Band Models Management', element: Model_Page, props: { mounting_model: { id: 2, name: 'Band' } } },
+  { path: '/mounting/pendant/table', name: 'Pendant Models Management', element: Model_Page, props: { mounting_model: { id: 3, name: 'Pendant' } } },
 
   { path: '/material', name: 'Meterial', element: null, exact: true },
   { path: '/material/metal/table', name: 'Metal Price Management', element: Ring_Page },
   { path: '/material/diamond/table', name: 'Diamond Price Management', element: Ring_Page },
   //sale staff
-  
+
   { path: '/quotes_sale_staff/table', name: 'Main Quotes List', element: Quote_Page_SaleStaff },
-  { path: '/quotes_sale_staff/detail', name: 'Main Quotes List', element: Quote_Page_SaleStaff},
+  { path: '/quotes_sale_staff/detail', name: 'Main Quotes List', element: Quote_Page_SaleStaff },
   { path: '/quotes_sale_staff/detail/:id', name: 'Quote Pricing', element: Quote_Detail_SaleStaff },
 
   //design staff
-  
+
   //production staff
 
 

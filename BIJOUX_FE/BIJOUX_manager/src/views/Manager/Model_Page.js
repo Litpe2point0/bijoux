@@ -24,10 +24,8 @@
 //       </div>
 //       {/* ================= Products End here ===================== */}
 //     </div>
-//   );
-// };
 
-// export default Model_Page;
+
 
 import React, { createContext, useEffect, useState, useRef, useContext, useMemo } from "react";
 import Tab from 'react-bootstrap/Tab';
@@ -45,6 +43,7 @@ import './style/style.css'
 import { get_account_list } from "../../api/accounts/Account_Api";
 import Pagination from "./Items Card Widget/Pagination";
 import ModelBanner from "./Items Card Widget/ModelBanner";
+import { useNavigate } from "react-router-dom";
 
 
 const data = {
@@ -3451,9 +3450,11 @@ const data = {
 }
 
 
-const Model_Page = ({model_type}) => {
-  console.log('type nhè',model_type)
-  const [itemsPerPage, setItemsPerPage] = useState(4);
+const Model_Page = ({mounting_model}) => {
+  const navigate= useNavigate()
+  console.log('type nhè',mounting_model.name)
+  // const [itemsPerPage, setItemsPerPage] = useState(4);
+  // const [sort, setSort] = useState(0);
 
   const [key, setKey] = useState('complete');
   //const [modelList, setModelList] = useState(null);
@@ -3467,9 +3468,12 @@ const Model_Page = ({model_type}) => {
     handleDataChange()
   }, [])
 
-  const itemsPerPageFromBanner = (itemsPerPage) => {
-    setItemsPerPage(itemsPerPage);
-  };
+  // const itemsPerPageFromBanner = (itemsPerPage) => {
+  //   setItemsPerPage(itemsPerPage);
+  // };
+  // const sortFromBanner = (sort) => {
+  //   setSort(sort)
+  // }
   return (
 
     <CRow style={{height:'fit-content'}}>
@@ -3484,6 +3488,7 @@ const Model_Page = ({model_type}) => {
             fill
             onSelect={(key) => {
               setKey(key)
+              navigate('?page=1')
               resetHeaderProperties();
             }}
 
@@ -3500,9 +3505,11 @@ const Model_Page = ({model_type}) => {
                   }}
 
                 >
-                  <ModelBanner itemsPerPageFromBanner={itemsPerPageFromBanner} />
+                  {/* <ModelBanner itemsPerPageFromBanner={itemsPerPageFromBanner}  sortFromBanner={sortFromBanner} /> */}
 
-                  <Pagination completed={true} itemsPerPage={itemsPerPage}   />
+                  {/* <Pagination completed={true} itemsPerPage={itemsPerPage}  sort={sort}  /> */}
+                  <Pagination  mounting_model={mounting_model} completed={true}  />
+
                 </div>
               }
             </Tab>
@@ -3520,9 +3527,10 @@ const Model_Page = ({model_type}) => {
                   }}
 
                 >
-                  <ModelBanner itemsPerPageFromBanner={itemsPerPageFromBanner} />
+                  {/* <ModelBanner itemsPerPageFromBanner={itemsPerPageFromBanner} /> */}
 
-                  <Pagination completed={false} itemsPerPage={itemsPerPage} />
+                  {/* <Pagination completed={false} itemsPerPage={itemsPerPage} /> */}
+                  <Pagination  mounting_model={mounting_model} completed={false}  />
                 </div>
               }
             </Tab>

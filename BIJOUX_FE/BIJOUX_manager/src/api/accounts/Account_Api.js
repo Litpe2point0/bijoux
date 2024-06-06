@@ -19,18 +19,29 @@ export async function get_role_list(){
     return 0;
 }
 
-export async function get_account_list(){
+export async function get_account_list({signal}){
     
+    // try {
+    //     const response = await api_admin.post(
+    //        '/account/get_account_list',
+    //        {signal}
+    //     );
+    //     console.log(response.data)
+    //     return response.data;
+    // } catch (error) {
+    //     alert("lỗi nè"+error)
+    //     console.error('Error calculating sum:', error);
+    // }
+    // return 0;
     try {
-        const response = await api_admin.post(
-           '/account/get_account_list'
-           
-        );
-        console.log(response.data)
-        return response.data;
-    } catch (error) {
-        alert("lỗi nè"+error)
-        console.error('Error calculating sum:', error);
-    }
-    return 0;
+        const response = await api_admin.post('/account/get_account_list',null, { signal });
+        return  response.data;
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          console.log('Fetch aborted');
+        } else {
+          console.error('Fetch error:', error);
+        }
+        throw error;
+      }
 }

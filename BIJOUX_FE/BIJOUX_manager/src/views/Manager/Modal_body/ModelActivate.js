@@ -22,6 +22,9 @@ const CustomForm = ({ modelInfo, activate, onClose }) => {
 
 
     const handleSubmit = async (event) => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+
         setLoading(true);
         event.preventDefault();
 
@@ -34,14 +37,14 @@ const CustomForm = ({ modelInfo, activate, onClose }) => {
         const formData = new FormData();
         formData.append('deactivate', deactivate);
 
-        await get_account_list();
-        await get_account_list();
-        await get_account_list();
-        await get_account_list();
-        await get_account_list();
-        await get_account_list();
+        await get_account_list({signal});
+        await get_account_list({signal});
+        await get_account_list({signal});
+        await get_account_list({signal});
+        await get_account_list({signal});
+        await get_account_list({signal});
         dispatch(setToast({ color: 'success', title: 'Model id ' + modelInfo.id, mess: (activate ? "Activate" : "Deactivate") + " successfully !" }))
-        
+
         onClose(activate);   // đây là kết quả quyết định là activate thành công hay không , nếu không thì switch sẽ về trạng thái cũ   (activate=!activate)
 
     }
@@ -66,7 +69,7 @@ const CustomForm = ({ modelInfo, activate, onClose }) => {
 
 const ModelActivate = ({ model, activate, onClose }) => {
     return (
-        <CustomForm modelInfo={model} activate={activate}  onClose={onClose} />
+        <CustomForm modelInfo={model} activate={activate} onClose={onClose} />
     );
 };
 
