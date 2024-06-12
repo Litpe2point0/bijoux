@@ -21,7 +21,6 @@ import {
     CCardHeader,
     CSpinner,
 } from '@coreui/react'
-import { get_product_list, update_product_list } from "../../api/ProductApi";
 import Modal_Button from "../component_items/Modal/ModalButton"
 import { ArrowCircleUp, Eye } from "phosphor-react";
 import { image_url } from "../../api/Back_End_Url";
@@ -33,7 +32,7 @@ import CustomerUpdate from "./Modal_body/CustomerUpdate";
 
 
 
-export const Customer_Page_Context = createContext();
+export const CustomerPageContext = createContext();
 
 const state_creator = (table) => {
     const state = {
@@ -115,14 +114,15 @@ const Customer_Page = () => {
 
 
     
-    const handleTableChange = async () => {
+    const handleDataChange = async () => {
         const accountList = await get_account_list();
-        //console.log("accountt list",accountList)
+        console.log("accountt list",accountList)
         setState(state_creator(accountList.customer_list))
+        alert("ON DATA CHANGE NÈ")
     }
 
     useEffect(() => {
-        handleTableChange()
+        handleDataChange()
     }, [])
 
     const defaultColDef = useMemo(() => {
@@ -135,7 +135,7 @@ const Customer_Page = () => {
         };
     }, [])
     return (
-        <Customer_Page_Context.Provider value={{ onDataChange: handleTableChange }}>
+        <CustomerPageContext.Provider value={{ handleDataChange: handleDataChange }}>
             <CRow>
                 <CCol xs={12}>
                    {state === null ? <CButton className="w-100" color="secondary" disabled>
@@ -166,7 +166,7 @@ const Customer_Page = () => {
 
             </CRow>
 
-        </Customer_Page_Context.Provider>
+        </CustomerPageContext.Provider>
     );
 
 }

@@ -33,33 +33,28 @@ import onGridReady, { resetHeaderProperties } from "../component_items/Ag-grid/u
 import './style/style.css'
 import StaffUpdate from "./Modal_body/StaffUpdate";
 import { design_process_status_creator, order_status_creator, quote_status_creator } from "../component_items/Ag-grid/status_badge";
-import AssignForm from "./Modal_body/QuoteAssign";
-import QuoteCancel from "./Modal_body/QuoteCancel";
 import { get_account_list } from "../../api/accounts/Account_Api";
-import OrderAssign from "./Modal_body/OrderAssign";
-import OrderCancel from "./Modal_body/OrderCancel";
-import QuoteApprove from "./Modal_body/QuoteApprove";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 import DesignApprove from "./Modal_body/DesignApprove";
 
 
-
+export const OrderPriceContext = createContext();
 
 
 const state_creator = (table) => {
   const state = {
     columnDefs: [
-      { headerName: "id", field: "id",flex: 0.5},
-      { headerName: "Order id", field: "order_id",flex: 0.6 },
+      { headerName: "ID", field: "id", flex: 0.5 },
+      { headerName: "Order ID", field: "order_id", flex: 0.6 },
       {
         headerName: "Image",
         cellRenderer: (params) => {
           return (
-            <img className="rounded-3" width={'100%'} style={{maxHeight: '100px'}} src={params.data.imageUrl} />)
+            <img className="rounded-3" width={'100%'} style={{ maxHeight: '100px' }} src={params.data.imageUrl} />)
 
         },
       },
-      { headerName: "Created", field: "created"},
+      { headerName: "Created", field: "created" },
       {
         headerName: "Status",
         valueGetter: 'data.design_process_status.id',
@@ -93,7 +88,7 @@ const state_creator = (table) => {
           )
 
         },
-        
+
       }
 
     ],
@@ -293,18 +288,19 @@ const Order_Price = () => {
   const [designList, setDesignList] = useState(null);
   let [state, setState] = useState(null);
 
-  const handleTableChange = async () => {
+  const handleDataChange = async () => {
     await get_account_list();
     setDesignList(data);
 
     setState({
       customize: state_creator(data)
     })
+    alert("ON DATA CHANGE NÈ")
   }
 
   useEffect(() => {
 
-    handleTableChange()
+    handleDataChange()
   }, [])
 
 
@@ -320,90 +316,63 @@ const Order_Price = () => {
     };
   }, [])
   return (
+    <OrderPriceContext.Provider value={{ handleDataChange:  handleDataChange}}>
+      <CRow>
+        <CCol xs={12}>
+          {state === null ? <CButton className="w-100" color="secondary" disabled>
+            <CSpinner as="span" size="sm" aria-hidden="true" />
+            Loading...
+          </CButton> :
 
-    <CRow>
-      <CCol xs={12}>
-        {state === null ? <CButton className="w-100" color="secondary" disabled>
-          <CSpinner as="span" size="sm" aria-hidden="true" />
-          Loading...
-        </CButton> :
+            <Tabs
+              defaultActiveKey="template"
+              id="fill-tab-example"
+              className="mb-3"
+              activeKey={key}
+              fill
+              onSelect={(key) => {
+                setKey(key)
+                resetHeaderProperties();
+              }}
 
-          <Tabs
-            defaultActiveKey="template"
-            id="fill-tab-example"
-            className="mb-3"
-            activeKey={key}
-            fill
-            onSelect={(key) => {
-              setKey(key)
-              resetHeaderProperties();
-            }}
-
-          >
-
-            {/* <Tab eventKey="template" title="By Template Orders">
-              {
-                key === 'template' && <div
-                  id="template"
-                  style={{
-                    boxSizing: "border-box",
-                    height: "100%",
-                    width: "100%"
-                  }}
-                  className="ag-theme-quartz"
-                >
-                  <AgGridReact
-                    enableColResize={true}
-                    columnDefs={state.template.columnDefs}
-                    rowData={state.template.rowData}
-                    defaultColDef={defaultColDef}
-                    rowHeight={35}
-                    headerHeight={30}
-                    pagination={true}
-                    paginationPageSize={10}
-                    domLayout='autoHeight'
-                    onGridReady={onGridReady('customize')}
-                  />
-                </div>
-              }
-            </Tab> */}
-
-
-            <Tab eventKey="customize" title="Customize Orders Price Report Approvement">
-              {
-                key === 'customize' &&
-                <div
-                  id="customize"
-                  style={{
-                    boxSizing: "border-box",
-                    height: "100%",
-                    width: "100%"
-                  }}
-                  className="ag-theme-quartz"
-                >
-                  <AgGridReact
-                    enableColResize={true}
-                    columnDefs={state.customize.columnDefs}
-                    rowData={state.customize.rowData}
-                    defaultColDef={defaultColDef}
-                    rowHeight={35}
-                    headerHeight={30}
-                    pagination={true}
-                    paginationPageSize={10}
-                    domLayout='autoHeight'
-                    onGridReady={onGridReady('customize')}
-                  />
-                </div>
-              }
-            </Tab>
+            >
+              <Tab eventKey="customize" title="Customize Orders Price Report Approvement">
+                {
+                  key === 'customize' &&
+                  <div
+                    id="customize"
+                    style={{
+                      boxSizing: "border-box",
+                      height: "100%",
+                      width: "100%"
+                    }}
+                    className="ag-theme-quartz"
+                  >
+                    <AgGridReact
+                      enableColResize={true}
+                      columnDefs={state.customize.columnDefs}
+                      rowData={state.customize.rowData}
+                      defaultColDef={defaultColDef}
+                      rowHeight={35}
+                      headerHeight={30}
+                      pagination={true}
+                      paginationPageSize={10}
+                      domLayout='autoHeight'
+                      onGridReady={onGridReady('customize')}
+                    />
+                  </div>
+                }
+              </Tab>
 
 
 
-          </Tabs>
-        }
+            </Tabs>
+          }
 
-      </CCol>
-    </CRow>
+        </CCol>
+      </CRow>
+    </OrderPriceContext.Provider>
+
   );
 
 }

@@ -6,14 +6,19 @@ import { Button, IconButton, ButtonGroup, Switch } from "@mui/material";
 import { Gear } from "phosphor-react";
 import { CModal } from "@coreui/react";
 import Model_Switch from "../../component_items/Modal/ModelSwitch";
-import ModelActivate from "../Modal_body/ModelActivate";
+import ModelActivate from "../Modal_body/model/ModelActivate";
+import ModelModify from "../Modal_body/model/ModelModify";
+import Modal_Button from "../../component_items/Modal/ModalButton";
+import ModelComplete from "../Modal_body/model/ModelComplete";
 
 
 const ModelCard = (props) => {
-  
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   return (
 
-    <Card variant="soft" sx={{ width: "100%", height: '100%',  }}>
+    <Card variant="soft" sx={{ width: "100%", height: '100%', overflow: 'hidden' }}>
       <CardOverflow sx={{
         padding: 0,
         display: 'flex',
@@ -57,19 +62,44 @@ const ModelCard = (props) => {
             </Grid>
             <Grid item xs={2} padding={0}>
               <ButtonGroup orientation="vertical">
-                <IconButton color="secondary" aria-label="add an alarm">
-                  <Gear size={20} color={'purple'} weight="duotone" />
-                </IconButton>
-                <Model_Switch 
-                  modelInfo={props} 
-                  color="success" 
-                  title={(props.deactivated == 0 ? 'Deactivate':'Activate')+ ' Model [ID: #' + props.id+']'} >
-                  <ModelActivate  model={props}  />
+                <Modal_Button
+                  disabled={false}
+                  title={"Update Model [ID: #" + props.id + ']'}
+                  content={
+                    <IconButton color="secondary" aria-label="add an alarm">
+                      <Gear size={20} color={'purple'} weight="duotone" />
+                    </IconButton>
+
+                  }
+                  color={"light"} >
+                  <ModelModify type={'update'} modelInfo={props}/>
+                </Modal_Button>
+                <Model_Switch
+                  modelInfo={props}
+                  color="success"
+                  title={(props.deactivated == 0 ? 'Deactivate' : 'Activate') + ' Model [ID: #' + props.id + ']'} >
+                  <ModelActivate model={props} />
                 </Model_Switch>
-                
-                
+
+
               </ButtonGroup>
             </Grid>
+            {!props.isAvailable &&
+              <Grid item xs={12}>
+                <Modal_Button
+                  disabled={false}
+                  title={"Fill Image To Complete Model [ID: #" + props.id + ']'}
+                  content={
+                    <Button sx={{ width: '100%' }} variant="contained" color="success">
+                      Complete Now
+                    </Button>
+                  }
+                  color={"light"} >
+                  <ModelComplete modelInfo={props} />
+                </Modal_Button>
+
+              </Grid>
+            }
 
           </Grid>
 

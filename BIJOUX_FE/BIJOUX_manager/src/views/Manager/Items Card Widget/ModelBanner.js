@@ -84,11 +84,11 @@ const ModelBanner = ({ currentStyle, currentItemsPerPage,itemsPerPageFromBanner,
             id="countries"
             className="w-16 md:w-20 border-[1px] border-gray-200 py-1 px-4 cursor-pointer text-primeColor text-base block dark:placeholder-gray-400 appearance-none focus-within:outline-none focus-visible:border-primeColor"
           >
-            <option value="4">4</option>
-            <option value="12">12</option>
-            <option value="24">24</option>
-            <option value="36">36</option>
-            <option value="48">48</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
           </select>
           <span className="absolute text-sm right-3 top-2.5">
             <GoTriangleDown />

@@ -30,7 +30,7 @@ import avatar8 from './../../assets/images/avatars/8.jpg'
 
 const AppHeaderDropdown = ({user}) => {
   //console.log(user)
-  const Avatar= `${image_url}/Accounts/${user.id}/${user.image_url}`
+  const Avatar= `${image_url}/Account/${user.id}/${user.image_url}`
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>

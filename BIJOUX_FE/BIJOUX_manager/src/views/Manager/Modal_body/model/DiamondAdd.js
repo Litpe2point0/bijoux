@@ -10,20 +10,13 @@ import {
     CFormCheck,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
-import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
-import { setToast } from "../../../redux/notification/toastSlice";
-import Checkbox, { checkboxClasses } from '@mui/joy/Checkbox';
-import Sheet from '@mui/joy/Sheet';
 import { Avatar, Button, ListItemAvatar, ListItemText } from "@mui/material";
 import { Coins } from "phosphor-react";
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
-import ListDivider from '@mui/joy/ListDivider';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
-import './form.css'
-import { get_diamond_imageUrl } from "../../../api/Back_End_Url";
+import { get_account_list } from "../../../../api/accounts/Account_Api";
 
 const diamond_list = [
     {
@@ -231,30 +224,20 @@ function renderValue(item) {
 }
 
 const CustomForm = ({ handleAddDiamond, onClose }) => {
-    const dispatch = useDispatch();
 
-    const [validated, setValidated] = useState(false)   //check form điền đầy đủ chưa
-    const [loading, setLoading] = useState(true)   //check form điền đầy đủ chưa
+    const [validated, setValidated] = useState(false)   
+    const [loading, setLoading] = useState(true)   
 
-    const [isSearch, setIsSearch] = useState(false)   //check form điền đầy đủ chưa
+    const [isSearch, setIsSearch] = useState(false)   
 
-    const [diamondList, setDiamondList] = useState(null)
-    const [searchedDiamond, setSearchedDiamond] = useState(null);  //danh sách kim loại
 
     const [shapeList, setShapeList] = useState([]);
-    const [colorList, setColorList] = useState([]);
-    const [originList, setOriginList] = useState([]);
-    const [clarityList, setClarityList] = useState([]);
-    const [cutList, setCutList] = useState([]);
-    const [sizeList, seSizeList] = useState([]);
 
     const [addShape, setAddShape] = useState(null);
-    const [addColor, setAddColor] = useState(null);
-    const [addOrigin, setAddOrigin] = useState(null);
-    const [addClarity, setAddClarity] = useState(null);
-    const [addCut, setAddCut] = useState(null);
-    const [addSize, setAddSize] = useState(null);
+    const [minSize, setMinSize] = useState(1);
+    const [maxSize, setMaxSize] = useState(1);
     const [count, setCount] = useState(1);
+    const [isEditable, setIsEditable] = useState(false);
 
 
     useEffect(() => {
@@ -264,20 +247,9 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
             await get_account_list();
 
-            setDiamondList(diamond_list)
 
             setShapeList(shape_list)
-            setColorList(color_list)
-            setOriginList(origin_list)
-            setClarityList(clarity_list)
-            setCutList(cut_list)
-            seSizeList(size_list)
             setAddShape(shape_list[0])
-            setAddColor(1)
-            setAddOrigin(origin_list[0])
-            setAddClarity(1)
-            setAddCut(1)
-            setAddSize(size_list[0])
 
 
             setLoading(false)
@@ -290,78 +262,57 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
     useEffect(() => {
         console.log('addShape', addShape)
-        console.log('addColor', addColor)
-        console.log('addOrigin', addOrigin)
-        console.log('addClarity', addClarity)
-        console.log('addCut', addCut)
-        console.log('addSize', addSize)
+        console.log('minSize', minSize)
+        console.log('maxSize', maxSize)
+
         console.log('count', count)
-    }, [addShape, addColor, addOrigin, addClarity, addSize, count])
+        console.log('isEditable', isEditable)
+    }, [addShape, minSize,maxSize, count, isEditable])
 
 
     const handleShapeSelect = (event, newValue) => {
-        //console.log('event 111111', newValue)
         const selectedItem = JSON.parse(newValue);
         setAddShape(selectedItem);
-
-        setIsSearch(false)
     };
 
-    const handleOriginSelect = (event, newValue) => {
-        //console.log('event 22222', event)
 
-        const selectedItem = JSON.parse(newValue);
-        setAddOrigin(selectedItem);
-        setIsSearch(false)
-    };
-    const handleColor = (event, newValue) => {
-        setAddColor(newValue);
-        setIsSearch(false)
-    };
-    const handleClarity = (event, newValue) => {
-        setAddClarity(newValue)
-        setIsSearch(false)
-    }
-    const handleCut = (event, newValue) => {
-        setAddCut(newValue)
-        setIsSearch(false)
-    }
-    const handleSize = (event, newValue) => {
-        setAddSize(newValue)
-        setIsSearch(false)
-    }
     const handleCount = (event) => {
-        setCount(event.target.value)
-        setIsSearch(false)
+        setCount(event.target.value)     
     }
-    const handleSearch = () => {
-
-
-        const setResult = async () => {
-            await get_account_list();
-            const diamond_search_information = {
-                size: addSize,
-                diamond_color_id: addColor,
-                diamond_origin_id: addOrigin.id,
-                diamond_clarity_id: addClarity,
-                diamond_cut_id: addCut
-            }
-            console.log('diamond_search_information', diamond_search_information)
-
-            let diamond_search = diamondList.filter(item => item.diamond_origin.id == addOrigin.id && item.diamond_color.id == addColor && item.size == addSize && item.diamond_clarity.id == addClarity && item.diamond_cut.id == addCut)[0];
-
-            setSearchedDiamond(diamond_search);
-            console.log('diamond_search', diamond_search)
-            if (diamond_search) {
-                setIsSearch(true)
-
-            } else {
-                setIsSearch(false)
-
-            }
-        }
-        setResult()
+    const handleMinSize = (event) => {
+        setMinSize(parseFloat(event.target.value) )     
     }
+    const handleMaxSize = (event) => {
+        setMaxSize(parseFloat(event.target.value))     
+    }
+    // const handleSearch = () => {
+
+
+    //     const setResult = async () => {
+    //         await get_account_list();
+    //         const diamond_search_information = {
+    //             size: addSize,
+    //             diamond_color_id: addColor,
+    //             diamond_origin_id: addOrigin.id,
+    //             diamond_clarity_id: addClarity,
+    //             diamond_cut_id: addCut
+    //         }
+    //         console.log('diamond_search_information', diamond_search_information)
+
+    //         let diamond_search = diamondList.filter(item => item.diamond_origin.id == addOrigin.id && item.diamond_color.id == addColor && item.size == addSize && item.diamond_clarity.id == addClarity && item.diamond_cut.id == addCut)[0];
+
+    //         setSearchedDiamond(diamond_search);
+    //         console.log('diamond_search', diamond_search)
+    //         if (diamond_search) {
+    //             setIsSearch(true)
+
+    //         } else {
+    //             setIsSearch(false)
+
+    //         }
+    //     }
+    //     setResult()
+    // }
     const handleSubmit = (event) => {
         event.preventDefault();
         setValidated(true);
@@ -370,20 +321,17 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             event.stopPropagation()
         } else if (form.checkValidity() === true) {
             const add_diamond = {
-                diamond: searchedDiamond,
-                //diamond_color: addColor,
-                //diamond_size: addSize,
-                //diamond_clarity: addClarity,
-                //price_in_one: searchedDiamond.price,
+                diamond_size_min: minSize,
+                diamond_size_max: maxSize,
                 diamond_shape: addShape,
                 count: count,
-                price: searchedDiamond.price * count
+                is_editable: isEditable ? 1 : 0
             }
+            console.log('add diamond', add_diamond)
             handleAddDiamond(add_diamond)
             onClose();
         }
 
-        setDisabled(false)
     }
 
 
@@ -395,7 +343,7 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             onSubmit={handleSubmit}
 
         >
-            <CCol md={6} >
+            <CCol md={12} >
                 <CFormLabel htmlFor="validationCustom01">Shape</CFormLabel>
                 {loading
                     ?
@@ -440,245 +388,32 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
-            <CCol md={6} >
-                <CFormLabel htmlFor="validationCustom01">Origin</CFormLabel>
-                {loading
-                    ?
-                    <CButton color="light w-100" disabled>
-                        <CSpinner as="span" size="sm" aria-hidden="true" />
-                        Loading...
-                    </CButton>
-                    :
-                    <Select
-                        onChange={handleOriginSelect}
-                        variant="soft"
-                        className="px-1 py-0"
-                        defaultValue={JSON.stringify(addOrigin)}
-                        slotProps={{
-                            listbox: {
-                                sx: {
-                                    '--ListItemDecorator-size': '44px',
-                                },
-                            },
-                        }}
-                        sx={{
-                            '--ListItemDecorator-size': '44px',
-                            width: '100%',
-                            height: '1.5em',
-                        }}
-                    >
-                        {originList.map((item, index) => (
-                            <React.Fragment key={item.id}>
-                                <Option value={JSON.stringify(item)} label={item.name} >
-                                    {item.name}
-                                </Option>
-                            </React.Fragment>
-                        ))}
-                    </Select>
-                }
+            <CCol md={12}>
+                <CFormLabel htmlFor="validationCustom02">Min Size</CFormLabel>
+                <CFormInput type="number" min={0}  id="validationCustom02" onChange={handleMinSize} defaultValue={minSize} required />
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
-            <CCol md={6} >
-                <CFormLabel htmlFor="validationCustom01">Color</CFormLabel>
-                {loading
-                    ?
-                    <CButton color="light w-100" disabled>
-                        <CSpinner as="span" size="sm" aria-hidden="true" />
-                        Loading...
-                    </CButton>
-                    :
-                    <Select
-                        onChange={handleColor}
-                        variant="soft"
-                        className="px-1 py-0"
-                        defaultValue={addColor}
-                        slotProps={{
-                            listbox: {
-                                sx: {
-                                    '--ListItemDecorator-size': '44px',
-                                },
-                            },
-                        }}
-                        sx={{
-                            '--ListItemDecorator-size': '44px',
-                            width: '100%',
-                            height: '1.5em',
-                        }}
-                    >
-                        {colorList.map((item, index) => (
-                            <React.Fragment key={item.id}>
-                                <Option value={item.id} label={item.name} >
-                                    {item.name}
-                                </Option>
-                            </React.Fragment>
-                        ))}
-                    </Select>
-                }
+            <CCol md={12}>
+                <CFormLabel htmlFor="validationCustom02">Max Size</CFormLabel>
+                <CFormInput type="number" min={0}  id="validationCustom02" onChange={handleMaxSize} defaultValue={maxSize} required />
                 <CFormFeedback valid>Looks good!</CFormFeedback>
-            </CCol>
-            <CCol md={6} >
-                <CFormLabel htmlFor="validationCustom01">Clarity</CFormLabel>
-                {loading
-                    ?
-                    <CButton color="light w-100" disabled>
-                        <CSpinner as="span" size="sm" aria-hidden="true" />
-                        Loading...
-                    </CButton>
-                    :
-                    <Select
-                        onChange={handleClarity}
-                        variant="soft"
-                        className="px-1 py-0"
-                        defaultValue={addClarity}
-                        slotProps={{
-                            listbox: {
-                                sx: {
-                                    '--ListItemDecorator-size': '44px',
-                                },
-                            },
-                        }}
-                        sx={{
-                            '--ListItemDecorator-size': '44px',
-                            width: '100%',
-                            height: '1.5em',
-                        }}
-                    >
-                        {clarityList.map((item, index) => (
-                            <React.Fragment key={item.id}>
-                                <Option value={item.id} label={item.name} >
-                                    {item.name}
-                                </Option>
-                            </React.Fragment>
-                        ))}
-                    </Select>
-                }
-                <CFormFeedback valid>Looks good!</CFormFeedback>
-            </CCol>
-            <CCol md={6} >
-                <CFormLabel htmlFor="validationCustom01">Size</CFormLabel>
-                {loading
-                    ?
-                    <CButton color="light w-100" disabled>
-                        <CSpinner as="span" size="sm" aria-hidden="true" />
-                        Loading...
-                    </CButton>
-                    :
-                    <Select
-                        onChange={handleSize}
-                        variant="soft"
-                        className="px-1 py-0"
-                        defaultValue={addSize}
-                        slotProps={{
-                            listbox: {
-                                sx: {
-                                    '--ListItemDecorator-size': '44px',
-                                },
-                            },
-                        }}
-                        sx={{
-                            '--ListItemDecorator-size': '44px',
-                            width: '100%',
-                            height: '1.5em',
-                        }}
-                    >
-                        {sizeList.map((item, index) => (
-                            <React.Fragment key={item}>
-                                <Option value={item} label={item} >
-                                    {item}
-                                </Option>
-                            </React.Fragment>
-                        ))}
-                    </Select>
-                }
-                <CFormFeedback valid>Looks good!</CFormFeedback>
-            </CCol>
-            <CCol md={6}>
-                <CFormLabel htmlFor="validationCustom02">Cut</CFormLabel>
-                {loading
-                    ?
-                    <CButton color="light w-100" disabled>
-                        <CSpinner as="span" size="sm" aria-hidden="true" />
-                        Loading...
-                    </CButton>
-                    :
-                    <Select
-                        onChange={handleCut}
-                        variant="soft"
-                        className="px-1 py-0"
-                        defaultValue={addCut}
-                        slotProps={{
-                            listbox: {
-                                sx: {
-                                    '--ListItemDecorator-size': '44px',
-                                },
-                            },
-                        }}
-                        sx={{
-                            '--ListItemDecorator-size': '44px',
-                            width: '100%',
-                            height: '1.5em',
-                        }}
-                    >
-                        {cutList.map((item, index) => (
-                            <React.Fragment key={item.id}>
-                                <Option value={item.id} label={item.name} >
-                                    {item.name}
-                                </Option>
-                            </React.Fragment>
-                        ))}
-                    </Select>
-                }                <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
             <CCol md={12}>
                 <CFormLabel htmlFor="validationCustom02">Count</CFormLabel>
-                <CFormInput type="number" min={1} step={1} id="validationCustom02" onChange={handleCount} defaultValue={1} required />
+                <CFormInput type="number" min={1} step={1} id="validationCustom02" onChange={handleCount} defaultValue={count} required />
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
 
-
-            <CCol md={12} className="d-flex justify-content-center">
-
-                <Button
-                    onClick={() => {
-                        handleSearch();
-                    }}
-                    className="rounded-pill fw-bold"
-                    variant="outlined"
-                    color="warning"
-                    startIcon={<Coins size={25} color="peru" weight="duotone" />}
-                    disabled={count == 0 || !count}
-                >
-                    Price Calculating
-                </Button>
-            </CCol>
-            <hr />
-            <CCol md={12} className="d-flex justify-content-center">
-                {searchedDiamond && <img width={'50%'} src={searchedDiamond?.imageUrl} alt="metal" />}
-
-            </CCol>
-            <CCol md={12}>
-                <CFormLabel htmlFor="validationCustom02">Diamond ID</CFormLabel>
-
-                <CFormInput disabled type="number" id="validationCustom02" value={searchedDiamond?.id} required />
-
+            <CCol md={12} className="border border-light rounded w-25 p-1">
+                
+                <CFormCheck  id="flexCheckDefault" label="Is Editable " defaultChecked={isEditable} onChange={e=>setIsEditable(e.target.checked)} />
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
-            <CCol md={12}>
-                <CFormLabel htmlFor="validationCustom02">Price In One</CFormLabel>
-
-                <CFormInput disabled type="number" id="validationCustom02" value={searchedDiamond?.price} required />
-
-                <CFormFeedback valid>Looks good!</CFormFeedback>
-            </CCol>
-            <CCol md={12}>
-                <CFormLabel htmlFor="validationCustom02">Price In Total</CFormLabel>
-
-                <CFormInput disabled type="number" id="validationCustom02" value={searchedDiamond?.price * count} required />
-
-                <CFormFeedback valid>Looks good!</CFormFeedback>
-            </CCol>
+            
+            
+            
             <CCol xs={12} className="d-flex justify-content-center">
-                <CButton onClick={handleSubmit} color="success" type="submit" disabled={!isSearch}>
+                <CButton  color="success" type="submit" >
                     Confirm add
                 </CButton>
             </CCol>

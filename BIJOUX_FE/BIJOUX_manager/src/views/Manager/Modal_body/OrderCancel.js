@@ -14,18 +14,19 @@ import { get_account_list } from "../../../api/accounts/Account_Api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import NoteCard from "../Quote widget/NoteCard";
 import AssignCard from "../Quote widget/AssignCard";
 import { useNavigate } from "react-router-dom";
 import { queue } from "jquery";
+import { OrderPageContext } from "../Order_Page";
 
 
 
-const CustomForm = ({ orderInfo, account, handleTableChange, onClose }) => {
+const CustomForm = ({ orderInfo, account, onClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { handleDataChange } = useContext(OrderPageContext);
 
     const [loading, setLoading] = useState(true);
 
@@ -80,7 +81,7 @@ const CustomForm = ({ orderInfo, account, handleTableChange, onClose }) => {
             // let product = {
             //     id: response.new_product_id,
             // }
-
+            handleDataChange();
             dispatch(setToast({ color: 'success', title: 'Order id ' + orderInfo.id, mess: "Cancel successfully !" }))
             onClose();
 
@@ -111,9 +112,9 @@ const CustomForm = ({ orderInfo, account, handleTableChange, onClose }) => {
     )
 }
 
-const OrderCancel = ({ order, handleTableChange, onClose }) => {
+const OrderCancel = ({ order, onClose }) => {
     return (
-        <CustomForm orderInfo={order} handleTableChange={handleTableChange} onClose={onClose} />
+        <CustomForm orderInfo={order}  onClose={onClose} />
     );
 };
 

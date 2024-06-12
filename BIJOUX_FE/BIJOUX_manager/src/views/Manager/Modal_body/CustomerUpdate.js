@@ -9,22 +9,26 @@ import {
   CFormLabel,
   CFormCheck
 } from '@coreui/react'
-import { } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/accounts/Account_Api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import DateTimePicker from "../../component_items/DatePicker/DateTimePicker";
+import { CustomerPageContext } from "../Customer_Page";
 
 
-const CustomForm = ({account, handleTableChange, onClose}) => {
+const CustomForm = ({ account, onClose }) => {
   const dispatch = useDispatch();
+  const { handleDataChange } = useContext(CustomerPageContext);
+
+
   const [validated, setValidated] = useState(false)
   const [disabled, setDisabled] = useState(false);
   // const [imageFile, setImageFile] = useState(null);
   const [imageBase64, setImageBase64] = useState(null);
 
+  
 
   const roles = (
     [
@@ -77,8 +81,8 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
 
       const new_account = {
         username: username.current.value,
-        password: password.current.value,
-        image : imageBase64,
+        password: password.current.value ? password.current.value : null,
+        image: imageBase64,
         dob: dob.current.value,
         email: email.current.value,
         fullname: fullname.current.value,
@@ -91,31 +95,41 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
 
       const formData = new FormData();
       formData.append('new_account', JSON.stringify(new_account));
-      let response = await register(formData);
-      let mess = '';
-      let mess_color = '';
 
-      if (response.success) {
-        mess = response.success
-        handleTableChange();
-        onClose();
-        setValidated(false)
-        mess_color = 'success'
-      } else if (response.error) {
-        mess = response.error;
-        mess_color = 'danger'
-      }
-      let product = {
-        id: response.new_product_id,
-      }
+      // let response = await register(formData);
+      // let mess = '';
+      // let mess_color = '';
 
-      dispatch(setToast({ color: mess_color, title: 'Product id ' + product.id, mess: mess }))
+      // if (response.success) {
+      //   mess = response.success
+      //   handleTableChange();
+      //   onClose();
+      //   setValidated(false)
+      //   mess_color = 'success'
+      // } else if (response.error) {
+      //   mess = response.error;
+      //   mess_color = 'danger'
+      // }
+      await get_account_list(formData);
+      handleDataChange();
 
+
+      dispatch(setToast({ color: "success", title: 'Customer id ' + account.id, mess: "Update Successfully" }))
+
+      onClose()
     }
 
     setDisabled(false)
   }
+  const handleActivate = async (new_activate) => {
+    await get_account_list();
 
+    handleDataChange();
+
+    dispatch(setToast({ color: 'success', title: 'Customer id ' + account.id, mess: (new_activate == 0 ? 'Activate' : 'Deactivate') + " successfully !" }))
+
+    onClose();
+  }
   return (
     <CForm
       className="row g-3 needs-validation"
@@ -124,7 +138,7 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
       onSubmit={handleSubmit}
 
     >
-      
+
 
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom01">Full Name</CFormLabel>
@@ -154,30 +168,38 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Username</CFormLabel>
-        <CFormInput type="text" id="validationCustom02" defaultValue={account.username} ref={username} required disabled/>
+        <CFormInput type="text" id="validationCustom02" defaultValue={account.username} ref={username} required disabled />
         <CFormFeedback valid>Looks good!</CFormFeedback>
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Password (default: 123)</CFormLabel>
-        <CFormInput type="text" id="validationCustom02" defaultValue={account.password} ref={password} required />
+        <CFormInput type="text" id="validationCustom02" ref={password} />
         <CFormFeedback valid>Looks good!</CFormFeedback>
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Avatar</CFormLabel>
         <AvatarUpload defualtImage={'http://127.0.0.1:8000/image/Accounts/unknown.jpg'} handleSingleFileBase64={handleSingleFileBase64} />
       </CCol>
-      <CCol xs={12} className="d-flex justify-content-center">
-        <CButton color="success" type="submit" disabled={disabled}>
-          Confirm add
+      <CCol xs={12} className="d-flex justify-content-center align-items-center">
+        {/* <CButton className="mx-2" color="danger" onClick={() => handleActivate(false)}  >
+          Decline
+        </CButton> */}
+        <CButton className="mx-2" color={account.deactivated == 0 ? "danger" : "info"} value={account.deactivated == 0 ? 1 : 0} onClick={(e) => handleActivate(e.target.value)}  >
+          {account.deactivated == 0 ? 'Deactivate' : 'Activate'}
         </CButton>
+        |
+        <CButton className="mx-2" color="success" type="submit" disabled={disabled}>
+          Confirm Update
+        </CButton>
+
       </CCol>
     </CForm>
   )
 }
 
-const CustomerUpdate = ({account, handleTableChange, onClose }) => {
+const CustomerUpdate = ({ account, onClose }) => {
   return (
-    <CustomForm account={account} handleTableChange={handleTableChange} onClose={onClose} />
+    <CustomForm account={account} onClose={onClose} />
   );
 };
 

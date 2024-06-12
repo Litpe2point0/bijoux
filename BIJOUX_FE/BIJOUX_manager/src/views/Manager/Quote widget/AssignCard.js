@@ -14,8 +14,10 @@ import Option from '@mui/joy/Option';
 import { useState } from 'react';
 
 function renderValue(item) {
-    if (!item) {
-        return null;
+    if (item.value == null) {
+        return <div color="light w-100 d-flex align-items-center justify-content-start text-danger" >
+            Not Assign Yet !
+        </div>;
     }
     const staff = JSON.parse(item.value);
 
@@ -29,12 +31,12 @@ function renderValue(item) {
     );
 }
 
-const AssignCard = ({selection, staffList, handleAssign }) => {
-    const [selectedStaff, setSelectedStaff] = useState(selection ? staffList.filter(staff=>staff.id == selection.id)[0]  : staffList[0] );
-    console.log("selectedStaff",selectedStaff)
+const AssignCard = ({ selection, staffList, handleAssign }) => {
+    const [selectedStaff, setSelectedStaff] = useState(selection ? staffList.filter(staff => staff.id == selection.id)[0] : null);
+    console.log("selectedStaff", selection)
     const handleStaffSelect = (event, newValue) => {
-        console.log("newValue",newValue)
-        if (!newValue) {
+        console.log("newValue", newValue)
+        if (newValue == null) {
             return;
         }
         const selectedItem = JSON.parse(newValue);
@@ -42,16 +44,14 @@ const AssignCard = ({selection, staffList, handleAssign }) => {
         setSelectedStaff(selectedItem);
         handleAssign(selectedItem, selectedItem.role.id)
     };
-    // useEffect(() => {
-        
-    //     handleAssign(selectedStaff, selectedStaff.role.id)
-    // }, [selectedStaff])
+
 
     return (
 
         <CCard className="bg-light mb-3" >
 
             <Select
+                
                 onChange={handleStaffSelect}
                 variant="soft"
                 className="px-1 py-0"
@@ -70,6 +70,14 @@ const AssignCard = ({selection, staffList, handleAssign }) => {
                 }}
                 renderValue={renderValue}
             >
+                {
+                    selection == null &&
+                    <React.Fragment key={-1} >
+                        <Option value={null} label={"Not Assign Yet !"}  >
+                           <span className='text-danger'>Not Assign Yet !</span> 
+                        </Option>
+                    </React.Fragment>
+                }
                 {staffList.map((item, index) => (
                     <React.Fragment key={item.id} >
                         <Option value={JSON.stringify(item)} label={item.name}  >

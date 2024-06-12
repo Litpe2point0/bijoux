@@ -43,13 +43,13 @@ import StaffUpdate from "./Modal_body/StaffUpdate";
 
 
 
-export const Staff_Page_Context = createContext();
+export const StaffPageContext = createContext();
 
 
 const state_creator = (table) => {
     const state = {
         columnDefs: [
-            { headerName: "id", field: "id", flex: 0.4 },
+            { headerName: "ID", field: "id", flex: 0.4 },
             {
                 headerName: "Avatar", flex: 0.5,
                 cellRenderer: (params) => {
@@ -125,7 +125,7 @@ const Staff_Page = () => {
 
     let [state, setState] = useState(null);
 
-    const handleTableChange = async () => {
+    const handleDataChange = async () => {
         const accountList = await get_account_list();
         const staffList = accountList.staff_list;
         console.log("staffList ", staffList)
@@ -134,10 +134,13 @@ const Staff_Page = () => {
             design: state_creator(staffList.design_list),
             production: state_creator(staffList.production_list)
         })
+
+        alert('ON DATA CHANGE NÈ')
     }
 
+
     useEffect(() => {
-        handleTableChange()
+        handleDataChange()
     }, [])
 
     const get_roles = async () => {
@@ -157,7 +160,7 @@ const Staff_Page = () => {
         };
     }, [])
     return (
-        <Staff_Page_Context.Provider value={{ onDataChange: handleTableChange }}>
+        <StaffPageContext.Provider value={{ handleDataChange: handleDataChange }}>
             <CRow>
                 <CCol xs={12}>
                     {state === null ? <CButton className="w-100" color="secondary" disabled>
@@ -265,7 +268,7 @@ const Staff_Page = () => {
                                 >
                                     <CCardHeader>Add New Staff</CCardHeader>
                                     <CCardBody>
-                                        <StaffAdd handleTableChange={handleTableChange} />
+                                        <StaffAdd handleDataChange={handleDataChange} />
                                     </CCardBody>
                                 </CCard>}
 
@@ -283,7 +286,7 @@ const Staff_Page = () => {
 
 
 
-        </Staff_Page_Context.Provider>
+        </StaffPageContext.Provider>
     );
 
 }
