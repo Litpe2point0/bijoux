@@ -17,42 +17,6 @@ use Illuminate\Support\Facades\Validator;
 
 class QuoteController extends Controller
 {
-    public function get_final_template(Request $request)
-    {
-        $input = json_decode($request->input('template_information'), true);
-        if (!isset($input) || $input == null) {
-            return response()->json([
-                'error' => 'No Input Received'
-            ], 404);
-        }
-        $model_id = $input['model_id'];
-        if (isset($input['metal_1_id']) && $input['metal_1_id'] != null) {
-            $metal_1_id = $input['metal_1_id'];
-        } else $metal_1_id = 0;
-        if (isset($input['metal_2_id']) && $input['metal_2_id'] != null) {
-            $metal_2_id = $input['metal_2_id'];
-        } else $metal_2_id = 0;
-        $shape_id = $input['diamond_shape_id'];
-        $destinationPath = public_path('image/Final_templates/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
-        if (!file_exists($destinationPath)) {
-            return response()->json([
-                'error' => 'Template doesn\'t exist'
-            ], 404);
-        }
-        $OGurl = env('ORIGIN_URL');
-        $url = env('FINAL_TEMPLATE_URL');
-        $files = File::allFiles($destinationPath);
-        $imageCount = count($files) - 1;
-        $main_image = $OGurl . $url . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id . '/main.jpg';
-        $related_image = [];
-        for ($i = 1; $i <= $imageCount; $i++) {
-            $related_image[] = $OGurl . $url . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id . '/related_' . $i . '.jpg';
-        }
-        return response()->json([
-            'main_image' => $main_image,
-            'related_image' => $related_image
-        ]);
-    }
     public function get_quote_list_admin()
     {
         $quote_list = DB::table('quote')->orderBy('quote_status_id', 'ASC')->get();
@@ -60,6 +24,7 @@ class QuoteController extends Controller
             $product = DB::table('product')->where('id', $quote->product_id)->first();
             $OGurl = env('ORIGIN_URL');
             $url = env('ORDER_URL');
+            $product->created = Carbon::parse($product->created)->format('H:i:s d/m/Y');
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $quote->product = $product;
             unset($quote->product_id);
@@ -104,6 +69,7 @@ class QuoteController extends Controller
             $product = DB::table('product')->where('id', $quote->product_id)->first();
             $OGurl = env('ORIGIN_URL');
             $url = env('ORDER_URL');
+            $quote->created = Carbon::parse($quote->created)->format('H:i:s d/m/Y');
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $quote->product = $product;
             unset($quote->product_id);
@@ -153,12 +119,12 @@ class QuoteController extends Controller
             $account = DB::table('account')->where('id', $account_id)->first();
             if($account == null){
                 return response()->json([
-                    'error' => 'The selected Customer account doesn\'t exist'
+                    'error' => 'The Selected Customer Account Doesn\'t Exist'
                 ],403);
             }
             if($account->deactivated){
                 return response()->json([
-                    'error' => 'The selected Customer account has been deactivated'
+                    'error' => 'The Selected Customer Account Has Been Deactivated'
                 ],403);
             }
 
@@ -201,7 +167,7 @@ class QuoteController extends Controller
             'Success' => 'Quote Create Successfully'
         ], 201);
     }
-    public function assign_quote(Request $request)
+    public function assign_quote(Request $request) //
     {
         $input = json_decode($request->input('assigned_information'), true);
         if (!isset($input) || $input == null) {
@@ -212,57 +178,69 @@ class QuoteController extends Controller
         DB::beginTransaction();
         try {
             $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
+            if($quote->quote_status_id == 4){
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The Selected Quote Has Been Completed'
+                ],403);
+            }
             if($quote->quote_status_id == 5){
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The selected Quote has been cancelled'
+                    'error' => 'The Selected Quote Has Been Cancelled'
                 ],403);
             }
-
-            $validator = Validator::make($input, [
-                'saleStaff_id' => 'required',
-                'designStaff_id' => 'required',
-                'productionStaff_id' => 'required',
-            ]);
-            if ($validator->fails()) {
+            $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : null;
+            $designStaff_id = isset($input['designStaff_id']) ? $input['designStaff_id'] : null;
+            $productionStaff_id = isset($input['productionStaff_id']) ? $input['productionStaff_id'] : null;
+            if($saleStaff_id != null) $sale_staff = DB::table('account')->where('id', $input['saleStaff_id'])->first();
+            else {
                 return response()->json([
-                    'error' => $validator->errors()->first(),
-                ], 403);
+                    'error' => 'The Selected Sale Staff Account Can\'t Be Null'
+                ],403);
             }
-            
-            $sale_staff = DB::table('account')->where('id', $input['saleStaff_id'])->first();
-            $design_staff = DB::table('account')->where('id', $input['designStaff_id'])->first();
-            $production_staff = DB::table('account')->where('id', $input['productionStaff_id'])->first();
+            if($designStaff_id != null) $design_staff = DB::table('account')->where('id', $input['designStaff_id'])->first();
+            else {
+                return response()->json([
+                    'error' => 'The Selected Sale Staff Account Can\'t Be Null'
+                ],403);
+            }
+            if($productionStaff_id != null) $production_staff = DB::table('account')->where('id', $input['productionStaff_id'])->first();
+            else {
+                return response()->json([
+                    'error' => 'The Selected Production Staff Account Can\'t Be Null'
+                ],403);
+            }
             if($sale_staff != null){
                 if($sale_staff->role_id != '2'){
                     return response()->json([
-                        'error' => 'The selected Sale Staff Account is not a sale staff'
+                        'error' => 'The Selected Sale Staff Account Is Not a Sale Staff'
                     ],403);
                 } else if($sale_staff->deactivated){
                     return response()->json([
-                        'error' => 'The selected Sale Staff Account has been deactivated'
+                        'error' => 'The Selected Sale Staff Account Has Been Deactivated'
                     ],403);
                 }
             }
             if($design_staff != null){
                 if($design_staff->role_id != '3'){
                     return response()->json([
-                        'error' => 'The selected Sale Staff Account is not a design staff'
+                        'error' => 'The Selected Design Staff Account Is Not a Design Staff'
                     ],403);
                 } else if($design_staff->deactivated){
                     return response()->json([
-                        'error' => 'The selected Sale Staff Account has been deactivated'
+                        'error' => 'The Selected Design Staff Account Has Been Deactivated'
                     ],403);
                 }
             }
             if($production_staff != null){
                 if($production_staff->role_id != '4'){
                     return response()->json([
-                        'error' => 'The selected Sale Staff Account is not a production staff'
+                        'error' => 'The Selected Production Staff Account Is Not a Production Staff'
                     ],403);
                 } else if($production_staff->deactivated){
                     return response()->json([
-                        'error' => 'The selected Sale Staff Account has been deactivated'
+                        'error' => 'The Selected Production Staff Account Has Been Deactivated'
                     ],403);
                 }
             }
@@ -272,18 +250,22 @@ class QuoteController extends Controller
                 ]);
             } 
             DB::table('quote')->where('id', $input['quote_id'])->update([
-                'saleStaff_id' => $input['saleStaff_id'],
-                'designStaff_id' => $input['designStaff_id'],
-                'productionStaff_id' => $input['productionStaff_id'],
-                'quote_status_id' => 2
+                'saleStaff_id' => $saleStaff_id,
+                'designStaff_id' => $designStaff_id,
+                'productionStaff_id' => $productionStaff_id,
             ]);
+            if($quote->quote_status_id == 1){
+                DB::table('quote')->where('id', $input['quote_id'])->update([
+                    'quote_status_id' => 2
+                ]);
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Assign Complete'
+            'success' => 'Assign Quote Succesfully'
         ], 201);
     }
     public function pricing_quote(Request $request)
@@ -294,7 +276,24 @@ class QuoteController extends Controller
                 'error' => 'No Input Received'
             ], 404);
         }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $id = (int) $decodedToken['id'];
         $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
+        if($quote->saleStaff_id != $id){
+            return response()->json([
+                'error' => 'Your Account Isn\'t Assigned To This Quote'
+            ],403);
+        }
         $product_price = 0;
 
         DB::beginTransaction();
@@ -303,13 +302,13 @@ class QuoteController extends Controller
             if($quote->quote_status_id < 2){
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The selected Quote hasn\'t been assigned'
+                    'error' => 'The Selected Quote Hasn\'t Been Assigned'
                 ],403);
             }
             if($quote->quote_status_id == 5){
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The selected Quote has been cancelled'
+                    'error' => 'The Selected Quote Has Been Cancelled'
                 ],403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
@@ -326,7 +325,7 @@ class QuoteController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $quote->product_id . '.jpg';
+                $fileName = 'main.jpg';
                 $files = File::allFiles($destinationPath);
                 foreach ($files as $file) {
                     File::delete(public_path('image/Orders/' . $quote->product_id) . '/' . $file->getBaseName());
@@ -344,7 +343,7 @@ class QuoteController extends Controller
                     if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'An items that is include in this model is currently deactivated'
+                            'error' => 'An Item That Is include In This Product Is Currently Deactivated'
                         ]);
                     }
                     $product_diamond->product_id = $quote->product_id;
@@ -363,7 +362,7 @@ class QuoteController extends Controller
                 if ($metal->deactivated == true) {
                     DB::rollBack();
                     return response()->json([
-                        'error' => 'An items that is include in this model is currently deactivated'
+                        'error' => 'An Item That Is include In This Product Is Currently Deactivated'
                     ]);
                 }
                 $product_metal->product_id = $quote->product_id;
@@ -381,7 +380,7 @@ class QuoteController extends Controller
                 'profit_rate' => $input['profit_rate'],
                 'product_price' => $product_price,
                 'quote_status_id' => 3,
-                'total_price' => $product_price * ($input['profit_rate'] + 100) / 100 + $input['production_price']
+                'total_price' => ($product_price + $input['production_price'])* ($input['profit_rate'] + 100) / 100
             ]);
             DB::commit();
         } catch (\Exception $e) {
@@ -390,7 +389,7 @@ class QuoteController extends Controller
         }
 
         return response()->json([
-            'success' => 'Process Complete'
+            'success' => 'Successfully Price Quote'
         ], 201);
     }
     public function approve_quote(Request $request)
@@ -408,13 +407,19 @@ class QuoteController extends Controller
             if($quote->quote_status_id < 3){
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The selected Quote hasn\'t been priced'
+                    'error' => 'The Selected Quote Hasn\'t Been Priced'
+                ],403);
+            }
+            if($quote->quote_status_id == 4){
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The Selected Quote Has Already Been Approved'
                 ],403);
             }
             if($quote->quote_status_id == 5){
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The selected Quote has been cancelled'
+                    'error' => 'The Selected Quote Has Already Been Cancelled'
                 ],403);
             }
             if ($input['approve'] || $input['approve'] == 1) {
@@ -450,7 +455,7 @@ class QuoteController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'Success' => 'Approve Successfully'
+            'Success' => 'Approve Quote Successfully'
         ], 201);
     }
     public function cancel(Request $request)
@@ -484,7 +489,12 @@ class QuoteController extends Controller
             $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
             if ($quote->quote_status_id == 4) {
                 return response()->json([
-                    'error' => 'Quote has already been complete, action can\'t be perform'
+                    'error' => 'Quote Has Already Been Completed, Action Can\'t Be Performed'
+                ],403);
+            }
+            if ($quote->quote_status_id == 5) {
+                return response()->json([
+                    'error' => 'Quote Has Already Been Cancelled, Action Can\'t Be Performed'
                 ],403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
@@ -558,10 +568,11 @@ class QuoteController extends Controller
             ], 404);
         }
         $quote = DB::table('quote')->where('id', $input)->first();
-
+        $quote->created = Carbon::parse($quote->created)->format('H:i:s d/m/Y');
         $product = DB::table('product')->where('id', $quote->product_id)->first();
         $OGurl = env('ORIGIN_URL');
         $url = env('ORDER_URL');
+        $product->created = Carbon::parse($product->created)->format('H:i:s d/m/Y');
         $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
         $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
         unset($product->mounting_type_id);
@@ -569,9 +580,10 @@ class QuoteController extends Controller
         $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
         $product_diamond->map(function ($product_diamond) {
             $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
             $OGurl = env('ORIGIN_URL');
             $url = env('DIAMOND_URL');
-            $diamond->imageUrl = $OGurl . $url . $diamond->id . "/" . $diamond->imageUrl;
+            $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
             $product_diamond->diamond = $diamond;
 
             $product_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
@@ -586,6 +598,7 @@ class QuoteController extends Controller
             $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
             $OGurl = env('ORIGIN_URL');
             $url = env('METAL_URL');
+            $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
             $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
             $product_metal->metal = $metal;
             unset($product_metal->metal_id);

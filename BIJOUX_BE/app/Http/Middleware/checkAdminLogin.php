@@ -33,10 +33,10 @@ class checkAdminLogin
             if($role_id == '1' || $role_id == '2' || $role_id == '3'|| $role_id == '4'){
                 return $next($request);
             } else {
-                return response()->json(['error'=> 'Unauthorized'],401);
+                return response()->json(['error'=> 'Unauthorized'],500);
             }
         } else {
-            return response()->json(['error' => 'User hasn\'t logged in'], 401);
+            return response()->json(['error' => 'User hasn\'t logged in'], 500);
         }
         
     }
