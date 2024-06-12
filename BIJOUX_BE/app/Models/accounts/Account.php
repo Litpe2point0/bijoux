@@ -62,7 +62,6 @@ class Account extends Authenticatable implements JWTSubject
             'address' => $this->address,
             'deactivated' => $this->deactivated,
             'deactivated_date' => $this->deactivated_date,
-
         ];
     }
 }

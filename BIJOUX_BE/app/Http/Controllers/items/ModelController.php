@@ -84,7 +84,7 @@ class ModelController extends Controller
             'success' => "Register Successfully",
         ], 201);
     }
-    public function get_model_list(Request $request)//chưa test
+    public function get_model_list(Request $request) //chưa test
     {
         $input = json_decode($request->input('model'), true);
 
@@ -107,7 +107,7 @@ class ModelController extends Controller
             $query_unavailable->where('mounting_style_id', $input['mounting_style_id']);
         }
 
-        $model_available = $query_available->where('isAvailable', true)->orderBy('deactivated', 'asc')->get();
+        $model_available = $query_available->where('isAvailable', true)->orderBy('deactivated', 'asc')->orderBy('created', 'asc')->get();
         $model_available->map(function ($model) {
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
@@ -142,7 +142,7 @@ class ModelController extends Controller
             $model->imageUrl = $OGurl . $url . $model->id . $model->imageUrl;
             return $model;
         });
-        $model_unavailable = $query_unavailable->where('isAvailable', false)->orderBy('deactivated', 'asc')->get();
+        $model_unavailable = $query_unavailable->where('isAvailable', false)->orderBy('deactivated', 'asc')->orderBy('created', 'asc')->get();
         $model_unavailable->map(function ($model) {
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
@@ -182,7 +182,7 @@ class ModelController extends Controller
             'model_unavailable' => $model_unavailable
         ]);
     }
-    public function get_model_detail(Request $request)//chưa test
+    public function get_model_detail(Request $request) //chưa test
     {
         $input = json_decode($request->input('model_information'), true);
         if (!isset($input) || $input == null) {
@@ -228,19 +228,38 @@ class ModelController extends Controller
             'model' => $model
         ]);
     }
-    public function deactivate(Request $request)
+    public function set_deactivate(Request $request)//chưa test
     {
-        $input = json_decode($request->input('model_information'), true);
-        if(!isset($input) || $input == null){
+        $input = json_decode($request->input('deactivate'), true);
+        if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ],404);
+            ], 404);
         }
         DB::beginTransaction();
         try {
-            DB::table('model')->where('id', $input['model_id'])->update([
-                'deactivated' => true,
-            ]);
+            $model = DB::table('model')->where('id', $input['model_id'])->first();
+            if ($input['deactivate']) {
+                if ($model->deactivate == 0) {
+                    DB::table('model')->where('id', $input['model_id'])->update([
+                        'deactivated' => true,
+                    ]);
+                } else {
+                    return response()->json([
+                        'error' => 'The selected model\'s already been deactivated'
+                    ], 403);
+                }
+            } else {
+                if ($model->deactivate == 1) {
+                    DB::table('model')->where('id', $input['model_id'])->update([
+                        'deactivated' => false,
+                    ]);
+                } else {
+                    return response()->json([
+                        'error' => 'The selected model\'s already been activated'
+                    ], 403);
+                }
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -262,9 +281,9 @@ class ModelController extends Controller
             ], 404);
         }
         DB::beginTransaction();
-        try{
+        try {
 
-            $updateData=[
+            $updateData = [
                 'name' => $input['name'],
                 'mounting_type_id' => $input['mounting_type_id'],
                 'mounting_style_id' => $input['mounting_style_id'],
@@ -299,16 +318,16 @@ class ModelController extends Controller
         }
         return response()->json([
             'success' => 'model Update Successfully'
-        ], 201); 
+        ], 201);
     }
     public function set_available(Request $request)
     {
         $model_id = json_decode($request->input('model_id'), true);
         $image_list = json_decode($request->input('image_list'), true);
-        if(!isset($model_id) || $model_id == null || !isset($image_list) || $image_list == null){
+        if (!isset($model_id) || $model_id == null || !isset($image_list) || $image_list == null) {
             return response()->json([
                 'error' => 'Not Enough Input Received'
-            ],404);
+            ], 404);
         }
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -459,10 +478,10 @@ class ModelController extends Controller
     public function set_model_diamond(Request $request)
     {
         $input = json_decode($request->input('new_model_diamond'), true);
-        if(!isset($input) || $input == null){
+        if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ],404);
+            ], 404);
         }
         DB::beginTransaction();
         try {
@@ -489,10 +508,10 @@ class ModelController extends Controller
     public function set_model_shape(Request $request)
     {
         $input = json_decode($request->input('new_model_shape'), true);
-        if(!isset($input) || $input == null){
+        if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ],404);
+            ], 404);
         }
         DB::beginTransaction();
         try {
@@ -515,10 +534,10 @@ class ModelController extends Controller
     public function set_model_metal(Request $request)
     {
         $input = json_decode($request->input('new_model_metal'), true);
-        if(!isset($input) || $input == null){
+        if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ],404);
+            ], 404);
         }
         DB::beginTransaction();
         try {
@@ -543,10 +562,10 @@ class ModelController extends Controller
     public function get_model_diamond(Request $request)
     {
         $input = json_decode($request->input('model_id'), true);
-        if(!isset($input) || $input == null){
+        if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ],404);
+            ], 404);
         }
 
         $model_diamond = DB::table('model_diamond')->where('model_id', $input)->get();
@@ -565,10 +584,10 @@ class ModelController extends Controller
     public function get_model_shape(Request $request)
     {
         $input = json_decode($request->input('model_id'), true);
-        if(!isset($input) || $input == null){
+        if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ],404);
+            ], 404);
         }
 
         $model_shape = DB::table('model_diamondshape')->where('model_id', $input)->get();
@@ -587,10 +606,10 @@ class ModelController extends Controller
     public function get_model_metal(Request $request)
     {
         $input = json_decode($request->input('model_id'), true);
-        if(!isset($input) || $input == null){
+        if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ],404);
+            ], 404);
         }
 
         $model_metal = DB::table('model_metal')->where('model_id', $input)->get();
@@ -612,13 +631,13 @@ class ModelController extends Controller
             DB::table('mounting_type')->get()
         ]);
     }
-    public function get_mounting_style_list()//chưa test
+    public function get_mounting_style_list() //chưa test
     {
         $mounting_style_list = DB::table('mounting_style')->get();
         $mounting_style_list->map(function ($mounting_style) {
             $OGurl = env('ORIGIN_URL');
             $url = env('STYLE_URL');
-            $mounting_style->imageUrl = $OGurl . $url.$mounting_style->id."/".$mounting_style->imageUrl;
+            $mounting_style->imageUrl = $OGurl . $url . $mounting_style->id . "/" . $mounting_style->imageUrl;
             return $mounting_style;
         });
         return response()->json([

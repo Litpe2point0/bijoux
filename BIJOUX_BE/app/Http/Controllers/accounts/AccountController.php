@@ -50,7 +50,7 @@ class AccountController extends Controller
             'success' => 'Login successfully',
         ]);
     }
-    public function login_with_google(Request $request)
+    public function login_with_google(Request $request)//chưa test
     {
         $token = $request->input('tokenId');
 
@@ -465,9 +465,9 @@ class AccountController extends Controller
 
             $account->save();
             $accountId = (int) $account->id;
-            if (isset($input['image']) && $input['image'] != null) {
+            if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
 
-                $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['image']));
+                $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
                 $destinationPath = public_path('image/Accounts/' . $accountId);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
@@ -517,42 +517,30 @@ class AccountController extends Controller
             $base64Data
         ]);
     }
-    public function deactivate(Request $request)
+    public function set_deactivate(Request $request)//chưa test
     {
-        $authorizationHeader = $request->header('Authorization');
-        $token = null;
-
+        $input = json_decode($request->input('deactivate'),true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
             ], 404);
         }
-
-        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
-            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
-            try {
-                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
-            }
-        }
-        $role_id = $decodedToken['role_id'];
-        $account = Account::find($request->account_id);
-        $carbonDate = Carbon::parse(time());
-        $formattedDate = $carbonDate->format('Y-m-d');
-        $account->dob = $formattedDate;
-        if ($account->role_id == '5') {
-            Account::where('id', $account->id)->update([
+        if($input['deactivate']){
+            DB::table('account')->where('id', $input['account_id'] )->update([
                 'deactivated' => true,
-                'deactivated_date' => $formattedDate
+                'deactivated_date' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
             ]);
-        } else if ($role_id == '1') {
-            Account::where('id', $account->id)->update([
-                'deactivated' => true,
-                'deactivated_date' => $formattedDate
+        } else if($input['deactivate'] == false){
+            $now = Carbon::now();
+            $time = $now->startOfDay();
+            DB::table('account')->where('id', $input['account_id'] )->update([
+                'deactivated' => false,
+                'deactivated_date' => $time
             ]);
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'error' => 'Something Happened'
+            ],404);
         }
         return response()->json([
             'success' => 'Deactivate Account Success'

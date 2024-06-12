@@ -33,7 +33,7 @@ class checkDeactivate
         if($role_id == '1' || $role_id == '2'){
             return $next($request);
         } else {
-            return response()->json(['error'=> 'Unauthorized'],401);
+            return response()->json(['error'=> 'Unauthorized'],500);
         }
     }
 }

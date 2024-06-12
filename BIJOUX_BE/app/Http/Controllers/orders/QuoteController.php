@@ -13,6 +13,7 @@ use App\Models\items\Product;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\accounts\Account;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class QuoteController extends Controller
 {
@@ -149,6 +150,17 @@ class QuoteController extends Controller
         DB::beginTransaction();
         try {
             $account_id = $input['account']['id'];
+            $account = DB::table('account')->where('id', $account_id)->first();
+            if($account == null){
+                return response()->json([
+                    'error' => 'The selected Customer account doesn\'t exist'
+                ],403);
+            }
+            if($account->deactivated){
+                return response()->json([
+                    'error' => 'The selected Customer account has been deactivated'
+                ],403);
+            }
 
             $product = new Product();
             $product->mounting_type_id = $type_id;
@@ -206,18 +218,63 @@ class QuoteController extends Controller
                     'error' => 'The selected Quote has been cancelled'
                 ],403);
             }
-            $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : null;
-            $designStaff_id = isset($input['designStaff_id']) ? $input['designStaff_id'] : null;
-            $productionStaff_id = isset($input['productionStaff_id']) ? $input['productionStaff_id'] : null;
+
+            $validator = Validator::make($input, [
+                'saleStaff_id' => 'required',
+                'designStaff_id' => 'required',
+                'productionStaff_id' => 'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'error' => $validator->errors()->first(),
+                ], 403);
+            }
+            
+            $sale_staff = DB::table('account')->where('id', $input['saleStaff_id'])->first();
+            $design_staff = DB::table('account')->where('id', $input['designStaff_id'])->first();
+            $production_staff = DB::table('account')->where('id', $input['productionStaff_id'])->first();
+            if($sale_staff != null){
+                if($sale_staff->role_id != '2'){
+                    return response()->json([
+                        'error' => 'The selected Sale Staff Account is not a sale staff'
+                    ],403);
+                } else if($sale_staff->deactivated){
+                    return response()->json([
+                        'error' => 'The selected Sale Staff Account has been deactivated'
+                    ],403);
+                }
+            }
+            if($design_staff != null){
+                if($design_staff->role_id != '3'){
+                    return response()->json([
+                        'error' => 'The selected Sale Staff Account is not a design staff'
+                    ],403);
+                } else if($design_staff->deactivated){
+                    return response()->json([
+                        'error' => 'The selected Sale Staff Account has been deactivated'
+                    ],403);
+                }
+            }
+            if($production_staff != null){
+                if($production_staff->role_id != '4'){
+                    return response()->json([
+                        'error' => 'The selected Sale Staff Account is not a production staff'
+                    ],403);
+                } else if($production_staff->deactivated){
+                    return response()->json([
+                        'error' => 'The selected Sale Staff Account has been deactivated'
+                    ],403);
+                }
+            }
             if(isset($input['note']) && $input['note'] != null){
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'note' => $input['note']
                 ]);
             } 
             DB::table('quote')->where('id', $input['quote_id'])->update([
-                'saleStaff_id' => $saleStaff_id,
-                'designStaff_id' => $designStaff_id,
-                'productionStaff_id' => $productionStaff_id,
+                'saleStaff_id' => $input['saleStaff_id'],
+                'designStaff_id' => $input['designStaff_id'],
+                'productionStaff_id' => $input['productionStaff_id'],
                 'quote_status_id' => 2
             ]);
             DB::commit();

@@ -10,6 +10,7 @@ class Product_Metal extends Model
     use HasFactory;
     protected $table = 'product_metal';
     public $timestamps=false;
+    protected $primarykey = 'id';
     protected $fillable = [
         'product_id',
         'metal_id',
