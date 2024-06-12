@@ -29,7 +29,7 @@ class AccountController extends Controller
         $account = DB::table('account')->whereRaw('BINARY username = ?', $input['username'])->first();
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
-        
+
         //check account password
         if ($account && Hash::check($input['password'], $account->password)) {
             $user = Account::find($account->id);
@@ -252,7 +252,7 @@ class AccountController extends Controller
                 $updateData['username'] = $input['username'];
             }
             if (!empty($input['password'])) {
-                $updateData['password'] = $input['password'];
+                $updateData['password'] =  Hash::make($input['password']);
             }
             if (!empty($input['fullname'])) {
                 $updateData['fullname'] = $input['fullname'];
