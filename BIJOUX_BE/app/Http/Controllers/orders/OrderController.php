@@ -145,6 +145,341 @@ class OrderController extends Controller
             'template_order_list' => $template_order_list
         ]);
     }
+    public function add_order_template(Request $request)
+    {
+        $input = json_decode($request->input('new_order'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+        $account_id = $input['account']['id'];
+        $product_price = 0;
+        DB::beginTransaction();
+        try {
+            $model = DB::table('model')->where('id', $input['model_id'])->first();
+            if ($model == null) {
+                return response()->json([
+                    'error' => 'The Selected Model Doesn\'t Exist'
+                ], 403);
+            }
+            if ($model->deactivated == 1) {
+                return response()->json([
+                    'error' => 'The Selected Model Has Been Deactivate'
+                ], 403);
+            }
+            $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
+            $metal_1 = DB::table('metal')->where('id', $input['metal_1_id'])->first();
+            if ($metal_1 == null) {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'Unsuccessful (No Main Metal Found)'
+                ], 403);
+            } else if ($metal_1->deactivated == true) {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'An Items That Is Include In This Model Is Currently Deactivated'
+                ], 403);
+            } else {
+                $metal_1_id = $metal_1->id;
+            }
+            $metal_2 = DB::table('metal')->where('id', $input['metal_2_id'])->first();
+            if ($metal_2 == null) {
+                $metal_2_id = 0;
+            } else if ($metal_2->deactivated == true) {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'An Items That Is Include In This Model Is Currently Deactivated'
+                ], 403);
+            } else {
+                $metal_2_id = $metal_2->id;
+            }
+            $destinationPath = public_path('image/Final_templates/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id']);
+            if (!file_exists($destinationPath)) {
+                return response()->json([
+                    'error' => 'Product Is Not Available'
+                ], 403);
+            }
+            $imageUrl = 'main.jpg';
+
+            $mounting_type_id = $model->mounting_type_id;
+
+            $product = new Product();
+            $product->imageUrl = $imageUrl;
+            $product->mounting_type_id = $mounting_type_id;
+            $product->model_id = $input['model_id'];
+            $product->mounting_size = $input['mounting_size'];
+            $product->save();
+
+            $fileName = 'main.jpg';
+            $productPath = public_path('image/Orders/' . $product->id);
+            if (!file_exists($productPath)) {
+                mkdir($productPath, 0755, true);
+            }
+            $destinationFilePath = public_path('image/Orders/' . $product->id . '/' . $fileName);
+            $sourceFilePath = public_path('image/Final_templates/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id'] . $fileName);
+            File::copy($sourceFilePath, $destinationFilePath);
+            DB::table('product')->where('id',$product->id)->update([
+                'imageUrl' => $fileName
+            ]);
+
+            $size_to_volume = DB::table('size_to_volume')->where('size', $input['mounting_size'])->first();
+            $model_metal1 = DB::table('model_metal')->where('metal_id', $metal_1->id)->where('model_id', $input['model_id'])->first();
+            if ($model_metal1 == null || !$model_metal1->is_main) {
+                return response()->json([
+                    'error' => 'The Selected Template Doesn\'t Contain The Selected Main Metal'
+                ], 403);
+            }
+            if ($metal_2 != null) {
+                $model_metal2 = DB::table('model_metal')->where('metal_id', $metal_2->id)->where('model_id', $input['model_id'])->first();
+                if ($model_metal2 == null || $model_metal2->is_main) {
+                    return response()->json([
+                        'error' => 'The Selected Template Doesn\'t Contain The Selected Secondary Metal'
+                    ], 403);
+                }
+            }
+
+
+            $product_metal1 = new Product_Metal();
+            $product_metal1->product_id = $product->id;
+            $product_metal1->metal_id = $metal_1->id;
+            $product_metal1->volume = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100;
+            $product_metal1->weight = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight;
+            $product_metal1->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+            $product_metal1->status = 1;
+            $product_metal1->save();
+            $product_price += $product_metal1['price'];
+
+            if ($metal_2 != null) {
+                $product_metal2 = new Product_Metal();
+                $product_metal2->product_id = $product->id;
+                $product_metal2->metal_id = $metal_2->id;
+                $product_metal2->volume = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100;
+                $product_metal2->weight = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight;
+                $product_metal2->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $product_metal2->status = 1;
+                $product_metal2->save();
+                $product_price += $product_metal2['price'];
+            }
+
+            foreach ($model_diamond as $diamond0) {
+                $product_diamond = new Product_Diamond();
+                if ($diamond0->is_editable == 1) {
+                    $diamond = DB::table('diamond')->where('size', $input['diamond_size'])->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
+                    if ($diamond == null) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'The Selected Diamond Doesn\'t Exist'
+                        ], 403);
+                    }
+                    if ($diamond->deactivated == true) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'An Items That Is Include In This Model Is Currently Deactivated'
+                        ], 403);
+                    }
+                    $product_diamond->product_id = $product->id;
+                    $product_diamond->diamond_id = $diamond->id;
+                    $product_diamond->diamond_shape_id = $input['diamond_shape_id'];
+                    $product_diamond->count = $diamond0->count;
+                    $product_diamond->price = $diamond->price * $diamond0->count;
+                    $product_diamond->status = 1;
+                    $product_diamond->save();
+                } else if ($diamond0->is_editable == 0) {
+                    $diamond = DB::table('diamond')->where('size', $diamond0->diamond_size_max)->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
+                    if ($diamond == null) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'The Selected Diamond Doesn\'t Exist'
+                        ], 403);
+                    }
+                    if ($diamond->deactivated == true) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'An Items That Is Include In This Model Is Currently Deactivated'
+                        ], 403);
+                    }
+                    $product_diamond->product_id = $product->id;
+                    $product_diamond->diamond_id = $diamond->id;
+                    $product_diamond->diamond_shape_id = $diamond0->diamond_shape_id;
+                    $product_diamond->count = $diamond0->count;
+                    $product_diamond->price = $diamond->price * $diamond0->count;
+                    $product_diamond->status = 1;
+                    $product_diamond->save();
+                }
+            }
+
+            $order = new Order();
+            $order->product_id = $product->id;
+            $order->account_id = $account_id;
+            $order->deposit_has_paid = 0;
+            $order->product_price = $product_price;
+            $order->profit_rate = $model->profit_rate;
+            $order->production_price = $model->production_price;
+            $order->total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100) / 100;
+            $order->order_type_id = 1;
+            $order->order_status_id = 1;
+            $order->note = $input['note'];
+            $order->created = Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s');
+            $order->save();
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
+        return response()->json([
+            'success' => 'Order Succesfully Created',
+        ]);
+    }
+    public function reassign_order(Request $request) //
+    {
+        $input = json_decode($request->input('assigned_information'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+        DB::beginTransaction();
+        try {
+            $order = DB::table('orders')->where('id', $input['order_id'])->first();
+            if ($order->order_status_id == 4) {
+                DB::rollback();
+                return response()->json([
+                    'error' => 'The Selected Order Can No Longer Be Reassigned'
+                ], 403);
+            }
+            if ($order->order_status_id == 5) {
+                DB::rollback();
+                return response()->json([
+                    'error' => 'The Selected Order Has Already Been Completed'
+                ], 403);
+            }
+            if ($order->order_status_id == 6) {
+                DB::rollback();
+                return response()->json([
+                    'error' => 'The Selected Order Has Already Been Cancelled'
+                ], 403);
+            }
+            $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : $order->saleStaff_id;
+            $designStaff_id = isset($input['designStaff_id']) ? $input['designStaff_id'] : $order->designStaff_id;
+            $productionStaff_id = isset($input['productionStaff_id']) ? $input['productionStaff_id'] : $order->productionStaff_id;
+            if ($saleStaff_id != null) $sale_staff = DB::table('account')->where('id', $saleStaff_id)->first();
+            if ($designStaff_id != null) $design_staff = DB::table('account')->where('id', $designStaff_id)->first();
+            if ($productionStaff_id != null) $production_staff = DB::table('account')->where('id', $productionStaff_id)->first();
+            if ($sale_staff != null) {
+                if ($sale_staff->role_id != '2') {
+                    return response()->json([
+                        'error' => 'The Selected Sale Staff Account Is Not a Sale Staff'
+                    ], 403);
+                } else if ($sale_staff->deactivated) {
+                    return response()->json([
+                        'error' => 'The Selected Sale Staff Account Has Been Deactivated'
+                    ], 403);
+                }
+            }
+            if ($design_staff != null) {
+                if ($design_staff->role_id != '3') {
+                    return response()->json([
+                        'error' => 'The Selected Design Staff Account Is Not a Design Staff'
+                    ], 403);
+                } else if ($design_staff->deactivated) {
+                    return response()->json([
+                        'error' => 'The Selected Design Staff Account Has Been Deactivated'
+                    ], 403);
+                }
+            }
+            if ($production_staff != null) {
+                if ($production_staff->role_id != '4') {
+                    return response()->json([
+                        'error' => 'The Selected Production Staff Account Is Not a Production Staff'
+                    ], 403);
+                } else if ($production_staff->deactivated) {
+                    return response()->json([
+                        'error' => 'The Selected Production Staff Account Has Been Deactivated'
+                    ], 403);
+                }
+            }
+            if (isset($input['note']) && $input['note'] != null) {
+                DB::table('orders')->where('id', $input['order_id'])->update([
+                    'note' => $input['note']
+                ]);
+            }
+            DB::table('orders')->where('id', $input['order_id'])->update([
+                'saleStaff_id' => $saleStaff_id,
+                'designStaff_id' => $designStaff_id,
+                'productionStaff_id' => $productionStaff_id
+            ]);
+            DB::table('quote')->where('product_id', $order->product_id)->update([
+                'saleStaff_id' => $saleStaff_id,
+                'designStaff_id' => $designStaff_id,
+                'productionStaff_id' => $productionStaff_id
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
+        return response()->json([
+            'success' => 'Successfully Reassign'
+        ], 201);
+    }
+    public function cancel_order(Request $request)
+    {
+        $input = json_decode($request->input('cancel'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $id = (int) $decodedToken['id'];
+        $account = Account::find($id);
+        if ($account->role_id != 1 && $account->role_id != 5) {
+            return response()->json([
+                'error' => 'Invalid User (User is Unauthorized)'
+            ], 500);
+        }
+        DB::beginTransaction();
+        try {
+            $order = DB::table('orders')->where('id', $input['order_id'])->first();
+            if ($order->order_status_id == 5) {
+                return response()->json([
+                    'error' => 'Order Has Already Been Completed, Action Can\'t Be Performed'
+                ], 403);
+            }
+            if ($order->order_status_id == 6) {
+                return response()->json([
+                    'error' => 'Order Has Already Been Cancelled, Action Can\'t Be Performed'
+                ], 403);
+            }
+            DB::table('orders')->where('id', $input['order_id'])->update([
+                'order_status_id' => 6,
+                'note' => $input['note']
+            ]);
+            DB::table('design_process')->where('order_id', $input['order_id'])->update([
+                'design_process_status_id' => 4,
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
+        return response()->json([
+            'success' => 'Cancel Successfully'
+        ], 201);
+    }
     public function get_order_status_list()
     {
         return response()->json([
@@ -199,7 +534,7 @@ class OrderController extends Controller
             $OGurl = env('ORIGIN_URL');
             $url = env('DIAMOND_URL');
             $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
-            $diamond->imageUrl = $OGurl . $url . $diamond->id . "/" . $diamond->imageUrl;
+            $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
             $product_diamond->diamond = $diamond;
 
             $product_diamond->diamond_shape_id = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
@@ -1099,6 +1434,26 @@ class OrderController extends Controller
             'success' => 'Design Process Approve Successfully'
         ], 200);
     }
+    // public function cancel_design_process(Request $request)
+    // {
+    //     $input = json_decode($request->input('design_process_id'), true);
+    //     if (!isset($input) || $input == null) {
+    //         return response()->json([
+    //             'error' => 'No Input Received'
+    //         ], 403);
+    //     }
+    //     $design_process = DB::table('design_process')->where('id', $input)->first();
+    //     $order = DB::table('orders')->where('id', $design_process->order_id)->first();
+    //     DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->delete();
+    //     DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->delete();
+    //     DB::table('design_process')->where('id', $input)->update([
+    //         'design_process_status_id' => 4
+    //     ]);
+    //     return response()->json([
+    //         'success' => 'Cancel Successfully'
+    //     ], 201);
+    // }
+
     public function get_design_process_status_list(Request $request)
     {
         return response()->json([
@@ -1200,7 +1555,7 @@ class OrderController extends Controller
             $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
             $OGurl = env('ORIGIN_URL');
             $url = env('DIAMOND_URL');
-            $diamond->imageUrl = $OGurl . $url . $diamond->id . "/" . $diamond->imageUrl;
+            $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
             $product_diamond->diamond = $diamond;
 
             $product_diamond->diamond_shape_id = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
@@ -1409,6 +1764,100 @@ class OrderController extends Controller
             DB::table('production_status')->get()
         );
     }
+    public function add_production_process(Request $request)
+    {
+        $input = json_decode($request->input('new_production_process'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+
+        $production_process = DB::table('production_process')->where('order_id', $input['order_id'])->orderBy('created', 'desc')->first();
+        $previous_status = 0;
+        $order = DB::table('orders')->where('id', $input['order_id'])->first();
+        if ($order == null) {
+            return response()->json([
+                'error' => 'The Selected Order Doesn\'t Exist'
+            ], 403);
+        }
+        if ($order->order_status_id != 3) {
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Ready For Production'
+            ], 403);
+        }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $id = (int) $decodedToken['id'];
+        if ($order->productionStaff_id != $id) {
+            return response()->json([
+                'error' => 'Your Account Isn\'t Assigned To The Selected Order'
+            ], 403);
+        }
+        DB::beginTransaction();
+        try {
+            if ($production_process != null) {
+                $previous_status = $production_process->production_status_id;
+            }
+            if ($input['production_status_id'] - $previous_status <= 1) {
+                if($input['production_status_id'] == 6){
+                    if(!isset($input['imageUrl']) && $input['imageUrl'] == null){
+                        return response()->json([
+                            'error' => 'An Image Is Needed For The Final Status'
+                        ],403);
+                    }
+                }
+                $id = DB::table('production_process')->insertGetId([
+                    'order_id' => $input['order_id'],
+                    'production_status_id' => $input['production_status']['id'],
+                    'imageUrl' => "",
+                    'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                ]);
+
+                if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
+                    $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
+                    $destinationPath = public_path('image/Job/production_process/' . $input['order_id']);
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
+                    }
+                    $fileName = time() . '_' . $id . '.jpg';
+                    file_put_contents($destinationPath . '/' . $fileName, $fileData);
+                } else {
+                    $fileName = time() . '_' . $id . '.jpg';
+                    $destinationPath = public_path('image/Job/production_process/' . $input['order_id']);
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
+                    }
+                    $destinationFilePath = public_path('image/Job/production_process/' . $input['order_id'] . '/' . $fileName);
+                    $sourceFilePath = public_path('image/Job/production_process/unknown.jpg');
+                    File::copy($sourceFilePath, $destinationFilePath);
+                }
+                DB::table('production_process')->where('id', $id)->update([
+                    'imageUrl' => $fileName
+                ]);
+            } else {
+                return response()->json([
+                    'error' => 'Production Status Can\'t Be 2 Status Higher Than The Previous Status'
+                ], 0);
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
+        return response()->json([
+            'Success' => 'Production Process Successfully Added'
+        ], 201);
+    }
     public function get_production_process_list(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);
@@ -1428,6 +1877,87 @@ class OrderController extends Controller
         return response()->json([
             $production_process_list
         ]);
+    }
+    public function production_complete(Request $request)
+    {
+        $input = json_decode($request->input('order_id'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+        $order = DB::table('orders')->where('id', $input)->first();
+        if ($order == null) {
+            return response()->json([
+                'error' => 'The Selected Order Doesn\'t Exist'
+            ], 403);
+        }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $id = (int) $decodedToken['id'];
+        if ($order->productionStaff_id != $id) {
+            return response()->json([
+                'error' => 'Your Account Isn\'t Assigned To The Selected Order'
+            ], 403);
+        }
+        DB::beginTransaction();
+        try {
+            $production_process = DB::table('production_process')->where('order_id', $input)->orderBy('created', 'asc')->get();
+            $previous_status = 0;
+            $complete = false;
+            foreach ($production_process as $production) {
+                $current_status = $production->production_status_id;
+                if ($current_status == 6) {
+                    $complete = true;
+                } elseif ($current_status - $previous_status == 1) {
+                    $previous_status = $current_status;
+                    $complete = false;
+                } elseif ($current_status <= $previous_status) {
+                    $previous_status = $current_status;
+                    $complete = false;
+                }
+            }
+            if ($complete) {
+                $production_process = DB::table('production_process')->where('order_id', $input)->orderBy('id', 'desc')->first();
+                DB::table('product')->where('id', $order->product_id)->update([
+                    'imageUrl' => $production_process->imageUrl
+                ]);
+                DB::table('orders')->where('id', $input)->update([
+                    'order_status_id' => 4
+                ]);
+
+                $fileName = 'main.jpg';
+                $destinationPath = public_path('image/Orders/' . $order->product_id);
+                File::cleanDirectory($destinationPath);
+                $destinationFilePath = public_path('image/Orders/' . $order->product_id . '/' . $fileName);
+                $sourceFilePath = public_path('image/Job/production_process/' . $order->id . '/' . $production_process->imageUrl);
+                File::copy($sourceFilePath, $destinationFilePath);
+                DB::table('product')->where('id', $order->product_id)->update([
+                    'imageUrl' => $fileName
+                ]);
+
+                DB::commit();
+                return response()->json([
+                    'success' => 'Production Complete'
+                ]);
+            } else {
+                return response()->json([
+                    'error' => 'The Condition To Complete The Order Hasn\'t Met'
+                ], 403);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
     }
     public function get_product_detail(Request $request) //chưa test
     {
@@ -1496,7 +2026,7 @@ class OrderController extends Controller
             $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
             $OGurl = env('ORIGIN_URL');
             $url = env('DIAMOND_URL');
-            $diamond->imageUrl = $OGurl . $url . $diamond->id . '/' . $diamond->imageUrl;
+            $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
             $product_diamond->diamond = $diamond;
             $product_diamond->diamond_shape_id = DB::table('diamond_shape_id')->where('id', $product_diamond->diamond_shape_id)->first();
             unset($product_diamond->diamond_id);
@@ -1524,5 +2054,115 @@ class OrderController extends Controller
         return response()->json([
             $product
         ]);
+    }
+    public function confirm_payment() //chưa test
+    {
+        $vnp_HashSecret = env('VNP_HASH_SECRET');
+        $vnp_SecureHash = $_GET['vnp_SecureHash'];
+        $inputData = array();
+        foreach ($_GET as $key => $value) {
+            if (substr($key, 0, 4) == "vnp_") {
+                $inputData[$key] = $value;
+            }
+        }
+
+        unset($inputData['vnp_SecureHash']);
+        ksort($inputData);
+        $i = 0;
+        $hashData = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+        }
+
+        DB::beginTransaction();
+        try {
+            $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+            if ($secureHash == $vnp_SecureHash) {
+                if ($_GET['vnp_ResponseCode'] == '00') {
+                    $account_id = $_GET['account_id'];
+                    $order_id = $_GET['order_id'];
+                    $payment_type_id = $_GET['payment_type_id'];
+                    $money = $_GET['vnp_Amount'];
+                    DB::table('payment')->insert([
+                        'account_id' => $account_id,
+                        'order_id' => $order_id,
+                        'payment_type_id' => $payment_type_id,
+                        'money' => $money,
+                        'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                    ]);
+                    if ($payment_type_id == 1) {
+                        $order = DB::table('orders')->where('id', $order_id)->first();
+                        $design_process = DB::table('design_process')->where('order_id', $order_id)->first();
+                        $product = DB::table('product')->where('id', $order->product_id)->first();
+                        if ($order->order_type_id == 1) {
+                            DB::table('orders')->where('id', $order_id)->update([
+                                'order_status_id' => 3
+                            ]);
+                            $id = DB::table('production_process')->insertGetId([
+                                'order_id' => $order_id,
+                                'production_status_id' => 1,
+                                'imageUrl' => $product->imageUrl,
+                                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                            ]);
+                            $fileName = time() . '_' . $id . '.jpg';
+                            $destinationPath = public_path('image/Job/production_process/' . $order_id);
+                            if (!file_exists($destinationPath)) {
+                                mkdir($destinationPath, 0755, true);
+                            }
+                            $destinationFilePath = public_path('image/Job/production_process/' . $order_id . '/' . $fileName);
+                            $sourceFilePath = public_path('image/Orders/'.$product->id.'/'.$product->imageUrl);
+                            File::copy($sourceFilePath, $destinationFilePath);
+                        } else if ($design_process != null) {
+                            DB::table('orders')->where('id', $order_id)->update([
+                                'order_status_id' => 3
+                            ]);
+                            $id = DB::table('production_process')->insertGetId([
+                                'order_id' => $order_id,
+                                'production_status_id' => 1,
+                                'imageUrl' => $product->imageUrl,
+                                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                            ]);
+                            $fileName = time() . '_' . $id . '.jpg';
+                            $destinationPath = public_path('image/Job/production_process/' . $order_id);
+                            if (!file_exists($destinationPath)) {
+                                mkdir($destinationPath, 0755, true);
+                            }
+                            $destinationFilePath = public_path('image/Job/production_process/' . $order_id . '/' . $fileName);
+                            $sourceFilePath = public_path('image/Orders/'.$product->id.'/'.$product->imageUrl);
+                        } else {
+                            DB::table('orders')->where('id', $order_id)->update([
+                                'order_status_id' => 2
+                            ]);
+                        }
+                    } else if ($payment_type_id == 2) {
+                        DB::table('orders')->where('id', $order_id)->update([
+                            'order_status_id' => 5
+                        ]);
+                    }
+                } else {
+                    DB::rollBack();
+                    return response()->json([
+                        'error' => 'Transaction Not Successfull'
+                    ], 403);
+                }
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'Invalid VNP Hash'
+                ], 403);
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
+        return response()->json([
+            'success' => 'Transaction Complete'
+        ], 200);
     }
 }
