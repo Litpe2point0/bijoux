@@ -33,7 +33,7 @@ class checkUserLogin
         if ($decodedToken) {
             return $next($request);
         } else {
-            return response()->json(['error' => 'User hasn\'t logged in'], 401);
+            return response()->json(['error' => 'User hasn\'t logged in'], 500);
         }
         
     }

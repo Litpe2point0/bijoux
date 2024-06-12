@@ -35,10 +35,10 @@ class checkManager
             if ($role_id == '1') {
                 return $next($request);
             } else {
-                return response()->json(['error' => 'Unauthorized'], 401);
+                return response()->json(['error' => 'Unauthorized'], 500);
             }
         } else {
-            return response()->json(['error' => 'User hasn\'t logged in'], 401);
+            return response()->json(['error' => 'User hasn\'t logged in'], 500);
         }
     }
 }
