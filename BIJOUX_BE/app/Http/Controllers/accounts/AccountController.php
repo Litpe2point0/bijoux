@@ -27,7 +27,9 @@ class AccountController extends Controller
 
         //check account existed (case sensitive)
         $account = DB::table('account')->whereRaw('BINARY username = ?', $input['username'])->first();
-
+        $OGurl = env('ORIGIN_URL');
+        $url = env('ACCOUNT_URL');
+        
         //check account password
         if ($account && Hash::check($input['password'], $account->password)) {
             $user = Account::find($account->id);
@@ -39,7 +41,8 @@ class AccountController extends Controller
                 $expiration = Carbon::now()->addHours(5)->timestamp;
             }
             $customClaims = [
-                'exp' => $expiration
+                'exp' => $expiration,
+                'imageUrl' => $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl
             ];
 
             //create jwt token
@@ -136,7 +139,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;     
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
             return $account;
         });
