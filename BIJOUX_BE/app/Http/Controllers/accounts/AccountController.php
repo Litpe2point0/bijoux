@@ -131,6 +131,8 @@ class AccountController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             return $account;
         });
         $staff_list = Account::whereNot('role_id', 5)->whereNot('role_id', 1)->orderBy('deactivated', 'asc')->get();
@@ -141,6 +143,8 @@ class AccountController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             return $account;
         });
         return response()->json([
@@ -158,6 +162,8 @@ class AccountController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             return $account;
         });
         $design_staff_list = Account::where('role_id', 3)->orderBy('deactivated', 'asc')->get();
@@ -168,6 +174,8 @@ class AccountController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             return $account;
         });
         $production_staff_list = Account::where('role_id', 4)->orderBy('deactivated', 'asc')->get();
@@ -178,6 +186,8 @@ class AccountController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             return $account;
         });
         return response()->json([
@@ -196,7 +206,7 @@ class AccountController extends Controller
             ], 404);
         }
         //find account
-        $account = Account::where('id', $input['account_id'])->first();
+        $account = Account::where('id', $input['id'])->first();
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();
@@ -204,6 +214,8 @@ class AccountController extends Controller
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
         $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+        $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+        $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
 
         //append order history to account
         $order_history = DB::table('orders')->where('account_id', $account->id)->get();
