@@ -286,6 +286,9 @@ class AccountController extends Controller
 
                 $updateData['imageUrl'] = $fileName;
             }
+            if (!empty($input['role'])) {
+                $updateData['role_id'] = $input['role']['id'];
+            }
 
             //update the account
             $account->update($updateData);
