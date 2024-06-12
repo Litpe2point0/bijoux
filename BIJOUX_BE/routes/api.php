@@ -60,7 +60,7 @@ Route::group(['prefix' => 'items'], function () {
         Route::post('/get_model_metal', [ModelController::class, 'get_model_metal']);
         Route::post('/get_mounting_type_list', [ModelController::class, 'get_mounting_type_list']);
         Route::post('/get_mounting_style_list', [ModelController::class, 'get_mounting_style_list']);
-        Route::post('/get_final_template', [ModelController::class, 'get_final_template']);
+        Route::post('/get_final_checkout', [ModelController::class, 'get_final_checkout']);
 
         Route::middleware('checkManager')->group(function () {
             Route::post('/add', [ModelController::class, 'add']);
