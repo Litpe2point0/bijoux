@@ -83,7 +83,6 @@ Route::group(['prefix' => 'items'], function () {
             Route::post('/add', [MetalController::class, 'add']);
             Route::post('/update_price', [MetalController::class, 'update_price']);
             Route::post('/set_deactivate', [MetalController::class, 'set_deactivate']);
-            Route::post('/update', [MetalController::class, 'update']);
         });
     });
 

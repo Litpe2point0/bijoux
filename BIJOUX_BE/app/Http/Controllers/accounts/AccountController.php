@@ -29,7 +29,7 @@ class AccountController extends Controller
         $account = DB::table('account')->whereRaw('BINARY username = ?', $input['username'])->first();
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
-        
+
         //check account password
         if ($account && Hash::check($input['password'], $account->password)) {
             $user = Account::find($account->id);
@@ -232,11 +232,11 @@ class AccountController extends Controller
             ], 404);
         }
 
-        if (!isset($input['account_id']) || $input['account_id'] == null) {
+        if (!isset($input['id']) || $input['id'] == null) {
             return response()->json(['error' => 'No Account id Received'], 400);
         }
 
-        $id = $input['account_id'];
+        $id = $input['id'];
         //find account
         $account = Account::find($id);
 
@@ -252,7 +252,7 @@ class AccountController extends Controller
                 $updateData['username'] = $input['username'];
             }
             if (!empty($input['password'])) {
-                $updateData['password'] = $input['password'];
+                $updateData['password'] =  Hash::make($input['password']);
             }
             if (!empty($input['fullname'])) {
                 $updateData['fullname'] = $input['fullname'];
@@ -272,7 +272,7 @@ class AccountController extends Controller
             if (!empty($input['imageUrl'])) {
                 //update account image
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                $destinationPath = public_path('image/Accounts/' . $id);
+                $destinationPath = public_path('image/Account/' . $id);
                 //check destination path if not create one
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
@@ -285,6 +285,9 @@ class AccountController extends Controller
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
                 $updateData['imageUrl'] = $fileName;
+            }
+            if (!empty($input['role'])) {
+                $updateData['role_id'] = $input['role']['id'];
             }
 
             //update the account
@@ -351,7 +354,7 @@ class AccountController extends Controller
                 //update account image
                 $accountId = (int) $account->id;
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                $destinationPath = public_path('image/Accounts/' . $accountId);
+                $destinationPath = public_path('image/Account/' . $accountId);
                 //check destination path if not create one
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
@@ -423,7 +426,7 @@ class AccountController extends Controller
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                 //input account image if have
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                $destinationPath = public_path('image/Accounts/' . $accountId);
+                $destinationPath = public_path('image/Account/' . $accountId);
                 //check destination path if not create one
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
@@ -436,13 +439,13 @@ class AccountController extends Controller
             } else {
                 //input unknown.jpg into account image
                 $fileName = time() . '_' . $accountId . '.jpg';
-                $destinationPath = public_path('image/Accounts/' . $accountId);
+                $destinationPath = public_path('image/Account/' . $accountId);
                 //check destination path if not create one
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $destinationFilePath = public_path('image/Accounts/' . $accountId . '/' . $fileName);
-                $sourceFilePath = public_path('image/Accounts/unknown.jpg');
+                $destinationFilePath = public_path('image/Account/' . $accountId . '/' . $fileName);
+                $sourceFilePath = public_path('image/Account/unknown.jpg');
                 //copy unknown.jpg to the created directory
                 File::copy($sourceFilePath, $destinationFilePath);
                 $account->imageUrl = $fileName;
