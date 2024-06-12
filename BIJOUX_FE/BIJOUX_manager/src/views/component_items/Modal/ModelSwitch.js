@@ -24,7 +24,7 @@ const Model_Switch = (props) => {
         setChecked(check)
         console.log(check)
         setVisible(true)
-
+        setIsAccepted(false)
     }
 
     return (
@@ -32,10 +32,8 @@ const Model_Switch = (props) => {
             <Switch checked={checked} color={props.color} size="small" sx={{
                 
                 '& .MuiSwitch-thumb': {
-                    //boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
                     width: 13,
                     height: 13,
-                    //borderRadius: 6,
                 },
                 '& .MuiSwitch-track': {
                     width: '100%',

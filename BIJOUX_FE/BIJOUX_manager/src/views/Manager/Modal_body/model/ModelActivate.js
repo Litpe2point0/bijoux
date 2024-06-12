@@ -8,9 +8,9 @@ import {
     CRow,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/accounts/Account_Api";
 import { useDispatch } from "react-redux";
-import { setToast } from "../../../redux/notification/toastSlice";
+import { setToast } from "../../../../redux/notification/toastSlice";
 
 
 
@@ -33,7 +33,7 @@ const CustomForm = ({ modelInfo, activate, onClose }) => {
             model_id: model_id,
             deactivate: activate
         }
-        console.log('deactivateeeeeeeeeeeeeeeeeeeeee', deactivate)
+        console.log('deactivate', deactivate)
         const formData = new FormData();
         formData.append('deactivate', deactivate);
 

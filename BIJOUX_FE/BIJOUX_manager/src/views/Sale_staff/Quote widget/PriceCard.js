@@ -77,7 +77,7 @@ const PriceCard = ({ quote, handleChange }) => {
                     </CCol>
                     <CCol sm={6} md={6} lg={6}>
                         <CInputGroup >
-                            <CFormInput type="number" min={0} className="h-50 quote-detail-card" defaultValue={productionPrice}  onChange={(e)=>setProductionPrice(parseFloat(e.target.value))}/>
+                            <CFormInput type="number" min={0} className="h-50 quote-detail-card" defaultValue={productionPrice}  onChange={(e)=>setProductionPrice(parseFloat(e.target.value) )}/>
                             <CInputGroupText className="px-1 py-0">
                                 <Pencil size={15} color="white" weight="duotone" />
                             </CInputGroupText>

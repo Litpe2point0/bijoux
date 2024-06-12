@@ -9,6 +9,8 @@ import { jwtDecode } from "jwt-decode";
 
 
 export const checkTokenValidity = (token) => {
+  
+
   if (token) {
     try {
       const decodedToken = jwtDecode(token);
@@ -16,7 +18,6 @@ export const checkTokenValidity = (token) => {
       //alert(decodedToken.exp+  " và "+ now)
       if (decodedToken.exp < now) {
         //alert("TOKEN HẾT HẠN")
-        dispatch(clearAuthToken());  
         return false;
       }else{
         //alert("TOKEN còn HẠN")

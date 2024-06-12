@@ -264,9 +264,11 @@ const get_roleNav = (role_id, account_id) => {
       {
         component: CNavItem,
         name: 'Assigned Quotes',
-        disabled: account_id == 7,
+        //disabled: account_id == 7,
         to: '/quotes_sale_staff/table',
-        icon: <FileText size={35} color={account_id == 7 ? "gray": "red"} weight="duotone" />,  //cil-fastfood
+        //icon: <FileText size={35} color={account_id == 7 ? "gray": "red"} weight="duotone" />,  //cil-fastfood
+        icon: <FileText size={35} color={"red"} weight="duotone" />,  //cil-fastfood
+
         badge: {
           color: 'info',
           text: 'NEW',

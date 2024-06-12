@@ -25,20 +25,19 @@ import {
     CModalTitle,
     CModalFooter,
 } from '@coreui/react'
-import './../style/style.css'
+import './../style.css'
 import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextareaAutosize } from "@mui/material";
 //import Button from '@mui/joy/Button';
 import { PlusCircle, XCircle } from "phosphor-react";
-import MetalAdd from "../Modal_body/MetalAdd";
-import DiamondAdd from "../Modal_body/DiamondAdd";
-import { get_diamond_imageUrl } from "../../../api/Back_End_Url";
+import DiamondAdd from "../DiamondAdd";
+import { get_diamond_imageUrl } from "../../../../../api/Back_End_Url";
 
 
 
 
 
-export default function DiamondCard({ product, handleChange }) {
-    const [diamondList, setDiamondList] = useState(product.product_diamond)
+export default function DiamondCard({ model, handleChange }) {
+    const [diamondList, setDiamondList] = useState(model ? model.model_diamond :[])
     const [visible, setVisible] = useState(false)
     const handleClose = () => {
         setVisible(false);
@@ -68,9 +67,8 @@ export default function DiamondCard({ product, handleChange }) {
                             className="rounded-pill fw-bold"
                             variant="outlined"
                             color="warning"
-                            startIcon={<PlusCircle size={25} color="peru" weight="duotone" />}    
-                            /* disabled={product.product_diamond.length > 0} */
-                            >
+                            startIcon={<PlusCircle size={25} color="peru" weight="duotone" />}
+                        >
                             Add Diamond
                         </Button>
                         <CModal backdrop="static" visible={visible} onClose={() => setVisible(false)} >
@@ -90,29 +88,24 @@ export default function DiamondCard({ product, handleChange }) {
                         return (
                             <ListItem>
                                 <ListItemAvatar>
-                                    <Avatar>
-                                        <img width={'100%'} src={item.diamond.imageUrl} alt="metal" />
-
-                                    </Avatar>
+                                    <span className="bg-light rounded h-auto text-dark p-2" style={{ height: '100%', fontSize: 'small' }}>
+                                        <svg fill='none' viewBox="0 0 18 18" style={{ width: 'fit-content' }} height="30" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke="#151542" stroke-linejoin="bevel" stroke-width="0.3" d={item.diamond_shape.drawing_path} />
+                                        </svg>
+                                        </span>
 
                                 </ListItemAvatar>
+
                                 <ListItemText className="text-dark w-25" primary='Shape' secondary={item.diamond_shape.name} />
-                                <ListItemText className="text-dark w-25" primary='Size' secondary={item.diamond.size} />
-                                <ListItemText className="text-dark w-25" primary='Origin' secondary={item.diamond.diamond_origin.name} />
-                                <ListItemText className="text-dark w-25" primary='Color' secondary={item.diamond.diamond_color.name} />
-                                <ListItemText className="text-dark w-25" primary='Clarity' secondary={item.diamond.diamond_clarity.name} />
+                                <ListItemText className="text-dark w-25" primary='Min Size' secondary={item.diamond_size_min} />
+                                <ListItemText className="text-dark w-25" primary='Max Size' secondary={item.diamond_size_max} />
                                 <ListItemText className="text-dark w-25" primary='Count' secondary={item.count} />
-                                <ListItemText className="text-dark w-25" primary='Total Price' secondary={item.price + ' vnd'} />
-                                {/* {product.product_metal.length == 0 &&
-                                    <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
-                                        <XCircle size={30} color="crimson" weight="duotone" />
-                                    </IconButton>
-                                } */}
-                               
-                                    <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
-                                        <XCircle size={30} color="crimson" weight="duotone" />
-                                    </IconButton>
-                                
+                                <ListItemText className="text-dark w-25" primary='Status' secondary={item.is_editable ? 'Editable' : 'Uneditable'} />
+
+                                <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
+                                    <XCircle size={30} color="crimson" weight="duotone" />
+                                </IconButton>
+
                             </ListItem>
                         )
                     })}

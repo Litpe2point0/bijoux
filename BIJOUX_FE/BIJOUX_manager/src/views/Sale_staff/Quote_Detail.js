@@ -38,8 +38,8 @@ import Textarea from '@mui/joy/Textarea';
 import AccountCard from "./Quote widget/AccountCard";
 import QuoteDetailCard from "./Quote widget/QuoteDetailCard";
 import NoteCard from "./Quote widget/NoteCard";
-import MetalCard from "./Quote widget/MetalCard";
-import DiamondCard from "./Quote widget/DiamondCard";
+import MetalCard from "./Modal_body/model/widget/MetalCard";
+import DiamondCard from "./Modal_body/model/widget/DiamondCard";
 import UploadSingle from "./Quote widget/UploadSingle";
 import OtherCard from "./Quote widget/OtherCard";
 import PriceCard from "./Quote widget/PriceCard";
@@ -307,23 +307,20 @@ const Quote_Detail = () => {
         console.log('mounting_type id', type_id)
         console.log('mounting_size', mounting_size)
         setTypeId(type_id);
-        setSize(mounting_size);
+        setSize(mounting_size > 0 ? mounting_size : 0);
     }
     const handlePrice = (profit_rate, production_price) => {
         console.log('profit rate', profit_rate)
         console.log('production price', production_price)
         setProfitRate(profit_rate);
-        setProductionPrice(isNaN(production_price) ? 0 : production_price);
+        setProductionPrice(production_price >0 ? production_price : 0);
     }
 
 
-    const url_param = useParams();
 
     useEffect(() => {
         const setAttribute = async () => {
-            await get_account_list();
-            const quote_id = url_param.id;
-            
+            await get_account_list();            
             
             const quote_detail = quote_detail_data.quote_detail;
             if(quote_detail.quote_status.id !== 2){
@@ -370,13 +367,15 @@ const Quote_Detail = () => {
         }
         console.log('report', report)
         // set toast
+        dispatch(setToast({ color: "success", title: 'Quote [ID: #' + quote.id+']' , mess: "Pricing successfully !" }))
+
         navigate('/quotes_sale_staff/table')
     }
     return (
         <div>
             <CRow>
                 <CCol xs={12}>
-                    {quote == null ? <CButton className="w-100" color="secondary" disabled>
+                    {loading ? <CButton className="w-100" color="secondary" disabled>
                         <CSpinner as="span" size="sm" aria-hidden="true" />
                         Loading...
                     </CButton> :

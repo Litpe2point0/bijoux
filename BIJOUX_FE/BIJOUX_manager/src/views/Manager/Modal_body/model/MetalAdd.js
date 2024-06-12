@@ -10,12 +10,6 @@ import {
     CFormCheck,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
-import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
-import { useDispatch } from "react-redux";
-import { setToast } from "../../../redux/notification/toastSlice";
-import Checkbox, { checkboxClasses } from '@mui/joy/Checkbox';
-import Sheet from '@mui/joy/Sheet';
 import { Avatar, Button, ListItemAvatar, ListItemText } from "@mui/material";
 import { Coins } from "phosphor-react";
 import List from '@mui/joy/List';
@@ -23,6 +17,7 @@ import ListItem from '@mui/joy/ListItem';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
+import { get_account_list } from "../../../../api/accounts/Account_Api";
 
 const metal = [
     {
@@ -67,23 +62,24 @@ const metal = [
     }
 ]
 const CustomForm = ({ handleAddMetal, onClose }) => {
-    const dispatch = useDispatch();
     const [validated, setValidated] = useState(false)   //check form điền đầy đủ chưa
-    const [isSearch, setIsSearch] = useState(false)   //check form điền đầy đủ chưa
     const [loading, setLoading] = useState(true)  //loading
     const [metalList, setMetalList] = useState(null);  //danh sách kim loại
 
 
-    const [selectedMetal, setSelectedMetal] = useState(null);  // kim loại được chọn
-    const [addVolume, setAddVolume] = useState(0);       //thể tích
-    const [addWeight, setAddWeight] = useState(0); //trọng lượng
-    const [addPrice, setAddPrice] = useState(0); //giá
+    const [selectedMetal, setSelectedMetal] = useState(null);  
+    const [addPercentage, setAddPercentage] = useState(0);  
+    const [isMain, setIsMain] = useState(true);   
+
+
 
 
     useEffect(() => {
         const setAttribute = async () => {
             await get_account_list();
+            
             setMetalList(metal)
+            setSelectedMetal(metal[0])
             setLoading(false);
         }
         setAttribute()
@@ -92,42 +88,20 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
 
     useEffect(() => {
         console.log('select metal', selectedMetal)
-        console.log('add volume', addVolume)
-        console.log('add weight', addWeight)
-        console.log('add price', addPrice)
-    }, [selectedMetal, addVolume, addWeight, addPrice])
+        console.log('add Percentage', addPercentage)
+        console.log('is main', isMain)
+    }, [selectedMetal, addPercentage,isMain])
 
 
     const handleMetalSelect = (event) => {
         const selectedItem = JSON.parse(event.target.value);
         setSelectedMetal(selectedItem);
-        setIsSearch(false)
     };
-    const handleVolumeChange = (e) => {
+    const handlePercentageChange = (e) => {
 
-        setAddVolume(parseInt(e.target.value))
-        setIsSearch(false)
+        setAddPercentage(parseInt(e.target.value))
     }
-    const handleSearch = () => {
 
-        const setWeightPrice = async () => {
-            await get_account_list();
-
-
-            let metal_information = {
-                metal_id: selectedMetal.id,
-                volume: addVolume
-            }
-
-            console.log('metal information', metal_information)
-            setAddWeight(1000);
-            setAddPrice(1001203);
-
-            setIsSearch(true)
-        }
-        setWeightPrice()
-        
-    }
     const handleSubmit = (event) => {
         event.preventDefault();
         setValidated(true);
@@ -137,21 +111,17 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
             event.stopPropagation()
         } else if (form.checkValidity() === true) {
 
-
-
-
-
             const add_metal = {
                 metal: selectedMetal,
-                volume: addVolume,
-                weight: addWeight,
-                price: addPrice
+                percentage: addPercentage,
+                is_main: isMain ? 1:0
             }
+            console.log('add metal', add_metal)
             handleAddMetal(add_metal)
             onClose();
         }
 
-        setDisabled(false)
+        
     }
 
 
@@ -169,7 +139,7 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
                 <CFormLabel htmlFor="validationCustom01">Full Name</CFormLabel>
 
 
-                <RadioGroup className="p-0" aria-label="Your plan" name="people" defaultValue="Individual" onChange={handleMetalSelect}  >
+                <RadioGroup className="p-0" aria-label="Your plan" name="people" defaultValue={JSON.stringify(selectedMetal)} onChange={handleMetalSelect}  >
                     {loading ?
                         <List
                             sx={{
@@ -206,6 +176,7 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
                                     </ListItemDecorator>
                                     <Radio
                                         overlay
+                                        checked={selectedMetal && selectedMetal.id === item.id}
                                         value={JSON.stringify(item)}
                                         label={item.name}
                                         sx={{ flexGrow: 1, flexDirection: 'row-reverse', color: 'text.dark' }}
@@ -229,36 +200,18 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
             <CCol md={12}>
-                <CFormLabel htmlFor="validationCustom02">Volume</CFormLabel>
-                <CFormInput type="number" id="validationCustom02" onChange={handleVolumeChange} defaultValue={addVolume} required />
+                <CFormLabel htmlFor="validationCustom02">Percentage</CFormLabel>
+                <CFormInput type="number" min={0} max={100} id="validationCustom02" onChange={handlePercentageChange} defaultValue={addPercentage} required />
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
-            <CCol md={12} className="d-flex justify-content-center">
-
-                <Button
-                    onClick={() => {
-                        handleSearch();
-                    }}
-                    className="rounded-pill fw-bold"
-                    variant="outlined"
-                    color="warning"
-                    startIcon={<Coins size={25} color="peru" weight="duotone" />} disabled={addVolume == 0 || !selectedMetal}>
-                    Price Calculating
-                </Button>
-            </CCol>
-            <hr />
-            <CCol md={12}>
-                <CFormLabel htmlFor="validationCustom02">Weight</CFormLabel>
-                <CFormInput disabled type="number" id="validationCustom02" value={addWeight} required />
+            <CCol md={12} className="border border-light rounded w-25 p-1">
+                
+                <CFormCheck  id="flexCheckDefault" label="Is Main " defaultChecked={isMain} onChange={e=>setIsMain(e.target.checked)} />
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
-            <CCol md={12}>
-                <CFormLabel htmlFor="validationCustom02">Price</CFormLabel>
-                <CFormInput disabled type="number" id="validationCustom02" value={addPrice} required />
-                <CFormFeedback valid>Looks good!</CFormFeedback>
-            </CCol>
+            
             <CCol xs={12} className="d-flex justify-content-center">
-                <CButton onClick={handleSubmit} color="success" type="submit" disabled={addVolume == 0 || addWeight == 0 || addPrice == 0 || !isSearch}>
+                <CButton  color="success" type="submit" disabled={isNaN(addPercentage) || addPercentage == 0 }>
                     Confirm add
                 </CButton>
             </CCol>

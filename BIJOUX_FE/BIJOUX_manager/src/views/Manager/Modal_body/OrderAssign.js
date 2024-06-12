@@ -22,7 +22,6 @@ import { get_account_list } from "../../../api/accounts/Account_Api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import DateTimePicker from "../../component_items/DatePicker/DateTimePicker";
 import AccountCard from "../Quote widget/AccountCard";
@@ -33,15 +32,16 @@ import { useNavigate } from "react-router-dom";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import AvatarInput from "../../component_items/Avatar/Avatar";
 import { get } from "jquery";
-import MetalCard from "../../Sale_staff/Quote widget/MetalCard";
-import DiamondCard from "../../Sale_staff/Quote widget/DiamondCard";
+import MetalCard from "../../Sale_staff/Modal_body/model/widget/MetalCard";
+import DiamondCard from "../../Sale_staff/Modal_body/model/widget/DiamondCard";
 import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextareaAutosize } from "@mui/material";
 import QuoteProductImage from "../Quote widget/QuoteProductImage";
+import { OrderPageContext } from "../Order_Page";
 
 
 const sales_staff = [
     {
-        "id": 1,
+        "id": 123,
         "username": "john_doe đần",
         "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
         "phone": "+1234567890",
@@ -104,7 +104,7 @@ const sales_staff = [
         ]
     },
     {
-        "id": 2,
+        "id": 4,
         "username": "jane_smith ngu",
         "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
         "phone": "+0987654321",
@@ -146,7 +146,7 @@ const sales_staff = [
 ]
 const design_staff = [
     {
-        "id": 2,
+        "id": 123,
         "username": "jane_smith ngu",
         "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
         "phone": "+0987654321",
@@ -291,7 +291,7 @@ const production_staff = [
         ]
     },
     {
-        "id": 4,
+        "id": 123,
         "username": "alice_johnson ngốc",
         "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
         "phone": "+1122334455",
@@ -501,42 +501,46 @@ const order_detail_data = {
             "id": 1,
             "name": "Custom"
         },
+        "deposit_has_paid": 1000.00,
         "product_price": 20000.00,
         "production_price": 15000.00,
         "total_price": 250000000.00,
         "profit_rate": 0.25,
-        "sale_staff": {
-            "id": 2,
-            "username": "sales_jane",
-            "password": "hashed_password",
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "dob": "1990-07-20",
-            "email": "jane.sales@example.com",
-            "fullname": "Jane Sales",
-            "role": {
-                "id": 2,
-                "name": "Sales"
-            },
-            "phone": "+1230987654",
-            "address": "456 Elm St, Shelbyville, IL"
-        },
-        "design_staff": {
-            "id": 3,
-            "username": "design_bob",
-            "password": "hashed_password",
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "dob": "1988-05-22",
-            "email": "bob.design@example.com",
-            "fullname": "Bob Designer",
-            "role": {
-                "id": 3,
-                "name": "Designer"
-            },
-            "phone": "+3216549870",
-            "address": "789 Maple St, Capital City, IL"
-        },
-        "production_staff": {
-            "id": 4,
+        "sale_staff": null,
+        // {
+        //     "id": 123,
+        //     "username": "prod_alice",
+        //     "password": "hashed_password",
+        //     "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+        //     "dob": "1992-11-30",
+        //     "email": "alice.prod@example.com",
+        //     "fullname": "Alice Producer",
+        //     "role": {
+        //         "id": 4,
+        //         "name": "Production"
+        //     },
+        //     "phone": "+3214560987",
+        //     "address": "321 Oak St, Ogdenville, IL"
+        // },
+        "design_staff": null,
+        // {
+        //     "id": 123,
+        //     "username": "prod_alice",
+        //     "password": "hashed_password",
+        //     "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+        //     "dob": "1992-11-30",
+        //     "email": "alice.prod@example.com",
+        //     "fullname": "Alice Producer",
+        //     "role": {
+        //         "id": 4,
+        //         "name": "Production"
+        //     },
+        //     "phone": "+3214560987",
+        //     "address": "321 Oak St, Ogdenville, IL"
+        // },
+        "production_staff": //null,
+        {
+            "id": 123,
             "username": "prod_alice",
             "password": "hashed_password",
             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
@@ -551,14 +555,21 @@ const order_detail_data = {
             "address": "321 Oak St, Ogdenville, IL"
         },
         "note": "This is a special custom order.",
-        "created": "2024-05-20T08:30:00.000Z"
-    }
+        "created": "2024-05-20T08:30:00.000Z",
+
+    },
+
+    "note": "This is a special custom order.",
+    "created": "2024-05-20T08:30:00.000Z"
 }
 
 
-const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
+
+const CustomForm = ({ orderInfo, onClose }) => {
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { handleDataChange } = useContext(OrderPageContext);
 
     const [loading, setLoading] = useState(true);
     const [isReassign, setIsReassign] = useState(false);
@@ -579,7 +590,6 @@ const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
     const [diamondList, setDiamondList] = useState([])
     const [note, setNote] = useState(null);
 
-    // const [approve, setApprove] = useState(null);
     useEffect(() => {
         const setAttribute = async () => {
 
@@ -589,7 +599,6 @@ const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
             const order_detail = order_detail_data.order_detail
             setOrder(order_detail)
             setProduct(order_detail.product)
-            console.log('order_detail.product', order_detail.product)
 
             setSaleStaffs(sales_staff);
             setDesignStaffs(design_staff);
@@ -629,17 +638,23 @@ const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
     const handleReassign = async () => {
         setIsReassign(false)
         await get_account_list();
+        if (orderInfo.order_status.id < 4) {
+            const assigned_order = {
+                order_id: order.id,
+                note: note,
+                saleStaff_id: saleStaff ? saleStaff.id : null,
+                designStaff_id: designStaff ? designStaff.id : null,
+                productionStaff_id: productionStaff ? productionStaff : null
+            }
+            console.log('assigned_order', assigned_order)
+            //dispatch(setToast({ toastShow: true, toastMessage: 'Reassign staffs successfully', toastType: 'success' }))
+            handleDataChange();
+            dispatch(setToast({ color: 'success', title: 'Order id: ' + orderInfo.id, mess: "Reassign staff successfully !" }))
+            onClose()
+        } else {
+            dispatch(setToast({ color: 'danger', title: 'Order id: ' + orderInfo.id, mess: "Reassign staff failed !" }))
 
-        const assigned_order = {
-            order_id: order.id,
-            note: note,
-            saleStaff_id: saleStaff.id,
-            designStaff_id: designStaff.id,
-            productionStaff_id: productionStaff.id
         }
-        //dispatch(setToast({ toastShow: true, toastMessage: 'Reassign staffs successfully', toastType: 'success' }))
-        dispatch(setToast({ color: 'success', title: 'Order id: ' + orderInfo.id , mess: "Reassign staff successfully !" }))
-        console.log("assigned_order", assigned_order)
 
     }
     const handleNote = (new_note) => {
@@ -661,7 +676,7 @@ const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
                 Loading...
             </CButton> :
                 <>
-                    
+
                     <CCol lg={6} className="d-flex flex-column">
                         <AccountCard account={order.account} avatarSize={100} cardHeight={'120px'} />
                         <div className='flex-grow-1'>
@@ -725,21 +740,28 @@ const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
 
                     </CCol>
                     <CCol md={12}>
-                        <CRow>
-                            <CCol md={4}>
-                                <span ><b>Sale Staff: </b></span>
+                        <CRow className="d-flex justify-content-center">
+                            {
+                                order.order_type.id == 2 &&
+                                <>
+                                    <CCol md={4}>
+                                        <span ><b>Sale Staff: </b></span>
 
 
-                                <AssignCard selection={saleStaff} staffList={saleStaffs} handleAssign={handleAssign} />
+                                        <AssignCard selection={saleStaff} staffList={saleStaffs} handleAssign={handleAssign} />
 
-                            </CCol>
-                            <CCol md={4}>
-                                <span><b>Design Staff: </b></span>
+                                    </CCol>
+                                    <CCol md={4}>
+                                        <span><b>Design Staff: </b></span>
 
 
-                                <AssignCard selection={designStaff} staffList={designStaffs} handleAssign={handleAssign} />
+                                        <AssignCard selection={designStaff} staffList={designStaffs} handleAssign={handleAssign} />
 
-                            </CCol>
+                                    </CCol>
+                                </>
+
+                            }
+
                             <CCol md={4}>
                                 <span><b>Production Staff: </b></span>
 
@@ -816,6 +838,7 @@ const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
                                                     <ListItemText className="text-dark w-25" primary='Origin' secondary={item.diamond.diamond_origin.name} />
                                                     <ListItemText className="text-dark w-25" primary='Color' secondary={item.diamond.diamond_color.name} />
                                                     <ListItemText className="text-dark w-25" primary='Clarity' secondary={item.diamond.diamond_clarity.name} />
+                                                    <ListItemText className="text-dark w-25" primary='Cut' secondary={item.diamond.diamond_cut.name} />
                                                     <ListItemText className="text-dark w-25" primary='Count' secondary={item.count} />
                                                     <ListItemText className="text-dark w-25" primary='Total Price' secondary={item.price + ' vnd'} />
                                                     {diamondList.length == 0 &&
@@ -852,10 +875,28 @@ const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
                                 <CCardBody className="d-flex flex-column justify-content-center">
                                     <CRow className="w-100  text-end d-flex justify-content-center">
                                         <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
+                                            <span className="text-dark fw-bold fs-5 ">Deposit Has Paid: </span>
+                                        </CCol>
+                                        <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
+                                            <span className="text-secondary fs-6">{order.deposit_has_paid}000000 vnd</span>
+
+                                        </CCol>
+                                    </CRow>
+                                    <CRow className="w-100  text-end d-flex justify-content-center">
+                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
                                             <span className="text-dark fw-bold fs-5 ">Product Price: </span>
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
-                                            <span className="text-secondary fs-6">{diamondList.reduce((total, item) => total + item.price, 0)}000000 vnd</span>
+                                            <span className="text-secondary fs-6">{order.product_price}000000 vnd</span>
+
+                                        </CCol>
+                                    </CRow>
+                                    <CRow className="w-100  text-end d-flex justify-content-center">
+                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
+                                            <span className="text-dark fw-bold fs-5 ">Product Price: </span>
+                                        </CCol>
+                                        <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
+                                            <span className="text-secondary fs-6">{order.product_price}000000 vnd</span>
 
                                         </CCol>
                                     </CRow>
@@ -896,9 +937,9 @@ const CustomForm = ({ orderInfo, handleTableChange, onClose }) => {
     )
 }
 
-const OrderAssign = ({ order, handleTableChange, onClose }) => {
+const OrderAssign = ({ order, onClose }) => {
     return (
-        <CustomForm orderInfo={order} handleTableChange={handleTableChange} onClose={onClose} />
+        <CustomForm orderInfo={order} onClose={onClose} />
     );
 };
 

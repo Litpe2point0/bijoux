@@ -25,11 +25,11 @@ import {
     CModalTitle,
     CModalFooter,
 } from '@coreui/react'
-import './../style/style.css'
+import './../../../style/style.css'
 import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextareaAutosize } from "@mui/material";
 //import Button from '@mui/joy/Button';
 import { PlusCircle, XCircle } from "phosphor-react";
-import MetalAdd from "../Modal_body/MetalAdd";
+import MetalAdd from "../MetalAdd";
 
 
 

@@ -26,7 +26,7 @@ const DefaultLayout = () => {
   const dispatch = useDispatch();
   const [toast, setToast] =useState(null);
   const new_toast = useSelector((state) => state.toast.toast_component);
-  
+
   
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth);
@@ -38,6 +38,7 @@ const DefaultLayout = () => {
   }, [new_toast]);
 
 
+  
 
   
   useEffect(() => {
@@ -48,6 +49,8 @@ const DefaultLayout = () => {
     }
   }, [auth, navigate]);
 
+
+
   return (
 
     <div>
@@ -56,7 +59,9 @@ const DefaultLayout = () => {
       <div className="wrapper d-flex flex-column min-vh-100">
         <AppHeader />
         <div className="body flex-grow-1">
+        
           <AppContent />
+
         </div>
         <AppFooter />
       </div>

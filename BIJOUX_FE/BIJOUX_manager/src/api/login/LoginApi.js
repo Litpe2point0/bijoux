@@ -8,8 +8,8 @@ export async function login(formData) {
     const response = await axios.post(`${backend_url}/login`, formData);
     return response.data;
   } catch (error) {
-
-    return error;
+    console.log( 'ewooienoinowinvw',error)
+    return error.response.data;
   }
 
 }

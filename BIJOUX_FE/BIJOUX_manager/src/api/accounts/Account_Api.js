@@ -19,7 +19,7 @@ export async function get_role_list(){
     return 0;
 }
 
-export async function get_account_list({signal}){
+export async function get_account_list({ signal } = {}){
     
     // try {
     //     const response = await api_admin.post(
@@ -34,7 +34,7 @@ export async function get_account_list({signal}){
     // }
     // return 0;
     try {
-        const response = await api_admin.post('/account/get_account_list',null, { signal });
+        const response = await api_admin.post('/account/get_account_list',null,{ signal });
         return  response.data;
       } catch (error) {
         if (error.name === 'AbortError') {
@@ -45,3 +45,19 @@ export async function get_account_list({signal}){
         throw error;
       }
 }
+// export async function get_account_list(){
+    
+//     try {
+//         const response = await api_admin.post(
+//            '/account/get_account_list',
+//            {signal}
+//         );
+//         console.log(response.data)
+//         return response.data;
+//     } catch (error) {
+//         alert("lỗi nè"+error)
+//         console.error('Error calculating sum:', error);
+//     }
+//     return 0;
+   
+// }

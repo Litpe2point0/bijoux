@@ -41,13 +41,13 @@ import OrderCancel from "./Modal_body/OrderCancel";
 
 
 
-
+export const OrderPageContext = createContext();
 
 const state_creator = (table) => {
   const state = {
     columnDefs: [
-      { headerName: "id", field: "id", flex: 0.4 },
-      { headerName: "Product id", field: "product.id", flex: 0.6 },
+      { headerName: "ID", field: "id", flex: 0.4 },
+      { headerName: "Product ID", field: "product.id", flex: 0.6 },
       {
         headerName: "Image", flex: 0.6,
         cellRenderer: (params) => {
@@ -57,9 +57,9 @@ const state_creator = (table) => {
         },
       },
       { headerName: "Customer", field: "account.fullname" },
-      { headerName: "Materials Cost", field: "product_price", cellClass: 'd-flex align-items-center fw-bold text-primary'},
-      { headerName: "Profit rate %", field: "profit_rate", cellClass: 'd-flex align-items-center fw-bold text-primary' },
-      { headerName: "Production Cost", field: "production_price" , cellClass: 'd-flex align-items-center fw-bold text-primary'},
+      { headerName: "Materials Cost", field: "product_price", cellClass: 'd-flex align-items-center fw-bold text-primary' },
+      { headerName: "Profit Rate %", field: "profit_rate", cellClass: 'd-flex align-items-center fw-bold text-primary' },
+      { headerName: "Production Cost", field: "production_price", cellClass: 'd-flex align-items-center fw-bold text-primary' },
       { headerName: "Total Cost", field: "total_price", cellClass: 'd-flex align-items-center fw-bold text-danger' },
       { headerName: "Created", field: "created" },
       {
@@ -77,23 +77,28 @@ const state_creator = (table) => {
         cellRenderer: (params) => {
           const assign_props = {
             assignForm: <OrderAssign order={params.data} />,
-            title: 'Order Detail [ID: #' + params.data.id+']',
-            button: <Eye size={30} color={params.data.order_status.id > 4 ? 'gray' : "purple"} weight="duotone" />,
+            title: 'Order Detail [ID: #' + params.data.id + ']',
+            button: 
+              params.data.productionStaff_id == null ?
+                <UsersThree size={30} color={"purple"} weight="duotone" />
+                : <Eye size={30} color={"purple"} weight="duotone" />
+            
+            ,
             update_button_color: 'white',
             status: params.data.order_status.id,
           }
           const cancel_props = {
             assignForm: <OrderCancel order={params.data} />,
-            title: 'Cancel Order [ID: #' + params.data.id+']',
-            button: <CalendarX size={30} color='crimson' weight="duotone" />,
+            title: 'Cancel Order [ID: #' + params.data.id + ']',
+            button: <CalendarX size={30} color={'crimson'} weight="duotone" />,
             update_button_color: 'white',
             status: params.data.order_status.id,
           }
           return (
 
-            <CButtonGroup style={{ width: '100%', height: "100%" }} role="group" aria-label="Basic mixed styles example">
+            <CButtonGroup style={{ width: '100%', height: "100%" }} role="group" aria-label="Basic mixed styles example" >
               <Modal_Button
-                disabled={assign_props.status > 4}
+                disabled={false}
                 title={assign_props.title}
                 content={assign_props.button}
                 color={assign_props.color} >
@@ -146,12 +151,12 @@ const data = {
         "address": "123 Main St, Cityville, CA 12345"
       },
       "order_status": {
-        "id": 1,
-        "name": "Pending deposit"
+        "id": 4,
+        "name": "Payment"
       },
       "order_type": {
         "id": 2,
-        "name": "Customize"
+        "name": "Cusm"
       },
       "deposit_has_paid": true,
       "product_price": 5000.00,
@@ -159,9 +164,9 @@ const data = {
       "production_price": 4000.00,
       "total_price": 6000.00,
       "note": "Please add extra engraving",
-      "saleStaff_id": 301,
-      "designStaff_id": 302,
-      "productionStaff_id": 303,
+      "saleStaff_id": 123,
+      "designStaff_id": 123,
+      "productionStaff_id": 123,
       "created": "2024-05-28"
     },
     {
@@ -189,8 +194,8 @@ const data = {
         "address": "456 Elm St, Townsville, TX 67890"
       },
       "order_status": {
-        "id": 2,
-        "name": "Designing"
+        "id": 3,
+        "name": "Manufactore"
       },
       "order_type": {
         "id": 2,
@@ -202,9 +207,9 @@ const data = {
       "production_price": 5000.00,
       "total_price": 7500.00,
       "note": "Rush order, please prioritize",
-      "saleStaff_id": 304,
-      "designStaff_id": 305,
-      "productionStaff_id": 306,
+      "saleStaff_id": 123,
+      "designStaff_id": 123,
+      "productionStaff_id": 123,
       "created": "2024-05-27"
     }
   ],
@@ -235,7 +240,7 @@ const data = {
       },
       "order_status": {
         "id": 3,
-        "name": "Manufacturing"
+        "name": "Payment"
       },
       "order_type": {
         "id": 1,
@@ -247,9 +252,9 @@ const data = {
       "production_price": 2500.00,
       "total_price": 3500.00,
       "note": "Please gift wrap",
-      "saleStaff_id": 307,
-      "designStaff_id": 308,
-      "productionStaff_id": 309,
+      "saleStaff_id": null,
+      "designStaff_id": null,
+      "productionStaff_id": 123,
       "created": "2024-05-26"
     },
     {
@@ -277,8 +282,8 @@ const data = {
         "address": "1010 Birch St, Hamlet, NY 67890"
       },
       "order_status": {
-        "id": 4,
-        "name": "Payment"
+        "id": 2,
+        "name": "fwfwe"
       },
       "order_type": {
         "id": 1,
@@ -290,9 +295,9 @@ const data = {
       "production_price": 6000.00,
       "total_price": 9000.00,
       "note": "Include warranty card",
-      "saleStaff_id": 310,
-      "designStaff_id": 311,
-      "productionStaff_id": 312,
+      "saleStaff_id": null,
+      "designStaff_id": null,
+      "productionStaff_id": null,
       "created": "2024-05-25"
     }
   ]
@@ -304,7 +309,7 @@ const Order_Page = () => {
   const [orderList, setOrderList] = useState(null);
   let [state, setState] = useState(null);
 
-  const handleTableChange = async () => {
+  const handleDataChange = async () => {
     await get_account_list();
     const orderList = data;
     setOrderList(orderList);
@@ -313,11 +318,12 @@ const Order_Page = () => {
       template: state_creator(orderList.template_order_list),
       customize: state_creator(orderList.customize_order_list)
     })
+    alert("ON DATA CHANGE NÈ")
   }
 
   useEffect(() => {
 
-    handleTableChange()
+    handleDataChange()
   }, [])
 
 
@@ -333,90 +339,90 @@ const Order_Page = () => {
     };
   }, [])
   return (
+    <OrderPageContext.Provider value={{ handleDataChange: handleDataChange }}>
+      <CRow>
+        <CCol xs={12}>
+          {state === null ? <CButton className="w-100" color="secondary" disabled>
+            <CSpinner as="span" size="sm" aria-hidden="true" />
+            Loading...
+          </CButton> :
 
-    <CRow>
-      <CCol xs={12}>
-        {state === null ? <CButton className="w-100" color="secondary" disabled>
-          <CSpinner as="span" size="sm" aria-hidden="true" />
-          Loading...
-        </CButton> :
+            <Tabs
+              defaultActiveKey="template"
+              id="fill-tab-example"
+              className="mb-3"
+              activeKey={key}
+              fill
+              onSelect={(key) => {
+                setKey(key)
+                resetHeaderProperties();
+              }}
 
-          <Tabs
-            defaultActiveKey="template"
-            id="fill-tab-example"
-            className="mb-3"
-            activeKey={key}
-            fill
-            onSelect={(key) => {
-              setKey(key)
-              resetHeaderProperties();
-            }}
+            >
 
-          >
-
-            <Tab eventKey="template" title="By Template Orders">
-              {
-                key === 'template' && <div
-                  id="template"
-                  style={{
-                    boxSizing: "border-box",
-                    height: "100%",
-                    width: "100%"
-                  }}
-                  className="ag-theme-quartz"
-                >
-                  <AgGridReact
-                    enableColResize={true}
-                    columnDefs={state.template.columnDefs}
-                    rowData={state.template.rowData}
-                    defaultColDef={defaultColDef}
-                    rowHeight={35}
-                    headerHeight={30}
-                    pagination={true}
-                    paginationPageSize={10}
-                    domLayout='autoHeight'
-                    onGridReady={onGridReady('customize')}
-                  />
-                </div>
-              }
-            </Tab>
-
-
-            <Tab eventKey="customize" title="Customize Orders">
-              {
-                key === 'customize' &&
-                <div
-                  id="customize"
-                  style={{
-                    boxSizing: "border-box",
-                    height: "100%",
-                    width: "100%"
-                  }}
-                  className="ag-theme-quartz"
-                >
-                  <AgGridReact
-                    enableColResize={true}
-                    columnDefs={state.customize.columnDefs}
-                    rowData={state.customize.rowData}
-                    defaultColDef={defaultColDef}
-                    rowHeight={35}
-                    headerHeight={30}
-                    pagination={true}
-                    paginationPageSize={10}
-                    domLayout='autoHeight'
-                    onGridReady={onGridReady('customize')}
-                  />
-                </div>
-              }
-            </Tab>
+              <Tab eventKey="template" title="By Template Orders">
+                {
+                  key === 'template' && <div
+                    id="template"
+                    style={{
+                      boxSizing: "border-box",
+                      height: "100%",
+                      width: "100%"
+                    }}
+                    className="ag-theme-quartz"
+                  >
+                    <AgGridReact
+                      enableColResize={true}
+                      columnDefs={state.template.columnDefs}
+                      rowData={state.template.rowData}
+                      defaultColDef={defaultColDef}
+                      rowHeight={35}
+                      headerHeight={30}
+                      pagination={true}
+                      paginationPageSize={10}
+                      domLayout='autoHeight'
+                      onGridReady={onGridReady('template')}
+                    />
+                  </div>
+                }
+              </Tab>
 
 
+              <Tab eventKey="customize" title="Customize Orders">
+                {
+                  key === 'customize' &&
+                  <div
+                    id="customize"
+                    style={{
+                      boxSizing: "border-box",
+                      height: "100%",
+                      width: "100%"
+                    }}
+                    className="ag-theme-quartz"
+                  >
+                    <AgGridReact
+                      enableColResize={true}
+                      columnDefs={state.customize.columnDefs}
+                      rowData={state.customize.rowData}
+                      defaultColDef={defaultColDef}
+                      rowHeight={35}
+                      headerHeight={30}
+                      pagination={true}
+                      paginationPageSize={10}
+                      domLayout='autoHeight'
+                      onGridReady={onGridReady('customize')}
+                    />
+                  </div>
+                }
+              </Tab>
 
-          </Tabs>
-        }
+            </Tabs>
+          }
 
-      </CCol>
-    </CRow>
+        </CCol>
+      </CRow>
+    </OrderPageContext.Provider>
+
   );
 
 }
