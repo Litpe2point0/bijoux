@@ -237,8 +237,8 @@ class AccountController extends Controller
             ], 404);
         }
         //find account
-        $account = Account::where('id', $input['id'])->first();
-        $account->role = DB::table('role')->where('id', $account->role_id)->first();
+        $account = Account::where('id', $input['account_id'])->first();
+        $account->role = DB::table('role')->where('account_id', $account->role_id)->first();
         unset($account->role_id);
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();
         //modify account imageUrl
