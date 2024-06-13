@@ -37,6 +37,8 @@ class QuoteController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $quote->account = $account;
 
@@ -82,6 +84,8 @@ class QuoteController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $quote->account = $account;
 
@@ -117,15 +121,15 @@ class QuoteController extends Controller
         try {
             $account_id = $input['account']['id'];
             $account = DB::table('account')->where('id', $account_id)->first();
-            if($account == null){
+            if ($account == null) {
                 return response()->json([
                     'error' => 'The Selected Customer Account Doesn\'t Exist'
-                ],403);
+                ], 403);
             }
-            if($account->deactivated){
+            if ($account->deactivated) {
                 return response()->json([
                     'error' => 'The Selected Customer Account Has Been Deactivated'
-                ],403);
+                ], 403);
             }
 
             $product = new Product();
@@ -136,12 +140,12 @@ class QuoteController extends Controller
             $productId = (int) $product->id;
 
             $fileName = 'main.jpg';
-            $destinationPath = public_path('image/Orders/' . $productId);
+            $destinationPath = public_path('image/Order/' . $productId);
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
             }
-            $destinationFilePath = public_path('image/Orders/' . $productId . '/' . $fileName);
-            $sourceFilePath = public_path('image/Orders/unknown.jpg');
+            $destinationFilePath = public_path('image/Order/' . $productId . '/' . $fileName);
+            $sourceFilePath = public_path('image/Order/unknown.jpg');
             File::copy($sourceFilePath, $destinationFilePath);
             $product->imageUrl = $fileName;
             $product->save();
@@ -178,83 +182,83 @@ class QuoteController extends Controller
         DB::beginTransaction();
         try {
             $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
-            if($quote->quote_status_id == 4){
+            if ($quote->quote_status_id == 4) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Has Been Completed'
-                ],403);
+                ], 403);
             }
-            if($quote->quote_status_id == 5){
+            if ($quote->quote_status_id == 5) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Has Been Cancelled'
-                ],403);
+                ], 403);
             }
             $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : null;
             $designStaff_id = isset($input['designStaff_id']) ? $input['designStaff_id'] : null;
             $productionStaff_id = isset($input['productionStaff_id']) ? $input['productionStaff_id'] : null;
-            if($saleStaff_id != null) $sale_staff = DB::table('account')->where('id', $input['saleStaff_id'])->first();
+            if ($saleStaff_id != null) $sale_staff = DB::table('account')->where('id', $input['saleStaff_id'])->first();
             else {
                 return response()->json([
                     'error' => 'The Selected Sale Staff Account Can\'t Be Null'
-                ],403);
+                ], 403);
             }
-            if($designStaff_id != null) $design_staff = DB::table('account')->where('id', $input['designStaff_id'])->first();
+            if ($designStaff_id != null) $design_staff = DB::table('account')->where('id', $input['designStaff_id'])->first();
             else {
                 return response()->json([
                     'error' => 'The Selected Sale Staff Account Can\'t Be Null'
-                ],403);
+                ], 403);
             }
-            if($productionStaff_id != null) $production_staff = DB::table('account')->where('id', $input['productionStaff_id'])->first();
+            if ($productionStaff_id != null) $production_staff = DB::table('account')->where('id', $input['productionStaff_id'])->first();
             else {
                 return response()->json([
                     'error' => 'The Selected Production Staff Account Can\'t Be Null'
-                ],403);
+                ], 403);
             }
-            if($sale_staff != null){
-                if($sale_staff->role_id != '2'){
+            if ($sale_staff != null) {
+                if ($sale_staff->role_id != '2') {
                     return response()->json([
                         'error' => 'The Selected Sale Staff Account Is Not a Sale Staff'
-                    ],403);
-                } else if($sale_staff->deactivated){
+                    ], 403);
+                } else if ($sale_staff->deactivated) {
                     return response()->json([
                         'error' => 'The Selected Sale Staff Account Has Been Deactivated'
-                    ],403);
+                    ], 403);
                 }
             }
-            if($design_staff != null){
-                if($design_staff->role_id != '3'){
+            if ($design_staff != null) {
+                if ($design_staff->role_id != '3') {
                     return response()->json([
                         'error' => 'The Selected Design Staff Account Is Not a Design Staff'
-                    ],403);
-                } else if($design_staff->deactivated){
+                    ], 403);
+                } else if ($design_staff->deactivated) {
                     return response()->json([
                         'error' => 'The Selected Design Staff Account Has Been Deactivated'
-                    ],403);
+                    ], 403);
                 }
             }
-            if($production_staff != null){
-                if($production_staff->role_id != '4'){
+            if ($production_staff != null) {
+                if ($production_staff->role_id != '4') {
                     return response()->json([
                         'error' => 'The Selected Production Staff Account Is Not a Production Staff'
-                    ],403);
-                } else if($production_staff->deactivated){
+                    ], 403);
+                } else if ($production_staff->deactivated) {
                     return response()->json([
                         'error' => 'The Selected Production Staff Account Has Been Deactivated'
-                    ],403);
+                    ], 403);
                 }
             }
-            if(isset($input['note']) && $input['note'] != null){
+            if (isset($input['note']) && $input['note'] != null) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'note' => $input['note']
                 ]);
-            } 
+            }
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'saleStaff_id' => $saleStaff_id,
                 'designStaff_id' => $designStaff_id,
                 'productionStaff_id' => $productionStaff_id,
             ]);
-            if($quote->quote_status_id == 1){
+            if ($quote->quote_status_id == 1) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'quote_status_id' => 2
                 ]);
@@ -289,27 +293,27 @@ class QuoteController extends Controller
         }
         $id = (int) $decodedToken['id'];
         $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
-        if($quote->saleStaff_id != $id){
+        if ($quote->saleStaff_id != $id) {
             return response()->json([
                 'error' => 'Your Account Isn\'t Assigned To This Quote'
-            ],403);
+            ], 403);
         }
         $product_price = 0;
 
         DB::beginTransaction();
         try {
             $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
-            if($quote->quote_status_id < 2){
+            if ($quote->quote_status_id < 2) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Hasn\'t Been Assigned'
-                ],403);
+                ], 403);
             }
-            if($quote->quote_status_id == 5){
+            if ($quote->quote_status_id == 5) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Has Been Cancelled'
-                ],403);
+                ], 403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'note' => $input['note']
@@ -321,14 +325,14 @@ class QuoteController extends Controller
             }
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                $destinationPath = public_path('image/Orders/' . $quote->product_id);
+                $destinationPath = public_path('image/Order/' . $quote->product_id);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
                 $fileName = 'main.jpg';
                 $files = File::allFiles($destinationPath);
                 foreach ($files as $file) {
-                    File::delete(public_path('image/Orders/' . $quote->product_id) . '/' . $file->getBaseName());
+                    File::delete(public_path('image/Order/' . $quote->product_id) . '/' . $file->getBaseName());
                 }
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 $imageUrl = $fileName;
@@ -380,7 +384,7 @@ class QuoteController extends Controller
                 'profit_rate' => $input['profit_rate'],
                 'product_price' => $product_price,
                 'quote_status_id' => 3,
-                'total_price' => ($product_price + $input['production_price'])* ($input['profit_rate'] + 100) / 100
+                'total_price' => ($product_price + $input['production_price']) * ($input['profit_rate'] + 100) / 100
             ]);
             DB::commit();
         } catch (\Exception $e) {
@@ -404,23 +408,23 @@ class QuoteController extends Controller
         DB::beginTransaction();
         try {
             $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
-            if($quote->quote_status_id < 3){
+            if ($quote->quote_status_id < 3) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Hasn\'t Been Priced'
-                ],403);
+                ], 403);
             }
-            if($quote->quote_status_id == 4){
+            if ($quote->quote_status_id == 4) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Has Already Been Approved'
-                ],403);
+                ], 403);
             }
-            if($quote->quote_status_id == 5){
+            if ($quote->quote_status_id == 5) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Has Already Been Cancelled'
-                ],403);
+                ], 403);
             }
             if ($input['approve'] || $input['approve'] == 1) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
@@ -443,7 +447,7 @@ class QuoteController extends Controller
                     'productionStaff_id' => $quote->productionStaff_id,
                     'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
                 ]);
-            } else if(!$input['approve'] || $input['approve'] == 0){
+            } else if (!$input['approve'] || $input['approve'] == 0) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'quote_status_id' => 2,
                     'note' => $input['note']
@@ -490,12 +494,12 @@ class QuoteController extends Controller
             if ($quote->quote_status_id == 4) {
                 return response()->json([
                     'error' => 'Quote Has Already Been Completed, Action Can\'t Be Performed'
-                ],403);
+                ], 403);
             }
             if ($quote->quote_status_id == 5) {
                 return response()->json([
                     'error' => 'Quote Has Already Been Cancelled, Action Can\'t Be Performed'
-                ],403);
+                ], 403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'quote_status_id' => 5,
@@ -548,6 +552,8 @@ class QuoteController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . '/' . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $quote->account = $account;
 
@@ -617,12 +623,14 @@ class QuoteController extends Controller
             $url = env('ACCOUNT_URL');
             $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
         }
+        $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+        $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
         unset($account->password);
         $quote->account = $account;
         unset($quote->account_id);
 
         $sale_staff = DB::table('account')->where('id', $quote->saleStaff_id)->first();
-        $sale_staff->order_count = DB::table('orders')->where('saleStaff_id',$sale_staff->id)->whereNot('order_status_id',1)->whereNot('order_status_id',2)->count();
+        $sale_staff->order_count = DB::table('orders')->where('saleStaff_id', $sale_staff->id)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->count();
         $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
         unset($sale_staff->role_id);
         if (!$sale_staff->google_id) {
@@ -630,12 +638,14 @@ class QuoteController extends Controller
             $url = env('ACCOUNT_URL');
             $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
         }
+        $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+        $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
         unset($sale_staff->password);
         $quote->sale_staff = $sale_staff;
         unset($quote->saleStaff_id);
 
         $design_staff = DB::table('account')->where('id', $quote->designStaff_id)->first();
-        $design_staff->order_count = DB::table('orders')->where('designStaff_id',$design_staff->id)->whereNot('order_status_id',1)->whereNot('order_status_id',2)->count();
+        $design_staff->order_count = DB::table('orders')->where('designStaff_id', $design_staff->id)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->count();
         $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
         unset($design_staff->role_id);
         if (!$design_staff->google_id) {
@@ -643,12 +653,14 @@ class QuoteController extends Controller
             $url = env('ACCOUNT_URL');
             $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
         }
+        $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+        $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
         unset($design_staff->password);
         $quote->design_staff = $design_staff;
         unset($quote->designStaff_id);
 
         $production_staff = DB::table('account')->where('id', $quote->productionStaff_id)->first();
-        $production_staff->order_count = DB::table('orders')->where('productionStaff_id',$production_staff->id)->whereNot('order_status_id',1)->whereNot('order_status_id',2)->whereNot('order_status_id',3)->count();
+        $production_staff->order_count = DB::table('orders')->where('productionStaff_id', $production_staff->id)->whereNot('order_status_id', 1)->whereNot('order_status_id', 2)->whereNot('order_status_id', 3)->count();
         $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
         unset($production_staff->role_id);
         if (!$production_staff->google_id) {
@@ -656,6 +668,8 @@ class QuoteController extends Controller
             $url = env('ACCOUNT_URL');
             $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
         }
+        $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+        $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
         unset($production_staff->password);
         $quote->production_staff = $production_staff;
         unset($quote->productionStaff_id);
