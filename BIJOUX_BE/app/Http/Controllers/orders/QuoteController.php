@@ -50,6 +50,39 @@ class QuoteController extends Controller
             $quote_list
         );
     }
+    public function get_priced_quote_list()
+    {
+        $quote_list = DB::table('quote')->where('quote_status_id',3)->get();
+        $quote_list->map(function ($quote) {
+            $product = DB::table('product')->where('id', $quote->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $quote->product = $product;
+            unset($quote->product_id);
+
+            $account = DB::table('account')->where('id', $quote->account_id)->first();
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+            }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
+            unset($account->password);
+            $quote->account = $account;
+
+            $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
+            unset($quote->quote_status_id);
+            return $quote;
+        });
+
+        return response()->json(
+            $quote_list
+        );
+    }
     public function get_quote_list_customer(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');

@@ -24,6 +24,7 @@ Route::group(['prefix' => 'admin'], function () {
 
         Route::group(['prefix' => 'quote'], function () {
             Route::post('/get_quote_list', [QuoteController::class, 'get_quote_list_admin']);
+            Route::post('/get_priced_quote_list', [QuoteController::class, 'get_priced_quote_list'])->middleware('checkManager');
             Route::post('/pricing_quote', [QuoteController::class, 'pricing_quote'])->middleware('checkSaleStaff');
             Route::post('/approve_quote', [QuoteController::class, 'approve_quote'])->middleware('checkManager');
             Route::post('/assign_quote', [QuoteController::class, 'assign_quote'])->middleware('checkManager');
