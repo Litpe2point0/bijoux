@@ -76,7 +76,7 @@ export default function ChooseDiamond() {
             {
                 diamond_size_min: 2,
                 diamond_size_max: 2,
-                count: 4,
+                count: 6,
                 diamond_shape: [
                     {
                         id: 1,
@@ -227,8 +227,7 @@ export default function ChooseDiamond() {
 
     const finalDiamond = {
         id: 1,
-        name: "Diamond Final Image",
-        imageUrl: "https://ion.bluenile.com/sgmdirect/photoID/10775629/Diamond/6511389/nl/Diamond-radiant-1-Carat_3_first_.jpg",
+        imageUrl: "https://ion.bluenile.com/sgmdirect/photoID/23562538/Diamond/14830963/nl/Diamond-heart-1-Carat_3_first_.jpg",
         size: 3.6,
         diamond_origin: { id: 1, name: 'Natural-created' },
         diamond_clarity: { id: 1, name: 'IF' },
