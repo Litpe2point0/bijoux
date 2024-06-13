@@ -5,7 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { diamondImg } from "../../../assets/images/index";
-
+import choose4C from "../../../components/Services/Template/choose4C";
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -340,7 +340,6 @@ export default function ChooseDiamond() {
             {checkOpenEdit && (
                 <>
                     <div className="w-11/12 grid grid-cols-2 gap-5 mb-10">
-
                         <div>
                             {/* Chọn shape: */}
                             <div className="mb-6">
@@ -467,6 +466,7 @@ export default function ChooseDiamond() {
                                         </Select>
                                     </FormControl>
                                 </div>
+
 
                             </div>
                             <div className="w-full flex justify-center mt-10">
