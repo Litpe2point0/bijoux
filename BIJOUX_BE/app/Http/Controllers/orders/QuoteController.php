@@ -167,7 +167,7 @@ class QuoteController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'Success' => 'Quote Create Successfully'
+            'success' => 'Quote Create Successfully'
         ], 201);
     }
     public function assign_quote(Request $request) //
@@ -458,7 +458,7 @@ class QuoteController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'Success' => 'Approve Quote Successfully'
+            'success' => 'Approve Quote Successfully'
         ], 201);
     }
     public function cancel(Request $request)
@@ -510,7 +510,7 @@ class QuoteController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'Success' => 'Cancel Successfully'
+            'success' => 'Cancel Successfully'
         ], 201);
     }
     public function get_assigned_quote_sale(Request $request)

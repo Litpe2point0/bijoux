@@ -490,15 +490,15 @@ class OrderController extends Controller
     }
     public function get_order_status_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('order_status')->get()
-        ]);
+        );
     }
     public function get_order_type_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('order_type')->get()
-        ]);
+        );
     }
     public function get_order_detail(Request $request)
     {
@@ -1492,9 +1492,9 @@ class OrderController extends Controller
 
     public function get_design_process_status_list(Request $request)
     {
-        return response()->json([
+        return response()->json(
             DB::table('design_process_status')->get()
-        ]);
+        );
     }
     public function get_design_process_list(Request $request)
     {
@@ -1552,9 +1552,9 @@ class OrderController extends Controller
             unset($design->design_process_status_id);
             return $design;
         });
-        return response()->json([
+        return response()->json(
             $design_list
-        ]);
+        );
     }
     public function get_design_process_detail(Request $request)
     {
@@ -1781,7 +1781,7 @@ class OrderController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'Success' => 'Successfully Added'
+            'success' => 'Successfully Added'
         ]);
     }
     public function get_design_updating_list(Request $request)
@@ -1898,7 +1898,7 @@ class OrderController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'Success' => 'Production Process Successfully Added'
+            'success' => 'Production Process Successfully Added'
         ], 201);
     }
     public function get_production_process_list(Request $request)
@@ -1917,9 +1917,9 @@ class OrderController extends Controller
             $list->created = Carbon::parse($list->created)->format('H:i:s d/m/Y');
             return $list;
         });
-        return response()->json([
+        return response()->json(
             $production_process_list
-        ]);
+        );
     }
     public function production_complete(Request $request)
     {
@@ -2002,101 +2002,103 @@ class OrderController extends Controller
             return response()->json($e->getMessage(), 500);
         }
     }
-    public function get_product_detail(Request $request) //chưa test
-    {
-        $input = json_decode($request->input('product_id'), true);
-        if (!isset($input) || $input == null) {
-            return response()->json([
-                'error' => 'No Input Received'
-            ], 403);
-        }
-        $product = DB::table('product')->where('id', $input)->first();
-        $model = DB::table('model')->where('id', $product->model_id)->first();
-        if ($model != null) {
-            $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
-            $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
-            unset($model->mounting_type_id);
-            unset($model->mounting_style_id);
 
-            $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-            $model_shape->map(function ($model_shape) {
-                $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-                unset($model_shape->model_id);
-                unset($model_shape->diamond_shape_id);
-                return $model_shape;
-            });
-            $model->model_diamond_shape = $model_shape;
+    // public function get_product_detail(Request $request) //chưa test
+    // {
+    //     $input = json_decode($request->input('product_id'), true);
+    //     if (!isset($input) || $input == null) {
+    //         return response()->json([
+    //             'error' => 'No Input Received'
+    //         ], 403);
+    //     }
+    //     $product = DB::table('product')->where('id', $input)->first();
+    //     $model = DB::table('model')->where('id', $product->model_id)->first();
+    //     if ($model != null) {
+    //         $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
+    //         $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
+    //         unset($model->mounting_type_id);
+    //         unset($model->mounting_style_id);
 
-            $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
-            $model_diamond->map(function ($model_diamond) {
-                $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
-                unset($model_diamond->model_id);
-                unset($model_diamond->id);
-                unset($model_diamond->diamond_shape_id);
-                return $model_diamond;
-            });
-            $model->model_diamond = $model_diamond;
+    //         $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
+    //         $model_shape->map(function ($model_shape) {
+    //             $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
+    //             unset($model_shape->model_id);
+    //             unset($model_shape->diamond_shape_id);
+    //             return $model_shape;
+    //         });
+    //         $model->model_diamond_shape = $model_shape;
 
-            $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-            $model_metal->map(function ($model_metal) {
-                $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-                $OGurl = env('ORIGIN_URL');
-                $url = env('METAL_URL');
-                $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
-                $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
-                $model_metal->metal = $metal;
-                unset($model_metal->model_id);
-                unset($model_metal->id);
-                unset($model_metal->metal_id);
-                return $model_metal;
-            });
-            $model->model_metal = $model_metal;
-            $OGurl = env('ORIGIN_URL');
-            $url = env('MODEL_URL');
-            $model->imageUrl = $OGurl . $url . $model->id . '/' . $model->imageUrl;
-        }
+    //         $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
+    //         $model_diamond->map(function ($model_diamond) {
+    //             $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
+    //             unset($model_diamond->model_id);
+    //             unset($model_diamond->id);
+    //             unset($model_diamond->diamond_shape_id);
+    //             return $model_diamond;
+    //         });
+    //         $model->model_diamond = $model_diamond;
+
+    //         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
+    //         $model_metal->map(function ($model_metal) {
+    //             $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+    //             $OGurl = env('ORIGIN_URL');
+    //             $url = env('METAL_URL');
+    //             $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
+    //             $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
+    //             $model_metal->metal = $metal;
+    //             unset($model_metal->model_id);
+    //             unset($model_metal->id);
+    //             unset($model_metal->metal_id);
+    //             return $model_metal;
+    //         });
+    //         $model->model_metal = $model_metal;
+    //         $OGurl = env('ORIGIN_URL');
+    //         $url = env('MODEL_URL');
+    //         $model->imageUrl = $OGurl . $url . $model->id . '/' . $model->imageUrl;
+    //     }
 
 
-        $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
-        unset($product->mounting_type_id);
-        $product->model = $model;
-        unset($product->model_id);
+    //     $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
+    //     unset($product->mounting_type_id);
+    //     $product->model = $model;
+    //     unset($product->model_id);
 
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
-        $product_diamond->map(function ($product_diamond) {
-            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
-            $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
-            $OGurl = env('ORIGIN_URL');
-            $url = env('DIAMOND_URL');
-            $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
-            $product_diamond->diamond = $diamond;
-            $product_diamond->diamond_shape_id = DB::table('diamond_shape_id')->where('id', $product_diamond->diamond_shape_id)->first();
-            unset($product_diamond->diamond_id);
-            unset($product_diamond->diamond_shape_id);
-            return $product_diamond;
-        });
-        $product->product_diamond = $product_diamond;
+    //     $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
+    //     $product_diamond->map(function ($product_diamond) {
+    //         $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+    //         $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
+    //         $OGurl = env('ORIGIN_URL');
+    //         $url = env('DIAMOND_URL');
+    //         $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
+    //         $product_diamond->diamond = $diamond;
+    //         $product_diamond->diamond_shape_id = DB::table('diamond_shape_id')->where('id', $product_diamond->diamond_shape_id)->first();
+    //         unset($product_diamond->diamond_id);
+    //         unset($product_diamond->diamond_shape_id);
+    //         return $product_diamond;
+    //     });
+    //     $product->product_diamond = $product_diamond;
 
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->get();
-        $product_metal->map(function ($product_metal) {
-            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
-            $OGurl = env('ORIGIN_URL');
-            $url = env('METAL_URL');
-            $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
-            $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
-            $product_metal->metal = $metal;
-            unset($product_metal->metal_id);
-            return $product_metal;
-        });
-        $product->product_diamond = $product_metal;
-        $OGurl = env('ORIGIN_URL');
-        $url = env('ORDER_ID');
-        $product->imageUrl = $OGurl . $url . $product->id . '/' . $product->imageUrl;
+    //     $product_metal = DB::table('product_metal')->where('product_id', $product->id)->get();
+    //     $product_metal->map(function ($product_metal) {
+    //         $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+    //         $OGurl = env('ORIGIN_URL');
+    //         $url = env('METAL_URL');
+    //         $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
+    //         $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
+    //         $product_metal->metal = $metal;
+    //         unset($product_metal->metal_id);
+    //         return $product_metal;
+    //     });
+    //     $product->product_diamond = $product_metal;
+    //     $OGurl = env('ORIGIN_URL');
+    //     $url = env('ORDER_ID');
+    //     $product->imageUrl = $OGurl . $url . $product->id . '/' . $product->imageUrl;
 
-        return response()->json([
-            $product
-        ]);
-    }
+    //     return response()->json([
+    //         $product
+    //     ]);
+    // }
+
     public function confirm_payment() //chưa test
     {
         $vnp_HashSecret = env('VNP_HASH_SECRET');
