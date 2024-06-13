@@ -1613,7 +1613,7 @@ class OrderController extends Controller
             unset($product_metal->metal_id);
             return $product_metal;
         });
-        $product->product_diamond = $product_metal;
+        $product->product_metal= $product_metal;
 
         $order->product = $product;
 
