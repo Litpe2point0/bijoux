@@ -124,6 +124,11 @@ class AccountController extends Controller
     public function get_account_list()
     {
         $customer_list = Account::where('role_id', 5)->orderBy('deactivated', 'asc')->get();
+        foreach ($customer_list as $customer) {
+            $customer->role = DB::table('role')->where('id', $customer->role_id)->first();
+            unset($customer->role_id);
+            $customer->order_count = (int) DB::table('orders')->where('account_id', $customer->id)->count();
+        }
         $customer_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -136,6 +141,17 @@ class AccountController extends Controller
             return $account;
         });
         $staff_list = Account::whereNot('role_id', 5)->whereNot('role_id', 1)->orderBy('deactivated', 'asc')->get();
+        foreach ($staff_list as $staff) {
+            if ($staff->role_id == 2) {
+                $staff->order_count = (int) DB::table('orders')->where('saleStaff_id', $staff->id)->count();
+            } else if ($staff->role_id == 3) {
+                $staff->order_count = (int) DB::table('orders')->where('designStaff_id', $staff->id)->count();
+            } else if ($staff->role_id == 4) {
+                $staff->order_count = (int) DB::table('orders')->where('productionStaff_id', $staff->id)->count();
+            }
+            $staff->role = DB::table('role')->where('id', $staff->role_id)->first();
+            unset($staff->role_id);
+        }
         $staff_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -155,6 +171,11 @@ class AccountController extends Controller
     public function get_staff_list()
     {
         $sale_staff_list = Account::where('role_id', 2)->orderBy('deactivated', 'asc')->get();
+        foreach ($sale_staff_list as $sale) {
+            $sale->role = DB::table('role')->where('id', $sale->role_id)->first();
+            unset($sale->role_id);
+            $sale->order_count = (int) DB::table('orders')->where('saleStaff_id', $sale->id)->count();
+        }
         $sale_staff_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -167,6 +188,11 @@ class AccountController extends Controller
             return $account;
         });
         $design_staff_list = Account::where('role_id', 3)->orderBy('deactivated', 'asc')->get();
+        foreach ($design_staff_list as $design) {
+            $design->role = DB::table('role')->where('id', $design->role_id)->first();
+            unset($design->role_id);
+            $design->order_count = (int) DB::table('orders')->where('designStaff_id', $design->id)->count();
+        }
         $design_staff_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -179,6 +205,11 @@ class AccountController extends Controller
             return $account;
         });
         $production_staff_list = Account::where('role_id', 4)->orderBy('deactivated', 'asc')->get();
+        foreach ($production_staff_list as $production) {
+            $production->role = DB::table('role')->where('id', $production->role_id)->first();
+            unset($production->role_id);
+            $production->order_count = (int) DB::table('orders')->where('productionStaff_id', $production->id)->count();
+        }
         $production_staff_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -196,7 +227,7 @@ class AccountController extends Controller
             'production_staff_list' => $production_staff_list
         ]);
     }
-    public function get_account_detail(Request $request) //chưa test
+    public function get_account_detail(Request $request)
     {
         //input
         $input = json_decode($request->input('account_infomation'), true);
@@ -206,7 +237,7 @@ class AccountController extends Controller
             ], 404);
         }
         //find account
-        $account = Account::where('id', $input['id'])->first();
+        $account = Account::where('id', $input['account_id'])->first();
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();
@@ -345,7 +376,7 @@ class AccountController extends Controller
                 $updateData['username'] = $input['username'];
             }
             if (!empty($input['password'])) {
-                $updateData['password'] = $input['password'];
+                $updateData['password'] = Hash::make($input['password']);
             }
             if (!empty($input['fullname'])) {
                 $updateData['fullname'] = $input['fullname'];
@@ -395,13 +426,20 @@ class AccountController extends Controller
     public function register(Request $request)
     {
         //input
-        $input = json_decode($request->input('account_information'), true);
+        $input = json_decode($request->input('new_account'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
             ], 404);
         }
         DB::beginTransaction();
+        $validatedData = validator($input, [
+            'username' => 'required|string|max:255|unique:account,username',
+            'email' => 'required|string|email|max:255|unique:account,email',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
         try {
             //create new account
             $account = new Account();
@@ -409,28 +447,15 @@ class AccountController extends Controller
             $account->fullname = $input['fullname'];
             $account->email = $input['email'];
             $account->password = Hash::make($input['password']);
-            if (isset($input['deactivated']) && $input['deactivated'] != null) {
-                $account->deactivated = $input['deactivated'];
-            } else {
-                $account->deactivated = false;
-            }
+            $account->deactivated = false;
+            $account->deactivated_date = Carbon::createFromFormat('Y-m-d H:i:s', '0000-01-01 00:00:00');
             $account->role_id = $input['role_id'];
             $account->address = $input['address'];
             if (isset($input['dob']) && $input['dob'] != null) {
-                $carbonDate = Carbon::parse($input['dob']);
-                $formattedDate = $carbonDate->format('Y-m-d');
-                $account->dob = $formattedDate;
+                $account->dob = Carbon::parse($input['dob'])->format('Y-m-d');
             } else {
                 $account->dob = null;
             }
-            if (isset($input['deactivated_date']) && $input['deactivated_date'] != null) {
-                $carbonDate = Carbon::parse($input['deactivated_date']);
-                $formattedDate = $carbonDate->format('Y-m-d');
-                $account->deactivated_date = $formattedDate;
-            } else {
-                $account->deactivated_date = null;
-            }
-
             //save new account
             $account->save();
             //get account id
@@ -511,7 +536,7 @@ class AccountController extends Controller
     //     ]);
     // }
 
-    public function set_deactivate(Request $request) //chưa test
+    public function set_deactivate(Request $request)
     {
         //input
         $input = json_decode($request->input('deactivate'), true);
@@ -527,16 +552,10 @@ class AccountController extends Controller
                 'deactivated_date' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
             ]);
         } else if ($input['deactivate'] == false) {
-            $now = Carbon::now();
-            $time = $now->startOfDay();
             DB::table('account')->where('id', $input['account_id'])->update([
                 'deactivated' => false,
-                'deactivated_date' => $time
+                'deactivated_date' => Carbon::createFromFormat('Y-m-d H:i:s', '0000-01-01 00:00:00')
             ]);
-        } else {
-            return response()->json([
-                'error' => 'Something Happened'
-            ], 403);
         }
         return response()->json([
             'success' => 'Set Account Deactivate Successfully'

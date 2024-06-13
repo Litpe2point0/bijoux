@@ -168,7 +168,6 @@ class ModelController extends Controller
         $modelIds = $query_available->pluck('model_id');
         foreach ($modelIds as $model_id) {
             $filtered_models = DB::table('model')->where('id', $model_id)->where('isAvailable', true)->first();
-            $filtered_models->created = Carbon::parse($filtered_models->created)->format('H:i:s d/m/Y');
             if ($filtered_models) {
                 $temp1->push($filtered_models);
             }
@@ -203,7 +202,7 @@ class ModelController extends Controller
             $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
             $model_metal->map(function ($model_metal) {
                 $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-                $model_metal->metal->created = Carbon::parse($model_metal->metal ->created)->format('H:i:s d/m/Y');
+                $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
                 unset($model_metal->id);
                 unset($model_metal->model_id);
                 unset($model_metal->metal_id);
@@ -221,7 +220,6 @@ class ModelController extends Controller
             $modelIds2 = $query_unavailable->pluck('model_id');
             foreach ($modelIds2 as $model_id) {
                 $filtered_models2 = DB::table('model')->where('id', $model_id)->where('isAvailable', false)->first();
-                $filtered_models->created = Carbon::parse($filtered_models->created)->format('H:i:s d/m/Y');
                 if ($filtered_models2) {
                     $temp2->push($filtered_models2);
                 }
@@ -256,7 +254,7 @@ class ModelController extends Controller
                 $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
                 $model_metal->map(function ($model_metal) {
                     $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-                    $model_metal->metal->created = Carbon::parse($model_metal->metal ->created)->format('H:i:s d/m/Y');
+                    $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
                     unset($model_metal->id);
                     unset($model_metal->model_id);
                     unset($model_metal->metal_id);
@@ -345,25 +343,13 @@ class ModelController extends Controller
                 ], 403);
             }
             if ($input['deactivate']) {
-                if ($model->deactivated == false) {
-                    DB::table('model')->where('id', $input['model_id'])->update([
-                        'deactivated' => true,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The Selected Model\'s Already Been Deactivated'
-                    ], 403);
-                }
+                DB::table('model')->where('id', $input['model_id'])->update([
+                    'deactivated' => true,
+                ]);
             } else {
-                if ($model->deactivated == true) {
-                    DB::table('model')->where('id', $input['model_id'])->update([
-                        'deactivated' => false,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The Selected Model\'s Already Been Activated'
-                    ], 403);
-                }
+                DB::table('model')->where('id', $input['model_id'])->update([
+                    'deactivated' => false,
+                ]);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -404,21 +390,21 @@ class ModelController extends Controller
 
                 $fileName = time() . '_' . $input['id'] . '.jpg';
                 //delete all files in the model directory
-                File::cleanDirectory($destinationPath); 
+                File::cleanDirectory($destinationPath);
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
                 $updateData['imageUrl'] = $fileName;
             }
-            DB::table('model_metal')->where('model_id',$input['model_id'])->delete();
-            DB::table('model_diamondshape')->where('model_id',$input['model_id'])->delete();
-            DB::table('model_metal')->where('model_id',$input['model_id'])->delete();
-            foreach($input['model_diamond_shape'] as $shape){
+            DB::table('model_metal')->where('model_id', $input['model_id'])->delete();
+            DB::table('model_diamondshape')->where('model_id', $input['model_id'])->delete();
+            DB::table('model_metal')->where('model_id', $input['model_id'])->delete();
+            foreach ($input['model_diamond_shape'] as $shape) {
                 DB::table('model_diamondshape')->insert([
                     'model_id' => $input['model_id'],
                     'diamond_shape_id' => $shape
                 ]);
             }
-            foreach($input['model_diamond'] as $diamond){
+            foreach ($input['model_diamond'] as $diamond) {
                 DB::table('model_diamond')->insert([
                     'model_id' => $input['model_id'],
                     'diamond_size_min' => $diamond->diamond_size_min,
@@ -428,7 +414,7 @@ class ModelController extends Controller
                     'is_editable' => $diamond->is_editable
                 ]);
             }
-            foreach($input['model_metal'] as $metal){
+            foreach ($input['model_metal'] as $metal) {
                 DB::table('model_diamond')->insert([
                     'model_id' => $input['model_id'],
                     'metal_id' => $metal->metal_id,
@@ -716,7 +702,7 @@ class ModelController extends Controller
             ], 404);
         }
         $model_id = $input['model_id'];
-        $model = DB::table('model')->where('id',$model_id)->first();
+        $model = DB::table('model')->where('id', $model_id)->first();
         if (isset($input['metal_1_id']) && $input['metal_1_id'] != null) {
             $metal_1_id = $input['metal_1_id'];
             $metal = DB::table('metal')->where('id', $input['metal_1_id'])->first();
@@ -766,15 +752,15 @@ class ModelController extends Controller
         $OGurl = env('ORIGIN_URL');
         $Murl = env('METAL_URL');
         $Durl = env('DIAMOND_URL');
-        $metal_1 = DB::table('metal')->where('id',$metal_1_id)->first();
-        $metal_2 = DB::table('metal')->where('id',$metal_2_id)->first();
-        $model_metal_1 = DB::table('model_metal')->where('model_id',$model_id)->where('metal_id',$metal_1_id)->where('is_main',true)->first();
-        $model_metal_2 = DB::table('model_metal')->where('model_id',$model_id)->where('metal_id',$metal_2_id)->where('is_main',false)->first();
-        $volume =  DB::table('size_to_volume')->where('size',$input['mounting_size'])->value('volume');
+        $metal_1 = DB::table('metal')->where('id', $metal_1_id)->first();
+        $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
+        $model_metal_1 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_1_id)->where('is_main', true)->first();
+        $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
+        $volume =  DB::table('size_to_volume')->where('size', $input['mounting_size'])->value('volume');
         $metal_1->price = $volume * $model_metal_1->percentage * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
         $metal_2->price = $volume * $model_metal_2->percentage * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
-        $metal_1->imageUrl = $OGurl . $Murl . $metal->id . '/' . $metal_1->imageUrl; 
-        $metal_2->imageUrl = $OGurl . $Murl . $metal->id . '/' . $metal_2->imageUrl; 
+        $metal_1->imageUrl = $OGurl . $Murl . $metal->id . '/' . $metal_1->imageUrl;
+        $metal_2->imageUrl = $OGurl . $Murl . $metal->id . '/' . $metal_2->imageUrl;
         unset($metal_1->buy_price_per_gram);
         unset($metal_1->sale_price_per_gram);
         unset($metal_1->specific_weight);
@@ -789,18 +775,18 @@ class ModelController extends Controller
             $metal_1,
             $metal_2
         ];
-        $model_diamond = DB::table('model_diamond')->where('model_id',$model_id)->get();
+        $model_diamond = DB::table('model_diamond')->where('model_id', $model_id)->get();
         $diamond_list = collect();
-        foreach ($model_diamond as $diamonds){
-            if($diamonds->is_editable == 1){
+        foreach ($model_diamond as $diamonds) {
+            if ($diamonds->is_editable == 1) {
                 $diamond = DB::table('diamond')->where('size', $input['diamond_size'])->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
                 $diamond->price = $diamonds->count * $diamond->price;
                 $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
-                $diamond->diamond_shape = DB::table('diamond_shape')->where('id',$input['diamond_shape_id'])->first();
-                $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id',$diamond->diamond_clarity_id)->first();
-                $diamond->diamond_cut = DB::table('diamond_cut')->where('id',$diamond->diamond_cut_id)->first();
-                $diamond->diamond_color = DB::table('diamond_color')->where('id',$diamond->diamond_color_id)->first();
-                $diamond->diamond_origin = DB::table('diamond_origin')->where('id',$diamond->diamond_origin_id)->first();
+                $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
+                $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+                $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+                $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+                $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
                 $diamond->count = $diamonds->count;
                 unset($diamond->deactivated);
                 unset($diamond->created);
@@ -813,11 +799,11 @@ class ModelController extends Controller
                 $diamond = DB::table('diamond')->where('size', $diamonds->diamond_size_max)->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
                 $diamond->price = $diamonds->count * $diamond->price;
                 $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
-                $diamond->diamond_shape = DB::table('diamond_shape')->where('id',$diamonds->diamond_shape_id)->first();
-                $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id',$diamond->diamond_clarity_id)->first();
-                $diamond->diamond_cut = DB::table('diamond_cut')->where('id',$diamond->diamond_cut_id)->first();
-                $diamond->diamond_color = DB::table('diamond_color')->where('id',$diamond->diamond_color_id)->first();
-                $diamond->diamond_origin = DB::table('diamond_origin')->where('id',$diamond->diamond_origin_id)->first();
+                $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
+                $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+                $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+                $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+                $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
                 $diamond->count = $diamonds->count;
                 unset($diamond->deactivated);
                 unset($diamond->created);
