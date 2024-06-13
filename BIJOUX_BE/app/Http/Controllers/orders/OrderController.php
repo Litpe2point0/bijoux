@@ -1594,7 +1594,7 @@ class OrderController extends Controller
             $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
             $product_diamond->diamond = $diamond;
 
-            $product_diamond->diamond_shape_id = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
+            $product_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
             unset($product_diamond->diamond_id);
             unset($product_diamond->diamond_shape_id);
             return $product_diamond;
