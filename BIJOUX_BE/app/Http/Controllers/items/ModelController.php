@@ -672,14 +672,14 @@ class ModelController extends Controller
         $returned_model_metal['model_id'] = $input;
         $returned_model_metal['model_metal'] = $model_metal;
         return response()->json([
-            'returned_model_diamond' => $returned_model_metal
+            'returned_model_metal' => $returned_model_metal
         ]);
     }
     public function get_mounting_type_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('mounting_type')->get()
-        ]);
+        );
     }
     public function get_mounting_style_list()
     {
@@ -690,9 +690,9 @@ class ModelController extends Controller
             $mounting_style->imageUrl = $OGurl . $url . $mounting_style->id . "/" . $mounting_style->imageUrl;
             return $mounting_style;
         });
-        return response()->json([
+        return response()->json(
             $mounting_style_list
-        ]);
+        );
     }
     public function get_final_checkout(Request $request)
     {
