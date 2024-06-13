@@ -357,7 +357,7 @@ class ModelController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Set Model Deactivate Successfully'
+            'success' => 'Set Deactivate Model Successfully'
         ], 200);
     }
     public function update(Request $request) //chưa test

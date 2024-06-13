@@ -1574,7 +1574,6 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $design_process->order_id)->first();
         $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
         $product = DB::table('product')->where('id', $order->product_id)->first();
-        $product->created = Carbon::parse($product->created)->format('H:i:s d/m/Y');
         $OGurl = env('ORIGIN_URL');
         $Ourl = env('ORDER_URL');
         $Durl = env('DESIGN_PROCESS_URL');
@@ -2012,7 +2011,6 @@ class OrderController extends Controller
             ], 403);
         }
         $product = DB::table('product')->where('id', $input)->first();
-        $product->created = Carbon::parse($product->created)->format('H:i:s d/m/Y');
         $model = DB::table('model')->where('id', $product->model_id)->first();
         if ($model != null) {
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();

@@ -24,7 +24,6 @@ class QuoteController extends Controller
             $product = DB::table('product')->where('id', $quote->product_id)->first();
             $OGurl = env('ORIGIN_URL');
             $url = env('ORDER_URL');
-            $product->created = Carbon::parse($product->created)->format('H:i:s d/m/Y');
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $quote->product = $product;
             unset($quote->product_id);
@@ -578,7 +577,6 @@ class QuoteController extends Controller
         $product = DB::table('product')->where('id', $quote->product_id)->first();
         $OGurl = env('ORIGIN_URL');
         $url = env('ORDER_URL');
-        $product->created = Carbon::parse($product->created)->format('H:i:s d/m/Y');
         $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
         $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
         unset($product->mounting_type_id);

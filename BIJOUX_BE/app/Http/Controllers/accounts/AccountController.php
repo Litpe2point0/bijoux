@@ -116,7 +116,7 @@ class AccountController extends Controller
 
 
 
-            return response()->json(['success' => 'User logged in', 'token' => $jwt]);
+            return response()->json(['success' => 'Login Successfully', 'token' => $jwt]);
         } else {
             return response()->json(['error' => 'Invalid token'], 401);
         }
@@ -436,6 +436,7 @@ class AccountController extends Controller
         $validatedData = validator($input, [
             'username' => 'required|string|max:255|unique:account,username',
             'email' => 'required|string|email|max:255|unique:account,email',
+            'phone' => 'string|max:20|unique:account,phone',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => $validatedData->errors()], 400);
@@ -455,6 +456,9 @@ class AccountController extends Controller
                 $account->dob = Carbon::parse($input['dob'])->format('Y-m-d');
             } else {
                 $account->dob = null;
+            }
+            if (!empty($input['phone'])) {
+                $account->phone = $input['phone'];
             }
             //save new account
             $account->save();
@@ -558,7 +562,7 @@ class AccountController extends Controller
             ]);
         }
         return response()->json([
-            'success' => 'Set Account Deactivate Successfully'
+            'success' => 'Set Deactivate Account Successfully'
         ], 200);
     }
 }
