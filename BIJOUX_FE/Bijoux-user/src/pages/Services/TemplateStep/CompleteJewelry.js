@@ -105,72 +105,81 @@ export default function CompleteRing() {
 
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
-                    <p className="text-2xl text-[#151542] font-loraFont font-semibold">Product Informations:</p>
-                    {finalCheckout.metalList.map((metal) => (
-                        <div className="w-full h-20 bg-slate-100 rounded-md flex relative items-center mb-5">
-                            <img src={metal.image_Url} alt="anh" className="w-16 ml-5 mr-20"></img>
-                            <p className="font-bold text-yellow-600 text-xl mr-20 font-loraFont">{metal.name}</p>
-                            <div className="flex items-center">
-                                <p className="font-bold text-red-500 text-xl mr-5 font-loraFont">Price:</p>
-                                <p className="font-semibold text-green-800 text-xl font-loraFont">{metal.price} (VND)</p>
-                            </div>
-                        </div>
-                    )
-                    )}
-                    {finalCheckout.diamondList.map((diamond) => (
-                        <div className="w-full bg-slate-100 rounded-md mb-5">
-                            <div className="w-full h-24 bg-slate-100 rounded-md flex relative items-center">
-                                <img src={diamond.image_Url} alt="anh" className="w-16 ml-5 mr-5"></img>
-                                <div className="flex flex-col items-center mr-5">
-                                    <p className="font-bold text-[#151542] font-loraFont">Origin:</p>
-                                    <p className="font-semibold text-[#151542] font-loraFont">{diamond.diamond_origin.name}</p>
+                <div className=" w-full flex flex-col items-center">
+                    <p className="text-2xl text-[#151542] font-loraFont font-semibold mb-10">Product Informations:</p>
+                    <div className="w-full ml-20 font-loraFont text-[#151542]">
+                        <p className="text-xl font-semibold">Metal List:</p>
+                        {finalCheckout.metalList.map((metal, index) => (
+                            <div className="ml-5">
+                                <div className="flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                    </svg>
+                                    <p className="ml-2 font-bold">Metal {index + 1}:</p>
                                 </div>
-                                <div className="flex flex-col items-center mr-5">
-                                    <p className="font-bold text-[#151542]font-loraFont">Clarity:</p>
-                                    <p className="font-semibold text-[#151542] font-loraFont">{diamond.diamond_clarity.name}</p>
-                                </div>
-                                <div className="flex flex-col items-center mr-5">
-                                    <p className="font-bold text-[#151542] font-loraFont">Color:</p>
-                                    <p className="font-semibold text-[#151542] font-loraFont">{diamond.diamond_color.name}</p>
-                                </div>
-                                <div className="flex flex-col items-center mr-5">
-                                    <p className="font-bold text-[#151542]font-loraFont">Cut:</p>
-                                    <p className="font-semibold text-[#151542] font-loraFont">{diamond.diamond_cut.name}</p>
-                                </div>
-                                <div className="flex flex-col items-center mr-5">
-                                    <p className="font-bold text-[#151542]font-loraFont">Size:</p>
-                                    <p className="font-semibold text-[#151542] font-loraFont">{diamond.diamond_size} (mm)</p>
-                                </div>
-                                <div className="flex flex-col items-center mr-5">
-                                    <p className="font-bold text-[#151542] font-loraFont">Count:</p>
-                                    <p className="font-semibold text-[#151542] font-loraFont">{diamond.count}</p>
-                                </div>
-                            </div>
-                            <div className="w-full flex justify-center">
-                                <div className="w-10/12 h-0.5 bg-gray-500"></div>
-                            </div>
-                            <div className="w-full flex flex-col items-center">
-                                <p className="font-bold text-red-500 text-xl mr-5 font-loraFont">Price:</p>
-                                <p className="font-semibold text-green-800 text-xl font-loraFont">{diamond.price} (VND)</p>
-                            </div>
+                                <ul class="max-w-md space-y-1 text-[#151542] list-disc list-inside ml-6">
+                                    <li>
+                                        Material: {metal.name}
+                                    </li>
+                                    <li>
+                                        Price: {metal.price} (VND)
+                                    </li>
+                                </ul>
 
-
-                        </div>
-                    ))}
-
-                    <div className="w-full ml-5 flex items-center mb-5 mt-5">
-                        <p className="text-2xl font-bold text-red-800 mr-5">Production Price: </p>
-                        <p className="text-xl font-bold text-green-800">{finalCheckout.production_Price}</p>
+                            </div>
+                        )
+                        )}
+                    </div>
+                    <div className="w-full ml-20 justify-center mb-5 mt-5">
+                        <div className="w-3/4 h-0.5 bg-[#151542]"></div>
+                    </div>
+                    <div className="w-full ml-20 font-loraFont text-[#151542]">
+                        <p className="text-xl font-semibold">Diamond List:</p>
+                        {finalCheckout.diamondList.map((diamond, index) => (
+                            <div className="ml-5">
+                                <div className="flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                    </svg>
+                                    <p className="ml-2 font-bold">Diamond {index + 1}</p>
+                                </div>
+                                <ul class="max-w-md space-y-1 text-[#151542] list-disc list-inside ml-6">
+                                    <li>
+                                        Diamond ID: {diamond.id}
+                                    </li>
+                                    <li>
+                                        Count: {diamond.count}
+                                    </li>
+                                    <li>
+                                        Cut: {diamond.diamond_cut.name}
+                                    </li>
+                                    <li>
+                                        Clarity: {diamond.diamond_clarity.name}
+                                    </li>
+                                    <li>
+                                        Color: {diamond.diamond_color.name}
+                                    </li>
+                                    <li>
+                                        Price: {diamond.price} (VND)
+                                    </li>
+                                </ul>
+                            </div>
+                        ))}
                     </div>
 
-                    <div className="w-full ml-5 flex items-center mb-5 mt-5">
-                        <p className="text-4xl font-bold text-red-500 mr-5">Total Price: </p>
-                        <p className="text-2xl font-bold text-green-500">{finalCheckout.total_Price}</p>
+                    <div className="w-full ml-5 flex items-center mt-5">
+                        <p className="text-2xl font-bold text-[#151542] mr-3">Production Price: </p>
+                        <p className="text-xl font-semibold text-green-800">{finalCheckout.production_Price} (VND)</p>
                     </div>
 
-                    <div className="w-full flex justify-center mb-5">
-                        <button className="bg-[#151542] hover:bg-cyan-900 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Payment</button>
+                    <div className="w-full ml-5 flex items-center mb-5 mt-2">
+                        <p className="text-4xl font-bold text-[#151542] mr-5">Total Price: </p>
+                        <p className="text-2xl font-semibold text-green-800">{finalCheckout.total_Price} (VND)</p>
+                    </div>
+
+                    <div className="w-full flex flex-col justify-center mb-5">
+                        <button className="bg-sky-600 hover:bg-white hover:text-sky-600 border-sky-600 hover:border-2 w-full text-white pl-5 pr-5 pt-2 pb-2 rounded-sm mb-2">Check Out</button>
+                        <button className="text-sky-600 hover:text-white hover:bg-sky-600 border-sky-600 border-2 w-full bg-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Restart</button>
                     </div>
 
                 </div>

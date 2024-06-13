@@ -26,6 +26,7 @@ import ProductDetails from "./pages/ProductDetails/ProductDetails";
 import Shop from "./pages/Shop/Shop";
 import { ToastContainer } from "react-toastify";
 import MountingDetail from "./pages/Services/TemplateStep/MountingDetail";
+import Profile from "./pages/Profile/profile";
 import "react-toastify/dist/ReactToastify.css";
 
 const Layout = () => {
@@ -64,6 +65,7 @@ const router = createBrowserRouter(
         <Route path="/services" element={<Services />}></Route>
         <Route path="/template" element={<Template />}></Route>
         <Route path="/mounting-detail/:id" element={<MountingDetail />}></Route>
+        <Route path="/profile" element={<Profile />}></Route>
         <Route path="/contact" element={<Contact />}></Route>
         <Route path="/journal" element={<Journal />}></Route>
         {/* ==================== Header Navlink End here ===================== */}
