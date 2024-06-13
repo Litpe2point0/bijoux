@@ -52,7 +52,7 @@ class QuoteController extends Controller
     }
     public function get_priced_quote_list()
     {
-        $quote_list = DB::table('quote')->where('quote_status_id',3)->get();
+        $quote_list = DB::table('quote')->where('quote_status_id', 3)->get();
         $quote_list->map(function ($quote) {
             $product = DB::table('product')->where('id', $quote->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -624,6 +624,15 @@ class QuoteController extends Controller
             $OGurl = env('ORIGIN_URL');
             $url = env('DIAMOND_URL');
             $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
+            $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
+            $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+            $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
+            unset($diamond->diamond_color_id);
+            unset($diamond->diamond_origin_id);
+            unset($diamond->diamond_clarity_id);
+            unset($diamond->diamond_cut_id);
             $product_diamond->diamond = $diamond;
 
             $product_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();

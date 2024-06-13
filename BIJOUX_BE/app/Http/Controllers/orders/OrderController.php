@@ -543,6 +543,15 @@ class OrderController extends Controller
             $url = env('DIAMOND_URL');
             $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
             $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
+            $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
+            $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+            $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
+            unset($diamond->diamond_color_id);
+            unset($diamond->diamond_origin_id);
+            unset($diamond->diamond_clarity_id);
+            unset($diamond->diamond_cut_id);
             $product_diamond->diamond = $diamond;
 
             $product_diamond->diamond_shape_id = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
@@ -1613,7 +1622,7 @@ class OrderController extends Controller
             unset($product_metal->metal_id);
             return $product_metal;
         });
-        $product->product_metal= $product_metal;
+        $product->product_metal = $product_metal;
 
         $order->product = $product;
 
