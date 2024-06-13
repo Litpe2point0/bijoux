@@ -449,7 +449,7 @@ class AccountController extends Controller
             $account->password = Hash::make($input['password']);
             $account->deactivated = false;
             $account->deactivated_date = Carbon::createFromFormat('Y-m-d H:i:s', '0000-01-01 00:00:00');
-            $account->role_id = $input['role_id'];
+            $account->role_id = $input['role']['id'];
             $account->address = $input['address'];
             if (isset($input['dob']) && $input['dob'] != null) {
                 $account->dob = Carbon::parse($input['dob'])->format('Y-m-d');
