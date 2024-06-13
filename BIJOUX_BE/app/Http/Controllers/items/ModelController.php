@@ -598,11 +598,7 @@ class ModelController extends Controller
                 }
             }
         }
-
-        if (empty($missing_image)) {
-            return response()->json(['error' => 'There Are No Missing Images'], 404);
-        }
-
+        
         return response()->json([
             'model' => $model,
             'missing_image' => $missing_image
