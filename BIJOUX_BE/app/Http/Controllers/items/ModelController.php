@@ -362,7 +362,7 @@ class ModelController extends Controller
     }
     public function update(Request $request) //chưa test
     {
-        $input = json_decode($request->input('model_information'), true);
+        $input = json_decode($request->input('new_model'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
@@ -435,8 +435,9 @@ class ModelController extends Controller
     }
     public function set_available(Request $request)
     {
-        $model_id = json_decode($request->input('model_id'), true);
-        $image_list = json_decode($request->input('image_list'), true);
+        $input = json_decode($request->input('set_available'), true);
+        $model_id = $input['model_id'];
+        $image_list = $input['image_list'];
         if (!isset($model_id) || $model_id == null || !isset($image_list) || $image_list == null) {
             return response()->json([
                 'error' => 'Not Enough Input Received'
