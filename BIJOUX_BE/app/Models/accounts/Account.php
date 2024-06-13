@@ -23,7 +23,7 @@ class Account extends Authenticatable implements JWTSubject
     protected $fillable = [
         'username',
         'fullname',
-        'imageURL',
+        'imageUrl',
         'email',
         'password',
         'phone',
