@@ -287,6 +287,22 @@ class AccountController extends Controller
             return response()->json(['error' => 'Account not found'], 404);
         }
 
+        $validatedData = validator($input, [
+            'username' => 'required|string|max:255|unique:account,username',
+            'email' => 'required|string|email|max:255|unique:account,email',
+            'phone' => 'nullable|string|max:20|unique:account,phone',
+        ]);
+        if ($validatedData->fails()) {
+            $errors = $validatedData->errors();
+            $errorString = '';
+
+            foreach ($errors->all() as $message) {
+                $errorString .= $message . "\n";
+            }
+
+            return response()->json(['error' => $errorString], 400);
+        }
+
         DB::beginTransaction();
         try {
             $updateData = [];
@@ -366,6 +382,22 @@ class AccountController extends Controller
         }
         $id = (int) $decodedToken['id'];
 
+        $validatedData = validator($input, [
+            'username' => 'required|string|max:255|unique:account,username',
+            'email' => 'required|string|email|max:255|unique:account,email',
+            'phone' => 'nullable|string|max:20|unique:account,phone',
+        ]);
+        if ($validatedData->fails()) {
+            $errors = $validatedData->errors();
+            $errorString = '';
+
+            foreach ($errors->all() as $message) {
+                $errorString .= $message . "\n";
+            }
+
+            return response()->json(['error' => $errorString], 400);
+        }
+
         DB::beginTransaction();
         try {
             //find account
@@ -435,11 +467,18 @@ class AccountController extends Controller
         DB::beginTransaction();
         $validatedData = validator($input, [
             'username' => 'required|string|max:255|unique:account,username',
-            'email' => 'required|string|email|max:255|unique:account,email',
-            'phone' => 'string|max:20|unique:account,phone',
+            'email' => 'required|string|email|max:1|unique:account,email',
+            'phone' => 'nullable|string|max:20|unique:account,phone',
         ]);
         if ($validatedData->fails()) {
-            return response()->json(['error' => $validatedData->errors()], 400);
+            $errors = $validatedData->errors();
+            $errorString = '';
+
+            foreach ($errors->all() as $message) {
+                $errorString .= $message . "\n";
+            }
+
+            return response()->json(['error' => $errorString], 400);
         }
         try {
             //create new account
