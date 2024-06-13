@@ -592,10 +592,11 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
             }
+            $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+            $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+            unset($sale_staff->password);
         }
-        $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
-        $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
-        unset($sale_staff->password);
+
         $order->sale_staff = $sale_staff;
         unset($order->saleStaff_id);
 
@@ -608,10 +609,10 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
             }
+            $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+            $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+            unset($design_staff->password);
         }
-        $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
-        $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
-        unset($design_staff->password);
         $order->design_staff = $design_staff;
         unset($order->designStaff_id);
 
@@ -624,10 +625,10 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
             }
+            $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+            $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+            unset($production_staff->password);
         }
-        $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
-        $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
-        unset($production_staff->password);
         $order->production_staff = $production_staff;
         unset($order->productionStaff_id);
 
@@ -1625,7 +1626,7 @@ class OrderController extends Controller
             $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
         }
         $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
-            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
+        $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
         unset($account->password);
         $order->account = $account;
         unset($order->account_id);
