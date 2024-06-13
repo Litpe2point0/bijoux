@@ -46,9 +46,9 @@ class QuoteController extends Controller
             return $quote;
         });
 
-        return response()->json([
+        return response()->json(
             $quote_list
-        ]);
+        );
     }
     public function get_quote_list_customer(Request $request)
     {
@@ -92,15 +92,15 @@ class QuoteController extends Controller
             unset($quote->quote_status_id);
             return $quote;
         });
-        return response()->json([
-            'quote_list' => $quote_list,
-        ]);
+        return response()->json(
+            $quote_list,
+        );
     }
     public function get_quote_status_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('quote_status')->get()
-        ]);
+        );
     }
     public function add_quote(Request $request)
     {
@@ -560,9 +560,9 @@ class QuoteController extends Controller
             unset($quote->quote_status_id);
             return $quote;
         });
-        return response()->json([
+        return response()->json(
             $quote
-        ]);
+        );
     }
     public function get_quote_detail(Request $request)
     {
