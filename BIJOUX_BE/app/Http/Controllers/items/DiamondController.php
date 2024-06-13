@@ -90,7 +90,7 @@ class DiamondController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Set Diamond Deactivate Successfully'
+            'success' => 'Set Deactivate Diamond Successfully'
         ], 201);
     }
     public function update_price(Request $request)

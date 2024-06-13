@@ -228,7 +228,7 @@ class MetalController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Successfully Deactivated'
+            'success' => 'Set Deactivate Metal Successfully'
         ], 201);
     }
     public function get_list(Request $request)
