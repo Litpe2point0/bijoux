@@ -484,6 +484,9 @@ class QuoteController extends Controller
                     'quote_status_id' => 2,
                     'note' => $input['note']
                 ]);
+                return response()->json([
+                    'success' => 'Decline Quote Successfully'
+                ], 201);
             }
             DB::commit();
         } catch (\Exception $e) {
