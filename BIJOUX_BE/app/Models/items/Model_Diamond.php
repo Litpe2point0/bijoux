@@ -17,6 +17,6 @@ class Model_Diamond extends Model
         'diamond_size_max',
         'count',
         'diamond_shape_id',
-        'Is_editable'
+        'is_editable'
     ];
 }

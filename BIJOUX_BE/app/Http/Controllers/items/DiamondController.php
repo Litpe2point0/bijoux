@@ -41,12 +41,20 @@ class DiamondController extends Controller
             $OGurl = env('ORIGIN_URL');
             $url = env('DIAMOND_URL');
             $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
+            $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
+            $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
             $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
+            unset($diamond->diamond_color_id);
+            unset($diamond->diamond_origin_id);
+            unset($diamond->diamond_clarity_id);
+            unset($diamond->diamond_cut_id);
             return $diamond;
         });
-        return response()->json([
+        return response()->json(
             $diamond_list
-        ]);
+        );
     }
     public function set_deactivate(Request $request)
     {
@@ -68,25 +76,13 @@ class DiamondController extends Controller
             }
             //check input deactivate
             if ($input['deactivate']) {
-                if ($diamond->deactivated == false) {
-                    DB::table('diamond')->where('id', $input['diamond_id'])->update([
-                        'deactivated' => true,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The Selected Diamond\'s Already Been Deactivated'
-                    ], 403);
-                }
+                DB::table('diamond')->where('id', $input['diamond_id'])->update([
+                    'deactivated' => true,
+                ]);
             } else {
-                if ($diamond->deactivated == true) {
-                    DB::table('diamond')->where('id', $input['diamond_id'])->update([
-                        'deactivated' => false,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The selected diamond\'s already been activated'
-                    ], 403);
-                }
+                DB::table('diamond')->where('id', $input['diamond_id'])->update([
+                    'deactivated' => false,
+                ]);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -260,38 +256,38 @@ class DiamondController extends Controller
     }
     public function get_shape_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_shape')->get()
-        ]);
+        );
     }
     public function get_diamond_origin_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_origin')->get()
-        ]);
+        );
     }
     public function get_color_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_color')->get()
-        ]);
+        );
     }
     public function get_size_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond')->select('size')->groupBy('size')->get()
-        ]);
+        );
     }
     public function get_cut_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_cut')->get()
-        ]);
+        );
     }
     public function get_clarity_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_clarity')->get()
-        ]);
+        );
     }
 }

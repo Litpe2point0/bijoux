@@ -214,25 +214,13 @@ class MetalController extends Controller
             }
             //check input deactivate
             if ($input['deactivate']) {
-                if ($metal->deactivated == false) {
-                    DB::table('metal')->where('id', $input['metal_id'])->update([
-                        'deactivated' => true,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The Selected Metal\'s Already Been Deactivated'
-                    ], 403);
-                }
+                DB::table('metal')->where('id', $input['metal_id'])->update([
+                    'deactivated' => true,
+                ]);
             } else {
-                if ($metal->deactivated == true) {
-                    DB::table('metal')->where('id', $input['metal_id'])->update([
-                        'deactivated' => false,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The Selected Metal\'s Already Been Activated'
-                    ], 403);
-                }
+                DB::table('metal')->where('id', $input['metal_id'])->update([
+                    'deactivated' => false,
+                ]);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -282,9 +270,9 @@ class MetalController extends Controller
                 return $metal;
             });
         }
-        return response()->json([
+        return response()->json(
             $metal
-        ]);
+        );
     }
     public function get_detail(Request $request)
     {
@@ -322,7 +310,7 @@ class MetalController extends Controller
             'weight_price' => $temp
         ]);
     }
-    public function get_metal_is_main(Request $request)// chưa test
+    public function get_metal_is_main(Request $request) // chưa test
     {
         //input
         $input = json_decode($request->input('model_id'), true);
@@ -331,9 +319,9 @@ class MetalController extends Controller
                 'error' => 'No Input Received'
             ], 404);
         }
-        $metal_list = DB::table('model_metal')->where('model_id', $input)->where('is_main',true)->pluck('metal_id');
+        $metal_list = DB::table('model_metal')->where('model_id', $input)->where('is_main', true)->pluck('metal_id');
         $data = collect();
-        foreach($metal_list as $metal){
+        foreach ($metal_list as $metal) {
             $temp = DB::table('metal')->where('id', $metal)->first();
             $temp->created = Carbon::parse($temp->created)->format('H:i:s d/m/Y');
             $data->push($temp);
@@ -342,7 +330,7 @@ class MetalController extends Controller
             $data
         );
     }
-    public function get_metal_compatibility(Request $request)// chưa test
+    public function get_metal_compatibility(Request $request) // chưa test
     {
         //input
         $input = json_decode($request->input('metal_compatibility'), true);
@@ -351,13 +339,13 @@ class MetalController extends Controller
                 'error' => 'No Input Received'
             ], 404);
         }
-        $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main',false)->pluck('metal_id');
-        $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1',$input['metal_id'])->pluck('Metal_id_2');
+        $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main', false)->pluck('metal_id');
+        $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1', $input['metal_id'])->pluck('Metal_id_2');
         $data = collect();
-        foreach($metal_list as $metal){
-            foreach($metal_compatibility as $compability){
-                if($metal == $compability){
-                    $temp = DB::table('metal')->where('id',$metal)->first();
+        foreach ($metal_list as $metal) {
+            foreach ($metal_compatibility as $compability) {
+                if ($metal == $compability) {
+                    $temp = DB::table('metal')->where('id', $metal)->first();
                     $temp->created = Carbon::parse($temp->created)->format('H:i:s d/m/Y');
                     $data->push($temp);
                 }
