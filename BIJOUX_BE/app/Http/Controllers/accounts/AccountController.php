@@ -124,6 +124,11 @@ class AccountController extends Controller
     public function get_account_list()
     {
         $customer_list = Account::where('role_id', 5)->orderBy('deactivated', 'asc')->get();
+        foreach($customer_list as $customer){
+            $customer->role = DB::table('role')->where('id', $customer->role_id)->first();
+            unset($customer->role_id);
+            $customer->order_count = (int) DB::table('orders')->where('account_id', $customer->id)->count();
+        }
         $customer_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -136,6 +141,17 @@ class AccountController extends Controller
             return $account;
         });
         $staff_list = Account::whereNot('role_id', 5)->whereNot('role_id', 1)->orderBy('deactivated', 'asc')->get();
+        foreach($staff_list as $staff){
+            if($staff->role_id == 2){
+                $staff->order_count = (int) DB::table('orders')->where('saleStaff_id', $staff->id)->count();
+            } else if($staff->role_id == 3){
+                $staff->order_count = (int) DB::table('orders')->where('designStaff_id', $staff->id)->count();
+            } else if($staff->role_id == 4){
+                $staff->order_count = (int) DB::table('orders')->where('productionStaff_id', $staff->id)->count();
+            }
+            $staff->role = DB::table('role')->where('id', $staff->role_id)->first();
+            unset($staff->role_id); 
+        }
         $staff_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -155,6 +171,11 @@ class AccountController extends Controller
     public function get_staff_list()
     {
         $sale_staff_list = Account::where('role_id', 2)->orderBy('deactivated', 'asc')->get();
+        foreach($sale_staff_list as $sale){
+            $sale->role = DB::table('role')->where('id',$sale->role_id)->first();
+            unset($sale->role_id);
+            $sale->order_count = (int) DB::table('orders')->where('saleStaff_id', $sale->id)->count();
+        }
         $sale_staff_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -167,6 +188,11 @@ class AccountController extends Controller
             return $account;
         });
         $design_staff_list = Account::where('role_id', 3)->orderBy('deactivated', 'asc')->get();
+        foreach($design_staff_list as $design){
+            $design->role = DB::table('role')->where('id',$design->role_id)->first();
+            unset($design->role_id);
+            $design->order_count = (int) DB::table('orders')->where('designStaff_id', $design->id)->count();
+        }
         $design_staff_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {
@@ -179,6 +205,11 @@ class AccountController extends Controller
             return $account;
         });
         $production_staff_list = Account::where('role_id', 4)->orderBy('deactivated', 'asc')->get();
+        foreach($production_staff_list as $production){
+            $production->role = DB::table('role')->where('id',$production->role_id)->first();
+            unset($production->role_id);
+            $production->order_count = (int) DB::table('orders')->where('productionStaff_id', $production->id)->count();
+        }
         $production_staff_list->map(function ($account) {
             //modify account imageUrl
             if (!$account->google_id) {

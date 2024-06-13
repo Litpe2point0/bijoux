@@ -33,6 +33,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -58,6 +60,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -103,6 +107,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -129,6 +135,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -212,14 +220,14 @@ class OrderController extends Controller
             $product->save();
 
             $fileName = 'main.jpg';
-            $productPath = public_path('image/Orders/' . $product->id);
+            $productPath = public_path('image/Order/' . $product->id);
             if (!file_exists($productPath)) {
                 mkdir($productPath, 0755, true);
             }
-            $destinationFilePath = public_path('image/Orders/' . $product->id . '/' . $fileName);
+            $destinationFilePath = public_path('image/Order/' . $product->id . '/' . $fileName);
             $sourceFilePath = public_path('image/Final_templates/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id'] . $fileName);
             File::copy($sourceFilePath, $destinationFilePath);
-            DB::table('product')->where('id',$product->id)->update([
+            DB::table('product')->where('id', $product->id)->update([
                 'imageUrl' => $fileName
             ]);
 
@@ -568,6 +576,8 @@ class OrderController extends Controller
             $url = env('ACCOUNT_URL');
             $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
         }
+        $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+        $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
         unset($account->password);
         $order->account = $account;
         unset($order->account_id);
@@ -583,6 +593,8 @@ class OrderController extends Controller
                 $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
             }
         }
+        $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+        $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
         unset($sale_staff->password);
         $order->sale_staff = $sale_staff;
         unset($order->saleStaff_id);
@@ -597,6 +609,8 @@ class OrderController extends Controller
                 $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
             }
         }
+        $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+        $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
         unset($design_staff->password);
         $order->design_staff = $design_staff;
         unset($order->designStaff_id);
@@ -611,6 +625,8 @@ class OrderController extends Controller
                 $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
             }
         }
+        $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+        $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
         unset($production_staff->password);
         $order->production_staff = $production_staff;
         unset($order->productionStaff_id);
@@ -651,7 +667,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $current_sale_staff->imageUrl = $OGurl . $url . $current_sale_staff->id . "/" . $current_sale_staff->imageUrl;
             }
-            $current_sale_staff->created = Carbon::parse($current_sale_staff->created)->format('H:i:s d/m/Y');
+            $current_sale_staff->dob = Carbon::parse($current_sale_staff->dob)->format('d/m/Y');
+            $current_sale_staff->deactivated_date = Carbon::parse($current_sale_staff->deactivated_date)->format('d/m/Y');
             $current_sale_staff->role = DB::table('role')->where('id', $current_sale_staff->role_id)->first();
             unset($current_sale_staff->password);
             unset($current_sale_staff->role_id);
@@ -664,7 +681,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $current_design_staff->imageUrl = $OGurl . $url . $current_design_staff->id . "/" . $current_design_staff->imageUrl;
             }
-            $current_design_staff->created = Carbon::parse($current_design_staff->created)->format('H:i:s d/m/Y');
+            $current_design_staff->dob = Carbon::parse($current_design_staff->dob)->format('d/m/Y');
+            $current_design_staff->deactivated_date = Carbon::parse($current_design_staff->deactivated_date)->format('d/m/Y');
             $current_design_staff->role = DB::table('role')->where('id', $current_design_staff->role_id)->first();
             unset($current_design_staff->password);
             unset($current_design_staff->role_id);
@@ -677,7 +695,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $current_production_staff->imageUrl = $OGurl . $url . $current_production_staff->id . "/" . $current_production_staff->imageUrl;
             }
-            $current_production_staff->created = Carbon::parse($current_production_staff->created)->format('H:i:s d/m/Y');
+            $current_production_staff->dob = Carbon::parse($current_production_staff->dob)->format('d/m/Y');
+            $current_production_staff->deactivated_date = Carbon::parse($current_production_staff->deactivated_date)->format('d/m/Y');
             $current_production_staff->role = DB::table('role')->where('id', $current_production_staff->role_id)->first();
             unset($current_production_staff->password);
             unset($current_production_staff->role_id);
@@ -704,7 +723,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $sale->imageUrl = $OGurl . $url . $sale->id . "/" . $sale->imageUrl;
             }
-            $sale->created = Carbon::parse($sale->created)->format('H:i:s d/m/Y');
+            $sale->dob = Carbon::parse($sale->dob)->format('d/m/Y');
+            $sale->deactivated_date = Carbon::parse($sale->deactivated_date)->format('d/m/Y');
             unset($sale->password);
             unset($sale->role_id);
             return $sale;
@@ -717,7 +737,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $design->imageUrl = $OGurl . $url . $design->id . "/" . $design->imageUrl;
             }
-            $design->created = Carbon::parse($design->created)->format('H:i:s d/m/Y');
+            $design->dob = Carbon::parse($design->dob)->format('d/m/Y');
+            $design->deactivated_date = Carbon::parse($design->deactivated_date)->format('d/m/Y');
             unset($design->password);
             unset($design->role_id);
             return $design;
@@ -730,7 +751,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $production->imageUrl = $OGurl . $url . $production->id . "/" . $production->imageUrl;
             }
-            $production->created = Carbon::parse($production->created)->format('H:i:s d/m/Y');
+            $production->dob = Carbon::parse($production->dob)->format('d/m/Y');
+            $production->deactivated_date = Carbon::parse($production->deactivated_date)->format('d/m/Y');
             unset($production->password);
             unset($production->role_id);
             return $production;
@@ -780,6 +802,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -805,6 +829,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -856,6 +882,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -920,6 +948,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -954,6 +984,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -1020,6 +1052,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -1066,6 +1100,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
@@ -1203,7 +1239,7 @@ class OrderController extends Controller
                 $cpyfileName = $product->imageUrl;
                 $fileName = time() . '_' . $id . '.jpg';
                 $destinationFilePath = public_path('image/Job/design_process/' . $id . '/' . $fileName);
-                $sourceFilePath = public_path('image/Orders/' . $order->product_id . '/' . $cpyfileName);
+                $sourceFilePath = public_path('image/Order/' . $order->product_id . '/' . $cpyfileName);
                 File::copy($sourceFilePath, $destinationFilePath);
                 $imageUrl = $fileName;
             }
@@ -1399,9 +1435,9 @@ class OrderController extends Controller
 
                 if ($design_process->imageUrl != null) {
                     $fileName = 'main.jpg';
-                    $destinationPath = public_path('image/Orders/' . $order->product_id);
+                    $destinationPath = public_path('image/Order/' . $order->product_id);
                     File::cleanDirectory($destinationPath);
-                    $destinationFilePath = public_path('image/Orders/' . $order->product_id . '/' . $fileName);
+                    $destinationFilePath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
                     $sourceFilePath = public_path('image/Job/design_process/' . $design_process->id . '/' . $design_process->imageUrl);
                     File::copy($sourceFilePath, $destinationFilePath);
                     DB::table('product')->where('id', $order->product_id)->update([
@@ -1589,6 +1625,8 @@ class OrderController extends Controller
             $url = env('ACCOUNT_URL');
             $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
         }
+        $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
         unset($account->password);
         $order->account = $account;
         unset($order->account_id);
@@ -1602,6 +1640,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
             }
+            $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+            $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
             unset($sale_staff->password);
         }
         $order->sale_staff = $sale_staff;
@@ -1616,6 +1656,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
             }
+            $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+            $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
             unset($design_staff->password);
         }
         $order->design_staff = $design_staff;
@@ -1630,6 +1672,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
             }
+            $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+            $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
             unset($production_staff->password);
         }
         $order->production_staff = $production_staff;
@@ -1750,10 +1794,10 @@ class OrderController extends Controller
             ], 403);
         }
         $list = DB::table('design_updating')->where('order_id', $input)->get();
-        $list->map(function ($list){
+        $list->map(function ($list) {
             $list->created = Carbon::parse($list->created)->format('H:i:s d/m/Y');
             return $list;
-        });  
+        });
         return response()->json(
             $list
         );
@@ -1809,11 +1853,11 @@ class OrderController extends Controller
                 $previous_status = $production_process->production_status_id;
             }
             if ($input['production_status_id'] - $previous_status <= 1) {
-                if($input['production_status_id'] == 6){
-                    if(!isset($input['imageUrl']) && $input['imageUrl'] == null){
+                if ($input['production_status_id'] == 6) {
+                    if (!isset($input['imageUrl']) && $input['imageUrl'] == null) {
                         return response()->json([
                             'error' => 'An Image Is Needed For The Final Status'
-                        ],403);
+                        ], 403);
                     }
                 }
                 $id = DB::table('production_process')->insertGetId([
@@ -1936,9 +1980,9 @@ class OrderController extends Controller
                 ]);
 
                 $fileName = 'main.jpg';
-                $destinationPath = public_path('image/Orders/' . $order->product_id);
+                $destinationPath = public_path('image/Order/' . $order->product_id);
                 File::cleanDirectory($destinationPath);
-                $destinationFilePath = public_path('image/Orders/' . $order->product_id . '/' . $fileName);
+                $destinationFilePath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
                 $sourceFilePath = public_path('image/Job/production_process/' . $order->id . '/' . $production_process->imageUrl);
                 File::copy($sourceFilePath, $destinationFilePath);
                 DB::table('product')->where('id', $order->product_id)->update([
@@ -2115,7 +2159,7 @@ class OrderController extends Controller
                                 mkdir($destinationPath, 0755, true);
                             }
                             $destinationFilePath = public_path('image/Job/production_process/' . $order_id . '/' . $fileName);
-                            $sourceFilePath = public_path('image/Orders/'.$product->id.'/'.$product->imageUrl);
+                            $sourceFilePath = public_path('image/Order/' . $product->id . '/' . $product->imageUrl);
                             File::copy($sourceFilePath, $destinationFilePath);
                         } else if ($design_process != null) {
                             DB::table('orders')->where('id', $order_id)->update([
@@ -2133,7 +2177,7 @@ class OrderController extends Controller
                                 mkdir($destinationPath, 0755, true);
                             }
                             $destinationFilePath = public_path('image/Job/production_process/' . $order_id . '/' . $fileName);
-                            $sourceFilePath = public_path('image/Orders/'.$product->id.'/'.$product->imageUrl);
+                            $sourceFilePath = public_path('image/Order/' . $product->id . '/' . $product->imageUrl);
                         } else {
                             DB::table('orders')->where('id', $order_id)->update([
                                 'order_status_id' => 2
