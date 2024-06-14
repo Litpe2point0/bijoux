@@ -210,7 +210,7 @@ class MetalController extends Controller
             //check metal
             if ($metal == null) {
                 return response()->json([
-                    'error' => 'The selected metal doesn\'t exist'
+                    'error' => 'The Selected Metal Doesn\'t Exist'
                 ], 403);
             }
             //check input deactivate
