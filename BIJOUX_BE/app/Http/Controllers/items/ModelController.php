@@ -313,6 +313,9 @@ class ModelController extends Controller
         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
         $model_metal->map(function ($model_metal) {
             $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('METAL_URL');
+            $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . $model_metal->metal->imageUrl;
             $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
             unset($model_metal->metal_id);
             return $model_metal;
@@ -532,10 +535,10 @@ class ModelController extends Controller
                                     foreach ($image_list as $image) {
                                         $count = 1;
                                         $mainImgData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image['main_image']));
-    
+
                                         $metal_1_id = isset($image['metal_1_id']) ? $image['metal_1_id'] : 0;
                                         $metal_2_id = isset($image['metal_2_id']) ? $image['metal_2_id'] : 0;
-    
+
                                         $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
                                         File::cleanDirectory($destinationPath);
                                     }
