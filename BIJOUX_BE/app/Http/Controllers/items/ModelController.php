@@ -175,19 +175,20 @@ class ModelController extends Controller
         $model_available = $temp1->unique('id')->values();
 
         $model_available->map(function ($model) {
+            $OGurl = env('ORIGIN_URL');
+            $Surl = env('STYLE_URL');
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
+            $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . $model->mounting_style->imageUrl;
             unset($model->mounting_style_id);
             unset($model->mounting_type_id);
 
             $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-            $model_shape->map(function ($model_shape) {
-                $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-                unset($model_shape->model_id);
-                unset($model_shape->diamond_shape_id);
-                return $model_shape;
-            });
-            $model->model_diamond_shape = $model_shape;
+            $diamond_shape_ids = [];
+            foreach ($model_shape as $instance) {
+                $diamond_shape_ids[] = $instance->diamond_shape_id;
+            }
+            $model->model_diamond_shape = DB::table('diamond_shape')->whereIn('id', $diamond_shape_ids)->get();
 
             $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
             $model_diamond->map(function ($model_diamond) {
@@ -203,6 +204,9 @@ class ModelController extends Controller
             $model_metal->map(function ($model_metal) {
                 $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
                 $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
+                $OGurl = env('ORIGIN_URL');
+                $url = env('METAL_URL');
+                $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . $model_metal->metal->imageUrl;
                 unset($model_metal->id);
                 unset($model_metal->model_id);
                 unset($model_metal->metal_id);
@@ -227,19 +231,20 @@ class ModelController extends Controller
             $model_unavailable = $temp2->unique('id')->values();
 
             $model_unavailable->map(function ($model) {
+                $OGurl = env('ORIGIN_URL');
+                $Surl = env('STYLE_URL');
                 $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
                 $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
+                $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . $model->mounting_style->imageUrl;
                 unset($model->mounting_style_id);
                 unset($model->mounting_type_id);
 
                 $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-                $model_shape->map(function ($model_shape) {
-                    $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-                    unset($model_shape->model_id);
-                    unset($model_shape->diamond_shape_id);
-                    return $model_shape;
-                });
-                $model->model_diamond_shape = $model_shape;
+                $diamond_shape_ids = [];
+                foreach ($model_shape as $instance) {
+                    $diamond_shape_ids[] = $instance->diamond_shape_id;
+                }
+                $model->model_diamond_shape = DB::table('diamond_shape')->whereIn('id', $diamond_shape_ids)->get();
 
                 $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
                 $model_diamond->map(function ($model_diamond) {
@@ -255,6 +260,9 @@ class ModelController extends Controller
                 $model_metal->map(function ($model_metal) {
                     $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
                     $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('METAL_URL');
+                    $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . $model_metal->metal->imageUrl;
                     unset($model_metal->id);
                     unset($model_metal->model_id);
                     unset($model_metal->metal_id);
@@ -288,23 +296,26 @@ class ModelController extends Controller
                 'error' => 'The Selected Model Doesn\'t Exist'
             ], 403);
         }
-
+        $OGurl = env('ORIGIN_URL');
+        $Murl = env('MODEL_URL');
+        $Surl = env('STYLE_URL');
         $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
         $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
+        $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . $model->mounting_style->imageUrl;
         unset($model->mounting_style_id);
         unset($model->mounting_type_id);
 
         $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-        $model_shape->map(function ($model_shape) {
-            $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-            unset($model_shape->diamond_shape_id);
-            return $model_shape;
-        });
-        $model->model_diamond_shape = $model_shape;
+        $diamond_shape_ids = [];
+        foreach ($model_shape as $instance) {
+            $diamond_shape_ids[] = $instance->diamond_shape_id;
+        }
+        $model->model_diamond_shape = DB::table('diamond_shape')->whereIn('id', $diamond_shape_ids)->get();
 
         $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
         $model_diamond->map(function ($model_diamond) {
             $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
+            unset($model_diamond->model_id);
             unset($model_diamond->diamond_shape_id);
             return $model_diamond;
         });
@@ -317,13 +328,12 @@ class ModelController extends Controller
             $url = env('METAL_URL');
             $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . $model_metal->metal->imageUrl;
             $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
+            unset($model_metal->model_id);
             unset($model_metal->metal_id);
             return $model_metal;
         });
         $model->model_metal = $model_metal;
-        $OGurl = env('ORIGIN_URL');
-        $url = env('MODEL_URL');
-        $model->imageUrl = $OGurl . $url . $model->id . $model->imageUrl;
+        $model->imageUrl = $OGurl . $Murl . $model->id . $model->imageUrl;
 
         return response()->json([
             'model' => $model

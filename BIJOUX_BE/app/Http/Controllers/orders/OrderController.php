@@ -530,8 +530,11 @@ class OrderController extends Controller
         $product = DB::table('product')->where('id', $order->product_id)->first();
         $model = DB::table('model')->where('id', $product->model_id)->first();
         if ($model != null) {
+            $OGurl = env('ORIGIN_URL');
+            $Surl = env('STYLE_URL');
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
+            $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . $model->mounting_style->imageUrl;
 
             $model->imageUrl = $OGurl . $Murl . $model->id . "/" . $model->imageUrl;
             unset($model->mounting_type_id);
