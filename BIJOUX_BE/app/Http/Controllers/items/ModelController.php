@@ -507,6 +507,9 @@ class ModelController extends Controller
             foreach ($model_metal_main as $metal) {
                 $metalCompatibilities = DB::table('metal_compatibility')->where('Metal_id_1', $metal->metal_id)->get();
                 foreach ($metalCompatibilities as $compatibility) {
+                    if (empty($metal2Mapping[$compatibility->Metal_id_1])) {
+                        $metal2Mapping[$compatibility->Metal_id_1][] = 0;
+                    }
                     $bo = false;
                     foreach ($model_metal_notmain as $metal2) {
                         if ($compatibility->Metal_id_2 == $metal2->metal_id) {
@@ -586,8 +589,15 @@ class ModelController extends Controller
         if ($model == null) {
             return response()->json(['error' => 'The Selected Model Doesn\'t Exist'], 403);
         }
+        $OGurl = env('ORIGIN_URL');
+        $Murl = env('MODEL_URL');
+        $Surl = env('STYLE_URL');
+        $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
+        $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
+        $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . '/' . $model->mounting_style->imageUrl;
+        unset($model->mounting_style_id);
+        unset($model->mounting_type_id);
 
-        $missing_image = [];
 
         $model_metal_main = DB::table('model_metal')->where('model_id', $input)->where('is_main', 1)->get();
         $model_metal_notmain = DB::table('model_metal')->where('model_id', $input)->where('is_main', 0)->get();
@@ -602,6 +612,9 @@ class ModelController extends Controller
         foreach ($model_metal_main as $metal) {
             $metalCompatibilities = DB::table('metal_compatibility')->where('Metal_id_1', $metal->metal_id)->get();
             foreach ($metalCompatibilities as $compatibility) {
+                if (empty($metal2Mapping[$compatibility->Metal_id_1])) {
+                    $metal2Mapping[$compatibility->Metal_id_1][] = 0;
+                }
                 $bo = false;
                 foreach ($model_metal_notmain as $metal2) {
                     if ($compatibility->Metal_id_2 == $metal2->metal_id) {
@@ -623,8 +636,12 @@ class ModelController extends Controller
                         if (!file_exists($destinationPath)) {
                             $metal_1 = DB::table('metal')->where('id', $metal1->id)->first();
                             $metal_1->created = Carbon::parse($metal_1->created)->format('H:i:s d/m/Y');
-                            $metal_2 = DB::table('metal')->where('id', $metal2_id)->first();
-                            $metal_2->created = Carbon::parse($metal_2->created)->format('H:i:s d/m/Y');
+                            if ($metal2_id == 0) {
+                                $metal_2 = null;
+                            } else {
+                                $metal_2 = DB::table('metal')->where('id', $metal2_id)->first();
+                                $metal_2->created = Carbon::parse($metal_2->created)->format('H:i:s d/m/Y');
+                            }
                             $diamond_shape = $shape;
 
                             $temp = [
@@ -656,6 +673,7 @@ class ModelController extends Controller
                 }
             }
         }
+        $model->imageUrl = $OGurl . $Murl . $model->id . '/' . $model->imageUrl;
 
         return response()->json([
             'model' => $model,
