@@ -256,7 +256,7 @@ class OrderController extends Controller
             $product_metal1->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
             $product_metal1->status = 1;
             $product_metal1->save();
-            $product_price += $product_metal1['price'];
+            $product_price += $product_metal1->price;
 
             if ($metal_2 != null) {
                 $product_metal2 = new Product_Metal();
@@ -267,7 +267,7 @@ class OrderController extends Controller
                 $product_metal2->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
                 $product_metal2->status = 1;
                 $product_metal2->save();
-                $product_price += $product_metal2['price'];
+                $product_price += $product_metal2->price;
             }
 
             foreach ($model_diamond as $diamond0) {
@@ -375,9 +375,15 @@ class OrderController extends Controller
             $sale_staff = null;
             $design_staff = null;
             $production_staff = null;
-            if ($saleStaff_id != null) {$sale_staff = DB::table('account')->where('id', $saleStaff_id)->first();}
-            if ($designStaff_id != null) {$design_staff = DB::table('account')->where('id', $designStaff_id)->first();}
-            if ($productionStaff_id != null) {$production_staff = DB::table('account')->where('id', $productionStaff_id)->first();}
+            if ($saleStaff_id != null) {
+                $sale_staff = DB::table('account')->where('id', $saleStaff_id)->first();
+            }
+            if ($designStaff_id != null) {
+                $design_staff = DB::table('account')->where('id', $designStaff_id)->first();
+            }
+            if ($productionStaff_id != null) {
+                $production_staff = DB::table('account')->where('id', $productionStaff_id)->first();
+            }
             if ($sale_staff != null) {
                 if ($sale_staff->role_id != '2') {
                     return response()->json([
@@ -1527,18 +1533,18 @@ class OrderController extends Controller
 
         if ($account->role_id == 1) {
             $designs = DB::table('design_process')->whereNot('design_process_status_id', 1)->orderBy('design_process_status_id', 'asc')->get();
-            $design_list = $design_list->push($designs);
+            $design_list = $design_list->merge($designs);
         } else if ($account->role_id == 2) {
             $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
                 $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
-                $design_list = $design_list->push($designs);
+                $design_list = $design_list->merge($designs);
             }
         } else if ($account->role_id == 3) {
             $order_list = DB::table('orders')->where('designStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
                 $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
-                $design_list = $design_list->push($designs);
+                $design_list = $design_list->merge($designs);
             }
         } else {
             return response()->json([
@@ -1556,8 +1562,12 @@ class OrderController extends Controller
         //     unset($design->design_process_status_id);
         //     return $design;
         // });
-        $design_list->map(function ($design) {
-            $design->mounting_type = DB::table('mounting_type')->where('id', $design->mounting_type_id)->first();
+        $design_list = $design_list->map(function ($design) {
+            if ($design->mounting_type_id != null) {
+                $design->mounting_type = DB::table('mounting_type')->where('id', $design->mounting_type_id)->first();
+            } else {
+                $design->mounting_type = null;
+            }
             $design->design_process_status = DB::table('design_process_status')->where('id', $design->design_process_status_id)->first();
             $design->created = Carbon::parse($design->created)->format('H:i:s d/m/Y');
             unset($design->mounting_type_id);
