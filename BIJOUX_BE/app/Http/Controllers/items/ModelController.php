@@ -432,14 +432,14 @@ class ModelController extends Controller
                     'diamond_size_min' => $diamond['diamond_size_min'],
                     'diamond_size_max' => $diamond['diamond_size_max'],
                     'count' => $diamond['count'],
-                    'diamond_shape_id' => $diamond['diamond_shape_id'],
+                    'diamond_shape_id' => $diamond['diamond_shape']['id'],
                     'is_editable' => $diamond['is_editable']
                 ]);
             }
             foreach ($input['model_metal'] as $metal) {
                 DB::table('model_metal')->insert([
                     'model_id' => $input['id'],
-                    'metal_id' => $metal['metal_id'],
+                    'metal_id' => $metal['metal']['id'],
                     'is_main' => $metal['is_main'],
                     'percentage' => $metal['percentage']
                 ]);
