@@ -19,7 +19,7 @@ class MetalController extends Controller
     //     if (!isset($input) || $input == null) {
     //         return response()->json([
     //             'error' => 'No Input Received'
-    //         ], 404);
+    //         ], 403);
     //     }
     //     DB::beginTransaction();
     //     try {
@@ -66,7 +66,7 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
@@ -201,7 +201,7 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
@@ -291,7 +291,7 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $metal = DB::table('metal')->where('id', $input)->first();
         $OGurl = env('ORIGIN_URL');
@@ -309,7 +309,7 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
         $weight = $metal->specific_weight * $input['volume'];
@@ -320,14 +320,14 @@ class MetalController extends Controller
             'weight_price' => $temp
         ]);
     }
-    public function get_metal_is_main(Request $request) // chưa test
+    public function get_metal_is_main(Request $request)
     {
         //input
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $metal_list = DB::table('model_metal')->where('model_id', $input)->where('is_main', true)->pluck('metal_id');
         $data = collect();
@@ -340,14 +340,14 @@ class MetalController extends Controller
             $data
         );
     }
-    public function get_metal_compatibility(Request $request) // chưa test
+    public function get_metal_compatibility(Request $request)
     {
         //input
         $input = json_decode($request->input('metal_compatibility'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main', false)->pluck('metal_id');
         $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1', $input['metal_id'])->pluck('Metal_id_2');

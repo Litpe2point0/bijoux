@@ -1883,7 +1883,8 @@ class OrderController extends Controller
             }
             if ($input['production_status_id'] - $previous_status <= 1) {
                 if ($input['production_status_id'] == 6) {
-                    if (!isset($input['imageUrl']) && $input['imageUrl'] == null) {
+                    if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
+                    } else {
                         return response()->json([
                             'error' => 'An Image Is Needed For The Final Status'
                         ], 403);
@@ -1891,7 +1892,7 @@ class OrderController extends Controller
                 }
                 $id = DB::table('production_process')->insertGetId([
                     'order_id' => $input['order_id'],
-                    'production_status_id' => $input['production_status']['id'],
+                    'production_status_id' => $input['production_status_id'],
                     'imageUrl' => "",
                     'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
                 ]);

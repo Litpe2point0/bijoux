@@ -22,7 +22,7 @@ class ModelController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
@@ -280,7 +280,7 @@ class ModelController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $model = DB::table('model')->where('id', $input)->first();
         if ($model == null) {
@@ -332,7 +332,7 @@ class ModelController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
@@ -375,7 +375,7 @@ class ModelController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
@@ -410,7 +410,7 @@ class ModelController extends Controller
             foreach ($input['model_diamond_shape'] as $shape) {
                 DB::table('model_diamondshape')->insert([
                     'model_id' => $input['id'],
-                    'diamond_shape_id' => $shape['diamond_shape_id']
+                    'diamond_shape_id' => $shape
                 ]);
             }
             foreach ($input['model_diamond'] as $diamond) {
@@ -450,7 +450,7 @@ class ModelController extends Controller
         if (!isset($model_id) || $model_id == null || !isset($image_list) || $image_list == null) {
             return response()->json([
                 'error' => 'Not Enough Input Received'
-            ], 404);
+            ], 403);
         }
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -466,7 +466,7 @@ class ModelController extends Controller
                 $metal_1_id = isset($image['metal_1_id']) ? $image['metal_1_id'] : 0;
                 $metal_2_id = isset($image['metal_2_id']) ? $image['metal_2_id'] : 0;
 
-                $destinationPath = public_path('image/Final_templates/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
+                $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
@@ -500,7 +500,7 @@ class ModelController extends Controller
         // if(!isset($input)&&$input == null){
         //     return response()->json([
         //         'error' => 'No Model id received!'
-        //     ],404);
+        //     ],403);
         // }
         // $missing_image = [];
         // $model = DB::table('model')->where('id',$input)->first();
@@ -532,12 +532,12 @@ class ModelController extends Controller
         // if($missing_image == null){
         //     return response()->json([
         //         'error' => 'There are no Missing Image'
-        //     ],404);
+        //     ],403);
         // }
         // if($model == null){
         //     return response()->json([
         //         'error' => 'The Selected model doesn\'t exist'
-        //     ],404);
+        //     ],403);
         // }
         // return response()->json([
         //     'model' => $model,
@@ -547,12 +547,12 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
 
         if (!isset($input) || $input == null) {
-            return response()->json(['error' => 'No Model Id Received!'], 404);
+            return response()->json(['error' => 'No Model Id Received!'], 403);
         }
 
         $model = DB::table('model')->where('id', $input)->first();
         if ($model == null) {
-            return response()->json(['error' => 'The Selected Model Doesn\'t Exist'], 404);
+            return response()->json(['error' => 'The Selected Model Doesn\'t Exist'], 403);
         }
 
         $missing_image = [];
@@ -568,11 +568,11 @@ class ModelController extends Controller
 
         $metal2Mapping = [];
         foreach ($model_metal_main as $metal) {
-            $metalCompatibilities = DB::table('metal_compatibility')->where('Metal_id_1', $metal->id)->get();
+            $metalCompatibilities = DB::table('metal_compatibility')->where('Metal_id_1', $metal->metal_id)->get();
             foreach ($metalCompatibilities as $compatibility) {
                 $bo = false;
                 foreach ($model_metal_notmain as $metal2) {
-                    if ($compatibility->Metal_id_2 == $metal2->id) {
+                    if ($compatibility->Metal_id_2 == $metal2->metal_id) {
                         $bo = true;
                     }
                 }
@@ -582,11 +582,14 @@ class ModelController extends Controller
             }
         }
 
-        foreach ($model_metal_main as $metal1) {
+
+
+        foreach ($model_metal_main as $metal) {
+            $metal1 = DB::table('metal')->where('id', $metal->metal_id)->first();
             if (isset($metal2Mapping[$metal1->id])) {
                 foreach ($metal2Mapping[$metal1->id] as $metal2_id) {
                     foreach ($diamondShapes as $shape) {
-                        $destinationPath = public_path('image/Final_templates/' . $input . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
+                        $destinationPath = public_path('image/Final_template/' . $input . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
 
                         if (!file_exists($destinationPath)) {
                             $metal_1 = DB::table('metal')->where('id', $metal1->id)->first();
@@ -619,7 +622,7 @@ class ModelController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
 
         $model_diamond = DB::table('model_diamond')->where('model_id', $input)->get();
@@ -641,7 +644,7 @@ class ModelController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
 
         $model_shape = DB::table('model_diamondshape')->where('model_id', $input)->get();
@@ -663,7 +666,7 @@ class ModelController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
 
         $model_metal = DB::table('model_metal')->where('model_id', $input)->get();
@@ -705,7 +708,7 @@ class ModelController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $model_id = $input['model_id'];
         $model = DB::table('model')->where('id', $model_id)->first();
@@ -735,11 +738,11 @@ class ModelController extends Controller
             }
         } else $metal_2_id = 0;
         $shape_id = $input['diamond_shape_id'];
-        $destinationPath = public_path('image/Final_templates/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
+        $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
         if (!file_exists($destinationPath)) {
             return response()->json([
                 'error' => 'The Selected Template Doesn\'t Exist'
-            ], 404);
+            ], 403);
         }
         $OGurl = env('ORIGIN_URL');
         $url = env('FINAL_TEMPLATE_URL');
@@ -747,7 +750,7 @@ class ModelController extends Controller
         if ($files == null) {
             return response()->json([
                 'error' => 'The Selected Template Isn\'t Available'
-            ], 404);
+            ], 403);
         }
         $imageCount = count($files) - 1;
         $main_image = $OGurl . $url . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id . '/main.jpg';
@@ -786,38 +789,60 @@ class ModelController extends Controller
         foreach ($model_diamond as $diamonds) {
             if ($diamonds->is_editable == 1) {
                 $diamond = DB::table('diamond')->where('size', $input['diamond_size'])->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
-                $diamond->price = $diamonds->count * $diamond->price;
-                $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
-                $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
-                $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
-                $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
-                $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
-                $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
-                $diamond->count = $diamonds->count;
-                unset($diamond->deactivated);
-                unset($diamond->created);
-                unset($diamond->diamond_clarity_id);
-                unset($diamond->diamond_cut_id);
-                unset($diamond->diamond_color_id);
-                unset($diamond->diamond_origin_id);
-                $diamond_list->push($diamond);
+                if ($diamond != null) {
+                    if($diamond->deactivated){
+                        return response()->json([
+                            'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
+                        ], 403);
+                    }
+                    $diamond->price = $diamonds->count * $diamond->price;
+                    $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
+                    $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
+                    $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+                    $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+                    $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+                    $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
+                    $diamond->count = $diamonds->count;
+                    unset($diamond->deactivated);
+                    unset($diamond->created);
+                    unset($diamond->diamond_clarity_id);
+                    unset($diamond->diamond_cut_id);
+                    unset($diamond->diamond_color_id);
+                    unset($diamond->diamond_origin_id);
+                    $diamond_list->push($diamond);
+                } else {
+                    return response()->json([
+                        'error' => 'The Selected Template Contain a Diamond That Doesn\'t Exist'
+                    ], 403);
+                }
             } else {
                 $diamond = DB::table('diamond')->where('size', $diamonds->diamond_size_max)->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
-                $diamond->price = $diamonds->count * $diamond->price;
-                $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
-                $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
-                $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
-                $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
-                $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
-                $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
-                $diamond->count = $diamonds->count;
-                unset($diamond->deactivated);
-                unset($diamond->created);
-                unset($diamond->diamond_clarity_id);
-                unset($diamond->diamond_cut_id);
-                unset($diamond->diamond_color_id);
-                unset($diamond->diamond_origin_id);
-                $diamond_list->push($diamond);
+                if ($diamond != null) {
+                    if($diamond->deactivated){
+                        return response()->json([
+                            'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
+                        ], 403);
+                    }
+                    $diamond->price = $diamonds->count * $diamond->price;
+                    $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
+                    $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
+                    $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+                    $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+                    $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+                    $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
+                    $diamond->count = $diamonds->count;
+                    unset($diamond->deactivated);
+                    unset($diamond->created);
+                    unset($diamond->diamond_clarity_id);
+                    unset($diamond->diamond_cut_id);
+                    unset($diamond->diamond_color_id);
+                    unset($diamond->diamond_origin_id);
+                    $diamond_list->push($diamond);
+                } else {
+                    return response()->json([
+                        'error' => 'The Selected Template Contain a Diamond That Doesn\'t Exist'
+                    ], 403);
+                }
             }
         }
         return response()->json([

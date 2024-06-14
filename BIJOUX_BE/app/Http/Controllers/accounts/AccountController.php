@@ -22,7 +22,7 @@ class AccountController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
 
         //check account existed (case sensitive)
@@ -230,14 +230,14 @@ class AccountController extends Controller
     public function get_account_detail(Request $request)
     {
         //input
-        $input = json_decode($request->input('account_infomation'), true);
+        $input = json_decode($request->input('account_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         //find account
-        $account = Account::where('id', $input['account_id'])->first();
+        $account = Account::where('id', $input)->first();
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();
@@ -272,7 +272,7 @@ class AccountController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
 
         if (!isset($input['id']) || $input['id'] == null) {
@@ -284,7 +284,7 @@ class AccountController extends Controller
         $account = Account::find($id);
 
         if (!$account) {
-            return response()->json(['error' => 'Account not found'], 404);
+            return response()->json(['error' => 'Account not found'], 403);
         }
 
         $validatedData = validator($input, [
@@ -362,7 +362,7 @@ class AccountController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         //check token
         $authorizationHeader = $request->header('Authorization');
@@ -458,7 +458,7 @@ class AccountController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         $validatedData = validator($input, [
@@ -561,7 +561,7 @@ class AccountController extends Controller
     //     if (!isset($input) || $input == null) {
     //         return response()->json([
     //             'error' => 'No Input Received'
-    //         ], 404);
+    //         ], 403);
     //     }
     //     $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input));
     //     $destinationPath = public_path('image/');
@@ -582,7 +582,7 @@ class AccountController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
