@@ -179,7 +179,7 @@ class ModelController extends Controller
             $Surl = env('STYLE_URL');
             $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
             $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
-            $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . $model->mounting_style->imageUrl;
+            $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . '/' . $model->mounting_style->imageUrl;
             unset($model->mounting_style_id);
             unset($model->mounting_type_id);
 
@@ -206,7 +206,7 @@ class ModelController extends Controller
                 $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
                 $OGurl = env('ORIGIN_URL');
                 $url = env('METAL_URL');
-                $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . $model_metal->metal->imageUrl;
+                $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
                 unset($model_metal->id);
                 unset($model_metal->model_id);
                 unset($model_metal->metal_id);
@@ -235,7 +235,7 @@ class ModelController extends Controller
                 $Surl = env('STYLE_URL');
                 $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
                 $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
-                $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . $model->mounting_style->imageUrl;
+                $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . '/' . $model->mounting_style->imageUrl;
                 unset($model->mounting_style_id);
                 unset($model->mounting_type_id);
 
@@ -262,7 +262,7 @@ class ModelController extends Controller
                     $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
                     $OGurl = env('ORIGIN_URL');
                     $url = env('METAL_URL');
-                    $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . $model_metal->metal->imageUrl;
+                    $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
                     unset($model_metal->id);
                     unset($model_metal->model_id);
                     unset($model_metal->metal_id);
@@ -271,7 +271,7 @@ class ModelController extends Controller
                 $model->model_metal = $model_metal;
                 $OGurl = env('ORIGIN_URL');
                 $url = env('MODEL_URL');
-                $model->imageUrl = $OGurl . $url . $model->id . $model->imageUrl;
+                $model->imageUrl = $OGurl . $url . $model->id . '/' . $model->imageUrl;
                 return $model;
             });
         } else {
@@ -301,7 +301,7 @@ class ModelController extends Controller
         $Surl = env('STYLE_URL');
         $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
         $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
-        $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . $model->mounting_style->imageUrl;
+        $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . '/' . $model->mounting_style->imageUrl;
         unset($model->mounting_style_id);
         unset($model->mounting_type_id);
 
@@ -326,14 +326,14 @@ class ModelController extends Controller
             $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
             $OGurl = env('ORIGIN_URL');
             $url = env('METAL_URL');
-            $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . $model_metal->metal->imageUrl;
+            $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
             $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
             unset($model_metal->model_id);
             unset($model_metal->metal_id);
             return $model_metal;
         });
         $model->model_metal = $model_metal;
-        $model->imageUrl = $OGurl . $Murl . $model->id . $model->imageUrl;
+        $model->imageUrl = $OGurl . $Murl . $model->id . '/' . $model->imageUrl;
 
         return response()->json([
             'model' => $model
