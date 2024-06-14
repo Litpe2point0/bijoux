@@ -598,7 +598,7 @@ class ModelController extends Controller
         unset($model->mounting_style_id);
         unset($model->mounting_type_id);
 
-
+        $missing_image = [];
         $model_metal_main = DB::table('model_metal')->where('model_id', $input)->where('is_main', 1)->get();
         $model_metal_notmain = DB::table('model_metal')->where('model_id', $input)->where('is_main', 0)->get();
         $model_diamondShapes = DB::table('model_diamondshape')->where('model_id', $input)->get();
@@ -607,7 +607,6 @@ class ModelController extends Controller
             $shape = DB::table('diamond_shape')->where('id', $diamondshape->diamond_shape_id)->first();
             $diamondShapes[] = $shape;
         }
-
         $metal2Mapping = [];
         foreach ($model_metal_main as $metal) {
             $metalCompatibilities = DB::table('metal_compatibility')->where('Metal_id_1', $metal->metal_id)->get();
