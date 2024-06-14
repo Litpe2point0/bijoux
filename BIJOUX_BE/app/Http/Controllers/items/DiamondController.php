@@ -63,7 +63,7 @@ class DiamondController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
@@ -109,7 +109,7 @@ class DiamondController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
@@ -242,7 +242,7 @@ class DiamondController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $diamond = DB::table('diamond')->where('id', $input)->first();
         //modify diamond imageUrl
