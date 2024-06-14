@@ -487,7 +487,7 @@ class ModelController extends Controller
                 $mainImgName = 'main.jpg';
                 file_put_contents($destinationPath . '/' . $mainImgName, $mainImgData);
 
-                foreach ($image['related_images'] as $related_image) {
+                foreach ($image['related_image'] as $related_image) {
                     $relatedImgData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $related_image));
                     $relatedImgName = 'related_' . $count . '.jpg';
                     file_put_contents($destinationPath . '/' . $relatedImgName, $relatedImgData);
@@ -505,11 +505,11 @@ class ModelController extends Controller
             }
             $metal2Mapping = [];
             foreach ($model_metal_main as $metal) {
+                if (empty($metal2Mapping[$metal->metal_id])) {
+                    $metal2Mapping[$metal->metal_id][] = 0;
+                }
                 $metalCompatibilities = DB::table('metal_compatibility')->where('Metal_id_1', $metal->metal_id)->get();
                 foreach ($metalCompatibilities as $compatibility) {
-                    if (empty($metal2Mapping[$compatibility->Metal_id_1])) {
-                        $metal2Mapping[$compatibility->Metal_id_1][] = 0;
-                    }
                     $bo = false;
                     foreach ($model_metal_notmain as $metal2) {
                         if ($compatibility->Metal_id_2 == $metal2->metal_id) {
@@ -609,11 +609,11 @@ class ModelController extends Controller
         }
         $metal2Mapping = [];
         foreach ($model_metal_main as $metal) {
+            if (empty($metal2Mapping[$metal->metal_id])) {
+                $metal2Mapping[$metal->metal_id][] = 0;
+            }
             $metalCompatibilities = DB::table('metal_compatibility')->where('Metal_id_1', $metal->metal_id)->get();
             foreach ($metalCompatibilities as $compatibility) {
-                if (empty($metal2Mapping[$compatibility->Metal_id_1])) {
-                    $metal2Mapping[$compatibility->Metal_id_1][] = 0;
-                }
                 $bo = false;
                 foreach ($model_metal_notmain as $metal2) {
                     if ($compatibility->Metal_id_2 == $metal2->metal_id) {
