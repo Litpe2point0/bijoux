@@ -372,9 +372,12 @@ class OrderController extends Controller
             $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : $order->saleStaff_id;
             $designStaff_id = isset($input['designStaff_id']) ? $input['designStaff_id'] : $order->designStaff_id;
             $productionStaff_id = isset($input['productionStaff_id']) ? $input['productionStaff_id'] : $order->productionStaff_id;
-            if ($saleStaff_id != null) $sale_staff = DB::table('account')->where('id', $saleStaff_id)->first();
-            if ($designStaff_id != null) $design_staff = DB::table('account')->where('id', $designStaff_id)->first();
-            if ($productionStaff_id != null) $production_staff = DB::table('account')->where('id', $productionStaff_id)->first();
+            $sale_staff = null;
+            $design_staff = null;
+            $production_staff = null;
+            if ($saleStaff_id != null) {$sale_staff = DB::table('account')->where('id', $saleStaff_id)->first();}
+            if ($designStaff_id != null) {$design_staff = DB::table('account')->where('id', $designStaff_id)->first();}
+            if ($productionStaff_id != null) {$production_staff = DB::table('account')->where('id', $productionStaff_id)->first();}
             if ($sale_staff != null) {
                 if ($sale_staff->role_id != '2') {
                     return response()->json([
