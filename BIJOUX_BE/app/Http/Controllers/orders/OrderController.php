@@ -1854,9 +1854,14 @@ class OrderController extends Controller
                 'error' => 'The Selected Order Doesn\'t Exist'
             ], 403);
         }
-        if ($order->order_status_id != 3) {
+        if ($order->order_status_id < 3) {
             return response()->json([
                 'error' => 'The Selected Order Isn\'t Ready For Production'
+            ], 403);
+        }
+        if ($order->order_status_id > 3) {
+            return response()->json([
+                'error' => 'The Selected Order Has Already Been Produce'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -1883,7 +1888,7 @@ class OrderController extends Controller
             }
             if ($input['production_status_id'] - $previous_status <= 1) {
                 if ($input['production_status_id'] == 6) {
-                    if (!isset($input['imageUrl']) && $input['imageUrl'] == null) {
+                    if (empty($input['imageUrl'])) {
                         return response()->json([
                             'error' => 'An Image Is Needed For The Final Status'
                         ], 403);
@@ -1891,7 +1896,7 @@ class OrderController extends Controller
                 }
                 $id = DB::table('production_process')->insertGetId([
                     'order_id' => $input['order_id'],
-                    'production_status_id' => $input['production_status']['id'],
+                    'production_status_id' => $input['production_status_id'],
                     'imageUrl' => "",
                     'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
                 ]);

@@ -105,6 +105,12 @@ class QuoteController extends Controller
             $url = env('ORDER_URL');
             $quote->created = Carbon::parse($quote->created)->format('H:i:s d/m/Y');
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            if ($product->mounting_type_id != null) {
+                $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
+            } else {
+                $product->mounting_type = null;
+            }
+            unset($product->mounting_type_id);
             $quote->product = $product;
             unset($quote->product_id);
 
@@ -141,7 +147,7 @@ class QuoteController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Receive'
-            ], 404);
+            ], 403);
         }
         if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
             $type_id = $input['mounting_type_id'];
@@ -209,7 +215,7 @@ class QuoteController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
@@ -310,7 +316,7 @@ class QuoteController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
         $token = null;
@@ -434,7 +440,7 @@ class QuoteController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
 
         DB::beginTransaction();
@@ -503,7 +509,7 @@ class QuoteController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
         $token = null;
@@ -606,7 +612,7 @@ class QuoteController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $quote = DB::table('quote')->where('id', $input)->first();
         $quote->created = Carbon::parse($quote->created)->format('H:i:s d/m/Y');
