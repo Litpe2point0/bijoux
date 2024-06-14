@@ -395,34 +395,34 @@ class ModelController extends Controller
 
                 $updateData['imageUrl'] = $fileName;
             }
-            DB::table('model_metal')->where('model_id', $input['model_id'])->delete();
-            DB::table('model_diamondshape')->where('model_id', $input['model_id'])->delete();
-            DB::table('model_metal')->where('model_id', $input['model_id'])->delete();
+            DB::table('model_metal')->where('model_id', $input['id'])->delete();
+            DB::table('model_diamondshape')->where('model_id', $input['id'])->delete();
+            DB::table('model_diamond')->where('model_id', $input['id'])->delete();
             foreach ($input['model_diamond_shape'] as $shape) {
                 DB::table('model_diamondshape')->insert([
-                    'model_id' => $input['model_id'],
-                    'diamond_shape_id' => $shape
+                    'model_id' => $input['id'],
+                    'diamond_shape_id' => $shape['diamond_shape_id']
                 ]);
             }
             foreach ($input['model_diamond'] as $diamond) {
                 DB::table('model_diamond')->insert([
-                    'model_id' => $input['model_id'],
-                    'diamond_size_min' => $diamond->diamond_size_min,
-                    'diamond_size_max' => $diamond->diamond_size_max,
-                    'count' => $diamond->count,
-                    'diamond_shape_id' => $diamond->diamond_shape_id,
-                    'is_editable' => $diamond->is_editable
+                    'model_id' => $input['id'],
+                    'diamond_size_min' => $diamond['diamond_size_min'],
+                    'diamond_size_max' => $diamond['diamond_size_max'],
+                    'count' => $diamond['count'],
+                    'diamond_shape_id' => $diamond['diamond_shape_id'],
+                    'is_editable' => $diamond['is_editable']
                 ]);
             }
             foreach ($input['model_metal'] as $metal) {
-                DB::table('model_diamond')->insert([
-                    'model_id' => $input['model_id'],
-                    'metal_id' => $metal->metal_id,
-                    'is_main' => $metal->is_main,
-                    'percentage' => $metal->percentage
+                DB::table('model_metal')->insert([
+                    'model_id' => $input['id'],
+                    'metal_id' => $metal['metal_id'],
+                    'is_main' => $metal['is_main'],
+                    'percentage' => $metal['percentage']
                 ]);
             }
-            DB::table('model')->where('id', $input['model_id'])->update($updateData);
+            DB::table('model')->where('id', $input['id'])->update($updateData);
 
             DB::commit();
         } catch (\Exception $e) {
