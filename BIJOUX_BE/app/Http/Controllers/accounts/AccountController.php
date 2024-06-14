@@ -288,7 +288,6 @@ class AccountController extends Controller
         }
 
         $validatedData = validator($input, [
-            'username' => 'required|string|max:255|unique:account,username',
             'email' => 'required|string|email|max:255|unique:account,email',
             'phone' => 'nullable|string|max:20|unique:account,phone',
         ]);
@@ -307,9 +306,6 @@ class AccountController extends Controller
         try {
             $updateData = [];
 
-            if (!empty($input['username'])) {
-                $updateData['username'] = $input['username'];
-            }
             if (!empty($input['password'])) {
                 $updateData['password'] =  Hash::make($input['password']);
             }
@@ -467,7 +463,7 @@ class AccountController extends Controller
         DB::beginTransaction();
         $validatedData = validator($input, [
             'username' => 'required|string|max:255|unique:account,username',
-            'email' => 'required|string|email|max:1|unique:account,email',
+            'email' => 'required|string|email|max:255|unique:account,email',
             'phone' => 'nullable|string|max:20|unique:account,phone',
         ]);
         if ($validatedData->fails()) {
