@@ -584,20 +584,36 @@ class AccountController extends Controller
                 'error' => 'No Input Received'
             ], 404);
         }
-        //check input deactivate
-        if ($input['deactivate']) {
-            DB::table('account')->where('id', $input['account_id'])->update([
-                'deactivated' => true,
-                'deactivated_date' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
-            ]);
-        } else if ($input['deactivate'] == false) {
-            DB::table('account')->where('id', $input['account_id'])->update([
-                'deactivated' => false,
-                'deactivated_date' => Carbon::createFromFormat('Y-m-d H:i:s', '0000-01-01 00:00:00')
-            ]);
+        DB::beginTransaction();
+        try {
+            $tf = false;
+            //check input deactivate
+            if ($input['deactivate']) {
+                DB::table('account')->where('id', $input['account_id'])->update([
+                    'deactivated' => true,
+                    'deactivated_date' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                ]);
+                $tf = true;
+            } else if ($input['deactivate'] == false) {
+                DB::table('account')->where('id', $input['account_id'])->update([
+                    'deactivated' => false,
+                    'deactivated_date' => Carbon::createFromFormat('Y-m-d H:i:s', '0000-01-01 00:00:00')
+                ]);
+                $tf = false;
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
         }
-        return response()->json([
-            'success' => 'Set Deactivate Account Successfully'
-        ], 200);
+        if ($tf) {
+            return response()->json([
+                'success' => 'Deactivate Account Successfully'
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => 'Activate Account Successfully'
+            ], 200);
+        }
     }
 }

@@ -205,6 +205,7 @@ class MetalController extends Controller
         }
         DB::beginTransaction();
         try {
+            $tf = false;
             $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
             //check metal
             if ($metal == null) {
@@ -217,19 +218,28 @@ class MetalController extends Controller
                 DB::table('metal')->where('id', $input['metal_id'])->update([
                     'deactivated' => true,
                 ]);
+                $tf = true;
             } else {
                 DB::table('metal')->where('id', $input['metal_id'])->update([
                     'deactivated' => false,
                 ]);
+                $tf = false;
             }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
-        return response()->json([
-            'success' => 'Set Deactivate Metal Successfully'
-        ], 201);
+        if($tf){
+            return response()->json([
+                'success' => 'Deactivate Metal Successfully'
+            ], 201);
+        } else {
+            return response()->json([
+                'success' => 'Activate Metal Successfully'
+            ], 201);
+        }
+        
     }
     public function get_list(Request $request)
     {

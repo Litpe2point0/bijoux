@@ -67,6 +67,7 @@ class DiamondController extends Controller
         }
         DB::beginTransaction();
         try {
+            $tf = false;
             //find diamond
             $diamond = DB::table('diamond')->where('id', $input['diamond_id'])->first();
             if ($diamond == null) {
@@ -79,19 +80,27 @@ class DiamondController extends Controller
                 DB::table('diamond')->where('id', $input['diamond_id'])->update([
                     'deactivated' => true,
                 ]);
+                $tf = true;
             } else {
                 DB::table('diamond')->where('id', $input['diamond_id'])->update([
                     'deactivated' => false,
                 ]);
+                $tf = false;
             }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
-        return response()->json([
-            'success' => 'Set Deactivate Diamond Successfully'
-        ], 201);
+        if ($tf) {
+            return response()->json([
+                'success' => 'Deactivate Diamond Successfully'
+            ], 201);
+        } else {
+            return response()->json([
+                'success' => 'Activate Diamond Successfully'
+            ], 201);
+        }
     }
     public function update_price(Request $request)
     {

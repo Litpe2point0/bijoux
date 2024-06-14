@@ -336,6 +336,7 @@ class ModelController extends Controller
         }
         DB::beginTransaction();
         try {
+            $tf = false;
             $model = DB::table('model')->where('id', $input['model_id'])->first();
             if ($model == null) {
                 return response()->json([
@@ -346,21 +347,29 @@ class ModelController extends Controller
                 DB::table('model')->where('id', $input['model_id'])->update([
                     'deactivated' => true,
                 ]);
+                $tf = true;
             } else {
                 DB::table('model')->where('id', $input['model_id'])->update([
                     'deactivated' => false,
                 ]);
+                $tf = false;
             }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
-        return response()->json([
-            'success' => 'Set Deactivate Model Successfully'
-        ], 200);
+        if ($tf) {
+            return response()->json([
+                'success' => 'Deactivate Model Successfully'
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => 'Activate Model Successfully'
+            ], 200);
+        }
     }
-    public function update(Request $request) //chưa test
+    public function update(Request $request)
     {
         $input = json_decode($request->input('new_model'), true);
         if (!isset($input) || $input == null) {
@@ -598,7 +607,7 @@ class ModelController extends Controller
                 }
             }
         }
-        
+
         return response()->json([
             'model' => $model,
             'missing_image' => $missing_image
