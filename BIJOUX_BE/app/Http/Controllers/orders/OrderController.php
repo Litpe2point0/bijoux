@@ -989,14 +989,22 @@ class OrderController extends Controller
             unset($order->account_id);
 
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-            $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
-            unset($production_process->production_status_id);
-            $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
-            $order->production_process = $production_process;
+            if($production_process != null){
+                $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
+                unset($production_process->production_status_id);
+                $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
+                $order->production_process = $production_process;
+            } else {
+                $order->production_process = null;
+            }
             return $order;
         });
         $sorted_template_order_list = $template_order_list->sortBy(function ($order) {
-            return $order->production_process->production_status ? $order->production_process->production_status->id : null; // Use the status id for sorting, or null if no status
+            if ($order->production_process !== null) {
+                return $order->production_process->production_status ? $order->production_process->production_status->id : PHP_INT_MAX;
+            } else {
+                return PHP_INT_MAX; // Ensure null values appear at the start
+            }
         });
 
         $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->where('order_status_id', 3)->where('order_type_id', 2)->get();
@@ -1027,14 +1035,22 @@ class OrderController extends Controller
             unset($order->account_id);
 
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-            $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
-            unset($production_process->production_status_id);
-            $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
-            $order->production_process = $production_process;
+            if($production_process != null){
+                $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
+                unset($production_process->production_status_id);
+                $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
+                $order->production_process = $production_process;
+            } else {
+                $order->production_process = null;
+            }
             return $order;
         });
         $sorted_customize_order_list = $customize_order_list->sortBy(function ($order) {
-            return $order->production_process->production_status ? $order->production_process->production_status->id : null; // Use the status id for sorting, or null if no status
+            if ($order->production_process !== null) {
+                return $order->production_process->production_status ? $order->production_process->production_status->id : PHP_INT_MAX;
+            } else {
+                return PHP_INT_MAX; // Ensure null values appear at the start
+            }
         });
         return response()->json([
             'template_order_list' => $sorted_template_order_list->values()->all(),
@@ -1169,6 +1185,7 @@ class OrderController extends Controller
                 return null;
             }
         });
+
         return response()->json([
             'template_order_list' => $sorted_template_order_list->values()->all(),
             'customize_order_list' => $sorted_customize_order_list->values()->all()
