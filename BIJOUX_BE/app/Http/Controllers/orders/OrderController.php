@@ -1537,6 +1537,10 @@ class OrderController extends Controller
                 DB::table('design_process')->where('id', $input['design_process_id'])->update([
                     'design_process_status_id' => 4
                 ]);
+                DB::commit();
+                return response()->json([
+                    'success' => 'Decline Design Process Successfully'
+                ], 200);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -1596,7 +1600,7 @@ class OrderController extends Controller
         } else if ($account->role_id == 2) {
             $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
-                $designs = DB::table('design_process')->where('order_id', $order->id)->whereNot('design_process_status_id', 4)->orderBy('design_process_status_id', 'asc')->get();
+                $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
             }
         } else if ($account->role_id == 3) {
