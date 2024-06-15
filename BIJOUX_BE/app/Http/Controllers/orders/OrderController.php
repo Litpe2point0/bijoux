@@ -1205,6 +1205,13 @@ class OrderController extends Controller
             $product_price = 0;
             if (isset($input['diamond_list']) && $input['diamond_list'] != null) {
                 foreach ($input['diamond_list'] as $diamond1) {
+                    $diamond = DB::table('diamond')->where('id', $diamond1['diamond']['id'])->first();
+                    if($diamond->deactivated){
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'One Of The Selected Diamond Is Currently Deactivated'
+                        ], 403);
+                    }
                     $product_diamond = new Product_Diamond();
                     $product_diamond->product_id = $order->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
@@ -1219,6 +1226,13 @@ class OrderController extends Controller
 
             if (isset($input['metal_list']) && $input['metal_list'] != null) {
                 foreach ($input['metal_list'] as $metal1) {
+                    $metal = DB::table('metal')->where('id', $metal1['metal']['id'])->first();
+                    if($metal->deactivated){
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'One Of The Selected Metal Is Currently Deactivated'
+                        ], 403);
+                    }
                     $product_metal = new Product_Metal();
                     $product_metal->product_id = $order->product_id;
                     $product_metal->metal_id = $metal1['metal']['id'];
@@ -1307,11 +1321,6 @@ class OrderController extends Controller
         if ($design_process->design_process_status_id >= 2) {
             return response()->json([
                 'error' => 'The Selected Design Process Has Already Been Priced'
-            ], 403);
-        }
-        if ($design_process->design_process_status_id == 4) {
-            return response()->json([
-                'error' => 'The Selected Design Process Has Already Been Cancelled'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -1543,7 +1552,7 @@ class OrderController extends Controller
         } else if ($account->role_id == 2) {
             $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
-                $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
+                $designs = DB::table('design_process')->where('order_id', $order->id)->whereNot('design_process_status_id', 4)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
             }
         } else if ($account->role_id == 3) {
@@ -1579,11 +1588,8 @@ class OrderController extends Controller
 
             $OGurl = env('ORIGIN_URL');
             $Durl = env('DESIGN_PROCESS_URL');
-            $designatedPath = public_path("image/Job/design_process/" . $design->id);
-            $files = File::allFiles($designatedPath);
-            $imageName = $files[0]->getFilename();
 
-            $design->imageUrl = $OGurl . $Durl . $design->id . '/' . $imageName;
+            $design->imageUrl = $OGurl . $Durl . $design->id . '/' . $design->imageUrl;
             unset($design->mounting_type_id);
             unset($design->design_process_status_id);
             return $design;
