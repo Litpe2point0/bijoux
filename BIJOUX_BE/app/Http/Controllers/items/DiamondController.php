@@ -260,7 +260,7 @@ class DiamondController extends Controller
         unset($diamond->diamond_clarity_id);
         unset($diamond->diamond_cut_id);
         return response()->json([
-            $diamond
+            'diamond' => $diamond
         ]);
     }
     public function get_shape_list()
