@@ -260,7 +260,7 @@ class DiamondController extends Controller
         unset($diamond->diamond_clarity_id);
         unset($diamond->diamond_cut_id);
         return response()->json([
-            $diamond
+            'diamond' => $diamond
         ]);
     }
     public function get_shape_list()
@@ -283,8 +283,13 @@ class DiamondController extends Controller
     }
     public function get_size_list()
     {
+        $size = DB::table('diamond')->select('size')->groupBy('size')->get();
+        $size_list =[];
+        foreach ($size as $s) {
+            $size_list[] = $s->size;
+        }
         return response()->json(
-            DB::table('diamond')->select('size')->groupBy('size')->get()
+            $size_list
         );
     }
     public function get_cut_list()
