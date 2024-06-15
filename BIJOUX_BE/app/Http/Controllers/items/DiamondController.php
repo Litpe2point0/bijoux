@@ -36,6 +36,11 @@ class DiamondController extends Controller
             }
         }
         $diamond_list = $query->get();
+        if($diamond_list == null){
+            return response()->json([
+                'error' => 'No Diamond Found'
+            ], 403);
+        }
         $diamond_list->map(function ($diamond) {
             //modify diamond imageUrl
             $OGurl = env('ORIGIN_URL');
