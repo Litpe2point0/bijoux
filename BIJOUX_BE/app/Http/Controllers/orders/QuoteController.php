@@ -347,10 +347,10 @@ class QuoteController extends Controller
                     'error' => 'The Selected Quote Hasn\'t Been Assigned'
                 ], 403);
             }
-            if ($quote->quote_status_id == 5) {
+            if ($quote->quote_status_id >= 3) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Has Been Cancelled'
+                    'error' => 'The Selected Quote Has Already Been Priced'
                 ], 403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
@@ -358,7 +358,8 @@ class QuoteController extends Controller
             ]);
             if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
                 DB::table('product')->where('id', $quote->product_id)->update([
-                    'mounting_type_id' => $input['mounting_type_id']
+                    'mounting_type_id' => $input['mounting_type_id'],
+                    'mounting_size' => $input['mounting_size']
                 ]);
             }
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
@@ -378,6 +379,8 @@ class QuoteController extends Controller
                     'imageUrl' => $imageUrl
                 ]);
             }
+            DB::table('product_diamond')->where('product_id', $quote->product_id)->delete();
+            DB::table('product_metal')->where('product_id', $quote->product_id)->delete();
             if (isset($input['diamond_list']) && $input['diamond_list'] != null) {
                 foreach ($input['diamond_list'] as $diamond1) {
                     $product_diamond = new Product_Diamond();
@@ -385,8 +388,8 @@ class QuoteController extends Controller
                     if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'An Item That Is include In This Product Is Currently Deactivated'
-                        ]);
+                            'error' => 'One Of The Selected Diamond Is Currently Deactivated'
+                        ],403);
                     }
                     $product_diamond->product_id = $quote->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
@@ -404,8 +407,8 @@ class QuoteController extends Controller
                 if ($metal->deactivated == true) {
                     DB::rollBack();
                     return response()->json([
-                        'error' => 'An Item That Is include In This Product Is Currently Deactivated'
-                    ]);
+                        'error' => 'One Of The Selected Metal Is Currently Deactivated'
+                    ],403);
                 }
                 $product_metal->product_id = $quote->product_id;
                 $product_metal->metal_id = $metal1['metal']['id'];
@@ -490,6 +493,7 @@ class QuoteController extends Controller
                     'quote_status_id' => 2,
                     'note' => $input['note']
                 ]);
+                DB::commit();
                 return response()->json([
                     'success' => 'Decline Quote Successfully'
                 ], 201);
