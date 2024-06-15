@@ -548,7 +548,7 @@ class OrderController extends Controller
         $product_url = $product->imageUrl;
         $product->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product->imageUrl;
 
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status',1)->get();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
         $product_diamond->map(function ($product_diamond) {
             $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -572,7 +572,7 @@ class OrderController extends Controller
         });
         $product->product_diamond = $product_diamond;
 
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status',1)->get();
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
         $product_metal->map(function ($product_metal) {
             $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -989,7 +989,7 @@ class OrderController extends Controller
             unset($order->account_id);
 
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-            if($production_process != null){
+            if ($production_process != null) {
                 $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
                 unset($production_process->production_status_id);
                 $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
@@ -1035,7 +1035,7 @@ class OrderController extends Controller
             unset($order->account_id);
 
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-            if($production_process != null){
+            if ($production_process != null) {
                 $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
                 unset($production_process->production_status_id);
                 $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
@@ -1997,7 +1997,7 @@ class OrderController extends Controller
                     $fileName = time() . '_' . $id . '.jpg';
                     file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 } else {
-                    $fileName = "unknown.jpg";
+                    $fileName = null;
                 }
                 DB::table('production_process')->where('id', $id)->update([
                     'imageUrl' => $fileName
@@ -2026,9 +2026,11 @@ class OrderController extends Controller
         }
         $production_process_list = DB::table('production_process')->where('order_id', $input)->orderBy('created', 'asc')->get();
         $production_process_list->map(function ($list) {
-            $OGurl = env('ORIGIN_URL');
-            $Purl = env('PRODUCTION_PROCESS_URL');
-            $list->imageUrl = $OGurl . $Purl . $list->order_id . '/' . $list->imageUrl;
+            if ($list->imageUrl != null) {
+                $OGurl = env('ORIGIN_URL');
+                $Purl = env('PRODUCTION_PROCESS_URL');
+                $list->imageUrl = $OGurl . $Purl . $list->order_id . '/' . $list->imageUrl;
+            }
             $list->created = Carbon::parse($list->created)->format('H:i:s d/m/Y');
             $list->production_status = DB::table('production_status')->where('id', $list->production_status_id)->first();
             unset($list->production_status_id);
