@@ -7,6 +7,7 @@ use App\Models\items\Diamond;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class DiamondController extends Controller
 {
@@ -14,9 +15,24 @@ class DiamondController extends Controller
     {
         //input
         $input = json_decode($request->input('diamond_search_information'), true);
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
 
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $role_id = (int) $decodedToken['role_id'];
+        
         //create query
         $query = Diamond::Query();
+        if($role_id == 5){
+            $query->where('deactivated', false);
+        }
         //check if input exist, if yes then configure query
         if (isset($input) && $input != null) {
             if (isset($input['size']) && $input['size'] != null) {
@@ -118,6 +134,12 @@ class DiamondController extends Controller
         }
         DB::beginTransaction();
         try {
+            $diamond = DB::table('diamond')->where('id', $input['diamond_id'])->first();
+            if($diamond->deactivated){
+                return response()->json([
+                    'error' => 'The Selected Diamond Has Been Deactivated'
+                ], 403);
+            }
             //find all product that contain the selected diamond
             $product_diamond  = DB::table('product_diamond')->select('product_id')->where('diamond_id', $input['diamond_id'])->groupby('product_id')->get();
             //update the diamond price
