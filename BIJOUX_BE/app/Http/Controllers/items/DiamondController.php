@@ -98,6 +98,27 @@ class DiamondController extends Controller
             }
             //check input deactivate
             if ($input['deactivate']) {
+                $product_diamond = DB::table('product_diamond')->where('diamond_id', $input['diamond_id'])->get();
+                $product_ids = [];
+                foreach($product_diamond as $product){
+                    $product_ids[] = $product->product_id;
+                }
+                $order = DB::table('orders')->whereIn('product_id', $product_ids)->get();
+                foreach($order as $o){
+                    if($o->order_status_id < 3){
+                        return response()->json([
+                            'error' => 'The Selected Diamond Has Been Used In Order'
+                        ], 403);
+                    }
+                }
+                $quote = DB::table('quote')->whereIn('product_id', $product_ids)->get();
+                foreach($quote as $q){
+                    if($q->quote_status_id < 4){
+                        return response()->json([
+                            'error' => 'The Selected Diamond Has Been Used In Quote'
+                        ], 403);
+                    }
+                }
                 DB::table('diamond')->where('id', $input['diamond_id'])->update([
                     'deactivated' => true,
                 ]);

@@ -357,6 +357,27 @@ class ModelController extends Controller
                 ], 403);
             }
             if ($input['deactivate']) {
+                $products = DB::table('product')->where('model_id', $input['model_id'])->get();
+                $product_ids = [];
+                foreach ($products as $product) {
+                    $product_ids[] = $product->product_id;
+                }
+                $order = DB::table('orders')->whereIn('product_id', $product_ids)->get();
+                foreach ($order as $o) {
+                    if ($o->order_status_id < 3) {
+                        return response()->json([
+                            'error' => 'The Selected Metal Has Been Used In Order'
+                        ], 403);
+                    }
+                }
+                $quote = DB::table('quote')->whereIn('product_id', $product_ids)->get();
+                foreach ($quote as $q) {
+                    if ($q->quote_status_id < 4) {
+                        return response()->json([
+                            'error' => 'The Selected Metal Has Been Used In Quote'
+                        ], 403);
+                    }
+                }
                 DB::table('model')->where('id', $input['model_id'])->update([
                     'deactivated' => true,
                 ]);
