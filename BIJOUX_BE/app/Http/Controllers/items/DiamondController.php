@@ -52,7 +52,7 @@ class DiamondController extends Controller
             }
         }
         $diamond_list = $query->orderBy('deactivated','asc')->get();
-        if($diamond_list == null){
+        if($diamond_list->isEmpty()){
             return response()->json([
                 'error' => 'No Diamond Found'
             ], 403);
