@@ -1997,14 +1997,7 @@ class OrderController extends Controller
                     $fileName = time() . '_' . $id . '.jpg';
                     file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 } else {
-                    $fileName = time() . '_' . $id . '.jpg';
-                    $destinationPath = public_path('image/Job/production_process/' . $input['order_id']);
-                    if (!file_exists($destinationPath)) {
-                        mkdir($destinationPath, 0755, true);
-                    }
-                    $destinationFilePath = public_path('image/Job/production_process/' . $input['order_id'] . '/' . $fileName);
-                    $sourceFilePath = public_path('image/Job/production_process/unknown.jpg');
-                    File::copy($sourceFilePath, $destinationFilePath);
+                    $fileName = "unknown.jpg";
                 }
                 DB::table('production_process')->where('id', $id)->update([
                     'imageUrl' => $fileName
@@ -2012,7 +2005,7 @@ class OrderController extends Controller
             } else {
                 return response()->json([
                     'error' => 'Production Status Can\'t Be 2 Status Higher Than The Previous Status'
-                ], 0);
+                ], 403);
             }
             DB::commit();
         } catch (\Exception $e) {
