@@ -826,6 +826,8 @@ class OrderController extends Controller
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             unset($order->order_status_id);
@@ -1019,6 +1021,7 @@ class OrderController extends Controller
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
             unset($production_process->production_status_id);
+            $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
             $order->production_process = $production_process;
             return $order;
         });
@@ -1573,6 +1576,14 @@ class OrderController extends Controller
             }
             $design->design_process_status = DB::table('design_process_status')->where('id', $design->design_process_status_id)->first();
             $design->created = Carbon::parse($design->created)->format('H:i:s d/m/Y');
+
+            $OGurl = env('ORIGIN_URL');
+            $Durl = env('DESIGN_PROCESS_URL');
+            $designatedPath = public_path("image/Job/design_process/" . $design->id);
+            $files = File::allFiles($designatedPath);
+            $imageName = $files[0]->getFilename();
+
+            $design->imageUrl = $OGurl . $Durl . $design->id . '/' . $imageName;
             unset($design->mounting_type_id);
             unset($design->design_process_status_id);
             return $design;

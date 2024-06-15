@@ -172,7 +172,7 @@ class ModelController extends Controller
                 $temp1->push($filtered_models);
             }
         }
-        $model_available = $temp1->unique('id')->values();
+        $model_available = $temp1->unique('id')->sortBy('deactivated')->values();
 
         $model_available->map(function ($model) {
             $OGurl = env('ORIGIN_URL');
@@ -228,7 +228,7 @@ class ModelController extends Controller
                     $temp2->push($filtered_models2);
                 }
             }
-            $model_unavailable = $temp2->unique('id')->values();
+            $model_unavailable = $temp2->unique('id')->sortBy('deactivated')->values();
 
             $model_unavailable->map(function ($model) {
                 $OGurl = env('ORIGIN_URL');
@@ -392,7 +392,6 @@ class ModelController extends Controller
         }
         DB::beginTransaction();
         try {
-
             $updateData = [
                 'name' => $input['name'],
                 'mounting_type_id' => $input['mounting_type_id'],

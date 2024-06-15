@@ -277,7 +277,7 @@ class MetalController extends Controller
                 return $metal;
             });
         } else {
-            $metal = $query->get();
+            $metal = $query->orderBy('deactivated','asc')->get();
             $metal->map(function ($metal) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('METAL_URL');
@@ -358,6 +358,12 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
+            ], 403);
+        }
+        $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
+        if($metal->deactivated){
+            return response()->json([
+                'error' => 'The Selected Metal Has Been Deactivated'
             ], 403);
         }
         $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main', false)->pluck('metal_id');

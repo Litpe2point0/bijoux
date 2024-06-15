@@ -51,7 +51,7 @@ class DiamondController extends Controller
                 $query->where('diamond_origin_id', $input['diamond_origin_id']);
             }
         }
-        $diamond_list = $query->get();
+        $diamond_list = $query->orderBy('deactivated','asc')->get();
         if($diamond_list == null){
             return response()->json([
                 'error' => 'No Diamond Found'

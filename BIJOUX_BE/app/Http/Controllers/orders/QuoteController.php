@@ -634,7 +634,6 @@ class QuoteController extends Controller
             $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
             $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
             $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
-            $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
             unset($diamond->diamond_color_id);
             unset($diamond->diamond_origin_id);
             unset($diamond->diamond_clarity_id);
