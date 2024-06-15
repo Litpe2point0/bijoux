@@ -375,16 +375,16 @@ class OrderController extends Controller
             $sale_staff = null;
             $design_staff = null;
             $production_staff = null;
-            if ($saleStaff_id != null) {
+            if (!$saleStaff_id->isEmpty()) {
                 $sale_staff = DB::table('account')->where('id', $saleStaff_id)->first();
             }
-            if ($designStaff_id != null) {
+            if (!$designStaff_id->isEmpty()) {
                 $design_staff = DB::table('account')->where('id', $designStaff_id)->first();
             }
-            if ($productionStaff_id != null) {
+            if (!$productionStaff_id->isEmpty()) {
                 $production_staff = DB::table('account')->where('id', $productionStaff_id)->first();
             }
-            if ($sale_staff != null) {
+            if (!$sale_staff->isEmpty()) {
                 if ($sale_staff->role_id != '2') {
                     return response()->json([
                         'error' => 'The Selected Sale Staff Account Is Not a Sale Staff'
@@ -395,7 +395,7 @@ class OrderController extends Controller
                     ], 403);
                 }
             }
-            if ($design_staff != null) {
+            if (!$designStaff_id->isEmpty()) {
                 if ($design_staff->role_id != '3') {
                     return response()->json([
                         'error' => 'The Selected Design Staff Account Is Not a Design Staff'
@@ -406,7 +406,7 @@ class OrderController extends Controller
                     ], 403);
                 }
             }
-            if ($production_staff != null) {
+            if (!$productionStaff_id->isEmpty()) {
                 if ($production_staff->role_id != '4') {
                     return response()->json([
                         'error' => 'The Selected Production Staff Account Is Not a Production Staff'
