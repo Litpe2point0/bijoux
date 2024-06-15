@@ -548,7 +548,7 @@ class OrderController extends Controller
         $product_url = $product->imageUrl;
         $product->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product->imageUrl;
 
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status',1)->get();
         $product_diamond->map(function ($product_diamond) {
             $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -572,7 +572,7 @@ class OrderController extends Controller
         });
         $product->product_diamond = $product_diamond;
 
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->get();
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status',1)->get();
         $product_metal->map(function ($product_metal) {
             $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -657,14 +657,14 @@ class OrderController extends Controller
         $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
         unset($order->order_type_id);
 
-        // $design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-        // if ($design_process == null) {
-        //     $order->design_process_status = null;
-        // } else if ($design_process->design_process_status_id == 4) {
-        //     $order->design_process_status = null;
-        // } else {
-        //     $order->design_process_status = DB::table('design_process_status')->where('id', $design_process->design_process_status_id)->first();
-        // }
+        $design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
+        if ($design_process == null) {
+            $order->design_process_status = null;
+        } else if ($design_process->design_process_status_id == 4) {
+            $order->design_process_status = null;
+        } else {
+            $order->design_process_status = DB::table('design_process_status')->where('id', $design_process->design_process_status_id)->first();
+        }
 
         $order->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product_url;
 
