@@ -1114,7 +1114,10 @@ class OrderController extends Controller
                 $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
                 $order->production_process = $production_process;
             } else {
-                $order->production_process = null;
+                $production_process->production_status = null;
+                unset($production_process->production_status_id);
+                $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
+                $order->production_process = $production_process;
             }
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             unset($order->order_status_id);
@@ -1168,7 +1171,10 @@ class OrderController extends Controller
                 $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
                 $order->production_process = $production_process;
             } else {
-                $order->production_process = null;
+                $production_process->production_status = null;
+                unset($production_process->production_status_id);
+                $production_process->created = Carbon::parse($production_process->created)->format('H:i:s d/m/Y');
+                $order->production_process = $production_process;
             }
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             unset($order->order_status_id);
