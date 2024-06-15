@@ -40,6 +40,7 @@ class QuoteController extends Controller
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $quote->account = $account;
+            unset($quote->account_id);
 
             $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
             unset($quote->quote_status_id);
@@ -73,6 +74,7 @@ class QuoteController extends Controller
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $quote->account = $account;
+            unset($quote->account_id);
 
             $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
             unset($quote->quote_status_id);
@@ -126,6 +128,7 @@ class QuoteController extends Controller
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $quote->account = $account;
+            unset($quote->account_id);
 
             $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
             unset($quote->quote_status_id);
@@ -347,10 +350,22 @@ class QuoteController extends Controller
                     'error' => 'The Selected Quote Hasn\'t Been Assigned'
                 ], 403);
             }
-            if ($quote->quote_status_id >= 3) {
+            if ($quote->quote_status_id == 3) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Has Already Been Priced'
+                ], 403);
+            }
+            if ($quote->quote_status_id == 4) {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The Selected Quote Has Already Been Completed'
+                ], 403);
+            }
+            if ($quote->quote_status_id >= 5) {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The Selected Quote Has Already Been Cancelled'
                 ], 403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([

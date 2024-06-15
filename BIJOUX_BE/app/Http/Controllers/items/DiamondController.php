@@ -30,7 +30,7 @@ class DiamondController extends Controller
         
         //create query
         $query = Diamond::Query();
-        if($role_id == 5){
+        if($role_id == 5 || $role_id == 4 || $role_id == 3 || $role_id == 2){
             $query->where('deactivated', false);
         }
         //check if input exist, if yes then configure query

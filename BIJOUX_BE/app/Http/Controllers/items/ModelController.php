@@ -128,7 +128,7 @@ class ModelController extends Controller
             ->join('model_metal', 'model.id', '=', 'model_metal.model_id')
             ->select('model.id as model_id');
 
-        if ($role_id == 5) {
+        if ($role_id == 5 || $role_id == 4 || $role_id == 3 || $role_id == 2) {
             $query_available->where('deactivated', false);
         }
 

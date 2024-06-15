@@ -71,7 +71,7 @@ class MetalController extends Controller
         DB::beginTransaction();
         try {
             $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
-            if($metal->deactivated){
+            if ($metal->deactivated) {
                 return response()->json([
                     'error' => 'The Selected Metal Has Been Deactivated'
                 ], 403);
@@ -236,7 +236,7 @@ class MetalController extends Controller
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
-        if($tf){
+        if ($tf) {
             return response()->json([
                 'success' => 'Deactivate Metal Successfully'
             ], 201);
@@ -245,7 +245,6 @@ class MetalController extends Controller
                 'success' => 'Activate Metal Successfully'
             ], 201);
         }
-        
     }
     public function get_list(Request $request)
     {
@@ -266,7 +265,7 @@ class MetalController extends Controller
         //create query
         $query = Metal::query();
         //check role
-        if ($role_id == 5) {
+        if ($role_id == 5 || $role_id == 4 || $role_id == 3 || $role_id == 2) {
             //configure query
             $metal = $query->where('deactivated', false)->get();
             $metal->map(function ($metal) {
@@ -277,7 +276,7 @@ class MetalController extends Controller
                 return $metal;
             });
         } else {
-            $metal = $query->orderBy('deactivated','asc')->get();
+            $metal = $query->orderBy('deactivated', 'asc')->get();
             $metal->map(function ($metal) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('METAL_URL');
@@ -318,7 +317,7 @@ class MetalController extends Controller
             ], 403);
         }
         $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
-        if($metal->deactivated){
+        if ($metal->deactivated) {
             return response()->json([
                 'error' => 'The Selected Metal Is Deactivated'
             ], 403);
@@ -361,7 +360,7 @@ class MetalController extends Controller
             ], 403);
         }
         $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
-        if($metal->deactivated){
+        if ($metal->deactivated) {
             return response()->json([
                 'error' => 'The Selected Metal Has Been Deactivated'
             ], 403);

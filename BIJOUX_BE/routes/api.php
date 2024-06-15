@@ -41,12 +41,14 @@ Route::group(['prefix' => 'admin'], function () {
             Route::post('/pricing_design_process', [OrderController::class, 'pricing_design_process'])->middleware('checkSaleStaff');
             Route::post('/get_design_process_list', [OrderController::class, 'get_design_process_list']);
             Route::post('/get_design_process_detail', [OrderController::class, 'get_design_process_detail']);
+            Route::post('/get_design_process_status_list', [OrderController::class, 'get_design_process_status_list']);
             Route::post('/add_design_updating', [OrderController::class, 'add_design_updating']);
             Route::post('/add_production_process', [OrderController::class, 'add_production_process'])->middleware('checkProductionStaff');
             Route::post('/production_complete', [OrderController::class, 'production_complete'])->middleware('checkProductionStaff');
             Route::post('/get_assigned_orders_sale', [OrderController::class, 'get_assigned_orders_sale']);
             Route::post('/get_assigned_orders_design ', [OrderController::class, 'get_assigned_orders_design']);
             Route::post('/get_assigned_orders_production ', [OrderController::class, 'get_assigned_orders_production']);
+            Route::post('/get_assigned_complete_orders_production ', [OrderController::class, 'get_assigned_complete_orders_production']);
         });
     });
 });
@@ -133,7 +135,6 @@ Route::group([], function () {
             Route::post('/get_order_type_list', [OrderController::class, 'get_order_type_list']);
             Route::post('/cancel', [OrderController::class, 'cancel_order']);
             Route::post('/get_production_status_list', [OrderController::class, 'get_production_status_list']);
-            Route::post('/get_design_process_status_list', [OrderController::class, 'get_design_process_status_list']);
             Route::post('/get_design_updating_list', [OrderController::class, 'get_design_updating_list']);
             Route::post('/get_production_process_list', [OrderController::class, 'get_production_process_list']);
             Route::post('/get_product_detail', [OrderController::class, 'get_product_detail']);

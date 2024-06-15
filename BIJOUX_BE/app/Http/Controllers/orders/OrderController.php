@@ -823,6 +823,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
@@ -852,6 +854,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
@@ -905,6 +909,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
@@ -971,6 +977,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
@@ -1007,6 +1015,8 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
@@ -1076,18 +1086,14 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            unset($order->order_status_id);
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_type_id);
-            unset($order->product_id);
-            unset($order->account_id);
 
-            $production_process = DB::table('production_process')->where('order_id', $order->id)->first();
+            $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($order->order_status_id > 3) {
                 $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
                 unset($production_process->production_status_id);
@@ -1096,10 +1102,20 @@ class OrderController extends Controller
             } else {
                 $order->production_process = null;
             }
+            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
+            unset($order->order_status_id);
+            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
+            unset($order->order_type_id);
+            unset($order->product_id);
+            unset($order->account_id);
             return $order;
         });
         $sorted_template_order_list = $data1->sortBy(function ($order) {
-            return $order->production_process->production_status ? $order->production_process->production_status->id : null; // Use the status id for sorting, or null if no status
+            if ($order->production_process != null) {
+                return $order->production_process->production_status ? $order->production_process->production_status->id : null; // Use the status id for sorting, or null if no status
+            } else {
+                return null;
+            }
         });
 
         $data2 = collect();
@@ -1124,18 +1140,14 @@ class OrderController extends Controller
                 $url = env('ACCOUNT_URL');
                 $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
+            $account->role = DB::table('role')->where('id', $account->role_id)->first();
+            unset($account->role_id);
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
             $order->account = $account;
-            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
-            unset($order->order_status_id);
-            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
-            unset($order->order_type_id);
-            unset($order->product_id);
-            unset($order->account_id);
 
-            $production_process = DB::table('production_process')->where('order_id', $order->id)->first();
+            $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($order->order_status_id > 3) {
                 $production_process->production_status = DB::table('production_status')->where('id', $production_process->production_status_id)->first();
                 unset($production_process->production_status_id);
@@ -1144,10 +1156,20 @@ class OrderController extends Controller
             } else {
                 $order->production_process = null;
             }
+            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
+            unset($order->order_status_id);
+            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
+            unset($order->order_type_id);
+            unset($order->product_id);
+            unset($order->account_id);
             return $order;
         });
         $sorted_customize_order_list = $data2->sortBy(function ($order) {
-            return $order->production_process->production_status ? $order->production_process->production_status->id : null; // Use the status id for sorting, or null if no status
+            if ($order->production_process != null) {
+                return $order->production_process->production_status ? $order->production_process->production_status->id : null; // Use the status id for sorting, or null if no status
+            } else {
+                return null;
+            }
         });
         return response()->json([
             'template_order_list' => $sorted_template_order_list->values()->all(),
@@ -1201,10 +1223,16 @@ class OrderController extends Controller
                     ], 403);
                 }
             }
-
             $product_price = 0;
             if (isset($input['diamond_list']) && $input['diamond_list'] != null) {
                 foreach ($input['diamond_list'] as $diamond1) {
+                    $diamond = DB::table('diamond')->where('id', $diamond1['diamond']['id'])->first();
+                    if ($diamond->deactivated) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'One Of The Selected Diamond Is Currently Deactivated'
+                        ], 403);
+                    }
                     $product_diamond = new Product_Diamond();
                     $product_diamond->product_id = $order->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
@@ -1219,6 +1247,13 @@ class OrderController extends Controller
 
             if (isset($input['metal_list']) && $input['metal_list'] != null) {
                 foreach ($input['metal_list'] as $metal1) {
+                    $metal = DB::table('metal')->where('id', $metal1['metal']['id'])->first();
+                    if ($metal->deactivated) {
+                        DB::rollBack();
+                        return response()->json([
+                            'error' => 'One Of The Selected Metal Is Currently Deactivated'
+                        ], 403);
+                    }
                     $product_metal = new Product_Metal();
                     $product_metal->product_id = $order->product_id;
                     $product_metal->metal_id = $metal1['metal']['id'];
@@ -1304,12 +1339,17 @@ class OrderController extends Controller
                 'error' => 'The Selected Design Process Doesn\'t Exist'
             ], 403);
         }
-        if ($design_process->design_process_status_id >= 2) {
+        if ($design_process->design_process_status_id == 2) {
             return response()->json([
                 'error' => 'The Selected Design Process Has Already Been Priced'
             ], 403);
         }
-        if ($design_process->design_process_status_id == 4) {
+        if ($design_process->design_process_status_id == 3) {
+            return response()->json([
+                'error' => 'The Selected Design Process Has Already Been Completed'
+            ], 403);
+        }
+        if ($design_process->design_process_status_id >= 4) {
             return response()->json([
                 'error' => 'The Selected Design Process Has Already Been Cancelled'
             ], 403);
@@ -1468,12 +1508,27 @@ class OrderController extends Controller
                         'imageUrl' => $fileName
                     ]);
                 }
-
                 if (($order->total_price * 50 / 100) >= ($design_process->total_price * 50 / 100 * 1.05)) {
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 1
                     ]);
                 } else {
+                    $product = DB::table('product')->where('id', $order->product_id)->first();
+                    $id = DB::table('production_process')->insertGetId([
+                        'order_id' => $order->id,
+                        'production_status_id' => 1,
+                        'imageUrl' => $product->imageUrl,
+                        'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s'),
+                    ]);
+                    $fileName = time() . '_' . $id . '.jpg';
+                    $destinationPath = public_path('image/Job/production_process/' . $order->id);
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
+                    }
+                    $destinationFilePath = public_path('image/Job/production_process/' . $order->id . '/' . $fileName);
+                    $sourceFilePath = public_path('image/Order/' . $product->id . '/' . $product->imageUrl);
+                    File::copy($sourceFilePath, $destinationFilePath);
+
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 3
                     ]);
@@ -1543,7 +1598,7 @@ class OrderController extends Controller
         } else if ($account->role_id == 2) {
             $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
-                $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
+                $designs = DB::table('design_process')->where('order_id', $order->id)->whereNot('design_process_status_id', 4)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
             }
         } else if ($account->role_id == 3) {
@@ -1579,11 +1634,8 @@ class OrderController extends Controller
 
             $OGurl = env('ORIGIN_URL');
             $Durl = env('DESIGN_PROCESS_URL');
-            $designatedPath = public_path("image/Job/design_process/" . $design->id);
-            $files = File::allFiles($designatedPath);
-            $imageName = $files[0]->getFilename();
 
-            $design->imageUrl = $OGurl . $Durl . $design->id . '/' . $imageName;
+            $design->imageUrl = $OGurl . $Durl . $design->id . '/' . $design->imageUrl;
             unset($design->mounting_type_id);
             unset($design->design_process_status_id);
             return $design;
@@ -1873,9 +1925,14 @@ class OrderController extends Controller
                 'error' => 'The Selected Order Isn\'t Ready For Production'
             ], 403);
         }
-        if ($order->order_status_id > 3) {
+        if ($order->order_status_id > 3 && $order->order_status_id < 6) {
             return response()->json([
                 'error' => 'The Selected Order Has Already Been Produce'
+            ], 403);
+        }
+        if ($order->order_status_id == 6) {
+            return response()->json([
+                'error' => 'The Selected Order Has Already Been Cancelled'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -1964,6 +2021,8 @@ class OrderController extends Controller
             $Purl = env('PRODUCTION_PROCESS_URL');
             $list->imageUrl = $OGurl . $Purl . $list->order_id . '/' . $list->imageUrl;
             $list->created = Carbon::parse($list->created)->format('H:i:s d/m/Y');
+            $list->production_status = DB::table('production_status')->where('id', $list->production_status_id)->first();
+            unset($list->production_status_id);
             return $list;
         });
         return response()->json(
