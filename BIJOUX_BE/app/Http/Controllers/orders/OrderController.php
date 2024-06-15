@@ -828,8 +828,6 @@ class OrderController extends Controller
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
             unset($account->password);
-            $account->role = DB::table('role')->where('id', $account->role_id)->first();
-            unset($account->role_id);
             $order->account = $account;
             $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
             unset($order->order_status_id);
@@ -1812,11 +1810,8 @@ class OrderController extends Controller
                 }
             }
         }
-        $designatedPath = public_path("image/Job/design_process/" . $design_process->id);
-        $files = File::allFiles($designatedPath);
-        $imageName = $files[0]->getFilename();
 
-        $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $imageName;
+        $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
         $design_process->total_price = $product_price * ($design_process->profit_rate + 100) / 100 + $design_process->production_price;
         $design_process->product_price = $product_price;
         unset($order->product_id);
