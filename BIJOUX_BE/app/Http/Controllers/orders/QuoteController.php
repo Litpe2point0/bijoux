@@ -347,10 +347,22 @@ class QuoteController extends Controller
                     'error' => 'The Selected Quote Hasn\'t Been Assigned'
                 ], 403);
             }
-            if ($quote->quote_status_id >= 3) {
+            if ($quote->quote_status_id == 3) {
                 DB::rollBack();
                 return response()->json([
                     'error' => 'The Selected Quote Has Already Been Priced'
+                ], 403);
+            }
+            if ($quote->quote_status_id == 4) {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The Selected Quote Has Already Been Completed'
+                ], 403);
+            }
+            if ($quote->quote_status_id >= 5) {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'The Selected Quote Has Already Been Cancelled'
                 ], 403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
