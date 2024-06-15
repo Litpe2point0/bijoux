@@ -2,7 +2,12 @@ import React from "react";
 import { demoFinalMain, demoFinalRelated1, demoFinalRelated2, gold } from "../../../assets/images/index";
 import { useState } from 'react'
 import { Carousel } from 'primereact/carousel';
+import numeral from 'numeral';
 
+const CurrencyFormatter = ({ value }) => {
+    const formattedValue = numeral(value).format('0,0') + ' VND';
+    return <span>{formattedValue}</span>;
+};
 
 
 
@@ -122,7 +127,7 @@ export default function CompleteRing() {
                                         Material: {metal.name}
                                     </li>
                                     <li>
-                                        Price: {metal.price} (VND)
+                                        Price: <CurrencyFormatter value={metal.price} />
                                     </li>
                                 </ul>
 
@@ -160,7 +165,7 @@ export default function CompleteRing() {
                                         Color: {diamond.diamond_color.name}
                                     </li>
                                     <li>
-                                        Price: {diamond.price} (VND)
+                                        Price: <CurrencyFormatter value={diamond.price} />
                                     </li>
                                 </ul>
                             </div>
@@ -169,12 +174,12 @@ export default function CompleteRing() {
 
                     <div className="w-full ml-5 flex items-center mt-5">
                         <p className="text-2xl font-bold text-[#151542] mr-3">Production Price: </p>
-                        <p className="text-xl font-semibold text-green-800">{finalCheckout.production_Price} (VND)</p>
+                        <p className="text-xl font-semibold text-green-800"><CurrencyFormatter value={finalCheckout.production_Price} /></p>
                     </div>
 
                     <div className="w-full ml-5 flex items-center mb-5 mt-2">
                         <p className="text-4xl font-bold text-[#151542] mr-5">Total Price: </p>
-                        <p className="text-2xl font-semibold text-green-800">{finalCheckout.total_Price} (VND)</p>
+                        <p className="text-2xl font-semibold text-green-800"><CurrencyFormatter value={finalCheckout.total_Price} /></p>
                     </div>
 
                     <div className="w-full flex flex-col justify-center mb-5">

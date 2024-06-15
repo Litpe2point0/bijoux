@@ -6,6 +6,13 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import numeral from 'numeral';
+
+//Hàm format tiền
+const CurrencyFormatter = ({ value }) => {
+    const formattedValue = numeral(value).format('0,0') + ' VND';
+    return <span>{formattedValue}</span>;
+};
 
 //Hàm tạo ra dãy size từ min, max
 function generateRange(min, max) {

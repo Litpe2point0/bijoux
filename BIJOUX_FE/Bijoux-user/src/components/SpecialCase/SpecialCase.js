@@ -26,11 +26,11 @@ const SpecialCase = () => {
             <RiShoppingCart2Fill className="text-2xl -translate-x-3 group-hover:translate-x-12 transition-transform duration-200" />
           </div>
           <p className="text-xs font-semibold font-titleFont">View Cart</p>
-          {products.length > 0 && (
+          {/* {products.length > 0 && (
             <p className="absolute top-1 right-2 bg-primeColor text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-semibold">
               {products.length}
             </p>
-          )}
+          )} */}
         </div>
       </Link>
     </div>
