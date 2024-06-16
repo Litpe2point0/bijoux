@@ -915,4 +915,5 @@ class ModelController extends Controller
             'diamond_list' => $diamond_list->values()->all()
         ]);
     }
+    //ddmmmmm
 }
