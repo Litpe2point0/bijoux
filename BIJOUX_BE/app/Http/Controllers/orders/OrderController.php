@@ -1502,6 +1502,7 @@ class OrderController extends Controller
                     'production_price' => $order->production_price,
                     'product_price' => $order->product_price,
                     'total_price' => $order->total_price,
+                    'note' => $order->note
                 ];
                 DB::table('orders')->where('id', $design_process->order_id)->update([
                     'production_price' => $design_process->production_price,
@@ -1515,7 +1516,7 @@ class OrderController extends Controller
                     'production_price' => $temp['production_price'],
                     'product_price' => $temp['product_price'],
                     'total_price' => $temp['total_price'],
-                    'note' => $input['note']
+                    'note' => $temp['note']
                 ]);
 
                 if ($design_process->imageUrl != null) {

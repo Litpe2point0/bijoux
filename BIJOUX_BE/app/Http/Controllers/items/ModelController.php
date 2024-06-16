@@ -504,7 +504,7 @@ class ModelController extends Controller
             }
             $metal2Mapping = [];
             foreach ($model_metal_main as $metal) {
-                if (empty($metal2Mapping[$metal->metal_id])) {
+                if ($model_metal_notmain->isEmpty()) {
                     $metal2Mapping[$metal->metal_id][] = 0;
                 }
                 $metalCompatibilities = DB::table('metal_compatibility')->where('Metal_id_1', $metal->metal_id)->get();
