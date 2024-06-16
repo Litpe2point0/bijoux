@@ -1397,11 +1397,13 @@ class OrderController extends Controller
         try {
             $design_process = DB::table('design_process')->where('id', $input['design_process_id'])->first();
             DB::table('design_process')->where('id', $input['design_process_id'])->update([
-                'note' => $input['note'],
                 'profit_rate' => $input['profit_rate'],
                 'production_price' => $input['production_price'],
                 'total_price' => ($design_process->product_price + $input['production_price']) * ($input['profit_rate'] + 100) / 100,
                 'design_process_status_id' => 2
+            ]);
+            DB::table('orders')->where('id', $design_process->order_id)->update([
+                'note' => $input['note']
             ]);
             DB::commit();
         } catch (\Exception $e) {
@@ -1814,31 +1816,42 @@ class OrderController extends Controller
         unset($design_process->order_id);
 
         $product_price = 0;
+
+        // Calculate the price for product_diamond
         $product_diamond_current = DB::table('product_diamond')->where('product_id', $order->product_id)->get();
         foreach ($product_diamond_current as $product) {
             if ($product->status == 0) {
                 $product_price += $product->price;
-            }
-            if ($product->status == 1) {
-                $check = DB::table('product_diamond')->where('diamond_id', $product->diamond_id)->where('status', 0)->get();
-                if ($check == null) {
-                    $product_price += $product->price;
-                }
-            }
-        }
-        $product_metal_current = DB::table('product_metal')->where('id', $order->product_id)->get();
-        foreach ($product_metal_current as $product) {
-            if ($product->status == 0) {
-                $product_price += $product->price;
-            }
-            if ($product->status == 1) {
-                $check = DB::table('product_metal')->where('metal_id', $product->metal_id)->where('status', 0)->get();
-                if ($check == null) {
+            } elseif ($product->status == 1) {
+                // Use exists() to check if there are any items with status 0
+                $check = DB::table('product_diamond')
+                    ->where('diamond_id', $product->diamond_id)
+                    ->where('status', 0)
+                    ->exists();  // More efficient than get()
+                if (!$check) {
                     $product_price += $product->price;
                 }
             }
         }
 
+        // Calculate the price for product_metal
+        $product_metal_current = DB::table('product_metal')->where('product_id', $order->product_id)->get();
+        foreach ($product_metal_current as $product) {
+            if ($product->status == 0) {
+                $product_price += $product->price;
+            } elseif ($product->status == 1) {
+                // Use exists() to check if there are any items with status 0
+                $check = DB::table('product_metal')
+                    ->where('metal_id', $product->metal_id)
+                    ->where('status', 0)
+                    ->exists();  // More efficient than get()
+                if (!$check) {
+                    $product_price += $product->price;
+                }
+            }
+        }
+
+        // Set the design process URL and calculate the total price
         $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
         $design_process->total_price = $product_price * ($design_process->profit_rate + 100) / 100 + $design_process->production_price;
         $design_process->product_price = $product_price;
