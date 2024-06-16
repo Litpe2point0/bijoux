@@ -35,10 +35,11 @@ import StaffUpdate from "./Modal_body/StaffUpdate";
 import { quote_status_creator } from "../component_items/Ag-grid/status_badge";
 import AssignForm from "./Modal_body/QuoteAssign";
 import QuoteCancel from "./Modal_body/QuoteCancel";
-import { get_account_list } from "../../api/accounts/Account_Api";
+import { get_account_list } from "../../api/main/accounts/Account_api";
 import { IconButton } from "@mui/material";
 import MetalUpdate from "./Modal_body/material/MetalUpdate";
 import DiamondUpdate from "./Modal_body/material/DiamondUpdate";
+import { get_diamond_list } from "../../api/main/items/Diamond_api";
 
 
 export const DiamondPageContext = createContext();
@@ -60,6 +61,7 @@ const state_creator = (table) => {
             { headerName: "Clarity", field: "diamond_clarity.name" },
             { headerName: "Cut", field: "diamond_cut.name" },
             { headerName: "Size", field: "size" },
+            { headerName: "Price", field: "price" ,cellClass: 'd-flex align-items-center fw-bold  text-success' },
             { headerName: "Updated Date", field: "created" },
             {
                 headerName: "Status",
@@ -118,248 +120,7 @@ const state_creator = (table) => {
     return state
 }
 
-const data = [
-    {
-        "id": 1,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 1,
-            "name": "D"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 1,
-            "name": "Cut 1"
-        },
-        "price": 54500000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 2,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 1,
-            "name": "D"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 2,
-            "name": "Cut 2"
-        },
-        "price": 52800000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 3,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 1,
-            "name": "D"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 3,
-            "name": "Cut 3"
-        },
-        "price": 49800000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 4,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 1,
-            "name": "D"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 4,
-            "name": "Excellent"
-        },
-        "price": 46600000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 5,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 1,
-            "name": "D"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 5,
-            "name": "Cut 5"
-        },
-        "price": 42100000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 6,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 2,
-            "name": "E"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 1,
-            "name": "Cut 1"
-        },
-        "price": 38100000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 7,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 2,
-            "name": "E"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 2,
-            "name": "Cut 2"
-        },
-        "price": 35800000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 8,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 2,
-            "name": "E"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 3,
-            "name": "Cut 3"
-        },
-        "price": 33000000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 9,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 2,
-            "name": "E"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 4,
-            "name": "Excellent"
-        },
-        "price": 30100000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    },
-    {
-        "id": 10,
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        "size": 5.2,
-        "diamond_color": {
-            "id": 2,
-            "name": "E"
-        },
-        "diamond_origin": {
-            "id": 1,
-            "name": "Natural"
-        },
-        "diamond_clarity": {
-            "id": 1,
-            "name": "IF"
-        },
-        "diamond_cut": {
-            "id": 5,
-            "name": "Cut 5"
-        },
-        "price": 29000000,
-        "deactivated": 0,
-        "created": "2024-08-06"
-    }
-]
+
 
 
 
@@ -370,14 +131,13 @@ const Diamond_Page = () => {
     const [diamondList, setDiamondList] = useState([]);
 
     const handleDataChange = async () => {
-        await get_account_list();
-        const diamondList = data;
-        setDiamondList(diamondList);
+        const diamondList = await get_diamond_list();
+        setDiamondList(diamondList.data);
 
-        alert('ON DATA CHANGE NÈ')
+        //alert('ON DATA CHANGE NÈ')
         setState({
-            natural: state_creator(diamondList),
-            lab: state_creator(diamondList),
+            natural: state_creator(diamondList.data.filter(diamond => diamond.diamond_origin.id === 1)),
+            lab: state_creator(diamondList.data.filter(diamond => diamond.diamond_origin.id === 2)),
         })
     }
 

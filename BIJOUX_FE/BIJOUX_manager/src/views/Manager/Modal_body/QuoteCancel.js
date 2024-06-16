@@ -10,7 +10,7 @@ import {
     CRow,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
@@ -23,6 +23,7 @@ import AssignCard from "../Quote widget/AssignCard";
 import { useNavigate } from "react-router-dom";
 import { queue } from "jquery";
 import { QuotePageContext } from "../Quote_Page";
+import { cancel_quote } from "../../../api/main/orders/Quote_api";
 
 
 
@@ -66,28 +67,18 @@ const CustomForm = ({ quoteInfo, onClose }) => {
             console.log('cancel quote', cancel)
             const formData = new FormData();
             formData.append('cancel', JSON.stringify(cancel));
+            
 
-            await get_account_list();
-            // let mess = '';
-            // let mess_color = '';
 
-            // if (response.success) {
-            //     mess = response.success
-            //     handleTableChange();
-            //     onClose();
-            //     setValidated(false)
-            //     mess_color = 'success'
-            // } else if (response.error) {
-            //     mess = response.error;
-            //     mess_color = 'danger'
-            // }
-            // let product = {
-            //     id: response.new_product_id,
-            // }
-            handleDataChange()
-            dispatch(setToast({ color: 'success', title: 'Quote id ' + quoteInfo.id, mess: "Cancel successfully !" }))
-            onClose();
+            let response = await cancel_quote(formData, 'Quote ID ' + quoteInfo.id);
 
+            if (response.success) {
+                handleDataChange();
+                onClose();
+            }
+            dispatch(setToast(response.mess))
+
+            
 
         }
 

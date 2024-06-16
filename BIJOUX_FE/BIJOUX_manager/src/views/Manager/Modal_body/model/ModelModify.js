@@ -18,12 +18,13 @@ import { Button, List, ListItem, ListItemAvatar, ListItemText, TextareaAutosize 
 export const Staff_Page_Context = createContext();
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../../redux/notification/toastSlice";
-import { get_account_list } from "../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/main/accounts/Account_api";
 import MetalCard from "./widget/MetalCard";
 import DiamondCard from "./widget/DiamondCard";
 import UploadSingle from "./widget/UploadSingle";
 import PriceCard from "./widget/PriceCard";
 import InfoCard from "./widget/InfoCard";
+import { add_model, get_model_detail, update_model } from "../../../../api/main/items/Model_api";
 
 
 
@@ -199,10 +200,17 @@ const AddForm = ({ mounting_type, handleModelAdd, onClose }) => {
 
         }
         console.log('new_model', new_model)
-        handleModelAdd(new_model)
-        // set toast
-        dispatch(setToast({ color: 'success', title: 'New ' + mounting_type.name, mess: "Add successfully !" }))
-        onClose();
+        const formData = new FormData();
+        formData.append('new_model', JSON.stringify(new_model));
+        let response = await add_model(formData, 'New Model');
+        setTimeout(() => {
+            dispatch(setToast(response.mess))
+        }, 3000)
+        if (response.success) {
+            handleModelAdd()
+            onClose();
+        }
+
     }
     return (
         <div>
@@ -226,7 +234,7 @@ const AddForm = ({ mounting_type, handleModelAdd, onClose }) => {
 
                                             <span className="text-dark fw-bold fs-5 text-center">Model Image</span>
 
-                                            <UploadSingle defaultImage={"http://localhost:8000/image/Metal/1/main.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
+                                            <UploadSingle defaultImage={"http://localhost:8000/image/Mounting/mounting_model/unknown.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
 
                                         </div>
                                     </CCol>
@@ -320,15 +328,12 @@ const UpdateForm = ({ modelInfo, mounting_type, onClose }) => {
 
     useEffect(() => {
         const setAttribute = async () => {
-            await get_account_list();
-            // lấy id từ modelInfo để gọi model_detail
-            setModel(data.model)
-            console.log( 'nguuuuuuuuuuuu',data.model)
 
+            const formData = new FormData();
+            formData.append('model_id', JSON.stringify(modelInfo.id));
+            const mode_detail = await get_model_detail(formData);
 
-
-            
-
+            setModel(mode_detail.data.model)
 
             setLoading(false)
 
@@ -340,7 +345,7 @@ const UpdateForm = ({ modelInfo, mounting_type, onClose }) => {
 
 
     const handleModelUpdate = async () => {
-        await get_account_list()
+
         const new_model = {
 
             id: model.id,
@@ -362,12 +367,21 @@ const UpdateForm = ({ modelInfo, mounting_type, onClose }) => {
 
         }
         console.log('update_model', new_model)
-        
-        window.location.reload();
 
-        // set toast
-        dispatch(setToast({ color: 'success', title: 'Model id' + model.id, mess: "Update successfully !" }))
-        onClose();
+        const formData = new FormData();
+        formData.append('new_model', JSON.stringify(new_model));
+
+
+        let response = await update_model(formData, 'Model ID ' + modelInfo.id);
+        
+        if (response.success) {
+            window.location.reload();
+        }
+        dispatch(setToast(response.mess))
+
+        
+
+
     }
     return (
         <div>
@@ -404,7 +418,7 @@ const UpdateForm = ({ modelInfo, mounting_type, onClose }) => {
                                     <h2 className="text-dark">Model Information</h2>
                                 </div>
                                 <div className="my-4">
-                                    <InfoCard model={model} handleChange={handleInfo}  />
+                                    <InfoCard model={model} handleChange={handleInfo} />
                                 </div>
                                 <div className="my-4">
                                     <MetalCard model={model} handleChange={handleMetal} />

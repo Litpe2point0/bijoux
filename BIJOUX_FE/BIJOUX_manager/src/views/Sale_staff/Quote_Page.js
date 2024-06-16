@@ -17,10 +17,11 @@ import { image_url } from "../../api/Back_End_Url";
 import AvatarInput from "../component_items/Avatar/Avatar";
 import onGridReady, { resetHeaderProperties } from "../component_items/Ag-grid/useStickyHeader";
 import './style/style.css'
-import { get_account_list } from "../../api/accounts/Account_Api";
+import { get_account_list } from "../../api/main/accounts/Account_api";
 import { quote_status_creator } from "../component_items/Ag-grid/status_badge";
 import { Money } from "phosphor-react";
 import { useNavigate } from 'react-router-dom';
+import { get_assigned_quote_sale } from "../../api/main/orders/Quote_api";
 
 
 
@@ -39,7 +40,7 @@ const state_creator = (table, navigate) => {
                 headerName: "Image", flex: 0.5,
                 cellRenderer: (params) => {
                     return (
-                        <img src={params.data.product.imageUrl} />)
+                        <img className="rounded-3" width={'100%'} src={params.data.product.imageUrl} />)
 
                 },
             },   
@@ -254,15 +255,14 @@ const Quote_Page = () => {
     let [state, setState] = useState(null);
     const navigate = useNavigate();
     const handleDataChange = async () => {
-        const accountList = await get_account_list();
-        //const quoteList = accountList.staff_list;
-        const quoteList = data
-        console.log("staffLisst ", quoteList)
+        const quoteList = await get_assigned_quote_sale();
+       
+        
+        console.log("quoteList ", quoteList.data)
         setState({
-            //template: state_creator(quoteList.template_quote_list, navigate),
-            customize: state_creator(quoteList, navigate),
+            customize: state_creator(quoteList.data, navigate),
         })
-        alert('ON DATA CHANGE NÈ')
+        //alert('ON DATA CHANGE NÈ')
     }
 
     useEffect(() => {

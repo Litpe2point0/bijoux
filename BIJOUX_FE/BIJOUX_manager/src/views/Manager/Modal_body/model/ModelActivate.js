@@ -8,9 +8,10 @@ import {
     CRow,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/main/accounts/Account_api";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../../redux/notification/toastSlice";
+import { set_deactivate_model } from "../../../../api/main/items/Model_api";
 
 
 
@@ -31,21 +32,31 @@ const CustomForm = ({ modelInfo, activate, onClose }) => {
         const model_id = modelInfo.id;
         const deactivate = {
             model_id: model_id,
-            deactivate: activate
+            deactivate: !activate
         }
         console.log('deactivate', deactivate)
         const formData = new FormData();
-        formData.append('deactivate', deactivate);
+        formData.append('deactivate', JSON.stringify(deactivate));
+        
+        let response = await set_deactivate_model(formData, 'Model ID ' + modelInfo.id);
 
-        await get_account_list({signal});
-        await get_account_list({signal});
-        await get_account_list({signal});
-        await get_account_list({signal});
-        await get_account_list({signal});
-        await get_account_list({signal});
-        dispatch(setToast({ color: 'success', title: 'Model id ' + modelInfo.id, mess: (activate ? "Activate" : "Deactivate") + " successfully !" }))
+        if (response.success) {
+            
+            onClose(activate);
+        }
+        dispatch(setToast(response.mess))
+        
+        
+        
+        // await get_account_list({signal});
+        // await get_account_list({signal});
+        // await get_account_list({signal});
+        // await get_account_list({signal});
+        // await get_account_list({signal});
+        // await get_account_list({signal});
+        //dispatch(setToast({ color: 'success', title: 'Model id ' + modelInfo.id, mess: (activate ? "Activate" : "Deactivate") + " successfully !" }))
 
-        onClose(activate);   // đây là kết quả quyết định là activate thành công hay không , nếu không thì switch sẽ về trạng thái cũ   (activate=!activate)
+        //onClose(activate);   // đây là kết quả quyết định là activate thành công hay không , nếu không thì switch sẽ về trạng thái cũ   (activate=!activate)
 
     }
 

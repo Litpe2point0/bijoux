@@ -28,15 +28,8 @@ const AppSidebar = () => {
   const navigate= useNavigate();
   //let navigation = normalNavigation;
   const [navigation, setNavigation] = useState(normalNavigation);
-  
-  
-  
-  //const unfoldable = useSelector((state) => state.sidebarUnfoldable)
-  //const sidebarShow = useSelector((state) => state.sidebarShow)
 
 
-
-  //const unfoldable = useSelector((state) => state.ui)
   const sidebarShow = useSelector((state) => state.ui.sidebarShow)
 
 
@@ -73,8 +66,8 @@ const AppSidebar = () => {
     >
       <CSidebarHeader className="border-bottom py-0" >
         <CSidebarBrand to="/">
-          <CIcon customClassName="sidebar-brand-full" icon={logo} height={20} />
-          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
+          {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={20} />
+          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
         </CSidebarBrand>
         <CCloseButton 
           size={10}

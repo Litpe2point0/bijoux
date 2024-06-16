@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
@@ -8,7 +8,17 @@ import 'simplebar-react/dist/simplebar.min.css'
 import { CBadge, CNavLink, CSidebarNav } from '@coreui/react'
 
 export const AppSidebarNav = ({ items }) => {
+  const [current, setCurrent] = useState('')
+  useEffect(()=>{
+    if(current.includes('/mounting')){
+      window.location.reload();
+    }
+  },[current])
+
+
   const navLink = (name, icon, badge, indent = false) => {
+
+    
     return (
       <>
         {icon
@@ -29,12 +39,15 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navItem = (item, index, indent = false) => {
+   
+    
+
     const { component, name, badge, icon, ...rest } = item
     const Component = component
     return (
       <Component as="div" key={index}>
         {rest.to || rest.href ? (
-          <CNavLink {...(rest.to && { as: NavLink })} {...rest}>
+          <CNavLink {...(rest.to && { as: NavLink })} {...rest} onClick={()=> setCurrent(rest.to)}>
             {navLink(name, icon, badge, indent)}
           </CNavLink>
         ) : (

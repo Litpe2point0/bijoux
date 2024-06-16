@@ -32,9 +32,10 @@ import { UsersThree, Eye, UserCirclePlus, CalendarX } from "phosphor-react";
 import onGridReady, { resetHeaderProperties } from "../component_items/Ag-grid/useStickyHeader";
 import './style/style.css'
 import { design_process_status_creator, order_status_creator, quote_status_creator } from "../component_items/Ag-grid/status_badge";
-import { get_account_list } from "../../api/accounts/Account_Api";
+import { get_account_list } from "../../api/main/accounts/Account_api";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 import DesignDetail from "./Modal_body/DesignDetail";
+import { get_design_process_list } from "../../api/main/orders/Order_api";
 
 
 export const DesignPageContext = createContext();
@@ -209,13 +210,13 @@ const Design_Page = () => {
   let [state, setState] = useState(null);
 
   const handleDataChange = async () => {
-    await get_account_list();
-    setDesignList(data);
+    const orderList = await get_design_process_list();
+    setDesignList(orderList.data); 
 
     setState({
-      customize: state_creator(data)
+      customize: state_creator(orderList.data)
     })
-    alert("ON DATA CHANGE NÈ")
+    //alert("ON DATA CHANGE NÈ")
   }
 
   useEffect(() => {

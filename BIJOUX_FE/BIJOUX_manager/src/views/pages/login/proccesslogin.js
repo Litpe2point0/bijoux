@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { getUserFromToken, login } from "../../../api/login/LoginApi";
+import { getUserFromToken, login } from "../../../api/main/accounts/Login";
 import { Link, useNavigate } from 'react-router-dom'
 import { setAuthToken } from "../../../redux/auth/authSlice";
 import { useCallback } from "react";

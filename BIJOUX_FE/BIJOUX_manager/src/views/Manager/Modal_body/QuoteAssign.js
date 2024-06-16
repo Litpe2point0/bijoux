@@ -10,7 +10,7 @@ import {
     CRow,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list, get_staff_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
@@ -22,6 +22,7 @@ import NoteCard from "../Quote widget/NoteCard";
 import AssignCard from "../Quote widget/AssignCard";
 import { useNavigate } from "react-router-dom";
 import { QuotePageContext } from "../Quote_Page";
+import { assign_quote } from "../../../api/main/orders/Quote_api";
 
 const sales_staff = [
     {
@@ -361,21 +362,24 @@ const CustomForm = ({ quoteInfo, onClose }) => {
     useEffect(() => {
         const setAttribute = async () => {
 
-            await get_account_list();
+
             setQuote(quoteInfo)
             setNote(quoteInfo.note)
 
-            setSaleStaffs(sales_staff);
-            setDesignStaffs(design_staff);
-            setProductionStaffs(production_staff);
 
-            console.log('quoteInfo0000000000', quoteInfo)
-            console.log('sales_staff', sales_staff);
-            console.log('design_staff', design_staff);
-            console.log('production_staff', production_staff);
-            setAssignedSaleStaff(quoteInfo.saleStaff_id != null ? sales_staff.filter(staff => staff.id == quoteInfo.saleStaff_id)[0] : null);
-            setAssignedDesignStaff(quoteInfo.designStaff_id != null ? design_staff.filter(staff => staff.id == quoteInfo.designStaff_id)[0] : null);
-            setAssignedProductionStaff(quoteInfo.productionStaff_id != null ? production_staff.filter(staff => staff.id == quoteInfo.productionStaff_id)[0] : null);
+            const staffList = await get_staff_list();
+            const sale_staff_list=staffList.data.sale_staff_list;
+            const design_staff_list=staffList.data.design_staff_list;
+            const production_staff_list=staffList.data.production_staff_list;
+
+            setSaleStaffs(sale_staff_list);
+            setDesignStaffs(design_staff_list);
+            setProductionStaffs(production_staff_list);
+
+
+            setAssignedSaleStaff(quoteInfo.saleStaff_id != null ? sale_staff_list.filter(staff => staff.id == quoteInfo.saleStaff_id)[0] : null);
+            setAssignedDesignStaff(quoteInfo.designStaff_id != null ? design_staff_list.filter(staff => staff.id == quoteInfo.designStaff_id)[0] : null);
+            setAssignedProductionStaff(quoteInfo.productionStaff_id != null ? production_staff_list.filter(staff => staff.id == quoteInfo.productionStaff_id)[0] : null);
             setLoading(false);
         }
         setAttribute()
@@ -405,37 +409,17 @@ const CustomForm = ({ quoteInfo, onClose }) => {
             const formData = new FormData();
             formData.append('assigned_information', JSON.stringify(assigned_information));
 
-            await get_account_list();
-            if (quote.quote_status.id < 4) {
-                // onClose()
 
+            let response = await assign_quote(formData, 'Quote ID ' + quote.id);
 
-
-                // let mess = '';
-                // let mess_color = '';
-
-                // if (response.success) {
-                //     mess = response.success
-                //     handleTableChange();
-                //     onClose();
-                //     setValidated(false)
-                //     mess_color = 'success'
-                // } else if (response.error) {
-                //     mess = response.error;
-                //     mess_color = 'danger'
-                // }
-                // let product = {
-                //     id: response.new_product_id,
-                // }
-
+            if (response.success) {
                 handleDataChange();
-                dispatch(setToast({ color: 'success', title: 'Quote id ' + quote.id, mess: "Assigned successfully !" }))
                 onClose();
-                navigate("/quotes_manager/table")
-            }else{
-                 dispatch(setToast({ color: 'danger', title: 'Quote id: ' + quote.id, mess: "Reassign staff failed !" }))
-
             }
+            dispatch(setToast(response.mess))
+
+
+            
         }
 
     }

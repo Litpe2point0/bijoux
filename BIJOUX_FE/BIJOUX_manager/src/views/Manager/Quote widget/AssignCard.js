@@ -6,7 +6,7 @@ import {
 } from '@coreui/react'
 import AvatarInput from '../../component_items/Avatar/Avatar'
 import React, { useEffect } from 'react'
-import { get_account_list } from '../../../api/accounts/Account_Api'
+import { get_account_list } from '../../../api/main/accounts/Account_api'
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import ListDivider from '@mui/joy/ListDivider';
 import Select from '@mui/joy/Select';

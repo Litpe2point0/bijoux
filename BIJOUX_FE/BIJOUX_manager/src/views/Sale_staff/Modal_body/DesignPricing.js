@@ -21,7 +21,7 @@ import {
     CInputGroup,
     CInputGroupText
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { clearToast, setToast } from "../../../redux/notification/toastSlice";
@@ -43,254 +43,8 @@ import Modal_Button from "../../component_items/Modal/ModalButton";
 import ProfitChange from "./ProfitPriceChange";
 import ProductionPriceChange from "./ProductionPriceChange";
 import { SaleOrderPriceContext } from "../Order_Price";
+import { get_design_process_detail, pricing_design_process } from "../../../api/main/orders/Order_api";
 
-
-
-
-const design_process_detail_data = {
-
-    "design_process": {
-        "id": 1,
-        "order": {
-            "id": 1,
-            "product": {
-                "id": 1,
-                "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-                "mounting_type": {
-                    "id": 1,
-                    "name": "Ring"
-                },
-                "model_id": null,
-                "mounting_size": 6,
-                "product_diamond": [
-                    {
-                        "id": 1,
-                        "product_id": 1,
-                        "diamond": {
-                            "id": 1,
-                            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-                            "size": "1.0",
-                            "diamond_color": {
-                                "id": 1,
-                                "name": "D"
-                            },
-                            "diamond_origin": {
-                                "id": 1,
-                                "name": "South Africa"
-                            },
-                            "diamond_clarity": {
-                                "id": 1,
-                                "name": "IF"
-                            },
-                            "diamond_cut": {
-                                "id": 1,
-                                "name": "Round"
-                            },
-                            "price": 5000.00,
-                            "deactivated": 0,
-                            "created": "2024-05-20"
-                        },
-                        "diamond_shape": {
-                            "id": 1,
-                            "name": "Round",
-                            "drawing_path": "http://localhost:8000/image/Diamond/D_IF.jpg",
-                        },
-                        "count": 1,
-                        "price": 5000.00,
-                        "status": 1
-                    },
-                    {
-                        "id": 2,
-                        "product_id": 1,
-                        "diamond": {
-                            "id": 2,
-                            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-                            "size": "0.5",
-                            "diamond_color": {
-                                "id": 2,
-                                "name": "E"
-                            },
-                            "diamond_origin": {
-                                "id": 2,
-                                "name": "Botswana"
-                            },
-                            "diamond_clarity": {
-                                "id": 2,
-                                "name": "VVS1"
-                            },
-                            "diamond_cut": {
-                                "id": 2,
-                                "name": "Princess"
-                            },
-                            "price": 2500.00,
-                            "deactivated": 0,
-                            "created": "2024-05-21"
-                        },
-                        "diamond_shape": {
-                            "id": 2,
-                            "name": "Princess",
-                            "drawing_path": "https://example.com/shapes/princess.svg"
-                        },
-                        "count": 2,
-                        "price": 5000.00,
-                        "status": 0
-                    }
-                ],
-                "product_metal": [
-                    {
-                        "product_id": 1,
-                        "metal": {
-                            "id": 1,
-                            "name": "Gold",
-                            "buy_price_per_gram": 50.00,
-                            "sale_price_per_gram": 60.00,
-                            "imageUrl": "http://localhost:8000/image/Metal/1/main.jpg",
-                            "specific_weight": 19.32,
-                            "deactivated": 0,
-                            "created": "2024-05-20"
-                        },
-                        "volume": 10.0,
-                        "weight": 5.0,
-                        "status": 0,
-                        "price": 300.00
-                    },
-                    {
-                        "product_id": 1,
-                        "metal": {
-                            "id": 1,
-                            "name": "Gold",
-                            "buy_price_per_gram": 50.00,
-                            "sale_price_per_gram": 60.00,
-                            "imageUrl": "http://localhost:8000/image/Metal/1/main.jpg",
-                            "specific_weight": 19.32,
-                            "deactivated": 0,
-                            "created": "2024-05-20"
-                        },
-                        "volume": 10.0,
-                        "weight": 5.0,
-                        "status": 0,
-                        "price": 300.00
-                    },
-                    {
-                        "product_id": 1,
-                        "metal": {
-                            "id": 2,
-                            "name": "Platinum",
-                            "buy_price_per_gram": 70.00,
-                            "sale_price_per_gram": 80.00,
-                            "imageUrl": "http://localhost:8000/image/Metal/2/main.jpg",
-                            "specific_weight": 21.45,
-                            "deactivated": 0,
-                            "created": "2024-05-21T09:00:00.000Z"
-                        },
-                        "volume": 8.0,
-                        "weight": 4.0,
-                        "status": 1,
-                        "price": 320.00
-                    }
-                ]
-            },
-            "account": {
-                "id": 1,
-                "username": "user1",
-                "password": "hashed_password",
-                "imageUrl": "http://localhost:8000/image/Account/1/main.jpg",
-                "dob": "1990-01-01",
-                "email": "user1@example.com",
-                "fullname": "John Doe",
-                "role": {
-                    "id": 1,
-                    "name": "Customer"
-                },
-                "phone": "1234567890",
-                "address": "123 Main St, City, Country"
-            },
-            "order_status": {
-                "id": 2,
-                "name": "Designing"
-            },
-            "order_type": {
-                "id": 2,
-                "name": "Customize"
-            },
-            "deposit_has_paid": 1233,
-            "product_price": 15000.00,
-            "production_price": 12000.00,
-            "total_price": 123131341414,
-            "profit_rate": 0.25,
-            "sale_staff": {
-                "id": 1,
-                "username": "salestaff1",
-                "imageUrl": "http://localhost:8000/image/Account/1/main.jpg",
-                "dob": "1985-05-15",
-                "email": "salestaff1@example.com",
-                "fullname": "Jane Smith",
-                "role": {
-                    "id": 2,
-                    "name": "Sales"
-                },
-                "phone": "0987654321",
-                "address": "456 Elm St, City, Country",
-                "order_count": 100,
-                "deactivated": 0,
-                "deactivated_date": null
-            },
-            "design_staff": {
-                "id": 2,
-                "username": "designstaff1",
-                "imageUrl": "http://localhost:8000/image/Account/2/main.jpg",
-                "dob": "1988-07-10",
-                "email": "designstaff1@example.com",
-                "fullname": "Alice Johnson",
-                "role": {
-                    "id": 3,
-                    "name": "Designer"
-                },
-                "phone": "1231231234",
-                "address": "789 Pine St, City, Country",
-                "order_count": 50,
-                "deactivated": 0,
-                "deactivated_date": null
-            },
-            "production_staff": {
-                "id": 3,
-                "username": "productionstaff1",
-                "imageUrl": "http://localhost:8000/image/Account/3/main.jpg",
-                "dob": "1979-11-20",
-                "email": "productionstaff1@example.com",
-                "fullname": "Robert Brown",
-                "role": {
-                    "id": 4,
-                    "name": "Production"
-                },
-                "phone": "4564564567",
-                "address": "321 Oak St, City, Country",
-                "order_count": 200,
-                "deactivated": 0,
-                "deactivated_date": null
-            },
-            "note": "NOTE NÀY LÀ CỦA ORDER.\n\newf\nưef\nw\nèwefwfwfwfweef\nf\nưef\nưefe\nừ\nưefweefwefwefw\n\n\nưeefwf\nfefw\nfw\nèweefThis is a special custom order.\n\newf\nưef\nw\nèwefwfwfwfweef\nf\nưef\nưefe\nừ\nưefweefwefwefw\n\n\nưeefwf\nfefw\nfw\nèweef",
-            "created": "2024-05-20"
-        },
-        "imageUrl": "http://localhost:8000/image/Metal/1/main.jpg",
-        "note": "NOTE NÀY LÀ CỦA DESIGNER.\n\newf\nưef\nw\nèwefwfwfwfweef\nf\nưef\nưefe\nừ\nưefweefwefwefw\n\n\nưeefwf\nfefw\nfw\nèweef",
-        "mounting_type": {
-            "id": 1,
-            "name": "Prong"
-        },
-        "mounting_size": 6,
-        "design_process_status": {
-            "id": 2,
-            "name": "Priced"
-        },
-        "production_price": 12000.00,
-        "profit_rate": 25,
-
-        "created": "2024-05-20",
-        "product_price": 20000000000,
-        "total_price": 25000.00
-    },
-}
 
 
 
@@ -335,8 +89,15 @@ const CustomForm = ({ designInfo, onClose }) => {
             await get_account_list();
             //console.log("quote", quoteInfo)
             // gọi api lấy design process detail từ designInfo.id
-            const design_process = design_process_detail_data.design_process
+            const formData = new FormData();
+            formData.append('design_process_id', designInfo.id);
+            const detail_data = await get_design_process_detail(formData);
+
+
+            const design_process = detail_data.data.design_process
             setDesignProcess(design_process)
+
+          
 
 
             setOrder(design_process.order)
@@ -384,26 +145,13 @@ const CustomForm = ({ designInfo, onClose }) => {
         const formData = new FormData();
         formData.append('priced_design_process', JSON.stringify(priced_design_process));
 
-        await get_account_list();
-        // let mess = '';
-        // let mess_color = '';
+        let response = await pricing_design_process(formData, 'Design Process ID ' + designInfo.id);
 
-        // if (response.success) {
-        //     mess = response.success
-        //     handleTableChange();
-        //     onClose();
-        //     mess_color = 'success'
-        // } else if (response.error) {
-        //     mess = response.error;
-        //     mess_color = 'danger'
-        // }
-        // let product = {
-        //     id: response.new_product_id,
-        // }
-        handleDataChange()
-        dispatch(setToast({ color: 'success', title: 'Design id: ' + designProcess.id, mess: "Approve successfully !" }))
-        //dispatch(clearToast())
-        onClose();
+        if (response.success) {
+            handleDataChange();
+            onClose();
+        }
+        dispatch(setToast(response.mess))
 
 
 
@@ -463,7 +211,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                         <div className="mt-1" style={{ height: 'fit-content' }}  >
                             <CAccordion >
                                 <CAccordionItem>
-                                    <CAccordionHeader>INFORMATION OF ORDER</CAccordionHeader>
+                                    <CAccordionHeader>ADDITIONAL INFORMATION</CAccordionHeader>
                                     <CAccordionBody>
                                         <CCard className="h-100">
                                             <CCardHeader className="text-center text-light fw-bold" >
@@ -476,7 +224,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                         <span style={{ fontSize: '15px' }}>Mounting Type: </span>
                                                     </CCol>
                                                     <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                                        <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={designProcess.mounting_type.name} />
+                                                        <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={designProcess.mounting_type ?  designProcess.mounting_type.name : 'No Specific Type'} />
                                                     </CCol>
                                                 </CRow>
                                                 <CRow>
@@ -484,7 +232,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                         <span style={{ fontSize: '15px' }}>Mounting Size: </span>
                                                     </CCol>
                                                     <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                                        <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={designProcess.mounting_size} />
+                                                        <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={designProcess.mounting_size ? designProcess.mounting_size : null } />
                                                     </CCol>
                                                 </CRow>
 
@@ -821,7 +569,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                     <span className="text-dark  fs-5">Profit Price: </span>
                                                 </CCol>
                                                 <CCol lg={5} className="p-0 m-0 d-flex align-items-center text-nowrap">
-                                                    <span className="text-secondary fs-6">{order.product_price * (designProcess.profit_rate / 100)} vnd ({designProcess.profit_rate}%)</span>
+                                                    <span className="text-secondary fs-6">{order.product_price * (designProcess.profit_rate / 100)} vnd ({order.profit_rate}%)</span>
 
 
 

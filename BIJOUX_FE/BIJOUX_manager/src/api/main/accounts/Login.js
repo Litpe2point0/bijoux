@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { backend_url } from '../Back_End_Url'
+import { backend_url } from '../../Back_End_Url'
 import { jwtDecode } from "jwt-decode";
 
 export async function login(formData) {
@@ -8,7 +8,7 @@ export async function login(formData) {
     const response = await axios.post(`${backend_url}/login`, formData);
     return response.data;
   } catch (error) {
-    console.log( 'ewooienoinowinvw',error)
+    console.log(error.response.data)
     return error.response.data;
   }
 

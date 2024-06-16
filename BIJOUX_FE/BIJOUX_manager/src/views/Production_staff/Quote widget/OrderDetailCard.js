@@ -19,20 +19,20 @@ import {
     CFormSelect,
     CFormTextarea,
 } from '@coreui/react'
-const QuoteDetailCard = ({ quote }) => {
+const OrderDetailCard = ({ order }) => {
     return (
         <CCard className="h-100">
             <CCardHeader className="text-center text-light fw-bold" >
-                INFORMATION OF QUOTE
+                INFORMATION OF ORDER
             </CCardHeader>
             <CCardBody className="d-flex flex-column justify-content-between">
                 
                     <CRow>
                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center' >
-                            <span >Quote ID: </span>
+                            <span >Order ID: </span>
                         </CCol>
                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={`#${quote.id}`} />
+                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={`#${order.id}`} />
                         </CCol>
                     </CRow>
                     <CRow>
@@ -40,12 +40,12 @@ const QuoteDetailCard = ({ quote }) => {
                             <span >Product ID: </span>
                         </CCol>
                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={quote.product.id} />
+                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={order.product.id} />
                         </CCol>
                     </CRow>
                     <CRow>
                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                            <span >Quote Type: </span>
+                            <span >Order Type: </span>
                         </CCol>
                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
                             <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={"Customize"} />
@@ -56,7 +56,7 @@ const QuoteDetailCard = ({ quote }) => {
                             <span >Created: </span>
                         </CCol>
                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={quote.created} />
+                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={order.created} />
                         </CCol>
 
                     </CRow>
@@ -68,4 +68,4 @@ const QuoteDetailCard = ({ quote }) => {
 
 
 }
-export default QuoteDetailCard
+export default OrderDetailCard

@@ -18,7 +18,7 @@ import {
     CAccordionHeader,
     CAccordionBody
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list, get_staff_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
@@ -37,6 +37,7 @@ import AssignCard from "../../Manager/Quote widget/AssignCard";
 import QuoteProductImage from "../../Manager/Quote widget/QuoteProductImage";
 import AccountCard from "../../Manager/Quote widget/AccountCard";
 import NoteCard from "../../Manager/Quote widget/NoteCard";
+import { get_order_detail } from "../../../api/main/orders/Order_api";
 
 
 const sales_staff = [
@@ -582,18 +583,27 @@ const CustomForm = ({ orderInfo, onClose }) => {
 
     useEffect(() => {
         const setAttribute = async () => {
+            
 
-            await get_account_list();
-            //console.log("order", orderInfo)
-            // gọi api lấy order detail từ orderInfo.id 
-            const order_detail = order_detail_data.order_detail
+            const formData = new FormData();
+            formData.append('order_id', orderInfo.id);
+            const detail_data = await get_order_detail(formData);
+            const order_detail = detail_data.data.order_detail 
+
+
             setOrder(order_detail)
             setProduct(order_detail.product)
-            console.log('order_detail.product', order_detail.product)
+            
 
-            setSaleStaffs(sales_staff);
-            setDesignStaffs(design_staff);
-            setProductionStaffs(production_staff);
+
+
+            const staffList =  await get_staff_list();
+            
+            setSaleStaffs(staffList.data.sale_staff_list);
+            setDesignStaffs(staffList.data.design_staff_list);
+            setProductionStaffs(staffList.data.production_staff_list);
+
+
 
             setSaleStaff(order_detail.sale_staff);
             setDesignStaff(order_detail.design_staff);

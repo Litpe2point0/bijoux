@@ -18,7 +18,7 @@ import {
     CAccordionHeader,
     CAccordionBody
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list, get_staff_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
@@ -37,531 +37,10 @@ import DiamondCard from "../../Sale_staff/Modal_body/model/widget/DiamondCard";
 import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextareaAutosize } from "@mui/material";
 import QuoteProductImage from "../Quote widget/QuoteProductImage";
 import { OrderPageContext } from "../Order_Page";
+import { get_order_detail, reassign_order } from "../../../api/main/orders/Order_api";
 
 
-const sales_staff = [
-    {
-        "id": 123,
-        "username": "john_doe đần",
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
-        "phone": "+1234567890",
-        "dob": "1985-06-15",
-        "email": "john.doe@example.com",
-        "fullname": "John Doe",
-        "role": {
-            "id": 2,
-            "name": "Sale Staff"
-        },
-        "address": "123 Main St, Springfield, IL",
-        "order_count": 5,
-        "order_history": [
-            {
-                "id": 101,
-                "product_id": 201,
-                "account_id": 1,
-                "deposit_has_paid": 150.00,
-                "product_price": 1000.00,
-                "profit_rate": 0.15,
-                "production_price": 850.00,
-                "total_price": 1150.00,
-                "order_type": {
-                    "id": 1,
-                    "name": "Custom"
-                },
-                "order_status": {
-                    "id": 1,
-                    "name": "Completed"
-                },
-                "note": "Delivered on time",
-                "saleStaff_id": 301,
-                "designStaff_id": 302,
-                "productionStaff_id": 303,
-                "created": "2023-01-10T10:00:00.000Z"
-            },
-            {
-                "id": 102,
-                "product_id": 202,
-                "account_id": 1,
-                "deposit_has_paid": 200.00,
-                "product_price": 1200.00,
-                "profit_rate": 0.20,
-                "production_price": 960.00,
-                "total_price": 1400.00,
-                "order_type": {
-                    "id": 2,
-                    "name": "Standard"
-                },
-                "order_status": {
-                    "id": 2,
-                    "name": "Pending"
-                },
-                "note": "Awaiting payment",
-                "saleStaff_id": 304,
-                "designStaff_id": 305,
-                "productionStaff_id": 306,
-                "created": "2023-03-15T12:00:00.000Z"
-            }
-        ]
-    },
-    {
-        "id": 4,
-        "username": "jane_smith ngu",
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
-        "phone": "+0987654321",
-        "dob": "1990-09-25",
-        "email": "jane.smith@example.com",
-        "fullname": "2 nè",
-        "role": {
-            "id": 3,
-            "name": "Design Staff"
-        },
-        "address": "456 Elm St, Shelbyville, IL",
-        "order_count": 3,
-        "order_history": [
-            {
-                "id": 103,
-                "product_id": 203,
-                "account_id": 2,
-                "deposit_has_paid": 100.00,
-                "product_price": 800.00,
-                "profit_rate": 0.10,
-                "production_price": 720.00,
-                "total_price": 900.00,
-                "order_type": {
-                    "id": 1,
-                    "name": "Custom"
-                },
-                "order_status": {
-                    "id": 3,
-                    "name": "In Progress"
-                },
-                "note": "Expected delivery in 2 weeks",
-                "saleStaff_id": 307,
-                "designStaff_id": 308,
-                "productionStaff_id": 309,
-                "created": "2023-05-20T14:30:00.000Z"
-            }
-        ]
-    }
-]
-const design_staff = [
-    {
-        "id": 123,
-        "username": "jane_smith ngu",
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
-        "phone": "+0987654321",
-        "dob": "1990-09-25",
-        "email": "jane.smith@example.com",
-        "fullname": "Jane Smith",
-        "role": {
-            "id": 3,
-            "name": "Design Staff"
-        },
-        "address": "456 Elm St, Shelbyville, IL",
-        "order_count": 3,
-        "order_history": [
-            {
-                "id": 103,
-                "product_id": 203,
-                "account_id": 2,
-                "deposit_has_paid": 100.00,
-                "product_price": 800.00,
-                "profit_rate": 0.10,
-                "production_price": 720.00,
-                "total_price": 900.00,
-                "order_type": {
-                    "id": 1,
-                    "name": "Custom"
-                },
-                "order_status": {
-                    "id": 3,
-                    "name": "In Progress"
-                },
-                "note": "Expected delivery in 2 weeks",
-                "saleStaff_id": 307,
-                "designStaff_id": 308,
-                "productionStaff_id": 309,
-                "created": "2023-05-20T14:30:00.000Z"
-            }
-        ]
-    },
-    {
-        "id": 3,
-        "username": "jane_smith ngu",
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
-        "phone": "+0987654321",
-        "dob": "1990-09-25",
-        "email": "jane.smith@example.com",
-        "fullname": "J 3 nè",
-        "role": {
-            "id": 3,
-            "name": "Design Staff"
-        },
-        "address": "456 Elm St, Shelbyville, IL",
-        "order_count": 3,
-        "order_history": [
-            {
-                "id": 103,
-                "product_id": 203,
-                "account_id": 2,
-                "deposit_has_paid": 100.00,
-                "product_price": 800.00,
-                "profit_rate": 0.10,
-                "production_price": 720.00,
-                "total_price": 900.00,
-                "order_type": {
-                    "id": 1,
-                    "name": "Custom"
-                },
-                "order_status": {
-                    "id": 3,
-                    "name": "In Progress"
-                },
-                "note": "Expected delivery in 2 weeks",
-                "saleStaff_id": 307,
-                "designStaff_id": 308,
-                "productionStaff_id": 309,
-                "created": "2023-05-20T14:30:00.000Z"
-            }
-        ]
-    }
-]
-const production_staff = [
-    {
-        "id": 3,
-        "username": "alice_johnson ngốc",
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
-        "phone": "+1122334455",
-        "dob": "1982-12-05",
-        "email": "alice.johnson@example.com",
-        "fullname": "Alice Johnson",
-        "role": {
-            "id": 4,
-            "name": "Production Staff"
-        },
-        "address": "789 Maple St, Capital City, IL",
-        "order_count": 2,
-        "order_history": [
-            {
-                "id": 104,
-                "product_id": 204,
-                "account_id": 3,
-                "deposit_has_paid": 250.00,
-                "product_price": 1500.00,
-                "profit_rate": 0.25,
-                "production_price": 1125.00,
-                "total_price": 1750.00,
-                "order_type": {
-                    "id": 2,
-                    "name": "Standard"
-                },
-                "order_status": {
-                    "id": 1,
-                    "name": "Completed"
-                },
-                "note": "Great quality",
-                "saleStaff_id": 310,
-                "designStaff_id": 311,
-                "productionStaff_id": 312,
-                "created": "2023-07-25T16:45:00.000Z"
-            },
-            {
-                "id": 105,
-                "product_id": 205,
-                "account_id": 3,
-                "deposit_has_paid": 300.00,
-                "product_price": 2000.00,
-                "profit_rate": 0.30,
-                "production_price": 1400.00,
-                "total_price": 2300.00,
-                "order_type": {
-                    "id": 1,
-                    "name": "Custom"
-                },
-                "order_status": {
-                    "id": 2,
-                    "name": "Pending"
-                },
-                "note": "Awaiting design approval",
-                "saleStaff_id": 313,
-                "designStaff_id": 314,
-                "productionStaff_id": 315,
-                "created": "2023-09-10T09:15:00.000Z"
-            }
-        ]
-    },
-    {
-        "id": 123,
-        "username": "alice_johnson ngốc",
-        "imageUrl": "http://localhost:8000/image/Diamond/D_IF/main.jpg",
-        "phone": "+1122334455",
-        "dob": "1982-12-05",
-        "email": "alice.johnson@example.com",
-        "fullname": "Alice Johnson 4 nè",
-        "role": {
-            "id": 4,
-            "name": "Production Staff"
-        },
-        "address": "789 Maple St, Capital City, IL",
-        "order_count": 2,
-        "order_history": [
-            {
-                "id": 104,
-                "product_id": 204,
-                "account_id": 3,
-                "deposit_has_paid": 250.00,
-                "product_price": 1500.00,
-                "profit_rate": 0.25,
-                "production_price": 1125.00,
-                "total_price": 1750.00,
-                "order_type": {
-                    "id": 2,
-                    "name": "Standard"
-                },
-                "order_status": {
-                    "id": 1,
-                    "name": "Completed"
-                },
-                "note": "Great quality",
-                "saleStaff_id": 310,
-                "designStaff_id": 311,
-                "productionStaff_id": 312,
-                "created": "2023-07-25T16:45:00.000Z"
-            },
-            {
-                "id": 105,
-                "product_id": 205,
-                "account_id": 3,
-                "deposit_has_paid": 300.00,
-                "product_price": 2000.00,
-                "profit_rate": 0.30,
-                "production_price": 1400.00,
-                "total_price": 2300.00,
-                "order_type": {
-                    "id": 1,
-                    "name": "Custom"
-                },
-                "order_status": {
-                    "id": 2,
-                    "name": "Pending"
-                },
-                "note": "Awaiting design approval",
-                "saleStaff_id": 313,
-                "designStaff_id": 314,
-                "productionStaff_id": 315,
-                "created": "2023-09-10T09:15:00.000Z"
-            }
-        ]
-    }
-]
 
-const order_detail_data = {
-    "order_detail": {
-        "id": 1,
-        "product": {
-            "id": 1,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": {
-                "id": 1,
-                "name": "Prong"
-            },
-            "model": null,
-            "mounting_size": 6,
-            "product_diamond": [
-                {
-                    "id": 1,
-                    "product_id": 1,
-                    "diamond": {
-                        "id": 1,
-                        "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-                        "size": 1.0,
-                        "diamond_color": {
-                            "id": 1,
-                            "name": "D"
-                        },
-                        "diamond_origin": {
-                            "id": 1,
-                            "name": "Natural"
-                        },
-                        "diamond_clarity": {
-                            "id": 1,
-                            "name": "IF"
-                        },
-                        "diamond_cut": {
-                            "id": 1,
-                            "name": "Excellent"
-                        },
-                        "price": 10000.00,
-                        "deactivated": false,
-                        "created": "2023-01-01T00:00:00.000Z"
-                    },
-                    "diamond_shape": {
-                        "id": 1,
-                        "name": "Round",
-                        "drawing_path": "https://example.com/shapes/round.png"
-                    },
-                    "count": 1,
-                    "price": 10000.00,
-                    "isAccepted": true
-                },
-                {
-                    "id": 2,
-                    "product_id": 1,
-                    "diamond": {
-                        "id": 2,
-                        "imageUrl": "http://localhost:8000/image/Diamond/E_VVS1.jpg",
-                        "size": 0.5,
-                        "diamond_color": {
-                            "id": 2,
-                            "name": "E"
-                        },
-                        "diamond_origin": {
-                            "id": 1,
-                            "name": "Natural"
-                        },
-                        "diamond_clarity": {
-                            "id": 2,
-                            "name": "VVS1"
-                        },
-                        "diamond_cut": {
-                            "id": 2,
-                            "name": "Very Good"
-                        },
-                        "price": 5000.00,
-                        "deactivated": false,
-                        "created": "2023-01-01"
-                    },
-                    "diamond_shape": {
-                        "id": 2,
-                        "name": "Princess",
-                        "drawing_path": "http://localhost:8000/image/Metal/1/main.jpg",
-                    },
-                    "count": 2,
-                    "price": 10000.00,
-                    "isAccepted": true
-                }
-            ],
-            "product_metal": [
-                {
-                    "product_id": 1,
-                    "metal": {
-                        "id": 1,
-                        "name": "Gold",
-                        "buy_price_per_gram": 50.00,
-                        "sale_price_per_gram": 75.00,
-                        "imageUrl": "http://localhost:8000/image/Metal/1/main.jpg",
-                        "specific_weight": 19.32,
-                        "deactivated": false,
-                        "created": "2023-01-01T00:00:00.000Z"
-                    },
-                    "volume": 3.0,
-                    "weight": 60.0,
-                    "isAccepted": true,
-                    "price": 4500.00
-                },
-                {
-                    "product_id": 1,
-                    "metal": {
-                        "id": 2,
-                        "name": "Platinum",
-                        "buy_price_per_gram": 100.00,
-                        "sale_price_per_gram": 150.00,
-                        "imageUrl": "http://localhost:8000/image/Metal/2/main.jpg",
-                        "specific_weight": 21.45,
-                        "deactivated": false,
-                        "created": "2023-01-01T00:00:00.000Z"
-                    },
-                    "volume": 2.0,
-                    "weight": 50.0,
-                    "isAccepted": true,
-                    "price": 7500.00
-                }
-            ]
-        },
-        "account": {
-            "id": 1,
-            "username": "john_doe",
-            "password": "hashed_password",
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "dob": "1985-06-15",
-            "email": "john.doe@example.com",
-            "fullname": "John Doe",
-            "role": {
-                "id": 1,
-                "name": "Customer"
-            },
-            "phone": "+1234567890",
-            "address": "123 Main St, Springfield, IL"
-        },
-        "order_status": {
-            "id": 1,
-            "name": "Pending"
-        },
-        "order_type": {
-            "id": 1,
-            "name": "Custom"
-        },
-        "deposit_has_paid": 1000.00,
-        "product_price": 20000.00,
-        "production_price": 15000.00,
-        "total_price": 250000000.00,
-        "profit_rate": 0.25,
-        "sale_staff": null,
-        // {
-        //     "id": 123,
-        //     "username": "prod_alice",
-        //     "password": "hashed_password",
-        //     "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        //     "dob": "1992-11-30",
-        //     "email": "alice.prod@example.com",
-        //     "fullname": "Alice Producer",
-        //     "role": {
-        //         "id": 4,
-        //         "name": "Production"
-        //     },
-        //     "phone": "+3214560987",
-        //     "address": "321 Oak St, Ogdenville, IL"
-        // },
-        "design_staff": null,
-        // {
-        //     "id": 123,
-        //     "username": "prod_alice",
-        //     "password": "hashed_password",
-        //     "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-        //     "dob": "1992-11-30",
-        //     "email": "alice.prod@example.com",
-        //     "fullname": "Alice Producer",
-        //     "role": {
-        //         "id": 4,
-        //         "name": "Production"
-        //     },
-        //     "phone": "+3214560987",
-        //     "address": "321 Oak St, Ogdenville, IL"
-        // },
-        "production_staff": //null,
-        {
-            "id": 123,
-            "username": "prod_alice",
-            "password": "hashed_password",
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "dob": "1992-11-30",
-            "email": "alice.prod@example.com",
-            "fullname": "Alice Producer",
-            "role": {
-                "id": 4,
-                "name": "Production"
-            },
-            "phone": "+3214560987",
-            "address": "321 Oak St, Ogdenville, IL"
-        },
-        "note": "This is a special custom order.",
-        "created": "2024-05-20T08:30:00.000Z",
-
-    },
-
-    "note": "This is a special custom order.",
-    "created": "2024-05-20T08:30:00.000Z"
-}
 
 
 
@@ -593,16 +72,26 @@ const CustomForm = ({ orderInfo, onClose }) => {
     useEffect(() => {
         const setAttribute = async () => {
 
-            await get_account_list();
-            //console.log("order", orderInfo)
+            // await get_account_list();
+            // console.log("order", orderInfo)
             // gọi api lấy order detail từ orderInfo.id 
-            const order_detail = order_detail_data.order_detail
+
+            const formData = new FormData();
+            formData.append('order_id', orderInfo.id);
+            const detail_data = await get_order_detail(formData);
+
+
+
+            const order_detail = detail_data.data.order_detail
             setOrder(order_detail)
             setProduct(order_detail.product)
 
-            setSaleStaffs(sales_staff);
-            setDesignStaffs(design_staff);
-            setProductionStaffs(production_staff);
+
+            const staffList =  await get_staff_list();
+
+            setSaleStaffs(staffList.data.sale_staff_list);
+            setDesignStaffs(staffList.data.design_staff_list);
+            setProductionStaffs(staffList.data.production_staff_list);
 
             setSaleStaff(order_detail.sale_staff);
             setDesignStaff(order_detail.design_staff);
@@ -610,6 +99,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
 
             setMetalList(order_detail.product.product_metal)
             setDiamondList(order_detail.product.product_diamond)
+            console.log("PRODUCT DIAMOND", order_detail.product.product_diamond)
             setNote(order_detail.note)
 
 
@@ -637,24 +127,32 @@ const CustomForm = ({ orderInfo, onClose }) => {
     }
     const handleReassign = async () => {
         setIsReassign(false)
-        await get_account_list();
-        if (orderInfo.order_status.id < 4) {
-            const assigned_order = {
-                order_id: order.id,
-                note: note,
-                saleStaff_id: saleStaff ? saleStaff.id : null,
-                designStaff_id: designStaff ? designStaff.id : null,
-                productionStaff_id: productionStaff ? productionStaff : null
-            }
-            console.log('assigned_order', assigned_order)
-            //dispatch(setToast({ toastShow: true, toastMessage: 'Reassign staffs successfully', toastType: 'success' }))
-            handleDataChange();
-            dispatch(setToast({ color: 'success', title: 'Order id: ' + orderInfo.id, mess: "Reassign staff successfully !" }))
-            onClose()
-        } else {
-            dispatch(setToast({ color: 'danger', title: 'Order id: ' + orderInfo.id, mess: "Reassign staff failed !" }))
 
+        const assigned_information = {
+            order_id: order.id,
+            note: note,
+            saleStaff_id: saleStaff ? saleStaff.id : null,
+            designStaff_id: designStaff ? designStaff.id : null,
+            productionStaff_id: productionStaff ? productionStaff.id : null
         }
+        console.log('assigned_information', assigned_information)
+        const formData = new FormData();
+        formData.append('assigned_information', JSON.stringify(assigned_information));
+
+        const response= await reassign_order(formData, 'Order ID ' + orderInfo.id);
+        
+        if (response.success) {
+            handleDataChange();
+            onClose();
+        }
+        dispatch(setToast(response.mess))
+          
+        // if (orderInfo.order_status.id < 4) {
+            
+
+        // } else {
+        //     dispatch(setToast({ color: 'danger', title: 'Order id: ' + orderInfo.id, mess: "Reassign staff failed !" }))
+        // }
 
     }
     const handleNote = (new_note) => {

@@ -10,7 +10,7 @@ import {
     CFormCheck,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../../redux/notification/toastSlice";
@@ -23,6 +23,7 @@ import ListItem from '@mui/joy/ListItem';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
+import { get_metal_list, get_weight_price } from "../../../../api/main/items/Metal_api";
 
 const metal = [
     {
@@ -82,8 +83,11 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
 
     useEffect(() => {
         const setAttribute = async () => {
-            await get_account_list();
-            setMetalList(metal)
+            const metal= await get_metal_list();
+
+            setMetalList(metal.data)
+
+
             setLoading(false);
         }
         setAttribute()
@@ -110,20 +114,44 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
     }
     const handleSearch = () => {
 
+        // const setWeightPrice = async () => {
+        //     await get_account_list();
+
+
+        //     let metal_information = {
+        //         metal_id: selectedMetal.id,
+        //         volume: addVolume
+        //     }
+
+        //     console.log('metal information', metal_information)
+        //     setAddWeight(1000);
+        //     setAddPrice(1001203);
+
+        //     setIsSearch(true)
+        // }
         const setWeightPrice = async () => {
-            await get_account_list();
-
-
-            let metal_information = {
+            const metal_information={
                 metal_id: selectedMetal.id,
                 volume: addVolume
             }
+            console.log('metal_information', metal_information)
+            const formData = new FormData();
+            formData.append('metal_information', JSON.stringify(metal_information));
+            const result = await get_weight_price(formData);
 
-            console.log('metal information', metal_information)
-            setAddWeight(1000);
-            setAddPrice(1001203);
+            if (result.success) {
+
+            const weight_price = result.data.weight_price;
+            
+
+            setAddWeight(weight_price.weight);
+            setAddPrice(weight_price.price);
 
             setIsSearch(true)
+            }else{
+                dispatch(setToast(result.mess))
+                setIsSearch(false)
+            }
         }
         setWeightPrice()
         

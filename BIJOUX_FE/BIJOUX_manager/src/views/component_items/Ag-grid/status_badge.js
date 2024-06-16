@@ -53,9 +53,9 @@ export const quote_status_creator = (status) => {
         return (
             <CCard
                 textColor="light"
-                style={{ width: '60px' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-danger fs-5`}>
-                {status.title}
+                style={{ width: '100%' }}
+                className={` text-center px-3 fw-bold rounded-pill px-1 bg-danger `}>
+                {status.name}
             </CCard>
         )
     }
@@ -118,9 +118,9 @@ export const order_status_creator = (status) => {
         return (
             <CCard
                 textColor="light"
-                style={{ width: '60px' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-danger fs-5`}>
-                {status.title}
+                style={{ width: '100%' }}
+                className={` text-center px-3 fw-bold rounded-pill px-1 bg-danger `}>
+                {status.name}
             </CCard>
         )
     }
@@ -177,14 +177,14 @@ export const design_process_status_creator = (status) => {
         )
     }
 }
-export const production_process_status_creator = (status) => {
+export const production_process_status_creator = (status, order_status_id) => {
     if (status == null) {
         return (
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1  bg-secondary border border-3 border-danger`}>
-                Update Required*
+                className={` text-center px-3 fw-bold rounded-pill px-1  bg-info border border-3 border-danger`}>
+                Ready To Complete*
             </CCard>
         )
     }
@@ -244,7 +244,7 @@ export const production_process_status_creator = (status) => {
                 textColor="light"
                 style={{ width: '100%' }}
                 className={` text-center px-3 fw-bold rounded-pill px-1 bg-success`}>
-                {status.name}
+                {order_status_id == 3? status.name : "Completed"}
             </CCard>
         )
     }

@@ -26,12 +26,14 @@ import {
 } from '@coreui/react'
 import { ArrowCircleDown, ArrowCircleUp, CurrencyCircleDollar, Eye, Pencil, PlusCircle, UserCirclePlus } from "phosphor-react";
 import { Button, ButtonGroup, FormControl, FormControlLabel, FormGroup, IconButton, Checkbox, ListItemAvatar, Avatar } from "@mui/material";
-import { get_account_list } from "../../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../../api/main/accounts/Account_api";
 import RadioGroup from "@mui/joy/RadioGroup";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import Radio from "@mui/joy/Radio";
+import { get_mounting_style_list } from "../../../../../api/main/items/Model_api";
+import { get_shape_list } from "../../../../../api/main/items/Diamond_api";
 export const Staff_Page_Context = createContext();
 
 
@@ -116,27 +118,34 @@ const InfoCard = ({ mounting_type, model, handleChange }) => {
     const [shapeList, setShapeList] = useState([])
 
     const [name, setName] = useState(model ? model.name : "New Model")
-    const [baseWidth, setBaseWidth] = useState(model ? model.base_width : 0)
-    const [baseHeight, setBaseHeight] = useState(model ? model.base_height : 0)
+    const [baseWidth, setBaseWidth] = useState(model && model.base_width ? model.base_width : 0)
+    const [baseHeight, setBaseHeight] = useState(model && model.base_height ? model.base_height : 0)
     const [volume, setVolume] = useState(model && model.volume ? model.volume : 0)
     const [availableStyle, setAvailableStyle] = useState(null)
     const [availableShapes, setAvailableShapes] = useState([])
 
     useEffect(() => {
         const setAttribute = async () => {
+            const style_list = await get_mounting_style_list();
+            setStyleList(style_list.data);
 
-            await get_account_list();
-            setStyleList(style_list)
-            setShapeList(shape_list)
+            const shape_list = await get_shape_list();
+            setShapeList(shape_list.data);
+              
+            
 
 
-            setAvailableStyle(model ? model.mounting_style : style_list[0])
+            setAvailableStyle(model ? model.mounting_style : style_list.data[0])
             setAvailableShapes(model ? model.model_diamond_shape.map(item => item.id) : [])
+            //console.log("SHAPE LISTTTTT",model.model_diamond_shape)
             setLoading(false)
         }
         setAttribute()
 
     }, [])
+    useEffect(()=>{
+        console.log("SHAPE LIST NÈ",availableShapes)
+    },[availableShapes])
 
     const handleStyleSelect = (event) => {
         const selectedItem = JSON.parse(event.target.value);

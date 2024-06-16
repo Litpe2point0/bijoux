@@ -16,7 +16,7 @@ import {
     CInputGroup,
     CCardText
 } from '@coreui/react'
-import { get_account_list } from "../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../../redux/notification/toastSlice";
@@ -30,6 +30,7 @@ import QuoteProductImage from "../../Quote widget/QuoteProductImage";
 import { Pencil } from "phosphor-react";
 import { AspectRatio } from "@mui/joy";
 import { DiamondPageContext } from "../../Diamond_Page";
+import { get_diamond_detail, set_deactivate_diamond, update_price_diamond } from "../../../../api/main/items/Diamond_api";
 
 
 
@@ -50,11 +51,16 @@ const CustomForm = ({ diamondInfo, onClose }) => {
     // const [approve, setApprove] = useState(null);
     useEffect(() => {
         const setAttribute = async () => {
+            const formData = new FormData();
+            formData.append('diamond_id', diamondInfo.id);
+            const detail_data =await get_diamond_detail(formData);
 
-            await get_account_list();
+
+            const diamond_detail = detail_data.data.diamond
+            
             //console.log("quote", quoteInfo)
             // gọi api lấy quote detail từ diamondInfo.id 
-            setDiamond(diamondInfo)
+            setDiamond(diamond_detail)
 
 
             setLoading(false);
@@ -65,12 +71,23 @@ const CustomForm = ({ diamondInfo, onClose }) => {
 
 
     const handleActivate = async (new_activate) => {
-        await get_account_list();
-        handleDataChange();
+        const deactivate = {
+            diamond_id: diamond.id,
+            deactivate: new_activate == 0 ? false : true
+        }
+        console.log('deactivate', deactivate)
+        const formData = new FormData();
+        formData.append('deactivate', JSON.stringify(deactivate));
 
-        dispatch(setToast({ color: 'success', title: 'Diamond id ' + diamond.id, mess: (new_activate == 0 ? 'Activate' : 'Deactivate') + " successfully !" }))
 
-        onClose();
+
+        let response = await set_deactivate_diamond(formData, 'Diamond ID ' + diamond.id);
+
+        if (response.success) {
+            handleDataChange();
+            onClose();
+        }
+        dispatch(setToast(response.mess))
     }
 
     const handlePriceChange = async () => {
@@ -86,26 +103,14 @@ const CustomForm = ({ diamondInfo, onClose }) => {
         const formData = new FormData();
         formData.append('update_price', JSON.stringify(update_price));
 
-        await get_account_list();
-        // let mess = '';
-        // let mess_color = '';
+        
+        let response = await update_price_diamond(formData, 'Diamond ID ' + diamondInfo.id);
 
-        // if (response.success) {
-        //     mess = response.success
-        handleDataChange();
-        //     onClose();
-        //     mess_color = 'success'
-        // } else if (response.error) {
-        //     mess = response.error;
-        //     mess_color = 'danger'
-        // }
-        // let product = {
-        //     id: response.new_product_id,
-        // }
-
-        dispatch(setToast({ color: 'success', title: 'Diamond id ' + diamond.id, mess: "Update successfully !" }))
-        onClose();
-
+        if (response.success) {
+            handleDataChange();
+            onClose();
+        }
+        dispatch(setToast(response.mess))
 
 
     }
@@ -211,7 +216,7 @@ const CustomForm = ({ diamondInfo, onClose }) => {
 
                                             <CInputGroup >
                                                 <CFormInput type="number" min={0} className="h-50 quote-detail-card" defaultValue={0} onChange={(e) =>
-                                                    setPrice(isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value))
+                                                    setPrice(isNaN(parseFloat(e.target.value)) || parseFloat(e.target.value)<0  ? 0 : parseFloat(e.target.value))
                                                 } />
                                                 <CInputGroupText className="px-1 py-0">
                                                     <Pencil size={15} color="white" weight="duotone" />

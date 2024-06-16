@@ -17,50 +17,51 @@ import ListItem from '@mui/joy/ListItem';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
-import { get_account_list } from "../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/main/accounts/Account_api";
+import { get_metal_list } from "../../../../api/main/items/Metal_api";
 
-const metal = [
-    {
-        "id": 1,
-        "name": "Gold",
-        'imageUrl': "http://localhost:8000/image/Metal/1/main.jpg",
-        "buy_price_per_gram": 60.00,
-        "sale_price_per_gram": 75.00,
-        "specific_weight": 19.32,
-        "deactivated": false,
-        "created": "2024-01-15T10:20:30.000Z"
-    },
-    {
-        "id": 2,
-        "name": "Silver",
-        'imageUrl': "http://localhost:8000/image/Metal/2/main.jpg",
-        "buy_price_per_gram": 0.80,
-        "sale_price_per_gram": 1.20,
-        "specific_weight": 10.49,
-        "deactivated": false,
-        "created": "2024-01-20T14:35:22.000Z"
-    },
-    {
-        "id": 3,
-        "name": "Platinum",
-        'imageUrl': "http://localhost:8000/image/Metal/3/main.jpg",
-        "buy_price_per_gram": 30.00,
-        "sale_price_per_gram": 45.00,
-        "specific_weight": 21.45,
-        "deactivated": false,
-        "created": "2024-01-25T08:15:55.000Z"
-    },
-    {
-        "id": 4,
-        "name": "Copper",
-        'imageUrl': "http://localhost:8000/image/Metal/4/main.jpg",
-        "buy_price_per_gram": 0.02,
-        "sale_price_per_gram": 0.03,
-        "specific_weight": 8.96,
-        "deactivated": true,
-        "created": "2023-12-01T12:00:00.000Z"
-    }
-]
+// const metal = [
+//     {
+//         "id": 1,
+//         "name": "Gold",
+//         'imageUrl': "http://localhost:8000/image/Metal/1/main.jpg",
+//         "buy_price_per_gram": 60.00,
+//         "sale_price_per_gram": 75.00,
+//         "specific_weight": 19.32,
+//         "deactivated": false,
+//         "created": "2024-01-15T10:20:30.000Z"
+//     },
+//     {
+//         "id": 2,
+//         "name": "Silver",
+//         'imageUrl': "http://localhost:8000/image/Metal/2/main.jpg",
+//         "buy_price_per_gram": 0.80,
+//         "sale_price_per_gram": 1.20,
+//         "specific_weight": 10.49,
+//         "deactivated": false,
+//         "created": "2024-01-20T14:35:22.000Z"
+//     },
+//     {
+//         "id": 3,
+//         "name": "Platinum",
+//         'imageUrl': "http://localhost:8000/image/Metal/3/main.jpg",
+//         "buy_price_per_gram": 30.00,
+//         "sale_price_per_gram": 45.00,
+//         "specific_weight": 21.45,
+//         "deactivated": false,
+//         "created": "2024-01-25T08:15:55.000Z"
+//     },
+//     {
+//         "id": 4,
+//         "name": "Copper",
+//         'imageUrl': "http://localhost:8000/image/Metal/4/main.jpg",
+//         "buy_price_per_gram": 0.02,
+//         "sale_price_per_gram": 0.03,
+//         "specific_weight": 8.96,
+//         "deactivated": true,
+//         "created": "2023-12-01T12:00:00.000Z"
+//     }
+// ]
 const CustomForm = ({ handleAddMetal, onClose }) => {
     const [validated, setValidated] = useState(false)   //check form điền đầy đủ chưa
     const [loading, setLoading] = useState(true)  //loading
@@ -76,10 +77,10 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
 
     useEffect(() => {
         const setAttribute = async () => {
-            await get_account_list();
             
-            setMetalList(metal)
-            setSelectedMetal(metal[0])
+            const metal = await get_metal_list();
+            setMetalList(metal.data)
+            setSelectedMetal(metal.data[0])
             setLoading(false);
         }
         setAttribute()

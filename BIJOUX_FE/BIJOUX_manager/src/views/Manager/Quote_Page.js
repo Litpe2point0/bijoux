@@ -21,12 +21,6 @@ import {
     CCardHeader,
     CSpinner,
 } from '@coreui/react'
-import AppBar from '@mui/material/AppBar';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
-import TabContext from '@mui/lab/TabContext';
-import Box from '@mui/material/Box';
-import { get_product_list, update_product_list } from "../../api/ProductApi";
 import Modal_Button from "../component_items/Modal/ModalButton"
 import { UsersThree, Eye, UserCirclePlus, CalendarX } from "phosphor-react";
 import onGridReady, { resetHeaderProperties } from "../component_items/Ag-grid/useStickyHeader";
@@ -35,7 +29,8 @@ import StaffUpdate from "./Modal_body/StaffUpdate";
 import { quote_status_creator } from "../component_items/Ag-grid/status_badge";
 import AssignForm from "./Modal_body/QuoteAssign";
 import QuoteCancel from "./Modal_body/QuoteCancel";
-import { get_account_list } from "../../api/accounts/Account_Api";
+import { get_account_list } from "../../api/main/accounts/Account_api";
+import { get_quote_list_manager } from "../../api/main/orders/Quote_api";
 
 
 
@@ -51,7 +46,6 @@ const state_creator = (table) => {
                 cellRenderer: (params) => {
                     return (
                         <img className="rounded-3" width={'100%'} src={params.data.product.imageUrl} />)
-
                 },
             },
             { headerName: "Customer", field: "account.fullname" },
@@ -115,367 +109,367 @@ const state_creator = (table) => {
     return state
 }
 
-const data = [
-    {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+// const data = [
+//     {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 1,
-            name: 'received'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: null,
-        designStaff_id: null,
-        productionStaff_id: null,
-        note: 'ooowfeowefowofweofwe vl',
-        created: '2023-05-24'
-    },
-    {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 1,
+//             name: 'received'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: null,
+//         designStaff_id: null,
+//         productionStaff_id: null,
+//         note: 'ooowfeowefowofweofwe vl',
+//         created: '2023-05-24'
+//     },
+//     {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 4,
-            name: 'Completed'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: 123,
-        designStaff_id: 123,
-        productionStaff_id: 123,
-        note: 'ngu vậy',
-        created: '2023-05-24'
-    },
-    {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 4,
+//             name: 'Completed'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: 123,
+//         designStaff_id: 123,
+//         productionStaff_id: 123,
+//         note: 'ngu vậy',
+//         created: '2023-05-24'
+//     },
+//     {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 2,
-            name: 'assigned'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: 123,
-        designStaff_id: 123,
-        productionStaff_id: 123,
-        note: '',
-        created: '2023-05-24'
-    },
-    {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 2,
+//             name: 'assigned'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: 123,
+//         designStaff_id: 123,
+//         productionStaff_id: 123,
+//         note: '',
+//         created: '2023-05-24'
+//     },
+//     {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 1,
-            name: 'assigned'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: 123,
-        designStaff_id: 123,
-        productionStaff_id: 123,
-        note: '',
-        created: '2023-05-24'
-    }, {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 1,
+//             name: 'assigned'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: 123,
+//         designStaff_id: 123,
+//         productionStaff_id: 123,
+//         note: '',
+//         created: '2023-05-24'
+//     }, {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 2,
-            name: 'assigned'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: 123,
-        designStaff_id: null,
-        productionStaff_id: 123,
-        note: '',
-        created: '2023-05-24'
-    },
-    {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 2,
+//             name: 'assigned'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: 123,
+//         designStaff_id: null,
+//         productionStaff_id: 123,
+//         note: '',
+//         created: '2023-05-24'
+//     },
+//     {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 2,
-            name: 'assigned'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: null,
-        designStaff_id: null,
-        productionStaff_id: null,
-        note: '',
-        created: '2023-05-24'
-    },
-    {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 2,
+//             name: 'assigned'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: null,
+//         designStaff_id: null,
+//         productionStaff_id: null,
+//         note: '',
+//         created: '2023-05-24'
+//     },
+//     {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 2,
-            name: 'assigned'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: null,
-        designStaff_id: null,
-        productionStaff_id: null,
-        note: '',
-        created: '2023-05-24'
-    },
-    {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 2,
+//             name: 'assigned'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: null,
+//         designStaff_id: null,
+//         productionStaff_id: null,
+//         note: '',
+//         created: '2023-05-24'
+//     },
+//     {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 2,
-            name: 'assigned'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: null,
-        designStaff_id: null,
-        productionStaff_id: null,
-        note: '',
-        created: '2023-05-24'
-    },
-    {
-        id: 1,
-        "product": {
-            "id": 2,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": null,
-            "model_id": 501,
-            "mounting_size": null,
-            "product_diamond": [
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 2,
+//             name: 'assigned'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: null,
+//         designStaff_id: null,
+//         productionStaff_id: null,
+//         note: '',
+//         created: '2023-05-24'
+//     },
+//     {
+//         id: 1,
+//         "product": {
+//             "id": 2,
+//             "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             "mounting_type": null,
+//             "model_id": 501,
+//             "mounting_size": null,
+//             "product_diamond": [
 
-            ],
-            "product_metal": [
+//             ],
+//             "product_metal": [
 
-            ]
-        },
-        account: {
-            id: 1,
-            username: 'john_doe',
-            password: 'hashed_password',
-            imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
-            dob: '1990-01-01',
-            email: 'john.doe@example.com',
-            fullname: 'John Doe',
-            role_id: 2,
-            phone: '123-456-7890',
-            address: '123 Main St, Anytown, USA'
-        },
-        quote_status: {
-            id: 2,
-            name: 'assigned'
-        },
-        product_price: 100.0,
-        production_price: 0,
-        profit_rate: 0,
-        saleStaff_id: null,
-        designStaff_id: null,
-        productionStaff_id: null,
-        note: '',
-        created: '2023-05-24'
-    }
-]
+//             ]
+//         },
+//         account: {
+//             id: 1,
+//             username: 'john_doe',
+//             password: 'hashed_password',
+//             imageUrl: "http://localhost:8000/image/Diamond/D_IF.jpg",
+//             dob: '1990-01-01',
+//             email: 'john.doe@example.com',
+//             fullname: 'John Doe',
+//             role_id: 2,
+//             phone: '123-456-7890',
+//             address: '123 Main St, Anytown, USA'
+//         },
+//         quote_status: {
+//             id: 2,
+//             name: 'assigned'
+//         },
+//         product_price: 100.0,
+//         production_price: 0,
+//         profit_rate: 0,
+//         saleStaff_id: null,
+//         designStaff_id: null,
+//         productionStaff_id: null,
+//         note: '',
+//         created: '2023-05-24'
+//     }
+// ]
 
 const Quote_Page = () => {
     const [key, setKey] = useState('customize');
@@ -483,15 +477,14 @@ const Quote_Page = () => {
     let [state, setState] = useState(null);
 
     const handleDataChange = async () => {
-        await get_account_list();
-        const quoteList = data;
-        setQuoteList(quoteList);
+        
+        const quoteList = await get_quote_list_manager();
+        setQuoteList(quoteList.data);
 
         setState({
-            //template: state_creator(quoteList.template_quote_list),
-            customize: state_creator(quoteList)
+            customize: state_creator(quoteList.data)
         })
-        alert("ON DATA CHANGE NÈ")
+        //alert("ON DATA CHANGE NÈ")
     }
 
     useEffect(() => {
