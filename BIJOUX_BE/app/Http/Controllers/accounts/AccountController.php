@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTFactory;
 use Carbon\Carbon;
 use Google_Client;
+use Hamcrest\Core\IsEqual;
+use PHPUnit\Framework\Constraint\IsEqual as ConstraintIsEqual;
 
 class AccountController extends Controller
 {
@@ -286,11 +288,36 @@ class AccountController extends Controller
         if (!$account) {
             return response()->json(['error' => 'Account not found'], 403);
         }
-
-        $validatedData = validator($input, [
-            'email' => 'required|string|email|max:255|unique:account,email',
-            'phone' => 'nullable|string|max:20|unique:account,phone',
-        ]);
+        if ($account->email == $input['email'] && $account->phone == $input['phone']) {
+            // Both email and phone match, skip uniqueness validation
+            $rules = [
+                'email' => 'required|string|email|max:255',
+                'phone' => 'nullable|string|max:20',
+            ];
+        } else {
+            // Check if only email matches
+            if ($account->email == $input['email']) {
+                $rules = [
+                    'email' => 'required|string|email|max:255',
+                    'phone' => 'nullable|string|max:20|unique:account,phone',
+                ];
+            } 
+            // Check if only phone matches
+            else if ($account->phone == $input['phone']) {
+                $rules = [
+                    'email' => 'required|string|email|max:255|unique:account,email',
+                    'phone' => 'nullable|string|max:20',
+                ];
+            } 
+            // Neither email nor phone match, apply full uniqueness validation
+            else {
+                $rules = [
+                    'email' => 'required|string|email|max:255|unique:account,email',
+                    'phone' => 'nullable|string|max:20|unique:account,phone',
+                ];
+            }
+        }
+        $validatedData = validator($input, $rules);
         if ($validatedData->fails()) {
             $errors = $validatedData->errors();
             $errorString = '';
@@ -378,11 +405,39 @@ class AccountController extends Controller
         }
         $id = (int) $decodedToken['id'];
 
-        $validatedData = validator($input, [
-            'username' => 'required|string|max:255|unique:account,username',
-            'email' => 'required|string|email|max:255|unique:account,email',
-            'phone' => 'nullable|string|max:20|unique:account,phone',
-        ]);
+        //find account
+        $account = Account::find($id);
+
+        if ($account->email == $input['email'] && $account->phone == $input['phone']) {
+            // Both email and phone match, skip uniqueness validation
+            $rules = [
+                'email' => 'required|string|email|max:255',
+                'phone' => 'nullable|string|max:20',
+            ];
+        } else {
+            // Check if only email matches
+            if ($account->email == $input['email']) {
+                $rules = [
+                    'email' => 'required|string|email|max:255',
+                    'phone' => 'nullable|string|max:20|unique:account,phone',
+                ];
+            } 
+            // Check if only phone matches
+            else if ($account->phone == $input['phone']) {
+                $rules = [
+                    'email' => 'required|string|email|max:255|unique:account,email',
+                    'phone' => 'nullable|string|max:20',
+                ];
+            } 
+            // Neither email nor phone match, apply full uniqueness validation
+            else {
+                $rules = [
+                    'email' => 'required|string|email|max:255|unique:account,email',
+                    'phone' => 'nullable|string|max:20|unique:account,phone',
+                ];
+            }
+        }
+        $validatedData = validator($input, $rules);
         if ($validatedData->fails()) {
             $errors = $validatedData->errors();
             $errorString = '';
@@ -396,8 +451,6 @@ class AccountController extends Controller
 
         DB::beginTransaction();
         try {
-            //find account
-            $account = Account::find($id);
             $updateData = [];
 
             if (!empty($input['username'])) {
