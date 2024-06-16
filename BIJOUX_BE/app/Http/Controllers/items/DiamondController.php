@@ -38,10 +38,10 @@ class DiamondController extends Controller
             if (isset($input['size']) && $input['size'] != null) {
                 $query->where('size', $input['size']);
             }
-            if (isset($input['diamond_color_id ']) && $input['diamond_color_id '] != null) {
+            if (isset($input['diamond_color_id']) && $input['diamond_color_id'] != null) {
                 $query->where('diamond_color_id', $input['diamond_color_id']);
             }
-            if (isset($input['diamond_cut_id ']) && $input['diamond_cut_id '] != null) {
+            if (isset($input['diamond_cut_id']) && $input['diamond_cut_id'] != null) {
                 $query->where('diamond_cut_id', $input['diamond_cut_id']);
             }
             if (isset($input['diamond_clarity_id']) && $input['diamond_clarity_id'] != null) {

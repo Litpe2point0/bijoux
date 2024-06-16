@@ -837,7 +837,7 @@ class OrderController extends Controller
             unset($order->account_id);
             return $order;
         });
-        $customize_order_list = DB::table('orders')->where('saleStaff_id', $input)->where('order_type_id', 2)->orderby('order_status_id', 'asc')->get();
+        $customize_order_list = DB::table('orders')->whereNotNull('saleStaff_id')->where('saleStaff_id', $input)->where('order_type_id', 2)->orderby('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -892,7 +892,7 @@ class OrderController extends Controller
                 'error' => 'Invalid User (User is Unauthorized)'
             ], 500);
         }
-        $order_list = DB::table('orders')->where('designStaff_id', $input)->get();
+        $order_list = DB::table('orders')->whereNotNull('designStaff_id')->where('designStaff_id', $input)->get();
         $order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -960,7 +960,7 @@ class OrderController extends Controller
                 'error' => 'Invalid User (User is Unauthorized)'
             ], 500);
         }
-        $template_order_list = DB::table('orders')->where('productionStaff_id', $input)->where('order_status_id', 3)->where('order_type_id', 1)->get();
+        $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->where('order_status_id', 3)->where('order_type_id', 1)->get();
         $template_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -1007,7 +1007,7 @@ class OrderController extends Controller
             }
         });
 
-        $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->where('order_status_id', 3)->where('order_type_id', 2)->get();
+        $customize_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->where('order_status_id', 3)->where('order_type_id', 2)->get();
         $customize_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -1079,7 +1079,7 @@ class OrderController extends Controller
             ], 500);
         }
         $data1 = collect();
-        $template_order_list = DB::table('orders')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6])->where('order_type_id', 1)->get();
+        $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6])->where('order_type_id', 1)->get();
         foreach ($template_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($production_process->production_status_id == 6) {
@@ -1532,7 +1532,7 @@ class OrderController extends Controller
                         'imageUrl' => $fileName
                     ]);
                 }
-                if (($order->total_price * 50 / 100) >= ($design_process->total_price * 50 / 100 * 1.05)) {
+                if (($design_process->total_price * 50 / 100) >= ($order->total_price * 50 / 100 * 1.05)) {
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 1
                     ]);

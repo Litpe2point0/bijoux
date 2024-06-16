@@ -14,7 +14,7 @@ export const quote_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1  bg-secondary`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1  bg-secondary`}>
                 {status.name}
             </CCard>
         )
@@ -24,7 +24,7 @@ export const quote_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-info`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-info`}>
                 {status.name}
             </CCard>
         )
@@ -34,7 +34,7 @@ export const quote_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-warning`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-warning`}>
                 {status.name}
             </CCard>
         )
@@ -44,7 +44,7 @@ export const quote_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-success`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-success`}>
                 {status.name}
             </CCard>
         )
@@ -54,7 +54,7 @@ export const quote_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-danger `}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-danger `}>
                 {status.name}
             </CCard>
         )
@@ -69,7 +69,7 @@ export const order_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1  bg-secondary`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1  bg-secondary`}>
                 {status.name}
             </CCard>
         )
@@ -79,7 +79,7 @@ export const order_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-info`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-info`}>
                 {status.name}
             </CCard>
         )
@@ -89,7 +89,7 @@ export const order_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-warning`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-warning`}>
                 {status.name}
             </CCard>
         )
@@ -99,7 +99,7 @@ export const order_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-success`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-success`}>
                 {status.name}
             </CCard>
         )
@@ -109,7 +109,7 @@ export const order_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-primary`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-primary`}>
                 {status.name}
             </CCard>
         )
@@ -119,7 +119,7 @@ export const order_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-danger `}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-danger `}>
                 {status.name}
             </CCard>
         )
@@ -131,7 +131,7 @@ export const design_process_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1  bg-secondary border border-3 border-danger`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1  bg-secondary border border-3 border-danger`}>
                 Update Required*
             </CCard>
         )
@@ -141,7 +141,7 @@ export const design_process_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1  bg-info`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1  bg-info`}>
                 {status.name}
             </CCard>
         )
@@ -151,7 +151,7 @@ export const design_process_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-warning`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-warning`}>
                 {status.name}
             </CCard>
         )
@@ -161,7 +161,7 @@ export const design_process_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-success`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-success`}>
                 {status.name}
             </CCard>
         )
@@ -171,7 +171,7 @@ export const design_process_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-danger`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-danger`}>
                 {status.name}
             </CCard>
         )
@@ -183,7 +183,7 @@ export const production_process_status_creator = (status, order_status_id) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1  bg-info border border-3 border-danger`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1  bg-info border border-3 border-danger`}>
                 Ready To Complete*
             </CCard>
         )
@@ -193,7 +193,7 @@ export const production_process_status_creator = (status, order_status_id) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1  bg-danger`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1  bg-danger`}>
                 {status.name}
             </CCard>
         )
@@ -203,7 +203,7 @@ export const production_process_status_creator = (status, order_status_id) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-secondary`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-secondary`}>
                 {status.name}
             </CCard>
         )
@@ -213,7 +213,7 @@ export const production_process_status_creator = (status, order_status_id) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-warning`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-warning`}>
                 {status.name}
             </CCard>
         )
@@ -223,7 +223,7 @@ export const production_process_status_creator = (status, order_status_id) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-info`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-info`}>
                 {status.name}
             </CCard>
         )
@@ -233,7 +233,7 @@ export const production_process_status_creator = (status, order_status_id) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-primary`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-primary`}>
                 {status.name}
             </CCard>
         )
@@ -243,7 +243,7 @@ export const production_process_status_creator = (status, order_status_id) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
-                className={` text-center px-3 fw-bold rounded-pill px-1 bg-success`}>
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-success`}>
                 {order_status_id == 3? status.name : "Completed"}
             </CCard>
         )
@@ -255,7 +255,7 @@ export const production_process_status_creator = (status, order_status_id) => {
 //             <CCard
 //                 textColor="light"
 //                 style={{ width: '100%'}}
-//                 className={` text-center px-3 fw-bold rounded-pill px-1  bg-secondary border border-3 border-danger`}>
+//                 className={` text-center px-2 fw-bold rounded-pill px-1  bg-secondary border border-3 border-danger`}>
 //                 Update Required*
 //             </CCard>
 //         )
@@ -265,7 +265,7 @@ export const production_process_status_creator = (status, order_status_id) => {
 //             <CCard
 //                 textColor="light"
 //                 style={{ width: '100%'}}
-//                 className={` text-center px-3 fw-bold rounded-pill px-1  bg-info`}>
+//                 className={` text-center px-2 fw-bold rounded-pill px-1  bg-info`}>
 //                 {status.name}
 //             </CCard>
 //         )
@@ -275,7 +275,7 @@ export const production_process_status_creator = (status, order_status_id) => {
 //             <CCard
 //                 textColor="light"
 //                 style={{ width: '100%' }}
-//                 className={` text-center px-3 fw-bold rounded-pill px-1 bg-warning`}>
+//                 className={` text-center px-2 fw-bold rounded-pill px-1 bg-warning`}>
 //                 {status.name}
 //             </CCard>
 //         )
@@ -285,7 +285,7 @@ export const production_process_status_creator = (status, order_status_id) => {
 //             <CCard
 //                 textColor="light"
 //                 style={{ width: '100%' }}
-//                 className={` text-center px-3 fw-bold rounded-pill px-1 bg-success`}>
+//                 className={` text-center px-2 fw-bold rounded-pill px-1 bg-success`}>
 //                 {status.name}
 //             </CCard>
 //         )
@@ -295,7 +295,7 @@ export const production_process_status_creator = (status, order_status_id) => {
 //             <CCard
 //                 textColor="light"
 //                 style={{ width: '100%' }}
-//                 className={` text-center px-3 fw-bold rounded-pill px-1 bg-danger`}>
+//                 className={` text-center px-2 fw-bold rounded-pill px-1 bg-danger`}>
 //                 {status.name}
 //             </CCard>
 //         )
