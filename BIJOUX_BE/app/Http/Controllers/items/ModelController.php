@@ -943,6 +943,22 @@ class ModelController extends Controller
                 'error' => 'No Input Received'
             ], 403);
         }
+        $validatedData = validator($input, [
+            'model_id' => 'required',
+            'diamond_shape_id' => 'required',
+            'metal_1_id' => 'required',
+            'mounting_size' => 'required',
+            'diamond_origin_id' => 'required',
+            'diamond_clarity_id' => 'required',
+            'diamond_color_id' => 'required',
+            'diamond_cut_id' => 'required',
+            'diamond_size' => 'required',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json([
+                'error' => "Something Went Wrong"
+            ], 403);
+        }
         $model_id = $input['model_id'];
         $model = DB::table('model')->where('id', $model_id)->first();
         if (isset($input['metal_1_id']) && $input['metal_1_id'] != null) {
