@@ -26,6 +26,32 @@ class ModelController extends Controller
         }
         DB::beginTransaction();
         try {
+            $check = false;
+            $model_metal = $input['model_metal'];
+            foreach ($model_metal as $metal) {
+                if ($metal['is_main'] == 0) {
+                    $check = true;
+                }
+            }
+            $main_metal_ids = [];
+            $notmain_metal_ids = [];
+            if ($check == true) {
+                foreach ($model_metal as $metal) {
+                    if ($metal['is_main'] == 1) {
+                        $main_metal_ids[] = $metal['metal']['id'];
+                    } else if ($metal['is_main'] == 0) {
+                        $notmain_metal_ids[] = $metal['metal']['id'];
+                    }
+                }
+                $metalCompatibilities = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->get();
+                foreach ($metalCompatibilities as $compatibility) {
+                    if (!in_array($compatibility->Metal_id_2, $notmain_metal_ids)) {
+                        return response()->json([
+                            'error' => 'Metal Compatibility Error'
+                        ], 403);
+                    }
+                }
+            }
             $model = new _Model();
             $model->name = $input['name'];
             $model->mounting_type_id = $input['mounting_type_id'];
@@ -315,6 +341,9 @@ class ModelController extends Controller
         $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
         $model_diamond->map(function ($model_diamond) {
             $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
+            if ($model_diamond->is_editable == 1) {
+                $model_diamond->size_list = DB::table('diamond')->select('size')->where('size', '>=', $model_diamond->diamond_size_min)->where('size', '<=', $model_diamond->diamond_size_max)->groupBy('size')->pluck('size')->values();
+            }
             unset($model_diamond->model_id);
             unset($model_diamond->diamond_shape_id);
             return $model_diamond;
@@ -400,7 +429,7 @@ class ModelController extends Controller
                 'base_height' => $input['base_height'],
                 'volume' => $input['volume'],
                 'production_price' => $input['production_price'],
-                'profit_rate' => $input['profit_rate']
+                'profit_rate' => $input['profit_rate'],
             ];
             if (!empty($input['imageUrl'])) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
@@ -408,14 +437,148 @@ class ModelController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-
                 $fileName = time() . '_' . $input['id'] . '.jpg';
                 //delete all files in the model directory
                 File::cleanDirectory($destinationPath);
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
-
                 $updateData['imageUrl'] = $fileName;
             }
+            $check = true;
+            $model_metal = DB::table('model_metal')->where('model_id', $input['id'])->get();
+            $model_metal->map(function ($metal) {
+                $metal->metal = DB::table('metal')->where('id', $metal->metal_id)->first();
+                unset($metal->id);
+                unset($metal->model_id);
+                unset($metal->metal_id);
+                return $metal;
+            });
+            $model_diamondshape = DB::table('model_diamondshape')->where('model_id', $input['id'])->pluck('diamond_shape_id')->values();
+            foreach ($input['model_metal'] as $metal1) {
+                $check = true;
+                foreach ($model_metal as $metal2) {
+                    if ($metal2->metal->id == $metal1['metal']['id'] && $metal2->is_main == $metal1['is_main']) {
+                        $check = false;
+                    }
+                }
+                if ($check == true) {
+                    break;
+                }
+            }
+            foreach ($model_metal as $metal1) {
+                $check = true;
+                if ($check == false) {
+                    foreach ($input['model_metal'] as $metal2) {
+                        if ($metal1->metal->id == $metal2['metal']['id'] && $metal1->is_main == $metal2['is_main']) {
+                            $check = false;
+                        }
+                    }
+                    if ($check == true) {
+                        break;
+                    }
+                }
+            }
+            foreach ($input['model_diamond_shape'] as $shape1) {
+                if ($check == false) {
+                    $check = true;
+                    foreach ($model_diamondshape as $shape2) {
+                        if ($shape1 == $shape2) {
+                            $check = false;
+                        }
+                    }
+                    if ($check == true) {
+                        break;
+                    }
+                }
+            }
+            foreach ($model_diamondshape as $shape1) {
+                if ($check == false) {
+                    $check = true;
+                    foreach ($input['model_diamond_shape'] as $shape2) {
+                        if ($shape1 == $shape2) {
+                            $check = false;
+                        }
+                    }
+                    if ($check == true) {
+                        break;
+                    }
+                }
+            }
+            if ($check == true) {
+                //check metal compatibility
+                $temp = false;
+                $model_metal1 = $input['model_metal'];
+                foreach ($model_metal1 as $metal) {
+                    if ($metal['is_main'] == 0) {
+                        $temp = true;
+                    }
+                }
+                $main_metal_ids = [];
+                $notmain_metal_ids = [];
+                foreach ($model_metal1 as $metal) {
+                    if ($metal['is_main'] == 1) {
+                        $main_metal_ids[] = $metal['metal']['id'];
+                    }
+                }
+                if ($temp) {
+                    foreach ($model_metal1 as $metal) {
+                        if ($metal['is_main'] == 0) {
+                            $notmain_metal_ids[] = $metal['metal']['id'];
+                        }
+                    }
+                    $metalCompatibilities1 = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->get();
+                    foreach ($metalCompatibilities1 as $compatibility1) {
+                        if (!in_array($compatibility1->Metal_id_2, $notmain_metal_ids)) {
+                            DB::rollBack();
+                            return response()->json([
+                                'error' => 'Metal Compatibility Error'
+                            ], 403);
+                        }
+                    }
+                }
+
+                //check if there the new
+                $diamondShapes = $input['model_diamond_shape'];
+                $metal2Mapping = [];
+                foreach ($main_metal_ids as $metal) {
+                    if (!isset($notmain_metal_ids) || $notmain_metal_ids == null) {
+                        $metal2Mapping[$metal][] = 0;
+                    }
+                    $metalCompatibilities2 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                    foreach ($metalCompatibilities2 as $compatibility2) {
+                        $bo = false;
+                        foreach ($notmain_metal_ids as $metal2) {
+                            if ($compatibility2->Metal_id_2 == $metal2) {
+                                $bo = true;
+                            }
+                        }
+                        if ($bo) {
+                            $metal2Mapping[$compatibility2->Metal_id_1][] = $compatibility2->Metal_id_2;
+                        }
+                    }
+                }
+                foreach ($main_metal_ids as $metal) {
+                    $metal1 = DB::table('metal')->where('id', $metal)->first();
+                    if (isset($metal2Mapping[$metal1->id])) {
+                        foreach ($metal2Mapping[$metal1->id] as $metal2_id) {
+                            foreach ($diamondShapes as $shape) {
+                                $check = true;
+                                $destinationPath = public_path('image/Final_template/' . $input['id'] . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape);
+                                if (file_exists($destinationPath)) {
+                                    $files = File::allFiles($destinationPath);
+                                    if ($files != null) {
+                                        $check = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if ($check == true) {
+                        break;
+                    }
+                }
+            }
+
+            //delete all model_metal, model_diamondshape, model_diamond
             DB::table('model_metal')->where('model_id', $input['id'])->delete();
             DB::table('model_diamondshape')->where('model_id', $input['id'])->delete();
             DB::table('model_diamond')->where('model_id', $input['id'])->delete();
@@ -425,6 +588,8 @@ class ModelController extends Controller
                     'diamond_shape_id' => $shape
                 ]);
             }
+
+            //insert new model_metal, model_diamondshape, model_diamond
             foreach ($input['model_diamond'] as $diamond) {
                 DB::table('model_diamond')->insert([
                     'model_id' => $input['id'],
@@ -443,8 +608,13 @@ class ModelController extends Controller
                     'percentage' => $metal['percentage']
                 ]);
             }
+            if ($check == true) {
+                $updateData['isAvailable'] = false;
+            }
+            if ($check == false) {
+                $updateData['isAvailable'] = true;
+            }
             DB::table('model')->where('id', $input['id'])->update($updateData);
-
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -788,7 +958,7 @@ class ModelController extends Controller
                     'error' => 'The Template Contain a Metal That Has Been Deactivated'
                 ], 403);
             };
-        } else $metal_1_id = 0;
+        }
         if (isset($input['metal_2_id']) && $input['metal_2_id'] != null) {
             $metal_2_id = $input['metal_2_id'];
             $metal = DB::table('metal')->where('id', $input['metal_2_id'])->first();
