@@ -1079,6 +1079,8 @@ class ModelController extends Controller
             }
         }
         return response()->json([
+            'model_id' => $model_id,
+            'mounting_type' => DB::table('mounting_type')->where('id', $model->mounting_type_id)->first(),
             'main_image' => $main_image,
             'related_image' => $related_image,
             'metal_list' => $metal_list,
