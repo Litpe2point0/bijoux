@@ -2,12 +2,24 @@ import React from "react";
 import { demoFinalMain, demoFinalRelated1, demoFinalRelated2, gold } from "../../../assets/images/index";
 import { useState } from 'react'
 import { Carousel } from 'primereact/carousel';
+import numeral from 'numeral';
+import { RiVipDiamondLine } from "react-icons/ri";
+import { GiDiamondRing } from "react-icons/gi";
+import { FiTruck } from "react-icons/fi";
+import { AiOutlineDollarCircle } from "react-icons/ai";
+import { CgSandClock } from "react-icons/cg";
+import { useNavigate } from 'react-router-dom';
 
+const CurrencyFormatter = ({ value }) => {
+    const formattedValue = numeral(value).format('0,0') + ' VND';
+    return <span>{formattedValue}</span>;
+};
 
 
 
 export default function CompleteRing() {
 
+    const navigate = useNavigate();
     const finalProduct = JSON.parse(localStorage.getItem('finalProduct'));
     const fingerSize = finalProduct.mounting_size;
 
@@ -69,9 +81,32 @@ export default function CompleteRing() {
         setShowImage(image);
     }
 
+    const handleChangeMetal = () => {
+        navigate(`/mounting-detail/${finalProduct.model.id}`);
+    }
+
+    const handleChangeDiamond = () => {
+        window.location.href = '/template?step=2&mountingType=' + finalProduct.model.mounting_type.name + '&model_id=' + finalProduct.model.id;
+    }
+
+    const handleRestart = () => {
+        const mounting_type = finalProduct.model.mounting_type.name;
+        window.location.href = `/template?step=1&mountingType=${mounting_type}`;
+        localStorage.removeItem('finalProduct');
+    }
+
+    const calculateSumOfMetalPrice = (metalList) => {
+        let sum = 0;
+        metalList.forEach(metal => {
+            sum += metal.price;
+        });
+        return sum;
+    }
+
+    const totalMetalPrice = calculateSumOfMetalPrice(finalCheckout.metalList);
 
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center text-[#151542] mb-20">
             <p className="text-[#151542] text-4xl font-loraFont font-semibold">Your Final Jewelry Has Been Complete !</p>
             <div className="w-3/4 h-0.5 bg-slate-500 mb-20 mt-5"></div>
             <div className="w-10/12 grid grid-cols-2 gap-5">
@@ -105,83 +140,131 @@ export default function CompleteRing() {
 
                     </div>
                 </div>
-                <div className=" w-full flex flex-col items-center">
-                    <p className="text-2xl text-[#151542] font-loraFont font-semibold mb-10">Product Informations:</p>
-                    <div className="w-full ml-20 font-loraFont text-[#151542]">
-                        <p className="text-xl font-semibold">Metal List:</p>
-                        {finalCheckout.metalList.map((metal, index) => (
-                            <div className="ml-5">
-                                <div className="flex">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                    </svg>
-                                    <p className="ml-2 font-bold">Metal {index + 1}:</p>
-                                </div>
-                                <ul class="max-w-md space-y-1 text-[#151542] list-disc list-inside ml-6">
-                                    <li>
-                                        Material: {metal.name}
-                                    </li>
-                                    <li>
-                                        Price: {metal.price} (VND)
-                                    </li>
-                                </ul>
+                <div className=" w-full flex flex-col">
+                    <div className="w-full flex flex-col">
+                        <p className="text-3xl text-[#151542] font-loraFont font-light">
+                            Two Stone Engagement Ring With East-West Pear Shaped Diamond In 14k (1/2 Ct. Tw.) 1.48 Carat H-VS2 Princess Cut Diamond
+                        </p>
+                        <div className="w-11/12 h-0.5 bg-gray-200 my-5"></div>
+                    </div>
 
+                    <div className="w-full flex flex-col mb-3">
+                        <p className="font-gantariFont text-[#151542] font-semibold ">Complete Jewelry:</p>
+                    </div>
+
+                    <div className="w-full flex mb-3">
+                        <div className="w-[15px] flex justify-center">
+                            <RiVipDiamondLine size={13} className="mt-1" />
+                        </div>
+                        <div className="w-[306px] flex flex-col ml-2 mt-0">
+                            <div className="w-[306px] font-gantariFont">
+                                <p>
+                                    6 (mm) D-IF1 Heart Cut Diamond
+                                    Ideal Cut • D Color • IF Clarity • Origin
+                                </p>
                             </div>
-                        )
-                        )}
+                            <p> ID: #21360695</p>
+                            <p className="font-gantariFont font-semibold text-sm"><CurrencyFormatter value={finalCheckout.diamondList[0].price} /></p>
+                        </div>
+                        <div className="flex-1 flex items-center justify-start">
+                            {finalProduct.model.model_diamond[0].Is_editable === true && <button onClick={() => handleChangeDiamond()} className="text-xs ml-10 font-semibold underline hover:text-sky-500">Change Diamond</button>}
+                        </div>
                     </div>
-                    <div className="w-full ml-20 justify-center mb-5 mt-5">
-                        <div className="w-3/4 h-0.5 bg-[#151542]"></div>
-                    </div>
-                    <div className="w-full ml-20 font-loraFont text-[#151542]">
-                        <p className="text-xl font-semibold">Diamond List:</p>
-                        {finalCheckout.diamondList.map((diamond, index) => (
-                            <div className="ml-5">
-                                <div className="flex">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                    </svg>
-                                    <p className="ml-2 font-bold">Diamond {index + 1}</p>
-                                </div>
-                                <ul class="max-w-md space-y-1 text-[#151542] list-disc list-inside ml-6">
-                                    <li>
-                                        Diamond ID: {diamond.id}
-                                    </li>
-                                    <li>
-                                        Count: {diamond.count}
-                                    </li>
-                                    <li>
-                                        Cut: {diamond.diamond_cut.name}
-                                    </li>
-                                    <li>
-                                        Clarity: {diamond.diamond_clarity.name}
-                                    </li>
-                                    <li>
-                                        Color: {diamond.diamond_color.name}
-                                    </li>
-                                    <li>
-                                        Price: {diamond.price} (VND)
-                                    </li>
-                                </ul>
+
+                    <div className="w-full flex mb-3">
+                        <div className="w-[15px] flex justify-center">
+                            <RiVipDiamondLine size={13} className="mt-1" />
+                        </div>
+                        <div className="w-[306px] flex flex-col ml-2 mt-0">
+                            <div className="w-[306px] font-gantariFont">
+                                <p>
+                                    3.6 (mm) D-IF1 Round Cut Diamond
+                                    Ideal Cut • D Color • IF Clarity • Origin
+                                </p>
                             </div>
-                        ))}
+                            <p>ID: #21360679</p>
+                            <p className="font-gantariFont font-semibold text-sm"><CurrencyFormatter value={finalCheckout.diamondList[1].price} /></p>
+                        </div>
+                        <div className="flex-1 flex items-center justify-start">
+                            {finalProduct.model.model_diamond[1].Is_editable === true && <button className="text-xs ml-10 font-semibold underline hover:text-sky-500">Change Diamond</button>}
+                        </div>
                     </div>
 
-                    <div className="w-full ml-5 flex items-center mt-5">
-                        <p className="text-2xl font-bold text-[#151542] mr-3">Production Price: </p>
-                        <p className="text-xl font-semibold text-green-800">{finalCheckout.production_Price} (VND)</p>
+                    <div className="w-full flex mb-5">
+                        <div className="w-[15px] flex justify-center">
+                            <GiDiamondRing size={13} className="mt-1" />
+                        </div>
+                        <div className="w-[306px] flex flex-col ml-2 mt-0">
+                            <div className="w-[306px] font-gantariFont">
+                                <p>
+                                    Two Stone Engagement Ring with East-West Pear Shaped Diamond in 24k Gold
+                                </p>
+                            </div>
+                            <p>ID: #503200w14</p>
+                            <p className="font-gantariFont font-semibold text-sm"><CurrencyFormatter value={totalMetalPrice} /></p>
+                        </div>
+                        <div className="flex-1 flex items-center justify-start">
+                            <button onClick={() => handleChangeMetal()} className="text-xs ml-10 font-semibold underline hover:text-sky-500">Change Settings</button>
+                        </div>
                     </div>
 
-                    <div className="w-full ml-5 flex items-center mb-5 mt-2">
-                        <p className="text-4xl font-bold text-[#151542] mr-5">Total Price: </p>
-                        <p className="text-2xl font-semibold text-green-800">{finalCheckout.total_Price} (VND)</p>
+                    <div className="w-full flex items-start text-xl font-semibold font-gantariFont mb-5">
+                        <CurrencyFormatter value={finalCheckout.total_Price} />
                     </div>
 
-                    <div className="w-full flex flex-col justify-center mb-5">
-                        <button className="bg-sky-600 hover:bg-white hover:text-sky-600 border-sky-600 hover:border-2 w-full text-white pl-5 pr-5 pt-2 pb-2 rounded-sm mb-2">Check Out</button>
-                        <button className="text-sky-600 hover:text-white hover:bg-sky-600 border-sky-600 border-2 w-full bg-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Restart</button>
+                    <div className="w-full h-[48px] flex items-center justify-center text-xl text-white bg-[#151542] hover:cursor-pointer hover:bg-[#29296b] mb-6">
+                        <p>CONFIRM ORDER</p>
                     </div>
 
+                    <div onClick={() => handleRestart()} className="w-full h-[48px] flex items-center justify-center text-xl text-[#151542] bg-white border-2 border-[#151542] hover:cursor-pointer hover:text-[#29296b] mb-6">
+                        <p>RESTART SELECT</p>
+                    </div>
+
+                    <div>
+                        <p className="font-gantariFont text-[#151542] font-semibold">Our Policies:</p>
+                    </div>
+
+                    <div className="w-full h-[100px] bg-gray-100 rounded-lg flex items-center mb-5">
+                        <div className="w-[100px] h-[100px] flex items-center justify-center">
+                            <div className="bg-gray-200 h-3/4 w-3/4 flex items-center justify-center rounded-xl ">
+                                <FiTruck size={40} />
+                            </div>
+                        </div>
+                        <div className="ml-3 flex flex-col">
+                            <p className="font-gantariFont text-[#151542] font-semibold">Free Shipping</p>
+                            <div className="w-[550px]">
+                                <p className="font-gantariFont text-sm">Trang sức của bạn sẽ được vận chuyển miễn phí toàn quốc với thời gian nhất. Chúng tôi cam kết đảm bảo tính bảo mật và nguyên vẹn của sản phẩm trong quá trình vận chuyển.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="w-full h-[100px] bg-gray-100 rounded-lg flex items-center mb-5">
+                        <div className="w-[100px] h-[100px] flex items-center justify-center">
+                            <div className="bg-gray-200 h-3/4 w-3/4 flex items-center justify-center rounded-xl ">
+                                <AiOutlineDollarCircle size={40} />
+                            </div>
+                        </div>
+                        <div className="ml-3 flex flex-col">
+                            <p className="font-gantariFont text-[#151542] font-semibold">Material's Price Changing</p>
+                            <div className="w-[550px]">
+                                <p className="font-gantariFont text-sm">Giá của trang sức có thể sẽ thay đổi do sự thay đổi giá của các nguyên vật liệu trước khi bạn đặt cọc. Vì vậy hãy đặt cọc sớm nhất để có mức giá tốt nhất.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="w-full h-[100px] bg-gray-100 rounded-lg flex items-center">
+                        <div className="w-[100px] h-[100px] flex items-center justify-center">
+                            <div className="bg-gray-200 h-3/4 w-3/4 flex items-center justify-center rounded-xl ">
+                                <CgSandClock size={40} />
+                            </div>
+                        </div>
+                        <div className="ml-3 flex flex-col">
+                            <p className="font-gantariFont text-[#151542] font-semibold">Lifetime warranty</p>
+                            <div className="w-[550px]">
+                                <p className="font-gantariFont text-sm">Trang sức của bạn được bảo hành trọn đời từ Bijoux, mọi vấn đề liên quan đến vật liệu làm nên trang sức sẽ được chúng tôi khắc phục cho bạn.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,3 +1,5 @@
+const { root } = require('postcss');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
@@ -23,6 +25,7 @@ module.exports = {
         loraFont: ["Lora", "sans-serif"],
         gantariFont: ["Gantari", "sans-serif"],
         montserratFont: ["Montserrat", "sans-serif"],
+        rootFont: ["Roboto", "sans-serif"],
       },
       colors: {
         primeColor: "#262626",
