@@ -32,10 +32,11 @@ const Cart = () => {
           {/* Quote Section */}
           <ListItem button onClick={handleQuoteClick}>
             <Archive className='mr-2' size={20} />
-            <ListItemText primaryTypographyProps={{ fontFamily: 'Roboto, sans-serif', fontWeight: '600' }} primary="Quote" />
-            {quoteOpen ? <ExpandLess /> : <ExpandMore />}
+            <Link to="quote" style={{ marginLeft: '8px', textDecoration: 'none', color: 'inherit' }}>
+              View Quote
+            </Link>
           </ListItem>
-          <Collapse in={quoteOpen} timeout="auto" unmountOnExit>
+          {/* <Collapse in={quoteOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               <ListItem button style={{ paddingLeft: 32 }}>
                 <li><Link to="quote">View Quote</Link></li>
@@ -44,15 +45,16 @@ const Cart = () => {
                 <li><Link to="priced-quote">View Priced Quote</Link></li>
               </ListItem>
             </List>
-          </Collapse>
+          </Collapse> */}
 
           {/* Order Section */}
           <ListItem button onClick={handleOrderClick}>
             <ShoppingCartSimple className="mr-2" size={20} />
-            <ListItemText primaryTypographyProps={{ fontFamily: 'Roboto, sans-serif', fontWeight: '600' }} primary="Order" />
-            {orderOpen ? <ExpandLess /> : <ExpandMore />}
+            <Link to="order" style={{ marginLeft: '8px', textDecoration: 'none', color: 'inherit' }}>
+              View Order
+            </Link>
           </ListItem>
-          <Collapse in={orderOpen} timeout="auto" unmountOnExit>
+          {/* <Collapse in={orderOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               <ListItem button style={{ paddingLeft: 32 }}>
                 <li><Link to="order">View Order</Link></li>
@@ -61,7 +63,7 @@ const Cart = () => {
                 <li><Link to="design-process">View Design Process</Link></li>
               </ListItem>
             </List>
-          </Collapse>
+          </Collapse> */}
 
           {/* Payment Section */}
           <ListItem button>

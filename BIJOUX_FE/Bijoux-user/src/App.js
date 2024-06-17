@@ -80,8 +80,6 @@ const router = createBrowserRouter(
         <Route path="/product/_:id" element={<ProductDetails />}></Route>
         <Route path="cart/*" element={<Cart />}>
           <Route path="quote" element={<ViewQuote />} />
-          <Route path="priced-quote" element={<ViewPricedQuote />} />
-          <Route path="priced-quote-details/" element={<PricedQuoteDetails />} />
           <Route path="order" element={<ViewOrder />} />
           <Route path="design-process" element={<ViewDesignProcess />} />
           <Route path="payment" element={<PaymentHistory />} />

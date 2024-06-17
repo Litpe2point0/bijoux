@@ -61,13 +61,14 @@ export default function QuoteCard({ quote, onDeclined }) {
                 <div className="flex flex-col items-center">
                     <p className="font-bold">Quote Status</p>
                     <p className={
-                        quote.quote_status.id === 1 ? "text-indigo-700 font-semibold" :
+                        quote.quote_status.id === 1 ? "text-sky-700 font-semibold" :
                             quote.quote_status.id === 2 ? "text-sky-700 font-semibold" :
-                                quote.quote_status.id === 4 ? "text-green-700 font-semibold" :
-                                    quote.quote_status.id === 5 ? "text-red-700 font-semibold" :
-                                        ""
+                                quote.quote_status.id === 3 ? "text-sky-700 font-semibold" :
+                                    quote.quote_status.id === 4 ? "text-green-700 font-semibold" :
+                                        quote.quote_status.id === 5 ? "text-red-700 font-semibold" :
+                                            ""
                     }>
-                        {quote.quote_status.name}
+                        {quote.quote_status.id === 1 || quote.quote_status.id === 2 || quote.quote_status.id === 3 ? "Pending" : quote.quote_status.id === 4 ? "Accepted" : "Declined"}
                     </p>
                 </div>
 

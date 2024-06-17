@@ -269,11 +269,10 @@ export default function ViewQuote() {
             total_price: null
         }
     ]
-    const sortOrder = ["Received", "Assigned", "Completed", "Declined"];
+    const sortOrder = ["Received", "Assigned", "Priced", "Completed", "Declined"];
 
     const filterAndSortQuotes = (quotes) => {
         return quotes
-            .filter(quote => quote.quote_status.name !== 'Priced')
             .sort((a, b) => sortOrder.indexOf(a.quote_status.name) - sortOrder.indexOf(b.quote_status.name));
     };
 
