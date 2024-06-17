@@ -525,9 +525,9 @@ class ModelController extends Controller
                             $notmain_metal_ids[] = $metal['metal']['id'];
                         }
                     }
-                    $metalCompatibilities1 = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->get();
-                    foreach ($metalCompatibilities1 as $compatibility1) {
-                        if (!in_array($compatibility1->Metal_id_2, $notmain_metal_ids)) {
+                    $metalCompatibilities1 = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->pluck('Metal_id_2')->values()->toArray();
+                    foreach ($notmain_metal_ids as $notmain_metal_id) {
+                        if (!in_array($notmain_metal_id, $metalCompatibilities1)) {
                             DB::rollBack();
                             return response()->json([
                                 'error' => 'Metal Compatibility Error'
