@@ -34,10 +34,13 @@ class ModelController extends Controller
                 if ($metal['is_main'] == 0) {
                     $check = true;
                 }
+                if ($metal['is_main'] == 1) {
+                    $check2 = true;
+                }
             }
             if($check2 == false){
                 return response()->json([
-                    'error' => 'The model must contain at least one not main metal.'
+                    'error' => 'The model must contain at least one main metal.'
                 ],403);
             }
             $main_metal_ids = [];
@@ -99,7 +102,7 @@ class ModelController extends Controller
                 $model_diamond->diamond_size_max = $diamond['diamond_size_max'];
                 $model_diamond->count = $diamond['count'];
                 $model_diamond->diamond_shape_id = $diamond['diamond_shape']['id'];
-                $model_diamond->is_editable = false;
+                $model_diamond->is_editable = $diamond['is_editable'];
                 $model_diamond->save();
             }
             foreach ($input['model_metal'] as $metal) {
