@@ -1283,7 +1283,7 @@ class ModelController extends Controller
                 }
             }
         }
-        $production_price = $model->production_price + (($product_price + $model->production_price) * $model->profit_rate);
+        $production_price = $model->production_price + (($product_price + $model->production_price) * $model->profit_rate/100);
         $total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100) / 100;
         return response()->json([
             'name' => $name,
