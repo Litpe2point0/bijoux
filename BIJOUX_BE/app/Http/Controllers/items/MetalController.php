@@ -260,7 +260,11 @@ class MetalController extends Controller
                 return response()->json(['error' => 'Invalid Token'], 401);
             }
         }
-        $role_id = (int) $decodedToken['role_id'];
+        if($token == null){
+            $role_id = 5;
+        } else {
+            $role_id = (int) $decodedToken['role_id'];
+        }
 
         //create query
         $query = Metal::query();
