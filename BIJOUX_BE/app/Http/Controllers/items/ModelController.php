@@ -27,13 +27,15 @@ class ModelController extends Controller
         DB::beginTransaction();
         try {
             $check = false;
+            $check2 = false;
+            $check3 = false;
             $model_metal = $input['model_metal'];
             foreach ($model_metal as $metal) {
                 if ($metal['is_main'] == 0) {
                     $check = true;
                 }
             }
-            if($check == false){
+            if($check2 == false){
                 return response()->json([
                     'error' => 'The model must contain at least one not main metal.'
                 ],403);
@@ -56,6 +58,17 @@ class ModelController extends Controller
                         ], 403);
                     }
                 }
+            }
+            $model_diamond = $input['model_diamond'];
+            foreach ($model_diamond as $diamond) {
+                if ($diamond['is_editable'] == 1) {
+                    $check3 = true;
+                }
+            }
+            if($check3 == false){
+                return response()->json([
+                    'error' => 'The model must contain at least one editable diamond.'
+                ],403);
             }
             $model = new _Model();
             $model->name = $input['name'];
@@ -523,9 +536,10 @@ class ModelController extends Controller
                 }
             }
             if ($check == true) {
-                //check metal compatibility
+                //check input validation
                 $temp = false;
                 $temp2 = false;
+                $temp3 = false;
                 $model_metal1 = $input['model_metal'];
                 foreach ($model_metal1 as $metal) {
                     if ($metal['is_main'] == 0) {
@@ -539,6 +553,17 @@ class ModelController extends Controller
                     return response()->json([
                         'error' => 'The model must contain at least one main metal.'
                     ], 403);
+                }
+                $model_diamond = $input['model_diamond'];
+                foreach($model_diamond as $diamond){
+                    if($diamond['is_editable'] == 1){
+                        $temp3 = true;
+                    }
+                }
+                if($temp3 == false){
+                    return response()->json([
+                        'error' => 'The model must contain at least one editable diamond.'
+                    ],403);
                 }
                 $main_metal_ids = [];
                 $notmain_metal_ids = [];
