@@ -536,7 +536,7 @@ class ModelController extends Controller
                     }
                 }
 
-                //check if there the new
+                //check if the image exist or not, if not, set isAvailable to false
                 $diamondShapes = $input['model_diamond_shape'];
                 $metal2Mapping = [];
                 foreach ($main_metal_ids as $metal) {
@@ -961,6 +961,19 @@ class ModelController extends Controller
         }
         $model_id = $input['model_id'];
         $model = DB::table('model')->where('id', $model_id)->first();
+        $product_price = 0;
+        $metal_1 = DB::table('metal')->where('id', $input['metal_1_id'])->first();
+        $metal_2 = DB::table('metal')->where('id', $input['metal_2_id'])->first();
+        $diamond_color = DB::table('diamond_color')->where('id', $input['diamond_color_id'])->first();
+        $diamond_clarity = DB::table('diamond_clarity')->where('id', $input['diamond_clarity_id'])->first();
+        $diamond_cut = DB::table('diamond_cut')->where('id', $input['diamond_cut_id'])->first();
+        $diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
+        if($metal_2 != null){
+            $mname = " - " . $metal_2->name;
+        } else {
+            $mname = "";
+        }
+        $name = $model->name . " In " . $metal_1->name . $mname . " With " . $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . " Cut Diamond";
         if (isset($input['metal_1_id']) && $input['metal_1_id'] != null) {
             $metal_1_id = $input['metal_1_id'];
             $metal = DB::table('metal')->where('id', $input['metal_1_id'])->first();
@@ -1008,7 +1021,6 @@ class ModelController extends Controller
             $related_image[] = $OGurl . $url . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id . '/related_' . $i . '.jpg';
         }
         $OGurl = env('ORIGIN_URL');
-        $Murl = env('METAL_URL');
         $Durl = env('DIAMOND_URL');
         $metal_1 = DB::table('metal')->where('id', $metal_1_id)->first();
         $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
@@ -1017,21 +1029,11 @@ class ModelController extends Controller
         $volume =  DB::table('size_to_volume')->where('size', $input['mounting_size'])->value('volume');
         $metal_1->price = $volume * $model_metal_1->percentage * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
         $metal_2->price = $volume * $model_metal_2->percentage * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
-        $metal_1->imageUrl = $OGurl . $Murl . $metal->id . '/' . $metal_1->imageUrl;
-        $metal_2->imageUrl = $OGurl . $Murl . $metal->id . '/' . $metal_2->imageUrl;
-        unset($metal_1->buy_price_per_gram);
-        unset($metal_1->sale_price_per_gram);
-        unset($metal_1->specific_weight);
-        unset($metal_1->deactivated);
-        unset($metal_1->created);
-        unset($metal_2->buy_price_per_gram);
-        unset($metal_2->sale_price_per_gram);
-        unset($metal_2->specific_weight);
-        unset($metal_2->deactivated);
-        unset($metal_2->created);
-        $metal_list = [
-            $metal_1,
-            $metal_2
+        $mprice = $metal_1->price + $metal_2->price;
+        $product_price += $mprice;
+        $metal = [
+            'name' => $metal_1->name . $mname . " " . $model->name,
+            'price' => $mprice,
         ];
         $model_diamond = DB::table('model_diamond')->where('model_id', $model_id)->get();
         $diamond_list = collect();
@@ -1044,6 +1046,7 @@ class ModelController extends Controller
                             'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
                         ], 403);
                     }
+                    $diamond->name = $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . " Cut Diamond";
                     $diamond->price = $diamonds->count * $diamond->price;
                     $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
                     $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
@@ -1052,6 +1055,8 @@ class ModelController extends Controller
                     $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
                     $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
                     $diamond->count = $diamonds->count;
+                    $diamond->is_editable = $diamonds->is_editable;
+                    $product_price += $diamond->price;
                     unset($diamond->deactivated);
                     unset($diamond->created);
                     unset($diamond->diamond_clarity_id);
@@ -1072,6 +1077,8 @@ class ModelController extends Controller
                             'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
                         ], 403);
                     }
+                    $diamond_shape2 = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
+                    $diamond->name = $diamonds->diamond_size_max . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape2->name . " Shape " . $diamond_cut->name . " Cut Diamond";
                     $diamond->price = $diamonds->count * $diamond->price;
                     $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
                     $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
@@ -1080,6 +1087,8 @@ class ModelController extends Controller
                     $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
                     $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
                     $diamond->count = $diamonds->count;
+                    $diamond->is_editable = $diamonds->is_editable;
+                    $product_price += $diamond->price;
                     unset($diamond->deactivated);
                     unset($diamond->created);
                     unset($diamond->diamond_clarity_id);
@@ -1094,13 +1103,18 @@ class ModelController extends Controller
                 }
             }
         }
+        $production_price = $model->production_price + (($product_price + $model->production_price) * $model->profit_rate);
+        $total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100)/100;
         return response()->json([
+            'name' => $name,
             'model_id' => $model_id,
             'mounting_type' => DB::table('mounting_type')->where('id', $model->mounting_type_id)->first(),
             'main_image' => $main_image,
             'related_image' => $related_image,
-            'metal_list' => $metal_list,
-            'diamond_list' => $diamond_list->values()->all()
+            'metal_list' => $metal,
+            'diamond_list' => $diamond_list->values()->all(),
+            'production_price' => $production_price,
+            'total_price' => $total_price
         ]);
     }
 }
