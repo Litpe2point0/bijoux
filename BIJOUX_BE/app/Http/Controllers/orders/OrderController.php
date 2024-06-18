@@ -672,6 +672,162 @@ class OrderController extends Controller
             'order_detail' => $order
         ]);
     }
+    public function get_order_detail_customer(Request $request)
+    {
+        $input = json_decode($request->input('order_id'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+        $OGurl = env('ORIGIN_URL');
+        $Murl = env('MODEL_URL');
+        $Ourl = env('ORDER_URL');
+        $order = DB::table('orders')->where('id', $input)->first();
+        if ($order == null) {
+            return response()->json([
+                'error' => 'The Selected Doesn\'t Exist'
+            ], 403);
+        }
+        $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+        $product = DB::table('product')->where('id', $order->product_id)->first();
+        $model = DB::table('model')->where('id', $product->model_id)->first();
+        if ($model != null) {
+            $OGurl = env('ORIGIN_URL');
+            $Surl = env('STYLE_URL');
+            $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
+            $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
+            $model->mounting_style->imageUrl = $OGurl . $Surl . $model->mounting_style->id . $model->mounting_style->imageUrl;
+
+            $model->imageUrl = $OGurl . $Murl . $model->id . "/" . $model->imageUrl;
+            unset($model->mounting_type_id);
+            unset($model->mounting_style_id);
+        }
+
+        $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
+        unset($product->mounting_type_id);
+        $product->model = $model;
+        unset($product->model_id);
+        $product_url = $product->imageUrl;
+        $product->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product->imageUrl;
+
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->whereIn('status', [1,2,3])->get();
+        $product_diamond->map(function ($product_diamond) {
+            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('DIAMOND_URL');
+            $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
+            $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
+            $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+            $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
+            unset($diamond->diamond_color_id);
+            unset($diamond->diamond_origin_id);
+            unset($diamond->diamond_clarity_id);
+            unset($diamond->diamond_cut_id);
+            $product_diamond->diamond = $diamond;
+
+            $product_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
+            unset($product_diamond->diamond_id);
+            unset($product_diamond->diamond_shape_id);
+            return $product_diamond;
+        });
+        $product->product_diamond = $product_diamond;
+
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->whereIn('status', [1,2,3])->get();
+        $product_metal->map(function ($product_metal) {
+            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('METAL_URL');
+            $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
+            $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
+            $product_metal->metal = $metal;
+            unset($product_metal->metal_id);
+            return $product_metal;
+        });
+        $product->product_metal = $product_metal;
+
+        $order->product = $product;
+        unset($order->product_id);
+
+        $account = DB::table('account')->where('id', $order->account_id)->first();
+        $account->role = DB::table('role')->where('id', $account->role_id)->first();
+        unset($account->role_id);
+        if (!$account->google_id) {
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ACCOUNT_URL');
+            $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+        }
+        $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+        $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
+        unset($account->password);
+        $order->account = $account;
+        unset($order->account_id);
+
+
+        $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
+        if ($sale_staff != null) {
+            $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+            unset($sale_staff->role_id);
+            if (!$sale_staff->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+            }
+            $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+            $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+            unset($sale_staff->password);
+        }
+
+        $order->sale_staff = $sale_staff;
+        unset($order->saleStaff_id);
+
+        $design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
+        if ($design_staff != null) {
+            $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+            unset($design_staff->role_id);
+            if (!$design_staff->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+            }
+            $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+            $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+            unset($design_staff->password);
+        }
+        $order->design_staff = $design_staff;
+        unset($order->designStaff_id);
+
+        $production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
+        if ($production_staff != null) {
+            $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+            unset($production_staff->role_id);
+            if (!$production_staff->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+            }
+            $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+            $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+            unset($production_staff->password);
+        }
+        $order->production_staff = $production_staff;
+        unset($order->productionStaff_id);
+
+        $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
+        unset($order->order_status_id);
+        $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
+        unset($order->order_type_id);
+
+        $order->design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
+
+        $order->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product_url;
+
+        return response()->json([
+            'order_detail' => $order
+        ]);
+    }
     public function get_assigned_staff(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);

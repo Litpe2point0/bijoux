@@ -260,7 +260,11 @@ class MetalController extends Controller
                 return response()->json(['error' => 'Invalid Token'], 401);
             }
         }
-        $role_id = (int) $decodedToken['role_id'];
+        if($token == null){
+            $role_id = 5;
+        } else {
+            $role_id = (int) $decodedToken['role_id'];
+        }
 
         //create query
         $query = Metal::query();
@@ -365,14 +369,18 @@ class MetalController extends Controller
                 'error' => 'The Selected Metal Has Been Deactivated'
             ], 403);
         }
-        $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main', false)->pluck('metal_id');
-        $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1', $input['metal_id'])->pluck('Metal_id_2');
+        $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main', false)->pluck('metal_id')->values();
+        $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1', $input['metal_id'])->pluck('Metal_id_2')->values();
         $data = collect();
-        foreach ($metal_list as $metal) {
+        foreach ($metal_list as $metal1) {
             foreach ($metal_compatibility as $compability) {
-                if ($metal == $compability) {
-                    $temp = DB::table('metal')->where('id', $metal)->first();
-                    $temp->created = Carbon::parse($temp->created)->format('H:i:s d/m/Y');
+                if ($metal1 == $compability) {
+                    $temp = DB::table('model_metal')->where('model_id', $input['model_id'])->where('metal_id', $metal1)->first();
+                    $temp->metal = DB::table('metal')->where('id', $metal1)->first();
+                    $temp->metal->created = Carbon::parse($temp->metal->created)->format('H:i:s d/m/Y');
+                    unset($temp->metal_id);
+                    unset($temp->model_id);
+                    unset($temp->id);
                     $data->push($temp);
                 }
             }

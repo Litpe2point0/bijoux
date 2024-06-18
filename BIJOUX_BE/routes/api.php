@@ -131,6 +131,7 @@ Route::group([], function () {
             Route::post('/add_order_template', [OrderController::class, 'add_order_template']);
             Route::post('/get_order_list', [OrderController::class, 'get_order_list_customer']);
             Route::post('/get_order_detail', [OrderController::class, 'get_order_detail']);
+            Route::post('/get_order_detail_customer', [OrderController::class, 'get_order_detail_customer']);
             Route::post('/get_order_status_list', [OrderController::class, 'get_order_status_list']);
             Route::post('/get_order_type_list', [OrderController::class, 'get_order_type_list']);
             Route::post('/cancel', [OrderController::class, 'cancel_order']);
