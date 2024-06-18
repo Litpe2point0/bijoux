@@ -98,20 +98,33 @@ class ModelController extends Controller
             $main_metal_ids = [];
             $notmain_metal_ids = [];
             if ($check == true) {
-                foreach ($model_metal as $metal) {
-                    if ($metal['is_main'] == 1) {
-                        $main_metal_ids[] = $metal['metal']['id'];
-                    } else if ($metal['is_main'] == 0) {
+                foreach ($model_metal1 as $metal) {
+                    if ($metal['is_main'] == 0) {
                         $notmain_metal_ids[] = $metal['metal']['id'];
                     }
                 }
-                $metalCompatibilities = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->get();
-                foreach ($metalCompatibilities as $compatibility) {
-                    if (!in_array($compatibility->Metal_id_2, $notmain_metal_ids)) {
-                        return response()->json([
-                            'error' => 'Metal Compatibility Error'
-                        ], 403);
-                    }
+                $metalCompatibilities1 = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->get();
+                $metalCompatibilities1 = DB::table('metal_compatibility')
+                    ->whereIn('Metal_id_1', $main_metal_ids)
+                    ->get();
+
+                // Count occurrences of each Metal_id_2
+                $metalCounts = $metalCompatibilities1->groupBy('Metal_id_2')->map(function ($group) {
+                    return $group->count();
+                });
+
+                // Get the count of unique Metal_id_1 values
+                $uniqueMetal1Count = collect($main_metal_ids)->count();
+
+                // Filter Metal_id_2 values that are associated with all Metal_id_1 values
+                $commonMetal2Ids = $metalCounts->filter(function ($count) use ($uniqueMetal1Count) {
+                    return $count == $uniqueMetal1Count;
+                })->keys();
+
+                if ($commonMetal2Ids->isEmpty()) {
+                    return response()->json([
+                        'error' => 'Metal Compatibility Error'
+                    ], 403);
                 }
             }
             $model = new _Model();
@@ -669,14 +682,28 @@ class ModelController extends Controller
                             $notmain_metal_ids[] = $metal['metal']['id'];
                         }
                     }
-                    $metalCompatibilities1 = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->pluck('Metal_id_2')->values()->toArray();
-                    foreach ($notmain_metal_ids as $notmain_metal_id) {
-                        if (!in_array($notmain_metal_id, $metalCompatibilities1)) {
-                            DB::rollBack();
-                            return response()->json([
-                                'error' => 'Metal Compatibility Error'
-                            ], 403);
-                        }
+                    $metalCompatibilities1 = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->get();
+                    $metalCompatibilities1 = DB::table('metal_compatibility')
+                        ->whereIn('Metal_id_1', $main_metal_ids)
+                        ->get();
+
+                    // Count occurrences of each Metal_id_2
+                    $metalCounts = $metalCompatibilities1->groupBy('Metal_id_2')->map(function ($group) {
+                        return $group->count();
+                    });
+
+                    // Get the count of unique Metal_id_1 values
+                    $uniqueMetal1Count = collect($main_metal_ids)->count();
+
+                    // Filter Metal_id_2 values that are associated with all Metal_id_1 values
+                    $commonMetal2Ids = $metalCounts->filter(function ($count) use ($uniqueMetal1Count) {
+                        return $count == $uniqueMetal1Count;
+                    })->keys();
+
+                    if ($commonMetal2Ids->isEmpty()) {
+                        return response()->json([
+                            'error' => 'Metal Compatibility Error'
+                        ], 403);
                     }
                 }
 
