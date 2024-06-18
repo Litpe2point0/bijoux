@@ -42,10 +42,20 @@ class ModelController extends Controller
                     'error' => 'The model must contain at least one main metal.'
                 ], 403);
             }
+            
+            $model_diamond = collect($input['model_diamond']);
+            $editable_diamonds = $model_diamond->filter(function ($diamond) {
+                return $diamond['is_editable'] == 1;
+            });
+            if ($editable_diamonds->count() !== 1) {
+                return response()->json([
+                    'error' => 'There must be exactly one editable diamond.'
+                ], 403);
+            }
 
-            $model_metal1 = collect($input['model_metal']);
+            $model_metal2 = collect($input['model_metal']);
 
-            $grouped_metals = $model_metal1->groupBy('is_main');
+            $grouped_metals = $model_metal2->groupBy('is_main');
             $main_metals = $grouped_metals->get(1, collect());
             $main_metal_ids = $main_metals->pluck('metal.id');
             if ($main_metal_ids->duplicates()->isNotEmpty()) {
@@ -61,9 +71,9 @@ class ModelController extends Controller
                 ], 403);
             }
 
-            $model_metal_main = $model_metal1->firstWhere('is_main', 1);
+            $model_metal_main = $model_metal2->firstWhere('is_main', 1);
             if ($check == true) {
-                $model_metal_notmain = $model_metal1->firstWhere('is_main', 0);
+                $model_metal_notmain = $model_metal2->firstWhere('is_main', 0);
             }
             if ($check != true) {
                 if ($model_metal_main['percentage'] != 100) {
@@ -97,34 +107,29 @@ class ModelController extends Controller
 
             $main_metal_ids = [];
             $notmain_metal_ids = [];
+            foreach ($model_metal as $metal) {
+                if ($metal['is_main'] == 1) {
+                    $main_metal_ids[] = $metal['metal']['id'];
+                }
+            }
             if ($check == true) {
-                foreach ($model_metal1 as $metal) {
+                foreach ($model_metal as $metal) {
                     if ($metal['is_main'] == 0) {
                         $notmain_metal_ids[] = $metal['metal']['id'];
                     }
                 }
-                $metalCompatibilities1 = DB::table('metal_compatibility')->whereIn('Metal_id_1', $main_metal_ids)->get();
-                $metalCompatibilities1 = DB::table('metal_compatibility')
-                    ->whereIn('Metal_id_1', $main_metal_ids)
-                    ->get();
-
-                // Count occurrences of each Metal_id_2
-                $metalCounts = $metalCompatibilities1->groupBy('Metal_id_2')->map(function ($group) {
-                    return $group->count();
-                });
-
-                // Get the count of unique Metal_id_1 values
-                $uniqueMetal1Count = collect($main_metal_ids)->count();
-
-                // Filter Metal_id_2 values that are associated with all Metal_id_1 values
-                $commonMetal2Ids = $metalCounts->filter(function ($count) use ($uniqueMetal1Count) {
-                    return $count == $uniqueMetal1Count;
-                })->keys();
-
-                if ($commonMetal2Ids->isEmpty()) {
-                    return response()->json([
-                        'error' => 'Metal Compatibility Error'
-                    ], 403);
+                foreach ($main_metal_ids as $metal) {
+                    $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                    foreach ($metalCompatibilities1 as $compatibility2) {
+                        $bo = false;
+                        foreach ($notmain_metal_ids as $metal2) {
+                            if ($compatibility2->Metal_id_2 != $metal2) {
+                                return response()->json([
+                                    'error' => 'Metal Compatibility Error'
+                                ], 403);
+                            }
+                        }
+                    }
                 }
             }
             $model = new _Model();
@@ -550,7 +555,7 @@ class ModelController extends Controller
                     'error' => 'There must be exactly one editable diamond.'
                 ], 403);
             }
-            
+
             $check = true;
             $model_metal = DB::table('model_metal')->where('model_id', $input['id'])->get();
             $model_metal->map(function ($metal) {
