@@ -33,6 +33,11 @@ class ModelController extends Controller
                     $check = true;
                 }
             }
+            if($check == false){
+                return response()->json([
+                    'error' => 'The model must contain at least one not main metal.'
+                ],403);
+            }
             $main_metal_ids = [];
             $notmain_metal_ids = [];
             if ($check == true) {
@@ -143,12 +148,12 @@ class ModelController extends Controller
                 return response()->json(['error' => 'Invalid Token'], 401);
             }
         }
-        if($token == null){
+        if ($token == null) {
             $role_id = 5;
         } else {
             $role_id = (int) $decodedToken['role_id'];
         }
-        
+
         //create query
         $query_available = DB::table('model')
             ->join('model_diamondshape', 'model.id', '=', 'model_diamondshape.model_id')
@@ -355,15 +360,24 @@ class ModelController extends Controller
         });
         $model->model_diamond = $model_diamond;
 
+        $list = collect();
         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
+        foreach($model_metal as $metal){
+            $temp = DB::table('metal')->where('id', $metal->metal_id)->first();
+        }
         $model_metal->map(function ($model_metal) {
-            $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-            $OGurl = env('ORIGIN_URL');
-            $url = env('METAL_URL');
-            $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
-            $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
-            unset($model_metal->model_id);
-            unset($model_metal->metal_id);
+            $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+            if ($metal->deactivated == 1) {
+                $model_metal->isAvailable = false;
+            } else {
+                $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+                $OGurl = env('ORIGIN_URL');
+                $url = env('METAL_URL');
+                $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
+                $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
+                unset($model_metal->model_id);
+                unset($model_metal->metal_id);
+            }
             return $model_metal;
         });
         $model->model_metal = $model_metal;
@@ -511,11 +525,20 @@ class ModelController extends Controller
             if ($check == true) {
                 //check metal compatibility
                 $temp = false;
+                $temp2 = false;
                 $model_metal1 = $input['model_metal'];
                 foreach ($model_metal1 as $metal) {
                     if ($metal['is_main'] == 0) {
                         $temp = true;
                     }
+                    if ($metal['is_main'] == 1) {
+                        $temp2 = true;
+                    }
+                }
+                if($temp2 == false){
+                    return response()->json([
+                        'error' => 'The model must contain at least one main metal.'
+                    ], 403);
                 }
                 $main_metal_ids = [];
                 $notmain_metal_ids = [];
@@ -809,11 +832,13 @@ class ModelController extends Controller
 
                         if (!file_exists($destinationPath)) {
                             $metal_1 = DB::table('metal')->where('id', $metal1->id)->first();
+                            $metal_1->imageUrl = $OGurl . env('METAL_URL') . $metal_1->id . '/' . $metal_1->imageUrl;
                             $metal_1->created = Carbon::parse($metal_1->created)->format('H:i:s d/m/Y');
                             if ($metal2_id == 0) {
                                 $metal_2 = null;
                             } else {
                                 $metal_2 = DB::table('metal')->where('id', $metal2_id)->first();
+                                $metal_2->imageUrl = $OGurl . env('METAL_URL') . $metal_2->id . '/' . $metal_2->imageUrl;
                                 $metal_2->created = Carbon::parse($metal_2->created)->format('H:i:s d/m/Y');
                             }
                             $diamond_shape = $shape;
@@ -829,8 +854,10 @@ class ModelController extends Controller
                             $files = File::allFiles($destinationPath);
                             if ($files == null) {
                                 $metal_1 = DB::table('metal')->where('id', $metal1->id)->first();
+                                $metal_1->imageUrl = $OGurl . env('METAL_URL') . $metal_1->id . '/' . $metal_1->imageUrl;
                                 $metal_1->created = Carbon::parse($metal_1->created)->format('H:i:s d/m/Y');
                                 $metal_2 = DB::table('metal')->where('id', $metal2_id)->first();
+                                $metal_2->imageUrl = $OGurl . env('METAL_URL') . $metal_2->id . '/' . $metal_2->imageUrl;
                                 $metal_2->created = Carbon::parse($metal_2->created)->format('H:i:s d/m/Y');
                                 $diamond_shape = $shape;
 
@@ -973,7 +1000,7 @@ class ModelController extends Controller
         $diamond_clarity = DB::table('diamond_clarity')->where('id', $input['diamond_clarity_id'])->first();
         $diamond_cut = DB::table('diamond_cut')->where('id', $input['diamond_cut_id'])->first();
         $diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
-        if($metal_2 != null){
+        if ($metal_2 != null) {
             $mname = " - " . $metal_2->name;
         } else {
             $mname = "";
@@ -1109,7 +1136,7 @@ class ModelController extends Controller
             }
         }
         $production_price = $model->production_price + (($product_price + $model->production_price) * $model->profit_rate);
-        $total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100)/100;
+        $total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100) / 100;
         return response()->json([
             'name' => $name,
             'model_id' => $model_id,
