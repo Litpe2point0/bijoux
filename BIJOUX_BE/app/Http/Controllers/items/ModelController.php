@@ -1198,13 +1198,19 @@ class ModelController extends Controller
         $OGurl = env('ORIGIN_URL');
         $Durl = env('DIAMOND_URL');
         $metal_1 = DB::table('metal')->where('id', $metal_1_id)->first();
-        $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
         $model_metal_1 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_1_id)->where('is_main', true)->first();
-        $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
         $volume =  DB::table('size_to_volume')->where('size', $input['mounting_size'])->value('volume');
+        if($metal_2_id != null){
+            $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
+            $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
+            $metal_2->price = $volume * $model_metal_2->percentage * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+            $iprice = $metal_2->price;
+        } else {
+            $iprice = 0;
+        }
         $metal_1->price = $volume * $model_metal_1->percentage * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
-        $metal_2->price = $volume * $model_metal_2->percentage * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
-        $mprice = $metal_1->price + $metal_2->price;
+        
+        $mprice = $metal_1->price + $iprice;
         $product_price += $mprice;
         $metal = [
             'name' => $metal_1->name . $mname . " " . $model->name,
