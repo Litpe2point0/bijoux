@@ -978,7 +978,7 @@ class ModelController extends Controller
         } else {
             $mname = "";
         }
-        $name = $model->name . " In " . $metal_1->name . $mname . " With " . $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . " Cut Diamond";
+        $name = $model->name . " In " . $metal_1->name . $mname . " With " . $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . "Cut Diamond";
         if (isset($input['metal_1_id']) && $input['metal_1_id'] != null) {
             $metal_1_id = $input['metal_1_id'];
             $metal = DB::table('metal')->where('id', $input['metal_1_id'])->first();
@@ -1051,7 +1051,7 @@ class ModelController extends Controller
                             'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
                         ], 403);
                     }
-                    $diamond->name = $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . " Cut Diamond";
+                    $diamond->name = $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . "Cut Diamond";
                     $diamond->price = $diamonds->count * $diamond->price;
                     $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
                     $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
@@ -1083,7 +1083,7 @@ class ModelController extends Controller
                         ], 403);
                     }
                     $diamond_shape2 = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
-                    $diamond->name = $diamonds->diamond_size_max . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape2->name . " Shape " . $diamond_cut->name . " Cut Diamond";
+                    $diamond->name = $diamonds->diamond_size_max . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape2->name . " Shape " . $diamond_cut->name . "Cut Diamond";
                     $diamond->price = $diamonds->count * $diamond->price;
                     $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
                     $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
