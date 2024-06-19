@@ -152,6 +152,25 @@ class QuoteController extends Controller
                 'error' => 'No Input Receive'
             ], 403);
         }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $account_id = (int) $decodedToken['id'];
+        $account = DB::table('account')->where('id', $account_id)->first();
+        if ($account->deactivated) {
+            return response()->json([
+                'error' => 'The Selected Customer Account Has Been Deactivated'
+            ], 403);
+        }
+
         if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
             $type_id = $input['mounting_type_id'];
         } else $type_id = null;
@@ -160,19 +179,6 @@ class QuoteController extends Controller
         } else $note = null;
         DB::beginTransaction();
         try {
-            $account_id = $input['account']['id'];
-            $account = DB::table('account')->where('id', $account_id)->first();
-            if ($account == null) {
-                return response()->json([
-                    'error' => 'The Selected Customer Account Doesn\'t Exist'
-                ], 403);
-            }
-            if ($account->deactivated) {
-                return response()->json([
-                    'error' => 'The Selected Customer Account Has Been Deactivated'
-                ], 403);
-            }
-
             $product = new Product();
             $product->mounting_type_id = $type_id;
             $product->imageUrl = "";
@@ -404,7 +410,7 @@ class QuoteController extends Controller
                         DB::rollBack();
                         return response()->json([
                             'error' => 'One Of The Selected Diamond Is Currently Deactivated'
-                        ],403);
+                        ], 403);
                     }
                     $product_diamond->product_id = $quote->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
@@ -423,7 +429,7 @@ class QuoteController extends Controller
                     DB::rollBack();
                     return response()->json([
                         'error' => 'One Of The Selected Metal Is Currently Deactivated'
-                    ],403);
+                    ], 403);
                 }
                 $product_metal->product_id = $quote->product_id;
                 $product_metal->metal_id = $metal1['metal']['id'];
