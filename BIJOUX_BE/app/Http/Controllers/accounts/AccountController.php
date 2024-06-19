@@ -106,8 +106,6 @@ class AccountController extends Controller
             // ];
 
             $account = Account::where('email', $email)->first();
-            $OGurl = env('ORIGIN_URL');
-            $url = env('ACCOUNT_URL');
             $payload = [
                 'id' => $account->id, // Subject of the token
                 'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
