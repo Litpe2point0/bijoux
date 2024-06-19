@@ -193,6 +193,12 @@ class OrderController extends Controller
         } catch (Throwable $e) {
             $account_id = $decodedToken->id;
         }
+        $account = DB::table('account')->where('id', $account_id)->first();
+        if ($account->deactivated) {
+            return response()->json([
+                'error' => 'The Selected Customer Account Has Been Deactivated'
+            ], 403);
+        }
         $product_price = 0;
         DB::beginTransaction();
         try {
@@ -256,22 +262,22 @@ class OrderController extends Controller
                 mkdir($productPath, 0755, true);
             }
             $destinationFilePath = public_path('image/Order/' . $product->id . '/' . $fileName);
-            $sourceFilePath = public_path('image/Final_Template/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id'] . $fileName);
+            $sourceFilePath = public_path('image/Final_Template/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id'] . '/' . $fileName);
             File::copy($sourceFilePath, $destinationFilePath);
             DB::table('product')->where('id', $product->id)->update([
                 'imageUrl' => $fileName
             ]);
 
             $size_to_volume = DB::table('size_to_volume')->where('size', $input['mounting_size'])->first();
-            $model_metal1 = DB::table('model_metal')->where('metal_id', $metal_1->id)->where('model_id', $input['model_id'])->first();
-            if ($model_metal1 == null || !$model_metal1->is_main) {
+            $model_metal1 = DB::table('model_metal')->where('metal_id', $metal_1->id)->where('model_id', $input['model_id'])->where('is_main',1)->first();
+            if ($model_metal1 == null) {
                 return response()->json([
                     'error' => 'The Selected Template Doesn\'t Contain The Selected Main Metal'
                 ], 403);
             }
             if ($metal_2 != null) {
-                $model_metal2 = DB::table('model_metal')->where('metal_id', $metal_2->id)->where('model_id', $input['model_id'])->first();
-                if ($model_metal2 == null || $model_metal2->is_main) {
+                $model_metal2 = DB::table('model_metal')->where('metal_id', $metal_2->id)->where('model_id', $input['model_id'])->where('is_main',0)->first();
+                if ($model_metal2 == null) {
                     return response()->json([
                         'error' => 'The Selected Template Doesn\'t Contain The Selected Secondary Metal'
                     ], 403);
