@@ -9,6 +9,9 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class MetalController extends Controller
 {
@@ -256,8 +259,12 @@ class MetalController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         if ($token == null) {

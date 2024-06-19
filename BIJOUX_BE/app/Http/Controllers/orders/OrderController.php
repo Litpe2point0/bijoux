@@ -14,6 +14,9 @@ use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class OrderController extends Controller
 {
@@ -87,8 +90,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $input = (int) $decodedToken['id'];
@@ -168,8 +175,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $account_id = (int) $decodedToken['id'];
@@ -474,8 +485,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $id = (int) $decodedToken['id'];
@@ -970,8 +985,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $input = (int) $decodedToken['id'];
@@ -1053,8 +1072,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $input = (int) $decodedToken['id'];
@@ -1121,8 +1144,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $input = (int) $decodedToken['id'];
@@ -1239,8 +1266,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $input = (int) $decodedToken['id'];
@@ -1385,8 +1416,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $id = (int) $decodedToken['id'];
@@ -1555,8 +1590,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $id = (int) $decodedToken['id'];
@@ -1785,8 +1824,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $id = (int) $decodedToken['id'];
@@ -2049,8 +2092,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $id = (int) $decodedToken['id'];
@@ -2151,8 +2198,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $id = (int) $decodedToken['id'];
@@ -2254,8 +2305,12 @@ class OrderController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $id = (int) $decodedToken['id'];

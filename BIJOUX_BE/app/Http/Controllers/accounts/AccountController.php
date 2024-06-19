@@ -10,6 +10,8 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\accounts\Account;
 use Illuminate\Support\Facades\DB;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Carbon\Carbon;
 use Google_Client;
 
@@ -64,7 +66,7 @@ class AccountController extends Controller
     }
     public function login_with_google(Request $request)
     {
-        $token = $request->input('tokenId');
+        $token = $request->input('token_id');
 
         $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
         $payload = $client->verifyIdToken($token);
@@ -74,7 +76,6 @@ class AccountController extends Controller
             $email = $payload['email'];
             $name = $payload['name'];
             $image = $payload['picture'];
-
 
             // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
             $account = Account::where('email', $email)->first();
@@ -401,8 +402,12 @@ class AccountController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         $id = (int) $decodedToken['id'];
