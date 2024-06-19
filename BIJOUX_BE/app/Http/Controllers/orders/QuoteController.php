@@ -183,12 +183,6 @@ class QuoteController extends Controller
         } catch (Throwable $e) {
             $account_id = $decodedToken->id;
         }
-        $account = DB::table('account')->where('id', $account_id)->first();
-        if ($account->deactivated) {
-            return response()->json([
-                'error' => 'The Selected Customer Account Has Been Deactivated'
-            ], 403);
-        }
 
         if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
             $type_id = $input['mounting_type_id'];
