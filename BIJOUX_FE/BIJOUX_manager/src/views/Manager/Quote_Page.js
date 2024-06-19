@@ -490,6 +490,11 @@ const Quote_Page = () => {
     useEffect(() => {
 
         handleDataChange()
+
+
+
+
+        
     }, [])
 
 
