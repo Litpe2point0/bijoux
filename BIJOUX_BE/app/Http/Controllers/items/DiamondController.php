@@ -11,6 +11,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class DiamondController extends Controller
 {
@@ -36,7 +37,11 @@ class DiamondController extends Controller
         if($token == null){
             $role_id = 5;
         } else {
-            $role_id = (int) $decodedToken['role_id'];
+            try {
+                $role_id = $decodedToken['role_id'];
+            } catch (Throwable $e) {
+                $role_id = $decodedToken->role_id;
+            }
         }
         
         //create query

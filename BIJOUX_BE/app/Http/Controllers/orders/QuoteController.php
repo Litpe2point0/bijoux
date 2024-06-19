@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class QuoteController extends Controller
 {
@@ -104,7 +105,11 @@ class QuoteController extends Controller
                 }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
 
         $quote_list = DB::table('quote')->where('account_id', $input)->orderBy('quote_status_id', 'ASC')->get();
         $quote_list->map(function ($quote) {
@@ -173,7 +178,11 @@ class QuoteController extends Controller
                 }
             }
         }
-        $account_id = (int) $decodedToken['id'];
+        try {
+            $account_id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $account_id = $decodedToken->id;
+        }
         $account = DB::table('account')->where('id', $account_id)->first();
         if ($account->deactivated) {
             return response()->json([
@@ -352,7 +361,11 @@ class QuoteController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
         if ($quote->saleStaff_id != $id) {
             return response()->json([
@@ -565,7 +578,11 @@ class QuoteController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $account = Account::find($id);
         if ($account->role_id != 1 && $account->role_id != 5) {
             return response()->json([
@@ -615,7 +632,11 @@ class QuoteController extends Controller
                 }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
         $account = Account::find($input);
         if ($account->role_id != 2) {
             return response()->json([
