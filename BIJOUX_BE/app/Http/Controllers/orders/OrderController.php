@@ -239,7 +239,7 @@ class OrderController extends Controller
             } else {
                 $metal_2_id = $metal_2->id;
             }
-            $destinationPath = public_path('image/Final_templates/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id']);
+            $destinationPath = public_path('image/Final_Template/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id']);
             if (!file_exists($destinationPath)) {
                 return response()->json([
                     'error' => 'Product Is Not Available'
@@ -262,7 +262,7 @@ class OrderController extends Controller
                 mkdir($productPath, 0755, true);
             }
             $destinationFilePath = public_path('image/Order/' . $product->id . '/' . $fileName);
-            $sourceFilePath = public_path('image/Final_templates/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id'] . $fileName);
+            $sourceFilePath = public_path('image/Final_Template/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id'] . $fileName);
             File::copy($sourceFilePath, $destinationFilePath);
             DB::table('product')->where('id', $product->id)->update([
                 'imageUrl' => $fileName
