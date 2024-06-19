@@ -161,7 +161,29 @@ class OrderController extends Controller
                 'error' => 'No Input Received'
             ], 403);
         }
-        $account_id = $input['account']['id'];
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Invalid Token'], 401);
+            }
+        }
+        $account_id = (int) $decodedToken['id'];
+        $account = DB::table('account')->where('id', $account_id)->first();
+        if ($account == null) {
+            return response()->json([
+                'error' => 'The Selected Customer Account Doesn\'t Exist'
+            ], 403);
+        }
+        if ($account->deactivated) {
+            return response()->json([
+                'error' => 'The Selected Customer Account Has Been Deactivated'
+            ], 403);
+        }
         $product_price = 0;
         DB::beginTransaction();
         try {
@@ -711,7 +733,7 @@ class OrderController extends Controller
         $product_url = $product->imageUrl;
         $product->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product->imageUrl;
 
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->whereIn('status', [1,2,3])->get();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->whereIn('status', [1, 2, 3])->get();
         $product_diamond->map(function ($product_diamond) {
             $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -735,7 +757,7 @@ class OrderController extends Controller
         });
         $product->product_diamond = $product_diamond;
 
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->whereIn('status', [1,2,3])->get();
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->whereIn('status', [1, 2, 3])->get();
         $product_metal->map(function ($product_metal) {
             $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
             $OGurl = env('ORIGIN_URL');
