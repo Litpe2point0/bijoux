@@ -106,15 +106,13 @@ class AccountController extends Controller
             // ];
 
             $account = Account::where('email', $email)->first();
-            $OGurl = env('ORIGIN_URL');
-            $url = env('ACCOUNT_URL');
             $payload = [
                 'id' => $account->id, // Subject of the token
                 'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
-                'imageUrl' => $OGurl . $url . $account->id .  "/" . $account->photo,
+                'imageUrl' => $account->photo,
                 // Thêm các claims khác nếu cần
             ];
 

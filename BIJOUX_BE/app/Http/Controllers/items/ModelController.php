@@ -121,7 +121,6 @@ class ModelController extends Controller
                 foreach ($main_metal_ids as $metal) {
                     $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
                     foreach ($metalCompatibilities1 as $compatibility2) {
-                        $bo = false;
                         foreach ($notmain_metal_ids as $metal2) {
                             if ($compatibility2->Metal_id_2 != $metal2) {
                                 return response()->json([
@@ -617,7 +616,6 @@ class ModelController extends Controller
                 }
             }
             if ($check == true) {
-                //check input validation
                 $temp = false;
                 $model_metal1 = $input['model_metal'];
                 foreach ($model_metal1 as $metal) {
@@ -694,7 +692,6 @@ class ModelController extends Controller
                     foreach ($main_metal_ids as $metal) {
                         $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
                         foreach ($metalCompatibilities1 as $compatibility2) {
-                            $bo = false;
                             foreach ($notmain_metal_ids as $metal2) {
                                 if ($compatibility2->Metal_id_2 != $metal2) {
                                     return response()->json([
