@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\File;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class OrderController extends Controller
 {
@@ -98,7 +99,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
 
         $customize_order_list = DB::table('orders')->where('account_id', $input)->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
@@ -183,7 +188,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $account_id = (int) $decodedToken['id'];
+        try {
+            $account_id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $account_id = $decodedToken->id;
+        }
         $account = DB::table('account')->where('id', $account_id)->first();
         if ($account->deactivated) {
             return response()->json([
@@ -493,7 +502,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $account = Account::find($id);
         if ($account->role_id != 1 && $account->role_id != 5) {
             return response()->json([
@@ -993,7 +1006,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
 
         $account = Account::find($input);
         if ($account->role_id != 2) {
@@ -1080,7 +1097,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
 
         $account = Account::find($input);
         if ($account->role_id != 3) {
@@ -1152,7 +1173,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
 
         $account = Account::find($input);
         if ($account->role_id != 4) {
@@ -1274,7 +1299,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
 
         $account = Account::find($input);
         if ($account->role_id != 4) {
@@ -1424,7 +1453,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $order = DB::table('orders')->where('id', $input['order_id'])->first();
         if ($order->designStaff_id != $id) {
             return response()->json([
@@ -1598,7 +1631,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $order = DB::table('orders')->where('id', $design_process->order_id)->first();
         if ($order->saleStaff_id != $id) {
             return response()->json([
@@ -1832,7 +1869,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $account = Account::find($id);
         $design_list = collect();
 
@@ -2100,7 +2141,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $order = DB::table('orders')->where('id', $input['order_id'])->first();
         if ($order->designStaff_id != $id) {
             return response()->json([
@@ -2206,7 +2251,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         if ($order->productionStaff_id != $id) {
             return response()->json([
                 'error' => 'Your Account Isn\'t Assigned To The Selected Order'
@@ -2313,7 +2362,11 @@ class OrderController extends Controller
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         if ($order->productionStaff_id != $id) {
             return response()->json([
                 'error' => 'Your Account Isn\'t Assigned To The Selected Order'

@@ -14,6 +14,7 @@ use Firebase\JWT\Key;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Carbon\Carbon;
 use Google_Client;
+use Throwable;
 
 class AccountController extends Controller
 {
@@ -404,57 +405,20 @@ class AccountController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
 
         //find account
         $account = Account::find($id);
-
-        if ($account->email == $input['email'] && $account->phone == $input['phone']) {
-            // Both email and phone match, skip uniqueness validation
-            $rules = [
-                'email' => 'required|string|email|max:255',
-                'phone' => 'nullable|string|max:20',
-            ];
-        } else {
-            // Check if only email matches
-            if ($account->email == $input['email']) {
-                $rules = [
-                    'email' => 'required|string|email|max:255',
-                    'phone' => 'nullable|string|max:20|unique:account,phone',
-                ];
-            }
-            // Check if only phone matches
-            else if ($account->phone == $input['phone']) {
-                $rules = [
-                    'email' => 'required|string|email|max:255|unique:account,email',
-                    'phone' => 'nullable|string|max:20',
-                ];
-            }
-            // Neither email nor phone match, apply full uniqueness validation
-            else {
-                $rules = [
-                    'email' => 'required|string|email|max:255|unique:account,email',
-                    'phone' => 'nullable|string|max:20|unique:account,phone',
-                ];
-            }
-        }
-        $validatedData = validator($input, $rules);
-        if ($validatedData->fails()) {
-            $errors = $validatedData->errors();
-            $errorString = '';
-
-            foreach ($errors->all() as $message) {
-                $errorString .= $message . "\n";
-            }
-
-            return response()->json(['error' => $errorString], 400);
-        }
 
         DB::beginTransaction();
         try {
