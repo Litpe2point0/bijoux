@@ -8,7 +8,7 @@ const CurrencyFormatter = ({ value }) => {
 
 export default function PricedDiamondCard({ diamond }) {
     return (
-        <div className="h-[167px] grid grid-cols-3 shadow-lg rounded-xl mb-5 border">
+        <div className="h-[167px] grid grid-cols-3 shadow-lg rounded-xl mb-5 border font-gantariFont">
             <div className="h-[167px] flex flex-col items-center justify-center">
                 <img src={diamond.diamond.imageUrl} alt="metal" className="h-[136px] rounded-lg" />
             </div>
@@ -55,7 +55,7 @@ export default function PricedDiamondCard({ diamond }) {
                 <div className="flex flex-col items-center justify-center">
                     <p className="font-bold text-lg text-[#151542]">Size</p>
                     <div className="w-3/4 flex justify-center items-center rounded-md bg-sky-200">
-                        <p className="font-semibold">{diamond.diamond.size}.0 (mm)</p>
+                        <p className="font-semibold">{diamond.diamond.size} (mm)</p>
                     </div>
                 </div>
             </div>

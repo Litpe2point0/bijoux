@@ -16,7 +16,6 @@ import About from "./pages/About/About";
 import SignIn from "./pages/Account/SignIn";
 import SignUp from "./pages/Account/SignUp";
 import Cart from "./pages/Cart/Cart";
-import ViewDesignProcess from "./pages/Cart/ViewDesignProcess";
 import ViewOrder from "./pages/Cart/ViewOrder";
 import ViewPricedQuote from "./pages/Cart/ViewPricedQuote";
 import ViewQuote from "./pages/Cart/ViewQuote";
@@ -35,7 +34,7 @@ import MountingDetail from "./pages/Services/TemplateStep/MountingDetail";
 import Profile from "./pages/Profile/profile";
 import PricedQuoteDetails from "./pages/Cart/PricedQuoteDetails";
 import "react-toastify/dist/ReactToastify.css";
-
+import OrderDetails from "./pages/Cart/OrderDetails";
 const Layout = () => {
   return (
     <div>
@@ -81,7 +80,7 @@ const router = createBrowserRouter(
         <Route path="cart/*" element={<Cart />}>
           <Route path="quote" element={<ViewQuote />} />
           <Route path="order" element={<ViewOrder />} />
-          <Route path="design-process" element={<ViewDesignProcess />} />
+          <Route path="order-details/:id" element={<OrderDetails />} />
           <Route path="payment" element={<PaymentHistory />} />
         </Route>
         <Route path="/paymentgateway" element={<Payment />}></Route>

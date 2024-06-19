@@ -26,6 +26,7 @@ module.exports = {
         gantariFont: ["Gantari", "sans-serif"],
         montserratFont: ["Montserrat", "sans-serif"],
         rootFont: ["Roboto", "sans-serif"],
+        cartFont: ["Istok Web", "sans-serif"],
       },
       colors: {
         primeColor: "#262626",
