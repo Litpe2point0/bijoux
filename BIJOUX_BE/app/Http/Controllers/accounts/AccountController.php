@@ -66,7 +66,7 @@ class AccountController extends Controller
     }
     public function login_with_google(Request $request) //chưa test
     {
-        $token = $request->input('tokenId');
+        $token = $request->input('token_id');
 
         $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
         $payload = $client->verifyIdToken($token);
@@ -75,7 +75,6 @@ class AccountController extends Controller
             $googleId = $payload['sub'];
             $email = $payload['email'];
             $name = $payload['name'];
-
 
             // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
             $account = Account::where('email', $email)->first();
@@ -95,26 +94,22 @@ class AccountController extends Controller
                 $account->update(['google_id' => $googleId]);
             }
 
-            // Tạo JWT token
-            $payload = [
-                'iss' => "your-issuer", // Issuer of the token
-                'sub' => $account->id, // Subject of the token
-                'iat' => time(), // Time when JWT was issued.
-                'exp' => time() + 60 * 60 // Expiration time
-            ];
-
             $account = Account::where('email', $email)->first();
+            $user = Account::find($account->id);
+            if ($user->role_id == 5) {
+                $expiration = Carbon::now()->addYears(100)->timestamp;
+            } else {
+                $expiration = Carbon::now()->addHours(5)->timestamp;
+            }
             $payload = [
-
-                'id' => $account->id, // Subject of the token
-                'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
+                'id' => $account->id,
+                'exp' => $expiration,
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
-                // Thêm các claims khác nếu cần
             ];
 
-            $jwt = JWTAuth::encode($payload, env('JWT_SECRET'), 'HS256');
+            $jwt = JWTAuth::claims($payload)->fromUser($user);
 
 
 
