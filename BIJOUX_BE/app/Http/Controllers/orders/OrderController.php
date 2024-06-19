@@ -193,12 +193,6 @@ class OrderController extends Controller
         } catch (Throwable $e) {
             $account_id = $decodedToken->id;
         }
-        $account = DB::table('account')->where('id', $account_id)->first();
-        if ($account->deactivated) {
-            return response()->json([
-                'error' => 'The Selected Customer Account Has Been Deactivated'
-            ], 403);
-        }
         $product_price = 0;
         DB::beginTransaction();
         try {
