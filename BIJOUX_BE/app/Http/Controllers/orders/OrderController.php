@@ -174,11 +174,6 @@ class OrderController extends Controller
         }
         $account_id = (int) $decodedToken['id'];
         $account = DB::table('account')->where('id', $account_id)->first();
-        if ($account == null) {
-            return response()->json([
-                'error' => 'The Selected Customer Account Doesn\'t Exist'
-            ], 403);
-        }
         if ($account->deactivated) {
             return response()->json([
                 'error' => 'The Selected Customer Account Has Been Deactivated'
