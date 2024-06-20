@@ -10,7 +10,7 @@ import {
     CFormCheck,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../../redux/notification/toastSlice";

@@ -16,7 +16,7 @@ import {
     CInputGroup,
     CCardText
 } from '@coreui/react'
-import { get_account_list } from "../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../../redux/notification/toastSlice";
@@ -31,6 +31,7 @@ import QuoteProductImage from "../../Quote widget/QuoteProductImage";
 import { Pencil } from "phosphor-react";
 import { AspectRatio } from "@mui/joy";
 import { MetalPageContext } from "../../Metal_Page";
+import { get_metal_detail, set_deactivate_metal, update_price_metal } from "../../../../api/main/items/Metal_api";
 
 
 
@@ -49,14 +50,17 @@ const CustomForm = ({ metalInfo, onClose }) => {
     const [buyPrice, setBuyPrice] = useState(0);
     const [salePrice, setSalePrice] = useState(0);
 
-    // const [approve, setApprove] = useState(null);
     useEffect(() => {
         const setAttribute = async () => {
+            const formData = new FormData();
+            formData.append('metal_id', metalInfo.id);
+            const detail_data = await get_metal_detail(formData);
 
-            await get_account_list();
-            //console.log("quote", quoteInfo)
-            // gọi api lấy quote detail từ metalInfo.id 
-            setMetal(metalInfo)
+
+            const metal_detail = detail_data.data.metal
+            
+            
+            setMetal(metal_detail)
 
             setLoading(false);
         }
@@ -66,19 +70,26 @@ const CustomForm = ({ metalInfo, onClose }) => {
 
 
     const handleActivate = async (new_activate) => {
-        await get_account_list();
-        handleDataChange();
+        
 
         const deactivate = {
             metal_id: metal.id,
-            deactivate: new_activate == 0 ? true : false
+            deactivate: new_activate == 0 ? false : true
         }
         console.log('deactivate', deactivate)
         const formData = new FormData();
         formData.append('deactivate', JSON.stringify(deactivate));
-        dispatch(setToast({ color: 'success', title: 'Metal id ' + metal.id, mess: (new_activate == 0 ? 'Activate' : 'Deactivate') + " successfully !" }))
 
-        onClose();
+
+
+        let response = await set_deactivate_metal(formData, 'Metal ID ' + metalInfo.id);
+
+        if (response.success) {
+            handleDataChange();
+            onClose();
+        }
+        dispatch(setToast(response.mess))
+        
     }
 
     const handlePriceChange = async () => {
@@ -94,25 +105,14 @@ const CustomForm = ({ metalInfo, onClose }) => {
         const formData = new FormData();
         formData.append('update_price', JSON.stringify(update_price));
 
-        await get_account_list();
-        // let mess = '';
-        // let mess_color = '';
+        let response = await update_price_metal(formData, 'Metal ID ' + metalInfo.id);
 
-        // if (response.success) {
-        //     mess = response.success
-        handleDataChange();
-        //     onClose();
-        //     mess_color = 'success'
-        // } else if (response.error) {
-        //     mess = response.error;
-        //     mess_color = 'danger'
-        // }
-        // let product = {
-        //     id: response.new_product_id,
-        // }
-
-        dispatch(setToast({ color: 'success', title: 'Metal id ' + metal.id, mess: "Update successfully !" }))
-        onClose();
+        if (response.success) {
+            handleDataChange();
+            onClose();
+        }
+        dispatch(setToast(response.mess))
+        
 
 
 
@@ -218,7 +218,7 @@ const CustomForm = ({ metalInfo, onClose }) => {
 
                                             <CInputGroup >
                                                 <CFormInput type="number" min={0} className="h-50 quote-detail-card" defaultValue={0} onChange={(e) =>
-                                                    setBuyPrice(isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value))
+                                                    setBuyPrice(isNaN(parseFloat(e.target.value)) || parseFloat(e.target.value)<0 ? 0 : parseFloat(e.target.value))
                                                 } />
                                                 <CInputGroupText className="px-1 py-0">
                                                     <Pencil size={15} color="white" weight="duotone" />
@@ -234,7 +234,7 @@ const CustomForm = ({ metalInfo, onClose }) => {
 
                                             <CInputGroup >
                                                 <CFormInput type="number" min={0} className="h-50 quote-detail-card" defaultValue={0} onChange={(e) =>
-                                                    setSalePrice(isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value))
+                                                    setSalePrice(isNaN(parseFloat(e.target.value)) || parseFloat(e.target.value)<0  ? 0 : parseFloat(e.target.value))
                                                 } />
                                                 <CInputGroupText className="px-1 py-0">
                                                     <Pencil size={15} color="white" weight="duotone" />

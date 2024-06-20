@@ -14,7 +14,7 @@ import {
 } from '@coreui/react'
 import onGridReady, { resetHeaderProperties } from "../component_items/Ag-grid/useStickyHeader";
 import './style/style.css'
-import { get_account_list } from "../../api/accounts/Account_Api";
+import { get_account_list } from "../../api/main/accounts/Account_api";
 import Pagination from "./Items Card Widget/Pagination";
 import ModelBanner from "./Items Card Widget/ModelBanner";
 import { useNavigate } from "react-router-dom";
@@ -3426,24 +3426,19 @@ const data = {
 
 const Model_Page = ({mounting_type}) => {
   const navigate= useNavigate()
-  //const [type, setType] = useState(mounting_type);
   console.log('type nhè',mounting_type.name)
-  // const [itemsPerPage, setItemsPerPage] = useState(4);
-  // const [sort, setSort] = useState(0);
+  
 
   const [key, setKey] = useState('complete');
-  //const [modelList, setModelList] = useState(null);
 
-  const handleDataChange = async () => {
-    //await get_account_list();
-    setType(mounting_type);
-  }
+  // useEffect(() => {
+  //   window.location.reload();
+  // },[])
 
   useEffect(() => {
-    //handleDataChange()
-    //alert('ngu thế')
+    
     setKey('complete')
-    //window.location.reload()
+
   }, [mounting_type])
 
 
@@ -3478,9 +3473,7 @@ const Model_Page = ({mounting_type}) => {
                   }}
 
                 >
-                  {/* <ModelBanner itemsPerPageFromBanner={itemsPerPageFromBanner}  sortFromBanner={sortFromBanner} /> */}
-
-                  {/* <Pagination completed={true} itemsPerPage={itemsPerPage}  sort={sort}  /> */}
+                  
                   <Pagination  mounting_type={mounting_type} completed={true}  />
 
                 </div>

@@ -9,7 +9,7 @@ import {
   CFormLabel,
   CFormCheck
 } from '@coreui/react'
-import { get_account_list, get_role_list } from "../../../api/accounts/Account_Api";
+import { get_account_list, get_staff_role_list, register } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
@@ -69,11 +69,11 @@ const CustomForm = () => {
       const new_account = {
         username: username.current.value,
         password: password.current.value,
-        image : imageBase64.includes('unknown.jpg') ? null : imageBase64,
+        imageUrl : imageBase64.includes('unknown.jpg') ? null : imageBase64,
         dob: dob.current.value,
         email: email.current.value,
         fullname: fullname.current.value,
-        role_id: selectedRole.id,
+        role: selectedRole,
         phone: phone.current.value,
         address: address.current.value
       }
@@ -82,25 +82,17 @@ const CustomForm = () => {
 
       const formData = new FormData();
       formData.append('new_account', JSON.stringify(new_account));
-      // let response = await register(formData);
-      // let mess = '';
-      // let mess_color = '';
-      // if (response.success) {
-      //   mess = response.success
-      //   handleDataChange();
-      //   setValidated(false)
-      //   mess_color = 'success'
-      // } else if (response.error) {
-      //   mess = response.error;
-      //   mess_color = 'danger'
-      // }
+      let response = await register(formData,'New Staff');
+      
 
-      await get_account_list();
-      handleDataChange();
+
+      if (response.success) {
+        handleDataChange();
+        //onClose();
+        setValidated(false)
+      }
+      dispatch(setToast(response.mess))
       setValidated(false)
-
-
-      dispatch(setToast({ color: "success", title: 'New Staff', mess: "Add Successfully" }))
       empty_input()
     }
 
@@ -115,9 +107,9 @@ const CustomForm = () => {
   }
   useEffect( ()=>{
     const get_roles = async () => {
-      const list=await get_role_list()
-      setRoles(list)
-      setSelectedRole(list[0])
+      const roleList=await get_staff_role_list()
+      setRoles(roleList.data)
+      setSelectedRole(roleList.data[0])
     }
     get_roles();
     

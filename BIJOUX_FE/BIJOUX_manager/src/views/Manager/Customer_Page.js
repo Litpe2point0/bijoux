@@ -26,8 +26,8 @@ import { ArrowCircleUp, Eye } from "phosphor-react";
 import { image_url } from "../../api/Back_End_Url";
 import AvatarInput from "../component_items/Avatar/Avatar";
 import onGridReady from "../component_items/Ag-grid/useStickyHeader";
-import { get_account_list } from "../../api/accounts/Account_Api";
 import CustomerUpdate from "./Modal_body/CustomerUpdate";
+import { get_account_list } from "../../api/main/accounts/Account_api";
 
 
 
@@ -42,7 +42,7 @@ const state_creator = (table) => {
                 headerName: "Avatar", flex: 0.5,
                 cellRenderer: (params) => {
                     return (
-                        <AvatarInput size={50} src={`${image_url}/${params.data.imageUrl}`} />)
+                        <AvatarInput size={50} src={params.data.imageUrl} />)
 
                 },
                 editable: false,
@@ -77,7 +77,6 @@ const state_creator = (table) => {
                 headerName: "Option",
                 cellClass: 'd-flex justify-content-center py-0',
                 cellRenderer: (params) => {
-                    console.log(params.data)
                     const Modal_props = {
                         updateForm: <CustomerUpdate account={params.data} />,
                         title: 'Update Customer [ID: #' + params.data.id+']',
@@ -116,9 +115,9 @@ const Customer_Page = () => {
     
     const handleDataChange = async () => {
         const accountList = await get_account_list();
-        console.log("accountt list",accountList)
-        setState(state_creator(accountList.customer_list))
-        alert("ON DATA CHANGE NÈ")
+       
+        setState(state_creator(accountList.data.customer_list))
+        //alert("ON DATA CHANGE NÈ")
     }
 
     useEffect(() => {

@@ -10,7 +10,7 @@ import {
     CFormCheck,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../../redux/notification/toastSlice";
@@ -23,6 +23,7 @@ import ListDivider from '@mui/joy/ListDivider';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { get_diamond_imageUrl } from "../../../../api/Back_End_Url";
+import { get_clarity_list, get_color_list, get_cut_list, get_diamond_list, get_origin_list, get_shape_list, get_size_list } from "../../../../api/main/items/Diamond_api";
 
 const diamond_list = [
     {
@@ -232,13 +233,13 @@ function renderValue(item) {
 const CustomForm = ({ handleAddDiamond, onClose }) => {
     const dispatch = useDispatch();
 
-    const [validated, setValidated] = useState(false)   //check form điền đầy đủ chưa
-    const [loading, setLoading] = useState(true)   //check form điền đầy đủ chưa
+    const [validated, setValidated] = useState(false)   
+    const [loading, setLoading] = useState(true)   
 
-    const [isSearch, setIsSearch] = useState(false)   //check form điền đầy đủ chưa
+    const [isSearch, setIsSearch] = useState(false)   
 
     const [diamondList, setDiamondList] = useState(null)
-    const [searchedDiamond, setSearchedDiamond] = useState(null);  //danh sách kim loại
+    const [searchedDiamond, setSearchedDiamond] = useState(null);  
 
     const [shapeList, setShapeList] = useState([]);
     const [colorList, setColorList] = useState([]);
@@ -261,22 +262,28 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
         const setAttribute = async () => {
 
-            await get_account_list();
+            const diamond_list= await get_diamond_list();
+            const shape_list= await get_shape_list();
+            const color_list= await get_color_list();
+            const origin_list= await get_origin_list();
+            const clarity_list= await get_clarity_list();
+            const cut_list= await get_cut_list();
+            const size_list= await get_size_list();
 
-            setDiamondList(diamond_list)
+            setDiamondList(diamond_list.data)
 
-            setShapeList(shape_list)
-            setColorList(color_list)
-            setOriginList(origin_list)
-            setClarityList(clarity_list)
-            setCutList(cut_list)
-            seSizeList(size_list)
-            setAddShape(shape_list[0])
+            setShapeList(shape_list.data)
+            setColorList(color_list.data)
+            setOriginList(origin_list.data)
+            setClarityList(clarity_list.data)
+            setCutList(cut_list.data)
+            seSizeList(size_list.data)
+            setAddShape(shape_list.data[0])
             setAddColor(1)
-            setAddOrigin(origin_list[0])
+            setAddOrigin(origin_list.data[0])
             setAddClarity(1)
             setAddCut(1)
-            setAddSize(size_list[0])
+            setAddSize(size_list.data[0])
 
 
             setLoading(false)
@@ -338,8 +345,31 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
     const handleSearch = () => {
 
 
+        // const setResult = async () => {
+        //     await get_account_list();
+        //     const diamond_search_information = {
+        //         size: addSize,
+        //         diamond_color_id: addColor,
+        //         diamond_origin_id: addOrigin.id,
+        //         diamond_clarity_id: addClarity,
+        //         diamond_cut_id: addCut
+        //     }
+        //     console.log('diamond_search_information', diamond_search_information)
+
+        //     let diamond_search = diamondList.filter(item => item.diamond_origin.id == addOrigin.id && item.diamond_color.id == addColor && item.size == addSize && item.diamond_clarity.id == addClarity && item.diamond_cut.id == addCut)[0];
+
+        //     setSearchedDiamond(diamond_search);
+        //     console.log('diamond_search', diamond_search)
+        //     if (diamond_search) {
+        //         setIsSearch(true)
+
+        //     } else {
+        //         setIsSearch(false)
+
+        //     }
+        // }
         const setResult = async () => {
-            await get_account_list();
+            //await get_account_list();
             const diamond_search_information = {
                 size: addSize,
                 diamond_color_id: addColor,
@@ -349,17 +379,23 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             }
             console.log('diamond_search_information', diamond_search_information)
 
-            let diamond_search = diamondList.filter(item => item.diamond_origin.id == addOrigin.id && item.diamond_color.id == addColor && item.size == addSize && item.diamond_clarity.id == addClarity && item.diamond_cut.id == addCut)[0];
+            //let diamond_search = diamondList.filter(item => item.diamond_origin.id == addOrigin.id && item.diamond_color.id == addColor && item.size == addSize && item.diamond_clarity.id == addClarity && item.diamond_cut.id == addCut)[0];
+            const formData = new FormData();
+            formData.append('diamond_search_information', JSON.stringify(diamond_search_information) );
 
-            setSearchedDiamond(diamond_search);
-            console.log('diamond_search', diamond_search)
-            if (diamond_search) {
+            let diamond_search =await get_diamond_list(formData, 'Searching Diamond');
+            
+            if (diamond_search.success && diamond_search.data.length > 0) {
+                console.log('diamond_search', diamond_search.data[0])
+                setSearchedDiamond(diamond_search.data[0]);
                 setIsSearch(true)
-
+                
             } else {
+                dispatch(setToast(diamond_search.mess))
+                setSearchedDiamond(null)
                 setIsSearch(false)
-
             }
+            
         }
         setResult()
     }

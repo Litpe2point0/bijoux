@@ -24,6 +24,7 @@ Route::group(['prefix' => 'admin'], function () {
 
         Route::group(['prefix' => 'quote'], function () {
             Route::post('/get_quote_list', [QuoteController::class, 'get_quote_list_admin']);
+            Route::post('/get_priced_quote_list', [QuoteController::class, 'get_priced_quote_list'])->middleware('checkManager');
             Route::post('/pricing_quote', [QuoteController::class, 'pricing_quote'])->middleware('checkSaleStaff');
             Route::post('/approve_quote', [QuoteController::class, 'approve_quote'])->middleware('checkManager');
             Route::post('/assign_quote', [QuoteController::class, 'assign_quote'])->middleware('checkManager');
@@ -40,12 +41,14 @@ Route::group(['prefix' => 'admin'], function () {
             Route::post('/pricing_design_process', [OrderController::class, 'pricing_design_process'])->middleware('checkSaleStaff');
             Route::post('/get_design_process_list', [OrderController::class, 'get_design_process_list']);
             Route::post('/get_design_process_detail', [OrderController::class, 'get_design_process_detail']);
+            Route::post('/get_design_process_status_list', [OrderController::class, 'get_design_process_status_list']);
             Route::post('/add_design_updating', [OrderController::class, 'add_design_updating']);
             Route::post('/add_production_process', [OrderController::class, 'add_production_process'])->middleware('checkProductionStaff');
             Route::post('/production_complete', [OrderController::class, 'production_complete'])->middleware('checkProductionStaff');
             Route::post('/get_assigned_orders_sale', [OrderController::class, 'get_assigned_orders_sale']);
             Route::post('/get_assigned_orders_design ', [OrderController::class, 'get_assigned_orders_design']);
             Route::post('/get_assigned_orders_production ', [OrderController::class, 'get_assigned_orders_production']);
+            Route::post('/get_assigned_complete_orders_production ', [OrderController::class, 'get_assigned_complete_orders_production']);
         });
     });
 });
@@ -60,7 +63,7 @@ Route::group(['prefix' => 'items'], function () {
         Route::post('/get_model_metal', [ModelController::class, 'get_model_metal']);
         Route::post('/get_mounting_type_list', [ModelController::class, 'get_mounting_type_list']);
         Route::post('/get_mounting_style_list', [ModelController::class, 'get_mounting_style_list']);
-        Route::post('/get_final_template', [ModelController::class, 'get_final_template']);
+        Route::post('/get_final_checkout', [ModelController::class, 'get_final_checkout']);
 
         Route::middleware('checkManager')->group(function () {
             Route::post('/add', [ModelController::class, 'add']);
@@ -83,7 +86,6 @@ Route::group(['prefix' => 'items'], function () {
             Route::post('/add', [MetalController::class, 'add']);
             Route::post('/update_price', [MetalController::class, 'update_price']);
             Route::post('/set_deactivate', [MetalController::class, 'set_deactivate']);
-            Route::post('/update', [MetalController::class, 'update']);
         });
     });
 
@@ -129,11 +131,11 @@ Route::group([], function () {
             Route::post('/add_order_template', [OrderController::class, 'add_order_template']);
             Route::post('/get_order_list', [OrderController::class, 'get_order_list_customer']);
             Route::post('/get_order_detail', [OrderController::class, 'get_order_detail']);
+            Route::post('/get_order_detail_customer', [OrderController::class, 'get_order_detail_customer']);
             Route::post('/get_order_status_list', [OrderController::class, 'get_order_status_list']);
             Route::post('/get_order_type_list', [OrderController::class, 'get_order_type_list']);
             Route::post('/cancel', [OrderController::class, 'cancel_order']);
             Route::post('/get_production_status_list', [OrderController::class, 'get_production_status_list']);
-            Route::post('/get_design_process_status_list', [OrderController::class, 'get_design_process_status_list']);
             Route::post('/get_design_updating_list', [OrderController::class, 'get_design_updating_list']);
             Route::post('/get_production_process_list', [OrderController::class, 'get_production_process_list']);
             Route::post('/get_product_detail', [OrderController::class, 'get_product_detail']);
@@ -141,6 +143,7 @@ Route::group([], function () {
     });
 });
 
+// "DMMM"
 Route::get('/confirm_payment', [OrderController::class, 'confirm_payment']);
 // Route::post('/decode', [AccountController::class, 'decode']);
 // Route::get('/get_image', [AccountController::class, 'get_image']);

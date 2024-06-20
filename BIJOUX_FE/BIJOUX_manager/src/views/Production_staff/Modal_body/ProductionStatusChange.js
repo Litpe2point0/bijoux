@@ -10,7 +10,7 @@ import {
     CRow,
     CSpinner,
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { clearToast, setToast } from "../../../redux/notification/toastSlice";
@@ -21,34 +21,9 @@ import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { ProductionStatusContext } from "../Quote widget/OrderDetail";
 import UploadSingle from "../Quote widget/UploadSingle";
+import { add_production_process, get_production_status_list } from "../../../api/main/orders/Order_api";
 
 
-const production_status_list_data = [
-    {
-        id: 1,
-        name: 'Unrealized'
-    },
-    {
-        id: 2,
-        name: 'Casting'
-    },
-    {
-        id: 3,
-        name: 'Assembly'
-    },
-    {
-        id: 4,
-        name: 'Stone Setting'
-    },
-    {
-        id: 5,
-        name: 'Polishing'
-    },
-    {
-        id: 6,
-        name: 'Finished'
-    },
-]
 
 
 
@@ -70,10 +45,9 @@ const CustomForm = ({ currentProductionStatus, onClose }) => {
     useEffect(() => {
         const setAttribute = async () => {
 
-            await get_account_list();
-            //console.log("quote", quoteInfo)
-            // gọi api lấy design process detail từ designInfo.id
-            const production_status_list = production_status_list_data
+            const production_status_list_data = await get_production_status_list();
+
+            const production_status_list = production_status_list_data.data
             setProductionStatusList(production_status_list)
 
             setLoading(false);
@@ -100,35 +74,13 @@ const CustomForm = ({ currentProductionStatus, onClose }) => {
         const formData = new FormData();
         formData.append('new_production_process', JSON.stringify(new_production_process));
 
-        await get_account_list();
-        // let mess = '';
-        // let mess_color = '';
-
-        // if (response.success) {
-        //     mess = response.success
-        //     handleTableChange();
-        //     onClose();
-        //     mess_color = 'success'
-        // } else if (response.error) {
-        //     mess = response.error;
-        //     mess_color = 'danger'
-        // }
-        // let product = {
-        //     id: response.new_product_id,
-        // }
-        const result= status.id==1 || status.id ==2 ? false : true;
-        if(result){
-            handleDataChange()
-            dispatch(setToast({ color: 'success', title: 'Order id: ' + order.id, mess: "Update production status successfully !" }))
-            //dispatch(clearToast())
+        const response = await add_production_process(formData, 'New Production Process');
+        if (response.success) {
+            handleDataChange();
             onClose();
-        }else{
-            dispatch(setToast({ color: 'danger', title: 'Order id: ' + order.id, mess: "Update production status failed !" }))
-            setLoading(false);
         }
-
-        
-
+        dispatch(setToast(response.mess))
+        setLoading(false)
 
 
     }

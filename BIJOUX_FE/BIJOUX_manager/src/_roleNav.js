@@ -189,45 +189,45 @@ const get_roleNav = (role_id, account_id) => {
 
 
 
-      {
-        component: CNavItem,
-        name: 'Product',
-        to: '/product/table',
-        icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
-      },
-      {
-        component: CNavGroup,
-        name: 'Product',
-        to: '/product',
-        icon: <HardDrives size={20} color="hotpink" weight="duotone" />,
-        items: [
-          {
-            component: CNavItem,
-            name: 'Table',
-            to: '/product/table',
-          },
-          {
-            component: CNavItem,
-            name: 'Add',
-            to: '/product/add',
-          },
+      // {
+      //   component: CNavItem,
+      //   name: 'Product',
+      //   to: '/product/table',
+      //   icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+      //   badge: {
+      //     color: 'info',
+      //     text: 'NEW',
+      //   },
+      // },
+      // {
+      //   component: CNavGroup,
+      //   name: 'Product',
+      //   to: '/product',
+      //   icon: <HardDrives size={20} color="hotpink" weight="duotone" />,
+      //   items: [
+      //     {
+      //       component: CNavItem,
+      //       name: 'Table',
+      //       to: '/product/table',
+      //     },
+      //     {
+      //       component: CNavItem,
+      //       name: 'Add',
+      //       to: '/product/add',
+      //     },
 
-        ],
-      },
-      {
-        component: CNavItem,
-        name: 'Customize items',
-        to: '/ItemsManage',
-        icon: <MagicWand size={20} color="hotpink" weight="duotone" />,  //cil-fastfood
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
-      }
+      //   ],
+      // },
+      // {
+      //   component: CNavItem,
+      //   name: 'Customize items',
+      //   to: '/ItemsManage',
+      //   icon: <MagicWand size={20} color="hotpink" weight="duotone" />,  //cil-fastfood
+      //   badge: {
+      //     color: 'info',
+      //     text: 'NEW',
+      //   },
+      // }
 
 
     ],

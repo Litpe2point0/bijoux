@@ -7,6 +7,11 @@ use App\Models\items\Diamond;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class DiamondController extends Controller
 {
@@ -14,18 +19,45 @@ class DiamondController extends Controller
     {
         //input
         $input = json_decode($request->input('diamond_search_information'), true);
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
+            }
+        }
+        if ($token == null) {
+            $role_id = 5;
+        } else {
+            try {
+                $role_id = $decodedToken['role_id'];
+            } catch (Throwable $e) {
+                $role_id = $decodedToken->role_id;
+            }
+        }
 
         //create query
         $query = Diamond::Query();
+        if ($role_id == 5 || $role_id == 4 || $role_id == 3 || $role_id == 2) {
+            $query->where('deactivated', false);
+        }
         //check if input exist, if yes then configure query
         if (isset($input) && $input != null) {
             if (isset($input['size']) && $input['size'] != null) {
                 $query->where('size', $input['size']);
             }
-            if (isset($input['diamond_color_id ']) && $input['diamond_color_id '] != null) {
+            if (isset($input['diamond_color_id']) && $input['diamond_color_id'] != null) {
                 $query->where('diamond_color_id', $input['diamond_color_id']);
             }
-            if (isset($input['diamond_cut_id ']) && $input['diamond_cut_id '] != null) {
+            if (isset($input['diamond_cut_id']) && $input['diamond_cut_id'] != null) {
                 $query->where('diamond_cut_id', $input['diamond_cut_id']);
             }
             if (isset($input['diamond_clarity_id']) && $input['diamond_clarity_id'] != null) {
@@ -35,18 +67,31 @@ class DiamondController extends Controller
                 $query->where('diamond_origin_id', $input['diamond_origin_id']);
             }
         }
-        $diamond_list = $query->get();
+        $diamond_list = $query->orderBy('deactivated', 'asc')->get();
+        if ($diamond_list->isEmpty()) {
+            return response()->json([
+                'error' => 'No Diamond Found'
+            ], 403);
+        }
         $diamond_list->map(function ($diamond) {
             //modify diamond imageUrl
             $OGurl = env('ORIGIN_URL');
             $url = env('DIAMOND_URL');
             $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
+            $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
+            $diamond->diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond->diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
             $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
+            unset($diamond->diamond_color_id);
+            unset($diamond->diamond_origin_id);
+            unset($diamond->diamond_clarity_id);
+            unset($diamond->diamond_cut_id);
             return $diamond;
         });
-        return response()->json([
+        return response()->json(
             $diamond_list
-        ]);
+        );
     }
     public function set_deactivate(Request $request)
     {
@@ -55,10 +100,11 @@ class DiamondController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
+            $tf = false;
             //find diamond
             $diamond = DB::table('diamond')->where('id', $input['diamond_id'])->first();
             if ($diamond == null) {
@@ -68,34 +114,30 @@ class DiamondController extends Controller
             }
             //check input deactivate
             if ($input['deactivate']) {
-                if ($diamond->deactivated == false) {
-                    DB::table('diamond')->where('id', $input['diamond_id'])->update([
-                        'deactivated' => true,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The Selected Diamond\'s Already Been Deactivated'
-                    ], 403);
-                }
+                DB::table('diamond')->where('id', $input['diamond_id'])->update([
+                    'deactivated' => true,
+                ]);
+                $tf = true;
             } else {
-                if ($diamond->deactivated == true) {
-                    DB::table('diamond')->where('id', $input['diamond_id'])->update([
-                        'deactivated' => false,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The selected diamond\'s already been activated'
-                    ], 403);
-                }
+                DB::table('diamond')->where('id', $input['diamond_id'])->update([
+                    'deactivated' => false,
+                ]);
+                $tf = false;
             }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
-        return response()->json([
-            'success' => 'Set Diamond Deactivate Successfully'
-        ], 201);
+        if ($tf) {
+            return response()->json([
+                'success' => 'Deactivate Diamond Successfully'
+            ], 201);
+        } else {
+            return response()->json([
+                'success' => 'Activate Diamond Successfully'
+            ], 201);
+        }
     }
     public function update_price(Request $request)
     {
@@ -104,10 +146,16 @@ class DiamondController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
+            $diamond = DB::table('diamond')->where('id', $input['diamond_id'])->first();
+            if ($diamond->deactivated) {
+                return response()->json([
+                    'error' => 'The Selected Diamond Has Been Deactivated'
+                ], 403);
+            }
             //find all product that contain the selected diamond
             $product_diamond  = DB::table('product_diamond')->select('product_id')->where('diamond_id', $input['diamond_id'])->groupby('product_id')->get();
             //update the diamond price
@@ -178,8 +226,8 @@ class DiamondController extends Controller
                     $profit_rate = $order->profit_rate;
                     $production_price = $order->production_price;
                     $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->get();
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 1)->get();
                     //calculate new product price after update diamond price
                     foreach ($diamond_list as $diamond) {
                         if ($diamond->status == 1) {
@@ -193,7 +241,7 @@ class DiamondController extends Controller
                     }
                     DB::table('orders')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                     ]);
                 }
 
@@ -203,8 +251,8 @@ class DiamondController extends Controller
                     $profit_rate = $quote->profit_rate;
                     $production_price = $quote->production_price;
                     $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->get();
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->where('status', 1)->get();
                     //calculate new product price after update diamond price
                     foreach ($diamond_list as $diamond) {
                         if ($diamond->status == 1) {
@@ -218,8 +266,39 @@ class DiamondController extends Controller
                     }
                     DB::table('quote')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                     ]);
+                }
+                if ($order != null) {
+                    $design_process =  DB::table('design_process')->where('order_id', $order->id)->first();
+                    //check if quote exist
+                    if ($design_process != null && $design_process->design_process_status_id < 4) {
+                        $profit_rate = $design_process->profit_rate;
+                        $production_price = $design_process->production_price;
+                        $product_price = 0;
+                        if ($design_process->design_process_status_id < 3) {
+                            $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->get();
+                            $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->get();
+                        } else if ($design_process->design_process_status_id = 3) {
+                            $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 2)->get();
+                            $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 2)->get();
+                        }
+                        //calculate new product price after update metal price
+                        foreach ($diamond_list as $diamond) {
+                            if ($diamond->status == 1) {
+                                $product_price += $diamond->price;
+                            }
+                        }
+                        foreach ($metal_list as $metal) {
+                            if ($metal->status == 1) {
+                                $product_price += $metal->price;
+                            }
+                        }
+                        DB::table('design_process')->where('order_id', $order->id)->update([
+                            'product_price' => $product_price,
+                            'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
+                        ]);
+                    }
                 }
             }
             DB::commit();
@@ -237,7 +316,7 @@ class DiamondController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $diamond = DB::table('diamond')->where('id', $input)->first();
         //modify diamond imageUrl
@@ -255,43 +334,48 @@ class DiamondController extends Controller
         unset($diamond->diamond_clarity_id);
         unset($diamond->diamond_cut_id);
         return response()->json([
-            $diamond
+            'diamond' => $diamond
         ]);
     }
     public function get_shape_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_shape')->get()
-        ]);
+        );
     }
     public function get_diamond_origin_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_origin')->get()
-        ]);
+        );
     }
     public function get_color_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_color')->get()
-        ]);
+        );
     }
     public function get_size_list()
     {
-        return response()->json([
-            DB::table('diamond')->select('size')->groupBy('size')->get()
-        ]);
+        $size = DB::table('diamond')->select('size')->groupBy('size')->get();
+        $size_list = [];
+        foreach ($size as $s) {
+            $size_list[] = $s->size;
+        }
+        return response()->json(
+            $size_list
+        );
     }
     public function get_cut_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_cut')->get()
-        ]);
+        );
     }
     public function get_clarity_list()
     {
-        return response()->json([
+        return response()->json(
             DB::table('diamond_clarity')->get()
-        ]);
+        );
     }
 }

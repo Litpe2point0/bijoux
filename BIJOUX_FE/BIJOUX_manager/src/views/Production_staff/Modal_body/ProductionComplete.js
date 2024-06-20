@@ -10,7 +10,7 @@ import {
     CRow,
     CSpinner,
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { clearToast, setToast } from "../../../redux/notification/toastSlice";
@@ -21,34 +21,9 @@ import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { ProductionStatusContext } from "../Quote widget/OrderDetail";
 import UploadSingle from "../Quote widget/UploadSingle";
+import { production_complete } from "../../../api/main/orders/Order_api";
 
 
-const production_status_list_data = [
-    {
-        id: 1,
-        name: 'Unrealized'
-    },
-    {
-        id: 2,
-        name: 'Casting'
-    },
-    {
-        id: 3,
-        name: 'Assembly'
-    },
-    {
-        id: 4,
-        name: 'Stone Setting'
-    },
-    {
-        id: 5,
-        name: 'Polishing'
-    },
-    {
-        id: 6,
-        name: 'Finished'
-    },
-]
 
 
 
@@ -59,7 +34,6 @@ const CustomForm = ({ currentProductionProcess, onClose }) => {
 
     const [loading, setLoading] = useState(true);
 
-    const [productionStatusList, setProductionStatusList] = useState(null)
 
     //report
     //const [imageBase64, setImageBase64] = useState(false);
@@ -70,11 +44,7 @@ const CustomForm = ({ currentProductionProcess, onClose }) => {
     useEffect(() => {
         const setAttribute = async () => {
 
-            await get_account_list();
-            //console.log("quote", quoteInfo)
-            // gọi api lấy design process detail từ designInfo.id
-            const production_status_list = production_status_list_data
-            setProductionStatusList(production_status_list)
+            
 
             setLoading(false);
         }
@@ -91,20 +61,15 @@ const CustomForm = ({ currentProductionProcess, onClose }) => {
         const formData = new FormData();
         formData.append('order_id', JSON.stringify(order_id));
 
-        await get_account_list();
-        
-
-
-        const result= status.id==1 || status.id ==2 ? false : true;
-        if(result){
+        const response = await production_complete(formData,"Order ID "+order_id);
+        dispatch(setToast(response.mess))
+        setLoading(false);
+        if(response.success){
             handleDataChange()
-            dispatch(setToast({ color: 'success', title: 'Order id: ' + order.id, mess: "Update production status successfully !" }))
-            //dispatch(clearToast())
             onClose();
-        }else{
-            dispatch(setToast({ color: 'danger', title: 'Order id: ' + order.id, mess: "Update production status failed !" }))
-            setLoading(false);
         }
+
+        
     }
 
     return (

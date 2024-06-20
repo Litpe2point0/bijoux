@@ -21,7 +21,7 @@ import {
     CInputGroup,
     CInputGroupText
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { clearToast, setToast } from "../../../redux/notification/toastSlice";
@@ -39,6 +39,7 @@ import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemTex
 import QuoteProductImage from "../../Manager/Quote widget/QuoteProductImage";
 import AccountCard from "../../Manager/Quote widget/AccountCard";
 import { DesignPageContext } from "../Design_Page";
+import { get_design_process_detail } from "../../../api/main/orders/Order_api";
 
 
 
@@ -331,7 +332,12 @@ const CustomForm = ({ designInfo, onClose }) => {
             await get_account_list();
             //console.log("quote", quoteInfo)
             // gọi api lấy design process detail từ designInfo.id
-            const design_process = design_process_detail_data.design_process
+            const formData = new FormData();
+            formData.append('design_process_id', designInfo.id);
+            const detail_data = await get_design_process_detail(formData);
+
+
+            const design_process = detail_data.data.design_process
             setDesignProcess(design_process)
 
 
@@ -343,11 +349,11 @@ const CustomForm = ({ designInfo, onClose }) => {
             setDesignStaff(design_process.order.design_staff);
             setProductionStaff(design_process.order.production_staff);
 
-            setPreviousMetalList(design_process.order.product.product_metal.filter(item => item.status == 1))
-            setPreviousDiamondList(design_process.order.product.product_diamond.filter(item => item.status == 1))
+            setPreviousMetalList(design_process.order.product.product_metal.filter(item => item.status == (design_process.design_process_status.id == 3 ? 2 : 1)))
+            setPreviousDiamondList(design_process.order.product.product_diamond.filter(item => item.status == (design_process.design_process_status.id == 3 ? 2 : 1)))
 
-            setUpdatingMetalList(design_process.order.product.product_metal.filter(item => item.status == 0))
-            setUpdatingDiamondList(design_process.order.product.product_diamond.filter(item => item.status == 0))
+            setUpdatingMetalList(design_process.order.product.product_metal.filter(item => item.status == (design_process.design_process_status.id == 3 ? 1 : 0)))
+            setUpdatingDiamondList(design_process.order.product.product_diamond.filter(item => item.status == (design_process.design_process_status.id == 3 ? 1 : 0)))
 
 
             setProfitRate(design_process.profit_rate);
@@ -408,7 +414,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                         <div className="mt-1" style={{ height: 'fit-content' }}  >
                             <CAccordion >
                                 <CAccordionItem>
-                                    <CAccordionHeader>INFORMATION OF ORDER</CAccordionHeader>
+                                    <CAccordionHeader>ADDITIONAL INFORMATION</CAccordionHeader>
                                     <CAccordionBody>
                                         <CCard className="h-100">
                                             <CCardHeader className="text-center text-light fw-bold" >
@@ -421,7 +427,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                         <span style={{ fontSize: '15px' }}>Mounting Type: </span>
                                                     </CCol>
                                                     <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                                        <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={designProcess.mounting_type.name} />
+                                                        <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={designProcess.mounting_type ? designProcess.mounting_type.name  : 'No Specific Type'}  />
                                                     </CCol>
                                                 </CRow>
                                                 <CRow>

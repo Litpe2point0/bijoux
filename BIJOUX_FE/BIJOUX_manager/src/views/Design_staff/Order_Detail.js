@@ -35,8 +35,10 @@ import OtherCard from "./Order widget/OtherCard";
 import PriceCard from "./Order widget/PriceCard";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../redux/notification/toastSlice";
-import { get_account_list } from "../../api/accounts/Account_Api";
-import { getUserFromPersist } from "../../api/instance/axiosInstance"; 
+import { get_account_list } from "../../api/main/accounts/Account_api";
+import { getUserFromPersist } from "../../api/instance/axiosInstance";
+import { get_order_detail, request_design_process } from "../../api/main/orders/Order_api";
+import { get_mounting_type_list } from "../../api/main/items/Model_api";
 
 
 const order_detail_data = {
@@ -344,6 +346,8 @@ const mounting_type = [
 const Order_Detail = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const index = useParams();
+
     const [order, setOrder] = useState(null);
     const [account, setAccount] = useState(null);
     const [product, setProduct] = useState(null);
@@ -386,8 +390,16 @@ const Order_Detail = () => {
 
     useEffect(() => {
         const setAttribute = async () => {
-            await get_account_list();
-            const order_detail = order_detail_data.order_detail;
+
+
+            const formData = new FormData();
+            formData.append('order_id', index.id);
+            const detail_data = await get_order_detail(formData);
+            const mounting_type = await get_mounting_type_list()
+
+            const order_detail = detail_data.data.order_detail
+
+
             console.log('order_detail', order_detail)
             if (order_detail.design_process_status != null) {
                 dispatch(setToast({ color: "danger", title: 'Order [ID: #' + order_detail.id + ']', mess: "This order is already have a design process" }))
@@ -397,7 +409,7 @@ const Order_Detail = () => {
             setOrder(order_detail)
             setAccount(order_detail.account)
             setProduct(order_detail.product)
-            setMountingType(mounting_type)
+            setMountingType(mounting_type.data)
             setTypeId(order_detail.product.mounting_type ? order_detail.product.mounting_type.id : null)
             setSize(parseFloat(order_detail.product.mounting_size))
 
@@ -411,7 +423,6 @@ const Order_Detail = () => {
 
 
     const handleReport = async () => {
-        await get_account_list()
         const new_design_process = {
             "order_id": order.id,
             "imageUrl": imageBase64 ? imageBase64 : null,
@@ -425,10 +436,20 @@ const Order_Detail = () => {
 
         }
         console.log('new_design_process', new_design_process)
-        // set toast
-        dispatch(setToast({ color: "success", title: 'Order [ID: #' + order.id + ']', mess: "Creating successfully !" }))
+        const formData = new FormData();
+        formData.append('new_design_process', JSON.stringify(new_design_process));
 
-        navigate('/orders_design_staff/table')
+
+        let response = await request_design_process(formData, 'New Design Process');
+        dispatch(setToast(response.mess))
+        if (response.success) {
+            //handleDataChange();
+            navigate('/orders_design_staff/table')
+        }
+       
+        
+
+        
     }
     return (
         <div>

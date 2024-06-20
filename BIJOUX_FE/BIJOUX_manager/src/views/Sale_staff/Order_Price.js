@@ -21,20 +21,16 @@ import {
   CCardHeader,
   CSpinner,
 } from '@coreui/react'
-import AppBar from '@mui/material/AppBar';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
-import TabContext from '@mui/lab/TabContext';
-import Box from '@mui/material/Box';
 import { get_product_list, update_product_list } from "../../api/ProductApi";
 import Modal_Button from "../component_items/Modal/ModalButton"
 import { UsersThree, Eye, UserCirclePlus, CalendarX } from "phosphor-react";
 import onGridReady, { resetHeaderProperties } from "../component_items/Ag-grid/useStickyHeader";
 import './style/style.css'
 import { design_process_status_creator, order_status_creator, quote_status_creator } from "../component_items/Ag-grid/status_badge";
-import { get_account_list } from "../../api/accounts/Account_Api";
+import { get_account_list } from "../../api/main/accounts/Account_api";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 import DesignPricing from "./Modal_body/DesignPricing";
+import { get_design_process_list } from "../../api/main/orders/Order_api";
 
 
 export const SaleOrderPriceContext = createContext();
@@ -70,14 +66,14 @@ const state_creator = (table) => {
           const Modal_props = {
             assignForm: <DesignPricing designProcess={params.data} />,
             title: 'Approve Order\'s Price Report [ID: #' + params.data.id + ']',
-            button: <BsFillClipboardCheckFill size={25} color={params.data.design_process_status.id != 2 ? "gray" : "green"} weight="duotone" />,
+            button: <BsFillClipboardCheckFill size={25} color={params.data.design_process_status.id != 1 ? "gray" : "green"} weight="duotone" />,
             update_button_color: 'white'
           }
           return (
 
             <CButtonGroup style={{ width: '100%', height: "100%" }} role="group" aria-label="Basic mixed styles example">
               <Modal_Button
-                disabled={params.data.design_process_status.id != 2}
+                disabled={params.data.design_process_status.id != 1}
                 title={Modal_props.title}
                 content={Modal_props.button}
                 color={Modal_props.color} >
@@ -97,188 +93,7 @@ const state_creator = (table) => {
   return state
 }
 
-const data = [
-  {
-    "id": 1,
-    "order_id": 1,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Initial design phase",
-    "mounting_type": {
-      "id": 1,
-      "name": "Ring"
-    },
-    "mounting_size": 6,
-    "design_process_status": {
-      "id": 1,
-      "name": "Pending Review"
-    },
-    "production_price": 15000.00,
-    "profit_rate": 0.25,
-    "created": "2024-01-01"
-  },
-  {
-    "id": 2,
-    "order_id": 2,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Design review stage",
-    "mounting_type": {
-      "id": 2,
-      "name": "Bezel"
-    },
-    "mounting_size": 7,
-    "design_process_status": {
-      "id": 2,
-      "name": "priced"
-    },
-    "production_price": 16000.00,
-    "profit_rate": 0.30,
-    "created": "2024-01-05"
-  },
-  {
-    "id": 3,
-    "order_id": 3,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Final design",
-    "mounting_type": {
-      "id": 3,
-      "name": "Channel"
-    },
-    "mounting_size": 8,
-    "design_process_status": {
-      "id": 3,
-      "name": "Approved"
-    },
-    "production_price": 17000.00,
-    "profit_rate": 0.20,
-    "created": "2024-01-10"
-  },
-  {
-    "id": 4,
-    "order_id": 4,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Awaiting customer approval",
-    "mounting_type": {
-      "id": 4,
-      "name": "Tension"
-    },
-    "mounting_size": 9,
-    "design_process_status": {
-      "id": 4,
-      "name": "Cancel"
-    },
-    "production_price": 18000.00,
-    "profit_rate": 0.35,
-    "created": "2024-01-15"
-  },
-  {
-    "id": 5,
-    "order_id": 5,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Design modifications requested",
-    "mounting_type": {
-      "id": 5,
-      "name": "Pave"
-    },
-    "mounting_size": 6.5,
-    "design_process_status": {
-      "id": 2,
-      "name": "Priced"
-    },
-    "production_price": 14000.00,
-    "profit_rate": 0.22,
-    "created": "2024-01-20"
-  },
-  {
-    "id": 6,
-    "order_id": 6,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Design approved, ready for production",
-    "mounting_type": {
-      "id": 6,
-      "name": "Cluster"
-    },
-    "mounting_size": 7.5,
-    "design_process_status": {
-      "id": 4,
-      "name": "Cancelled"
-    },
-    "production_price": 15500.00,
-    "profit_rate": 0.28,
-    "created": "2024-01-25"
-  },
-  {
-    "id": 7,
-    "order_id": 7,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Design in progress",
-    "mounting_type": {
-      "id": 7,
-      "name": "Halo"
-    },
-    "mounting_size": 6.75,
-    "design_process_status": {
-      "id": 1,
-      "name": "Pending"
-    },
-    "production_price": 16500.00,
-    "profit_rate": 0.33,
-    "created": "2024-01-30"
-  },
-  {
-    "id": 8,
-    "order_id": 8,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Awaiting customer feedback",
-    "mounting_type": {
-      "id": 8,
-      "name": "Bar"
-    },
-    "mounting_size": 8.5,
-    "design_process_status": {
-      "id": 3,
-      "name": "Approved"
-    },
-    "production_price": 17500.00,
-    "profit_rate": 0.27,
-    "created": "2024-02-01"
-  },
-  {
-    "id": 9,
-    "order_id": 9,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Design ready for final approval",
-    "mounting_type": {
-      "id": 9,
-      "name": "Flush"
-    },
-    "mounting_size": 7.25,
-    "design_process_status": {
-      "id": 2,
-      "name": "Priced"
-    },
-    "production_price": 18500.00,
-    "profit_rate": 0.32,
-    "created": "2024-02-04"
-  },
-  {
-    "id": 10,
-    "order_id": 10,
-    "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-    "note": "Final review stage",
-    "mounting_type": {
-      "id": 10,
-      "name": "Cathedral"
-    },
-    "mounting_size": 6.25,
-    "design_process_status": {
-      "id": 1,
-      "name": "Pending"
-    },
-    "production_price": 19000.00,
-    "profit_rate": 0.30,
-    "created": "2024-02-10"
-  }
-]
+
 
 
 
@@ -288,13 +103,14 @@ const Order_Price = () => {
   let [state, setState] = useState(null);
 
   const handleDataChange = async () => {
-    await get_account_list();
-    setDesignList(data);
-
+    // await get_account_list();
+    // setDesignList(data);
+    const orderList = await get_design_process_list();
+    setDesignList(orderList.data); 
     setState({
-      customize: state_creator(data)
+      customize: state_creator(orderList.data)
     })
-    alert("ON DATA CHANGE NÈ")
+    //alert("ON DATA CHANGE NÈ")
   }
 
   useEffect(() => {

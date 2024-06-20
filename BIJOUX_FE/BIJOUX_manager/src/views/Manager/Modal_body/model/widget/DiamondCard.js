@@ -17,11 +17,6 @@ import {
     CRow,
     CCol,
     CCardHeader,
-    CFormInput,
-    CInputGroupText,
-    CInputGroup,
-    CFormSelect,
-    CFormTextarea,
     CModalTitle,
     CModalFooter,
 } from '@coreui/react'
@@ -30,7 +25,6 @@ import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemTex
 //import Button from '@mui/joy/Button';
 import { PlusCircle, XCircle } from "phosphor-react";
 import DiamondAdd from "../DiamondAdd";
-import { get_diamond_imageUrl } from "../../../../../api/Back_End_Url";
 
 
 

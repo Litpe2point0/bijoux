@@ -19,11 +19,11 @@ import {
     CFormSelect,
     CFormTextarea,
 } from '@coreui/react'
-const QuoteDetailCard = ({ quote }) => {
+const QuoteDetailCard = ({ quote, title }) => {
     return (
         <CCard className="h-100">
             <CCardHeader className="text-center text-light fw-bold" >
-                INFORMATION OF QUOTE
+              {title? title : 'INFORMATION OF QUOTE'}  
             </CCardHeader>
             <CCardBody className="d-flex flex-column justify-content-between">
                 
