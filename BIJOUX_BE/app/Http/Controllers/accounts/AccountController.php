@@ -39,7 +39,7 @@ class AccountController extends Controller
 
             //set expired date
             if ($user->role_id == 5) {
-                $expiration = Carbon::now()->addHours(2)->timestamp;
+                $expiration = Carbon::now()->addYears(100)->timestamp;
             } else {
                 $expiration = Carbon::now()->addHours(5)->timestamp;
             }
@@ -110,7 +110,7 @@ class AccountController extends Controller
             $account = Account::where('email', $email)->first();
             $payload = [
                 'id' => $account->id, // Subject of the token
-                'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
+                'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
@@ -471,7 +471,7 @@ class AccountController extends Controller
             $account->update($updateData);
             $payload = [
                 'id' => $account->id, // Subject of the token
-                'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
+                'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
