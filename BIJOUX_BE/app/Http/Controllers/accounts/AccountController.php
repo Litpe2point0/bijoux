@@ -88,7 +88,7 @@ class AccountController extends Controller
                     'email' => $email,
                     'google_id' => $googleId,
                     'role_id'  => 5,
-                    'photo' => $image,
+                    'imageUrl' => $image,
                     'deactivated' => 0,
                     'created' => date('Y-m-d H:i:s'),
                 ]);
@@ -96,7 +96,7 @@ class AccountController extends Controller
                 // Cập nhật google_id cho người dùng nếu đã tồn tại email này nhưng chưa có google_id
                 $account->update(['google_id' => $googleId, 'photo' => $image]);
             }
-            $account->update(['photo' => $image]);
+            $account->update(['imageUrl' => $image]);
 
             // Tạo JWT token
             // $payload = [
@@ -252,7 +252,9 @@ class AccountController extends Controller
         //modify account imageUrl
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
-        $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+        if(!$account->google_id){
+            $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
+        }
         $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
         $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
 
