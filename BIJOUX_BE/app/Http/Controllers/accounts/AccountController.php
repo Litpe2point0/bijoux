@@ -272,7 +272,7 @@ class AccountController extends Controller
         $account->order_history = $order_history;
 
         return response()->json([
-            'account_infomation' => $account
+            'account_detail' => $account
         ]);
     }
     public function update(Request $request)
