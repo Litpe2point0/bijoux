@@ -453,12 +453,14 @@ class QuoteController extends Controller
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'note' => $input['note']
             ]);
-            if (isset($input['mounting_type_id'])) {
+            if (isset($input['mounting_size'])) {
                 DB::table('product')->where('id', $quote->product_id)->update([
-                    'mounting_type_id' => $input['mounting_type_id'],
                     'mounting_size' => $input['mounting_size']
                 ]);
             }
+            DB::table('product')->where('id', $quote->product_id)->update([
+                'mounting_type_id' => $input['mounting_type_id'],
+            ]);
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
                 $destinationPath = public_path('image/Order/' . $quote->product_id);

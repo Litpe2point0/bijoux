@@ -1853,6 +1853,9 @@ class OrderController extends Controller
                 DB::table('design_process')->where('id', $input['design_process_id'])->update([
                     'design_process_status_id' => 3
                 ]);
+                DB::table('product')->where('id', $order->product_id)->update([
+                    'mounting_type_id' => $design_process->mounting_type_id,
+                ]);
 
                 $order = DB::table('orders')->where('id', $design_process->order_id)->first();
                 $note = $order->note . "\n" . $input['note'];
