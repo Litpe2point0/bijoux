@@ -87,7 +87,7 @@ class AccountController extends Controller
                     'fullname' => $name,
                     'email' => $email,
                     'google_id' => $googleId,
-                    'role_id'  => 1,
+                    'role_id'  => 5,
                     'photo' => $image,
                     'deactivated' => 0,
                     'created' => date('Y-m-d H:i:s'),
