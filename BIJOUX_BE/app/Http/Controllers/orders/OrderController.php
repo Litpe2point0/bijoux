@@ -130,7 +130,7 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
-
+            
             $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
             if ($sale_staff != null) {
                 $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
@@ -566,7 +566,7 @@ class OrderController extends Controller
                     ], 403);
                 }
             }
-            if (isset($input['note'])) {
+            if (isset($input['note']) && $input['note'] != null) {
                 DB::table('orders')->where('id', $input['order_id'])->update([
                     'note' => $input['note']
                 ]);

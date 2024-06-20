@@ -242,7 +242,7 @@ class QuoteController extends Controller
         if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
             $type_id = $input['mounting_type_id'];
         } else $type_id = null;
-        if (isset($input['note'])) {
+        if (isset($input['note']) && $input['note'] != null) {
             $note = $input['note'];
         } else $note = null;
         DB::beginTransaction();
@@ -363,7 +363,7 @@ class QuoteController extends Controller
                     ], 403);
                 }
             }
-            if (isset($input['note'])) {
+            if (isset($input['note']) && $input['note'] != null) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'note' => $input['note']
                 ]);
