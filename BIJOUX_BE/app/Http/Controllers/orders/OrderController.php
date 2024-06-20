@@ -500,19 +500,19 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $order = DB::table('orders')->where('id', $input['order_id'])->first();
-            if ($order->order_status_id == 4) {
+            if ($order->order_status_id >= 4 && $order->order_status_id < 6) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Can No Longer Be Reassigned'
                 ], 403);
             }
-            if ($order->order_status_id == 5) {
+            if ($order->order_status_id == 6) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Has Already Been Completed'
                 ], 403);
             }
-            if ($order->order_status_id == 6) {
+            if ($order->order_status_id == 7) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Has Already Been Cancelled'
@@ -628,18 +628,18 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $order = DB::table('orders')->where('id', $input['order_id'])->first();
-            if ($order->order_status_id == 5) {
+            if ($order->order_status_id == 6) {
                 return response()->json([
                     'error' => 'Order Has Already Been Completed, Action Can\'t Be Performed'
                 ], 403);
             }
-            if ($order->order_status_id == 6) {
+            if ($order->order_status_id == 7) {
                 return response()->json([
                     'error' => 'Order Has Already Been Cancelled, Action Can\'t Be Performed'
                 ], 403);
             }
             DB::table('orders')->where('id', $input['order_id'])->update([
-                'order_status_id' => 6,
+                'order_status_id' => 7,
                 'note' => $input['note']
             ]);
             DB::table('design_process')->where('order_id', $input['order_id'])->update([
@@ -1424,7 +1424,7 @@ class OrderController extends Controller
             ], 500);
         }
         $data1 = collect();
-        $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6])->where('order_type_id', 1)->get();
+        $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 1)->get();
         foreach ($template_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($production_process->production_status_id == 6) {
@@ -1481,7 +1481,7 @@ class OrderController extends Controller
         });
 
         $data2 = collect();
-        $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6])->where('order_type_id', 2)->get();
+        $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 2)->get();
         foreach ($customize_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($production_process->production_status_id == 6) {
@@ -1983,13 +1983,13 @@ class OrderController extends Controller
             $designs = DB::table('design_process')->whereNot('design_process_status_id', 1)->orderBy('design_process_status_id', 'asc')->get();
             $design_list = $design_list->merge($designs);
         } else if ($account->role_id == 2) {
-            $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
+            $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 7)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
                 $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
             }
         } else if ($account->role_id == 3) {
-            $order_list = DB::table('orders')->where('designStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
+            $order_list = DB::table('orders')->where('designStaff_id', $account->id)->whereNot('order_status_id', 7)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
                 $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
@@ -2328,12 +2328,12 @@ class OrderController extends Controller
                 'error' => 'The Selected Order Isn\'t Ready For Production'
             ], 403);
         }
-        if ($order->order_status_id > 3 && $order->order_status_id < 6) {
+        if ($order->order_status_id > 3 && $order->order_status_id < 7) {
             return response()->json([
                 'error' => 'The Selected Order Has Already Been Produce'
             ], 403);
         }
-        if ($order->order_status_id == 6) {
+        if ($order->order_status_id == 7) {
             return response()->json([
                 'error' => 'The Selected Order Has Already Been Cancelled'
             ], 403);
