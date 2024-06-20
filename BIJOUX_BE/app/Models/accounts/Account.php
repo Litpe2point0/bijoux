@@ -56,6 +56,8 @@ class Account extends Authenticatable implements JWTSubject
             'email' => $this->email,
             'role_id' => $this->role_id,
             'fullname' => $this->fullname,
+            'phone' => $this->phone,
+            'address' => $this->address
         ];
     }
 }

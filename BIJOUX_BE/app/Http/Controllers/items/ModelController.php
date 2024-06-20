@@ -638,6 +638,8 @@ class ModelController extends Controller
 
                 $model_metal2 = collect($input['model_metal']);
 
+                //$main_metals = $model_metal2->where('is_main',1);
+                //$main_metal_ids = $main_metals->pluck('metal.id');
                 $grouped_metals = $model_metal2->groupBy('is_main');
                 $main_metals = $grouped_metals->get(1, collect());
                 $main_metal_ids = $main_metals->pluck('metal.id');
@@ -646,6 +648,8 @@ class ModelController extends Controller
                         'error' => 'Duplicate main metals found.'
                     ], 403);
                 }
+                //$non_main_metals = $model_metal2->where('is_main',0);
+                //$non_main_metal_ids = $non_main_metals->pluck('metal.id');
                 $non_main_metals = $grouped_metals->get(0, collect());
                 $non_main_metal_ids = $non_main_metals->pluck('metal.id');
                 if ($non_main_metal_ids->duplicates()->isNotEmpty()) {
@@ -741,7 +745,7 @@ class ModelController extends Controller
                         foreach ($metal2Mapping[$metal1->id] as $metal2_id) {
                             foreach ($diamondShapes as $shape) {
                                 $check = true;
-                                $destinationPath = public_path('image/Final_template/' . $input['id'] . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape);
+                                $destinationPath = public_path('image/Final_Template/' . $input['id'] . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape);
                                 if (file_exists($destinationPath)) {
                                     $files = File::allFiles($destinationPath);
                                     if ($files != null) {
@@ -827,7 +831,7 @@ class ModelController extends Controller
                 $metal_1_id = isset($image['metal_1_id']) ? $image['metal_1_id'] : 0;
                 $metal_2_id = isset($image['metal_2_id']) ? $image['metal_2_id'] : 0;
 
-                $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
+                $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
@@ -874,7 +878,7 @@ class ModelController extends Controller
                 if (isset($metal2Mapping[$metal1->id])) {
                     foreach ($metal2Mapping[$metal1->id] as $metal2_id) {
                         foreach ($diamondShapes as $shape) {
-                            $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
+                            $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
 
                             if (!file_exists($destinationPath)) {
                                 foreach ($image_list as $image) {
@@ -884,7 +888,7 @@ class ModelController extends Controller
                                     $metal_1_id = isset($image['metal_1_id']) ? $image['metal_1_id'] : 0;
                                     $metal_2_id = isset($image['metal_2_id']) ? $image['metal_2_id'] : 0;
 
-                                    $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
+                                    $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
                                     File::cleanDirectory($destinationPath);
                                 }
                                 return response()->json([
@@ -900,7 +904,7 @@ class ModelController extends Controller
                                         $metal_1_id = isset($image['metal_1_id']) ? $image['metal_1_id'] : 0;
                                         $metal_2_id = isset($image['metal_2_id']) ? $image['metal_2_id'] : 0;
 
-                                        $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
+                                        $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
                                         File::cleanDirectory($destinationPath);
                                     }
                                     return response()->json([
@@ -979,7 +983,7 @@ class ModelController extends Controller
             if (isset($metal2Mapping[$metal1->id])) {
                 foreach ($metal2Mapping[$metal1->id] as $metal2_id) {
                     foreach ($diamondShapes as $shape) {
-                        $destinationPath = public_path('image/Final_template/' . $input . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
+                        $destinationPath = public_path('image/Final_Template/' . $input . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
 
                         if (!file_exists($destinationPath)) {
                             $metal_1 = DB::table('metal')->where('id', $metal1->id)->first();
@@ -1183,7 +1187,7 @@ class ModelController extends Controller
             }
         } else $metal_2_id = 0;
         $shape_id = $input['diamond_shape_id'];
-        $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
+        $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
         if (!file_exists($destinationPath)) {
             return response()->json([
                 'error' => 'The Selected Template Doesn\'t Exist'
