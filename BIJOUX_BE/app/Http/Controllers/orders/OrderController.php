@@ -289,13 +289,13 @@ class OrderController extends Controller
             $product_metal1->product_id = $product->id;
             $product_metal1->metal_id = $metal_1->id;
             if ($model->mounting_type_id != 3) {
-                $product_metal1->volume = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100;
-                $product_metal1->weight = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight;
-                $product_metal1->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+                $product_metal1->volume = ceil($size_to_volume->volume * $model_metal1->percentage / 100);
+                $product_metal1->weight = ceil($size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight);
+                $product_metal1->price = ceil($size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram);
             } else {
-                $product_metal1->volume = $model->volume * $model_metal1->percentage / 100;
-                $product_metal1->weight = $model->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight;
-                $product_metal1->price = $model->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+                $product_metal1->volume = ceil($model->volume * $model_metal1->percentage / 100);
+                $product_metal1->weight = ceil($model->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight);
+                $product_metal1->price = ceil($model->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram);
             }
             $product_metal1->status = 1;
             $product_metal1->save();
@@ -306,13 +306,13 @@ class OrderController extends Controller
                 $product_metal2->product_id = $product->id;
                 $product_metal2->metal_id = $metal_2->id;
                 if ($model->mounting_type_id != 3) {
-                    $product_metal2->volume = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100;
-                    $product_metal2->weight = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight;
-                    $product_metal2->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                    $product_metal2->volume = ceil($size_to_volume->volume * $model_metal2->percentage / 100);
+                    $product_metal2->weight = ceil($size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight);
+                    $product_metal2->price = ceil($size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight * $metal_2->sale_price_per_gram);
                 } else {
-                    $product_metal2->volume = $model->volume * $model_metal2->percentage / 100;
-                    $product_metal2->weight = $model->volume * ($model_metal2->percentage / 100) * $metal_2->specific_weight;
-                    $product_metal2->price = $model->volume * ($model_metal2->percentage / 100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                    $product_metal2->volume = ceil($model->volume * $model_metal2->percentage / 100);
+                    $product_metal2->weight = ceil($model->volume * ($model_metal2->percentage / 100) * $metal_2->specific_weight);
+                    $product_metal2->price = ceil($model->volume * ($model_metal2->percentage / 100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram);
                 }
                 $product_metal2->status = 1;
                 $product_metal2->save();
@@ -339,8 +339,9 @@ class OrderController extends Controller
                     $product_diamond->diamond_id = $diamond->id;
                     $product_diamond->diamond_shape_id = $input['diamond_shape_id'];
                     $product_diamond->count = $diamond0->count;
-                    $product_diamond->price = $diamond->price * $diamond0->count;
+                    $product_diamond->price = ceil($diamond->price * $diamond0->count);
                     $product_diamond->status = 1;
+                    $product_price += $diamond->price * $diamond0->count;
                     $product_diamond->save();
                 } else if ($diamond0->is_editable == 0) {
                     $diamond = DB::table('diamond')->where('size', $diamond0->diamond_size_max)->where('diamond_color_id', $input['diamond_color_id'])->where('diamond_clarity_id', $input['diamond_clarity_id'])->where('diamond_cut_id', $input['diamond_cut_id'])->where('diamond_origin_id', $input['diamond_origin_id'])->first();
@@ -360,8 +361,9 @@ class OrderController extends Controller
                     $product_diamond->diamond_id = $diamond->id;
                     $product_diamond->diamond_shape_id = $diamond0->diamond_shape_id;
                     $product_diamond->count = $diamond0->count;
-                    $product_diamond->price = $diamond->price * $diamond0->count;
+                    $product_diamond->price = ceil($diamond->price * $diamond0->count);
                     $product_diamond->status = 1;
+                    $product_price += $diamond->price * $diamond0->count;
                     $product_diamond->save();
                 }
             }
@@ -370,10 +372,10 @@ class OrderController extends Controller
             $order->product_id = $product->id;
             $order->account_id = $account_id;
             $order->deposit_has_paid = 0;
-            $order->product_price = $product_price;
+            $order->product_price = ceil($product_price);
             $order->profit_rate = $model->profit_rate;
-            $order->production_price = $model->production_price;
-            $order->total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100) / 100;
+            $order->production_price = ceil($model->production_price);
+            $order->total_price = ceil(($product_price + $model->production_price) * ($model->profit_rate + 100) / 100);
             $order->order_type_id = 1;
             $order->order_status_id = 1;
             $order->note = $input['note'];
@@ -1771,7 +1773,7 @@ class OrderController extends Controller
                     'production_price' => $design_process->production_price,
                     'profit_rate' => $design_process->profit_rate,
                     'product_price' => $product_price,
-                    'total_price' => ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100,
+                    'total_price' => ceil(($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100),
                     'note' => $note
                 ]);
                 DB::table('design_process')->where('id', $design_process->id)->update([
