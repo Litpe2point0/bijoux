@@ -25,6 +25,7 @@ export default function ModelTypeOptionCard({ modelType, modelTypeImage }) {
                         dark:hover:bg-blue-700 
                         focus:outline-none 
                         dark:focus:ring-blue-800"
+
             >
                 Choose
             </a>

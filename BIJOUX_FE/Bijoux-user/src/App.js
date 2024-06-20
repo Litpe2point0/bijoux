@@ -4,6 +4,7 @@ import {
   Outlet,
   createRoutesFromElements,
   Route,
+  Routes,
   ScrollRestoration,
 } from "react-router-dom";
 import Footer from "./components/home/Footer/Footer";
@@ -15,6 +16,10 @@ import About from "./pages/About/About";
 import SignIn from "./pages/Account/SignIn";
 import SignUp from "./pages/Account/SignUp";
 import Cart from "./pages/Cart/Cart";
+import ViewOrder from "./pages/Cart/ViewOrder";
+import ViewPricedQuote from "./pages/Cart/ViewPricedQuote";
+import ViewQuote from "./pages/Cart/ViewQuote";
+import PaymentHistory from "./pages/Cart/Payment";
 import Contact from "./pages/Contact/Contact";
 import Home from "./pages/Home/Home";
 import Services from "./pages/Services/Services";
@@ -27,8 +32,9 @@ import Shop from "./pages/Shop/Shop";
 import { ToastContainer } from "react-toastify";
 import MountingDetail from "./pages/Services/TemplateStep/MountingDetail";
 import Profile from "./pages/Profile/profile";
+import PricedQuoteDetails from "./pages/Cart/PricedQuoteDetails";
 import "react-toastify/dist/ReactToastify.css";
-
+import OrderDetails from "./pages/Cart/OrderDetails";
 const Layout = () => {
   return (
     <div>
@@ -71,7 +77,12 @@ const router = createBrowserRouter(
         {/* ==================== Header Navlink End here ===================== */}
         <Route path="/category/:category" element={<Offer />}></Route>
         <Route path="/product/_:id" element={<ProductDetails />}></Route>
-        <Route path="/cart" element={<Cart />}></Route>
+        <Route path="cart/*" element={<Cart />}>
+          <Route path="quote" element={<ViewQuote />} />
+          <Route path="order" element={<ViewOrder />} />
+          <Route path="order-details/:id" element={<OrderDetails />} />
+          <Route path="payment" element={<PaymentHistory />} />
+        </Route>
         <Route path="/paymentgateway" element={<Payment />}></Route>
       </Route>
       <Route path="/signup" element={<SignUp />}></Route>

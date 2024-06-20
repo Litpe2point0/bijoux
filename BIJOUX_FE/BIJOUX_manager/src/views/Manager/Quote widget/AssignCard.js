@@ -3,6 +3,7 @@ import {
     CCardBody,
     CCardTitle,
     CCardText,
+    CPopover,
 } from '@coreui/react'
 import AvatarInput from '../../component_items/Avatar/Avatar'
 import React, { useEffect } from 'react'
@@ -23,10 +24,26 @@ function renderValue(item) {
 
     return (
         <div color="light w-100 d-flex align-items-center justify-content-start" >
+            {/* <CPopover
+                title="Contact Info"
+                content={
+                    <>
+                        <div>Phone Number: {staff.phone}</div>
+                        <div>Email: {staff.email}</div>
+                    </>
+                }
+                placement="right"
+                trigger={"hover"}
+            >
+                <ListItemDecorator className='px-2'>
+                    <AvatarInput size={30} src={staff.imageUrl} />
+                </ListItemDecorator>
+                {staff.fullname}
+            </CPopover> */}
             <ListItemDecorator className='px-2'>
-                <AvatarInput size={30} src={staff.imageUrl} />
-            </ListItemDecorator>
-            {staff.fullname}
+                    <AvatarInput size={30} src={staff.imageUrl} />
+                </ListItemDecorator>
+                {staff.fullname}
         </div>
     );
 }
@@ -51,7 +68,7 @@ const AssignCard = ({ selection, staffList, handleAssign }) => {
         <CCard className="bg-light mb-3" >
 
             <Select
-                
+
                 onChange={handleStaffSelect}
                 variant="soft"
                 className="px-1 py-0"
@@ -74,7 +91,7 @@ const AssignCard = ({ selection, staffList, handleAssign }) => {
                     selection == null &&
                     <React.Fragment key={-1} >
                         <Option value={null} label={"Not Assign Yet !"}  >
-                           <span className='text-danger'>Not Assign Yet !</span> 
+                            <span className='text-danger'>Not Assign Yet !</span>
                         </Option>
                     </React.Fragment>
                 }

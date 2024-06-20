@@ -9,6 +9,10 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class MetalController extends Controller
 {
@@ -147,8 +151,8 @@ class MetalController extends Controller
                     $profit_rate = $order->profit_rate;
                     $production_price = $order->production_price;
                     $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->get();
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 1)->get();
                     //calculate new product price after update metal price
                     foreach ($diamond_list as $diamond) {
                         if ($diamond->status == 1) {
@@ -162,7 +166,7 @@ class MetalController extends Controller
                     }
                     DB::table('orders')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                     ]);
                 }
 
@@ -172,8 +176,8 @@ class MetalController extends Controller
                     $profit_rate = $quote->profit_rate;
                     $production_price = $quote->production_price;
                     $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->get();
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->where('status', 1)->get();
                     //calculate new product price after update metal price
                     foreach ($diamond_list as $diamond) {
                         if ($diamond->status == 1) {
@@ -187,8 +191,39 @@ class MetalController extends Controller
                     }
                     DB::table('quote')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                     ]);
+                }
+                if ($order != null) {
+                    $design_process =  DB::table('design_process')->where('order_id', $order->id)->first();
+                    //check if quote exist
+                    if ($design_process != null && $design_process->design_process_status_id < 4) {
+                        $profit_rate = $design_process->profit_rate;
+                        $production_price = $design_process->production_price;
+                        $product_price = 0;
+                        if ($design_process->design_process_status_id < 3) {
+                            $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->get();
+                            $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->get();
+                        } else if($design_process->design_process_status_id = 3){
+                            $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 2)->get();
+                            $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 2)->get();
+                        }
+                        //calculate new product price after update metal price
+                        foreach ($diamond_list as $diamond) {
+                            if ($diamond->status == 1) {
+                                $product_price += $diamond->price;
+                            }
+                        }
+                        foreach ($metal_list as $metal) {
+                            if ($metal->status == 1) {
+                                $product_price += $metal->price;
+                            }
+                        }
+                        DB::table('design_process')->where('order_id', $order->id)->update([
+                            'product_price' => $product_price,
+                            'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
+                        ]);
+                    }
                 }
             }
             DB::commit();
@@ -256,11 +291,23 @@ class MetalController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $role_id = (int) $decodedToken['role_id'];
+        if ($token == null) {
+            $role_id = 5;
+        } else {
+            try {
+                $role_id = $decodedToken['role_id'];
+            } catch (Throwable $e) {
+                $role_id = $decodedToken->role_id;
+            }
+        }
 
         //create query
         $query = Metal::query();
@@ -365,14 +412,32 @@ class MetalController extends Controller
                 'error' => 'The Selected Metal Has Been Deactivated'
             ], 403);
         }
-        $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main', false)->pluck('metal_id');
-        $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1', $input['metal_id'])->pluck('Metal_id_2');
-        $data = collect();
+        $OGurl = env('ORIGIN_URL');
+        $url = env('METAL_URL');
+        $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main', false)->pluck('metal_id')->values();
         foreach ($metal_list as $metal) {
+            $temp1 = DB::table('metal')->where('id', $metal)->first();
+            if ($temp1->deactivated) {
+                $metal_list = $metal_list->reject(function ($value, $key) use ($metal) {
+                    return $value == $metal;
+                });
+            }
+        }
+        $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1', $input['metal_id'])->pluck('Metal_id_2')->values();
+        $data = collect();
+        foreach ($metal_list as $metal1) {
             foreach ($metal_compatibility as $compability) {
-                if ($metal == $compability) {
-                    $temp = DB::table('metal')->where('id', $metal)->first();
-                    $temp->created = Carbon::parse($temp->created)->format('H:i:s d/m/Y');
+                if ($metal1 == $compability) {
+                    $temp = DB::table('model_metal')->where('model_id', $input['model_id'])->where('metal_id', $metal1)->first();
+                    $temp->metal = DB::table('metal')->where('id', $metal1)->first();
+                    if ($temp->metal->deactivated) {
+                        continue;
+                    }
+                    $temp->metal->imageUrl = $OGurl . $url . $temp->metal->id . "/" . $temp->metal->imageUrl;
+                    $temp->metal->created = Carbon::parse($temp->metal->created)->format('H:i:s d/m/Y');
+                    unset($temp->metal_id);
+                    unset($temp->model_id);
+                    unset($temp->id);
                     $data->push($temp);
                 }
             }

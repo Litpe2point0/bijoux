@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class DiamondController extends Controller
 {
@@ -22,15 +26,27 @@ class DiamondController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $role_id = (int) $decodedToken['role_id'];
-        
+        if ($token == null) {
+            $role_id = 5;
+        } else {
+            try {
+                $role_id = $decodedToken['role_id'];
+            } catch (Throwable $e) {
+                $role_id = $decodedToken->role_id;
+            }
+        }
+
         //create query
         $query = Diamond::Query();
-        if($role_id == 5 || $role_id == 4 || $role_id == 3 || $role_id == 2){
+        if ($role_id == 5 || $role_id == 4 || $role_id == 3 || $role_id == 2) {
             $query->where('deactivated', false);
         }
         //check if input exist, if yes then configure query
@@ -51,8 +67,8 @@ class DiamondController extends Controller
                 $query->where('diamond_origin_id', $input['diamond_origin_id']);
             }
         }
-        $diamond_list = $query->orderBy('deactivated','asc')->get();
-        if($diamond_list->isEmpty()){
+        $diamond_list = $query->orderBy('deactivated', 'asc')->get();
+        if ($diamond_list->isEmpty()) {
             return response()->json([
                 'error' => 'No Diamond Found'
             ], 403);
@@ -135,7 +151,7 @@ class DiamondController extends Controller
         DB::beginTransaction();
         try {
             $diamond = DB::table('diamond')->where('id', $input['diamond_id'])->first();
-            if($diamond->deactivated){
+            if ($diamond->deactivated) {
                 return response()->json([
                     'error' => 'The Selected Diamond Has Been Deactivated'
                 ], 403);
@@ -210,8 +226,8 @@ class DiamondController extends Controller
                     $profit_rate = $order->profit_rate;
                     $production_price = $order->production_price;
                     $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->get();
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 1)->get();
                     //calculate new product price after update diamond price
                     foreach ($diamond_list as $diamond) {
                         if ($diamond->status == 1) {
@@ -225,7 +241,7 @@ class DiamondController extends Controller
                     }
                     DB::table('orders')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                     ]);
                 }
 
@@ -235,8 +251,8 @@ class DiamondController extends Controller
                     $profit_rate = $quote->profit_rate;
                     $production_price = $quote->production_price;
                     $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->get();
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->where('status', 1)->get();
                     //calculate new product price after update diamond price
                     foreach ($diamond_list as $diamond) {
                         if ($diamond->status == 1) {
@@ -250,8 +266,39 @@ class DiamondController extends Controller
                     }
                     DB::table('quote')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                     ]);
+                }
+                if ($order != null) {
+                    $design_process =  DB::table('design_process')->where('order_id', $order->id)->first();
+                    //check if quote exist
+                    if ($design_process != null && $design_process->design_process_status_id < 4) {
+                        $profit_rate = $design_process->profit_rate;
+                        $production_price = $design_process->production_price;
+                        $product_price = 0;
+                        if ($design_process->design_process_status_id < 3) {
+                            $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->get();
+                            $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->get();
+                        } else if ($design_process->design_process_status_id = 3) {
+                            $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 2)->get();
+                            $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 2)->get();
+                        }
+                        //calculate new product price after update metal price
+                        foreach ($diamond_list as $diamond) {
+                            if ($diamond->status == 1) {
+                                $product_price += $diamond->price;
+                            }
+                        }
+                        foreach ($metal_list as $metal) {
+                            if ($metal->status == 1) {
+                                $product_price += $metal->price;
+                            }
+                        }
+                        DB::table('design_process')->where('order_id', $order->id)->update([
+                            'product_price' => $product_price,
+                            'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
+                        ]);
+                    }
                 }
             }
             DB::commit();
@@ -311,7 +358,7 @@ class DiamondController extends Controller
     public function get_size_list()
     {
         $size = DB::table('diamond')->select('size')->groupBy('size')->get();
-        $size_list =[];
+        $size_list = [];
         foreach ($size as $s) {
             $size_list[] = $s->size;
         }

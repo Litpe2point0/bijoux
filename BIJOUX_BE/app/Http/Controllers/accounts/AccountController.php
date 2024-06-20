@@ -9,11 +9,12 @@ use Illuminate\Support\Facades\File;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\accounts\Account;
 use Illuminate\Support\Facades\DB;
-use Tymon\JWTAuth\Facades\JWTFactory;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Carbon\Carbon;
 use Google_Client;
-use Hamcrest\Core\IsEqual;
-use PHPUnit\Framework\Constraint\IsEqual as ConstraintIsEqual;
+use Throwable;
 
 class AccountController extends Controller
 {
@@ -38,7 +39,7 @@ class AccountController extends Controller
 
             //set expired date
             if ($user->role_id == 5) {
-                $expiration = Carbon::now()->addYears(100)->timestamp;
+                $expiration = Carbon::now()->addHours(2)->timestamp;
             } else {
                 $expiration = Carbon::now()->addHours(5)->timestamp;
             }
@@ -64,9 +65,9 @@ class AccountController extends Controller
             'success' => 'Login Successfully',
         ]);
     }
-    public function login_with_google(Request $request) //chưa test
+    public function login_with_google(Request $request)
     {
-        $token = $request->input('tokenId');
+        $token = $request->input('token_id');
 
         $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
         $payload = $client->verifyIdToken($token);
@@ -75,7 +76,7 @@ class AccountController extends Controller
             $googleId = $payload['sub'];
             $email = $payload['email'];
             $name = $payload['name'];
-
+            $image = $payload['picture'];
 
             // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
             $account = Account::where('email', $email)->first();
@@ -86,39 +87,44 @@ class AccountController extends Controller
                     'fullname' => $name,
                     'email' => $email,
                     'google_id' => $googleId,
-                    'role_id'  => 1,
+                    'role_id'  => 5,
+                    'photo' => $image,
                     'deactivated' => 0,
                     'created' => date('Y-m-d H:i:s'),
                 ]);
             } else if (!$account->google_id) {
                 // Cập nhật google_id cho người dùng nếu đã tồn tại email này nhưng chưa có google_id
-                $account->update(['google_id' => $googleId]);
+                $account->update(['google_id' => $googleId, 'photo' => $image]);
             }
+            $account->update(['photo' => $image]);
 
             // Tạo JWT token
-            $payload = [
-                'iss' => "your-issuer", // Issuer of the token
-                'sub' => $account->id, // Subject of the token
-                'iat' => time(), // Time when JWT was issued.
-                'exp' => time() + 60 * 60 // Expiration time
-            ];
+            // $payload = [
+            //     'iss' => "your-issuer", // Issuer of the token
+            //     'sub' => $account->id, // Subject of the token
+            //     'iat' => time(), // Time when JWT was issued.
+            //     'exp' => time() + 60*60, // Expiration time
+            //     'imageUrl' => $image,
+            // ];
 
             $account = Account::where('email', $email)->first();
             $payload = [
-
                 'id' => $account->id, // Subject of the token
                 'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
+                'imageUrl' => $account->photo,
+                'phone' => $account->phone,
+                'address' => $account->address
                 // Thêm các claims khác nếu cần
             ];
 
-            $jwt = JWTAuth::encode($payload, env('JWT_SECRET'), 'HS256');
+            $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
 
 
 
-            return response()->json(['success' => 'Login Successfully', 'token' => $jwt]);
+            return response()->json(['success' => 'User logged in', 'token' => $jwt]);
         } else {
             return response()->json(['error' => 'Invalid token'], 401);
         }
@@ -301,14 +307,14 @@ class AccountController extends Controller
                     'email' => 'required|string|email|max:255',
                     'phone' => 'nullable|string|max:20|unique:account,phone',
                 ];
-            } 
+            }
             // Check if only phone matches
             else if ($account->phone == $input['phone']) {
                 $rules = [
                     'email' => 'required|string|email|max:255|unique:account,email',
                     'phone' => 'nullable|string|max:20',
                 ];
-            } 
+            }
             // Neither email nor phone match, apply full uniqueness validation
             else {
                 $rules = [
@@ -399,55 +405,22 @@ class AccountController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
 
         //find account
         $account = Account::find($id);
-
-        if ($account->email == $input['email'] && $account->phone == $input['phone']) {
-            // Both email and phone match, skip uniqueness validation
-            $rules = [
-                'email' => 'required|string|email|max:255',
-                'phone' => 'nullable|string|max:20',
-            ];
-        } else {
-            // Check if only email matches
-            if ($account->email == $input['email']) {
-                $rules = [
-                    'email' => 'required|string|email|max:255',
-                    'phone' => 'nullable|string|max:20|unique:account,phone',
-                ];
-            } 
-            // Check if only phone matches
-            else if ($account->phone == $input['phone']) {
-                $rules = [
-                    'email' => 'required|string|email|max:255|unique:account,email',
-                    'phone' => 'nullable|string|max:20',
-                ];
-            } 
-            // Neither email nor phone match, apply full uniqueness validation
-            else {
-                $rules = [
-                    'email' => 'required|string|email|max:255|unique:account,email',
-                    'phone' => 'nullable|string|max:20|unique:account,phone',
-                ];
-            }
-        }
-        $validatedData = validator($input, $rules);
-        if ($validatedData->fails()) {
-            $errors = $validatedData->errors();
-            $errorString = '';
-
-            foreach ($errors->all() as $message) {
-                $errorString .= $message . "\n";
-            }
-
-            return response()->json(['error' => $errorString], 400);
-        }
 
         DB::beginTransaction();
         try {
@@ -494,9 +467,23 @@ class AccountController extends Controller
 
             //update the account
             $account->update($updateData);
+            $payload = [
+                'id' => $account->id, // Subject of the token
+                'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
+                'email' => $account->email,
+                'fullname' => $account->fullname,
+                'role_id' => $account->role_id,
+                'imageUrl' => $account->photo,
+                'phone' => $account->phone,
+                'address' => $account->address
+                // Thêm các claims khác nếu cần
+            ];
+
+            $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
 
             DB::commit();
             return response()->json([
+                'token' => $jwt,
                 'success' => "Update Successfully",
             ], 201);
         } catch (\Exception $e) {

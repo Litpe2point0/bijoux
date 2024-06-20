@@ -12,6 +12,10 @@ use App\Models\items\Model_Metal;
 use Illuminate\Support\Facades\File;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class ModelController extends Controller
 {
@@ -26,6 +30,111 @@ class ModelController extends Controller
         }
         DB::beginTransaction();
         try {
+            $check = false;
+            $check2 = false;
+            $model_metal = $input['model_metal'];
+            foreach ($model_metal as $metal) {
+                if ($metal['is_main'] == 0) {
+                    $check = true;
+                }
+                if ($metal['is_main'] == 1) {
+                    $check2 = true;
+                }
+            }
+            if ($check2 == false) {
+                return response()->json([
+                    'error' => 'The model must contain at least one main metal.'
+                ], 403);
+            }
+
+            $model_diamond = collect($input['model_diamond']);
+            $editable_diamonds = $model_diamond->filter(function ($diamond) {
+                return $diamond['is_editable'] == 1;
+            });
+            if ($editable_diamonds->count() !== 1) {
+                return response()->json([
+                    'error' => 'There must be exactly one editable diamond.'
+                ], 403);
+            }
+
+            $model_metal2 = collect($input['model_metal']);
+
+            $grouped_metals = $model_metal2->groupBy('is_main');
+            $main_metals = $grouped_metals->get(1, collect());
+            $main_metal_ids = $main_metals->pluck('metal.id');
+            if ($main_metal_ids->duplicates()->isNotEmpty()) {
+                return response()->json([
+                    'error' => 'Duplicate main metals found.'
+                ], 403);
+            }
+            $non_main_metals = $grouped_metals->get(0, collect());
+            $non_main_metal_ids = $non_main_metals->pluck('metal.id');
+            if ($non_main_metal_ids->duplicates()->isNotEmpty()) {
+                return response()->json([
+                    'error' => 'Duplicate secondary metals found.'
+                ], 403);
+            }
+
+            $model_metal_main = $model_metal2->firstWhere('is_main', 1);
+            if ($check == true) {
+                $model_metal_notmain = $model_metal2->firstWhere('is_main', 0);
+            }
+            if ($check != true) {
+                if ($model_metal_main['percentage'] != 100) {
+                    return response()->json([
+                        'error' => 'The percentage of the main metal must be 100.'
+                    ], 403);
+                }
+            } else {
+                $percentageValues1 = $main_metals->pluck('percentage')->unique();
+                if ($percentageValues1->count() > 1) {
+                    return response()->json([
+                        'error' => 'All main metals must have the same percentage value.'
+                    ], 403);
+                }
+            }
+            if ($check == true && isset($model_metal_notmain)) {
+                $percentageValues2 = $non_main_metals->pluck('percentage')->unique();
+                if ($percentageValues2->count() > 1) {
+                    return response()->json([
+                        'error' => 'All secondary metals must have the same percentage value.'
+                    ], 403);
+                }
+
+                $totalPercentage = $percentageValues1->sum() + $percentageValues2->sum();
+                if ($totalPercentage != 100) {
+                    return response()->json([
+                        'error' => 'The sum of the main metal percentage and the secondary metal percentage must be 100.'
+                    ], 403);
+                }
+            }
+
+            $main_metal_ids = [];
+            $notmain_metal_ids = [];
+            foreach ($model_metal as $metal) {
+                if ($metal['is_main'] == 1) {
+                    $main_metal_ids[] = $metal['metal']['id'];
+                }
+            }
+            if ($check == true) {
+                foreach ($model_metal as $metal) {
+                    if ($metal['is_main'] == 0) {
+                        $notmain_metal_ids[] = $metal['metal']['id'];
+                    }
+                }
+                foreach ($main_metal_ids as $metal) {
+                    $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                    foreach ($metalCompatibilities1 as $compatibility2) {
+                        foreach ($notmain_metal_ids as $metal2) {
+                            if ($compatibility2->Metal_id_2 != $metal2) {
+                                return response()->json([
+                                    'error' => 'Metal Compatibility Error'
+                                ], 403);
+                            }
+                        }
+                    }
+                }
+            }
             $model = new _Model();
             $model->name = $input['name'];
             $model->mounting_type_id = $input['mounting_type_id'];
@@ -55,7 +164,7 @@ class ModelController extends Controller
                 $model_diamond->diamond_size_max = $diamond['diamond_size_max'];
                 $model_diamond->count = $diamond['count'];
                 $model_diamond->diamond_shape_id = $diamond['diamond_shape']['id'];
-                $model_diamond->is_editable = false;
+                $model_diamond->is_editable = $diamond['is_editable'];
                 $model_diamond->save();
             }
             foreach ($input['model_metal'] as $metal) {
@@ -113,11 +222,24 @@ class ModelController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $role_id = (int) $decodedToken['role_id'];
+        if ($token == null) {
+            $role_id = 5;
+        } else {
+            try {
+                $role_id = $decodedToken['role_id'];
+            } catch (Throwable $e) {
+                $role_id = $decodedToken->role_id;
+            }
+        }
+
         //create query
         $query_available = DB::table('model')
             ->join('model_diamondshape', 'model.id', '=', 'model_diamondshape.model_id')
@@ -315,6 +437,9 @@ class ModelController extends Controller
         $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
         $model_diamond->map(function ($model_diamond) {
             $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
+            if ($model_diamond->is_editable == 1) {
+                $model_diamond->size_list = DB::table('diamond')->select('size')->where('size', '>=', $model_diamond->diamond_size_min)->where('size', '<=', $model_diamond->diamond_size_max)->groupBy('size')->pluck('size')->values();
+            }
             unset($model_diamond->model_id);
             unset($model_diamond->diamond_shape_id);
             return $model_diamond;
@@ -323,13 +448,18 @@ class ModelController extends Controller
 
         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
         $model_metal->map(function ($model_metal) {
-            $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-            $OGurl = env('ORIGIN_URL');
-            $url = env('METAL_URL');
-            $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
-            $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
-            unset($model_metal->model_id);
-            unset($model_metal->metal_id);
+            $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+            if ($metal->deactivated == 1) {
+                $model_metal->isAvailable = false;
+            } else {
+                $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+                $OGurl = env('ORIGIN_URL');
+                $url = env('METAL_URL');
+                $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
+                $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
+                unset($model_metal->model_id);
+                unset($model_metal->metal_id);
+            }
             return $model_metal;
         });
         $model->model_metal = $model_metal;
@@ -400,7 +530,7 @@ class ModelController extends Controller
                 'base_height' => $input['base_height'],
                 'volume' => $input['volume'],
                 'production_price' => $input['production_price'],
-                'profit_rate' => $input['profit_rate']
+                'profit_rate' => $input['profit_rate'],
             ];
             if (!empty($input['imageUrl'])) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
@@ -408,14 +538,230 @@ class ModelController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-
                 $fileName = time() . '_' . $input['id'] . '.jpg';
                 //delete all files in the model directory
                 File::cleanDirectory($destinationPath);
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
-
                 $updateData['imageUrl'] = $fileName;
             }
+            $temp2 = false;
+            $model_metal1 = $input['model_metal'];
+            foreach ($model_metal1 as $metal) {
+                if ($metal['is_main'] == 1) {
+                    $temp2 = true;
+                }
+            }
+            if ($temp2 == false) {
+                return response()->json([
+                    'error' => 'The model must contain at least one main metal.'
+                ], 403);
+            }
+
+            $model_diamond1 = collect($input['model_diamond']);
+            $editable_diamonds = $model_diamond1->filter(function ($diamond) {
+                return $diamond['is_editable'] == 1;
+            });
+            if ($editable_diamonds->count() !== 1) {
+                return response()->json([
+                    'error' => 'There must be exactly one editable diamond.'
+                ], 403);
+            }
+
+            $check = true;
+            $model_metal = DB::table('model_metal')->where('model_id', $input['id'])->get();
+            $model_metal->map(function ($metal) {
+                $metal->metal = DB::table('metal')->where('id', $metal->metal_id)->first();
+                unset($metal->id);
+                unset($metal->model_id);
+                unset($metal->metal_id);
+                return $metal;
+            });
+            $model_diamondshape = DB::table('model_diamondshape')->where('model_id', $input['id'])->pluck('diamond_shape_id')->values();
+            foreach ($input['model_metal'] as $metal1) {
+                $check = true;
+                foreach ($model_metal as $metal2) {
+                    if ($metal2->metal->id == $metal1['metal']['id'] && $metal2->is_main == $metal1['is_main']) {
+                        $check = false;
+                    }
+                }
+                if ($check == true) {
+                    break;
+                }
+            }
+            foreach ($model_metal as $metal1) {
+                $check = true;
+                if ($check == false) {
+                    foreach ($input['model_metal'] as $metal2) {
+                        if ($metal1->metal->id == $metal2['metal']['id'] && $metal1->is_main == $metal2['is_main']) {
+                            $check = false;
+                        }
+                    }
+                    if ($check == true) {
+                        break;
+                    }
+                }
+            }
+            foreach ($input['model_diamond_shape'] as $shape1) {
+                if ($check == false) {
+                    $check = true;
+                    foreach ($model_diamondshape as $shape2) {
+                        if ($shape1 == $shape2) {
+                            $check = false;
+                        }
+                    }
+                    if ($check == true) {
+                        break;
+                    }
+                }
+            }
+            foreach ($model_diamondshape as $shape1) {
+                if ($check == false) {
+                    $check = true;
+                    foreach ($input['model_diamond_shape'] as $shape2) {
+                        if ($shape1 == $shape2) {
+                            $check = false;
+                        }
+                    }
+                    if ($check == true) {
+                        break;
+                    }
+                }
+            }
+            if ($check == true) {
+                $temp = false;
+                $model_metal1 = $input['model_metal'];
+                foreach ($model_metal1 as $metal) {
+                    if ($metal['is_main'] == 0) {
+                        $temp = true;
+                    }
+                }
+
+                $model_metal2 = collect($input['model_metal']);
+
+                //$main_metals = $model_metal2->where('is_main',1);
+                //$main_metal_ids = $main_metals->pluck('metal.id');
+                $grouped_metals = $model_metal2->groupBy('is_main');
+                $main_metals = $grouped_metals->get(1, collect());
+                $main_metal_ids = $main_metals->pluck('metal.id');
+                if ($main_metal_ids->duplicates()->isNotEmpty()) {
+                    return response()->json([
+                        'error' => 'Duplicate main metals found.'
+                    ], 403);
+                }
+                //$non_main_metals = $model_metal2->where('is_main',0);
+                //$non_main_metal_ids = $non_main_metals->pluck('metal.id');
+                $non_main_metals = $grouped_metals->get(0, collect());
+                $non_main_metal_ids = $non_main_metals->pluck('metal.id');
+                if ($non_main_metal_ids->duplicates()->isNotEmpty()) {
+                    return response()->json([
+                        'error' => 'Duplicate secondary metals found.'
+                    ], 403);
+                }
+
+                $model_metal_main = $model_metal2->firstWhere('is_main', 1);
+                if ($temp == true) {
+                    $model_metal_notmain = $model_metal2->firstWhere('is_main', 0);
+                }
+                if ($temp != true) {
+                    if ($model_metal_main['percentage'] != 100) {
+                        return response()->json([
+                            'error' => 'The percentage of the main metal must be 100.'
+                        ], 403);
+                    }
+                } else {
+                    $percentageValues1 = $main_metals->pluck('percentage')->unique();
+                    if ($percentageValues1->count() > 1) {
+                        return response()->json([
+                            'error' => 'All main metals must have the same percentage value.'
+                        ], 403);
+                    }
+                }
+                if ($temp == true && isset($model_metal_notmain)) {
+                    $percentageValues2 = $non_main_metals->pluck('percentage')->unique();
+                    if ($percentageValues2->count() > 1) {
+                        return response()->json([
+                            'error' => 'All secondary metals must have the same percentage value.'
+                        ], 403);
+                    }
+
+                    $totalPercentage = $percentageValues1->sum() + $percentageValues2->sum();
+                    if ($totalPercentage != 100) {
+                        return response()->json([
+                            'error' => 'The sum of the main metal percentage and the secondary metal percentage must be 100.'
+                        ], 403);
+                    }
+                }
+
+                $main_metal_ids = [];
+                $notmain_metal_ids = [];
+                foreach ($model_metal1 as $metal) {
+                    if ($metal['is_main'] == 1) {
+                        $main_metal_ids[] = $metal['metal']['id'];
+                    }
+                }
+                if ($temp == true) {
+                    foreach ($model_metal1 as $metal) {
+                        if ($metal['is_main'] == 0) {
+                            $notmain_metal_ids[] = $metal['metal']['id'];
+                        }
+                    }
+                    foreach ($main_metal_ids as $metal) {
+                        $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                        foreach ($metalCompatibilities1 as $compatibility2) {
+                            foreach ($notmain_metal_ids as $metal2) {
+                                if ($compatibility2->Metal_id_2 != $metal2) {
+                                    return response()->json([
+                                        'error' => 'Metal Compatibility Error'
+                                    ], 403);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //check if the image exist or not, if not, set isAvailable to false
+                $diamondShapes = $input['model_diamond_shape'];
+                $metal2Mapping = [];
+                foreach ($main_metal_ids as $metal) {
+                    if (!isset($notmain_metal_ids) || $notmain_metal_ids == null) {
+                        $metal2Mapping[$metal][] = 0;
+                    }
+                    $metalCompatibilities2 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                    foreach ($metalCompatibilities2 as $compatibility2) {
+                        $bo = false;
+                        foreach ($notmain_metal_ids as $metal2) {
+                            if ($compatibility2->Metal_id_2 == $metal2) {
+                                $bo = true;
+                            }
+                        }
+                        if ($bo) {
+                            $metal2Mapping[$compatibility2->Metal_id_1][] = $compatibility2->Metal_id_2;
+                        }
+                    }
+                }
+                foreach ($main_metal_ids as $metal) {
+                    $metal1 = DB::table('metal')->where('id', $metal)->first();
+                    if (isset($metal2Mapping[$metal1->id])) {
+                        foreach ($metal2Mapping[$metal1->id] as $metal2_id) {
+                            foreach ($diamondShapes as $shape) {
+                                $check = true;
+                                $destinationPath = public_path('image/Final_Template/' . $input['id'] . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape);
+                                if (file_exists($destinationPath)) {
+                                    $files = File::allFiles($destinationPath);
+                                    if ($files != null) {
+                                        $check = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if ($check == true) {
+                        break;
+                    }
+                }
+            }
+
+            //delete all model_metal, model_diamondshape, model_diamond
             DB::table('model_metal')->where('model_id', $input['id'])->delete();
             DB::table('model_diamondshape')->where('model_id', $input['id'])->delete();
             DB::table('model_diamond')->where('model_id', $input['id'])->delete();
@@ -425,6 +771,8 @@ class ModelController extends Controller
                     'diamond_shape_id' => $shape
                 ]);
             }
+
+            //insert new model_metal, model_diamondshape, model_diamond
             foreach ($input['model_diamond'] as $diamond) {
                 DB::table('model_diamond')->insert([
                     'model_id' => $input['id'],
@@ -443,8 +791,13 @@ class ModelController extends Controller
                     'percentage' => $metal['percentage']
                 ]);
             }
+            if ($check == true) {
+                $updateData['isAvailable'] = false;
+            }
+            if ($check == false) {
+                $updateData['isAvailable'] = true;
+            }
             DB::table('model')->where('id', $input['id'])->update($updateData);
-
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -478,7 +831,7 @@ class ModelController extends Controller
                 $metal_1_id = isset($image['metal_1_id']) ? $image['metal_1_id'] : 0;
                 $metal_2_id = isset($image['metal_2_id']) ? $image['metal_2_id'] : 0;
 
-                $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
+                $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
@@ -525,7 +878,7 @@ class ModelController extends Controller
                 if (isset($metal2Mapping[$metal1->id])) {
                     foreach ($metal2Mapping[$metal1->id] as $metal2_id) {
                         foreach ($diamondShapes as $shape) {
-                            $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
+                            $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
 
                             if (!file_exists($destinationPath)) {
                                 foreach ($image_list as $image) {
@@ -535,7 +888,7 @@ class ModelController extends Controller
                                     $metal_1_id = isset($image['metal_1_id']) ? $image['metal_1_id'] : 0;
                                     $metal_2_id = isset($image['metal_2_id']) ? $image['metal_2_id'] : 0;
 
-                                    $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
+                                    $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
                                     File::cleanDirectory($destinationPath);
                                 }
                                 return response()->json([
@@ -551,7 +904,7 @@ class ModelController extends Controller
                                         $metal_1_id = isset($image['metal_1_id']) ? $image['metal_1_id'] : 0;
                                         $metal_2_id = isset($image['metal_2_id']) ? $image['metal_2_id'] : 0;
 
-                                        $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
+                                        $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $image['diamond_shape_id']);
                                         File::cleanDirectory($destinationPath);
                                     }
                                     return response()->json([
@@ -630,15 +983,17 @@ class ModelController extends Controller
             if (isset($metal2Mapping[$metal1->id])) {
                 foreach ($metal2Mapping[$metal1->id] as $metal2_id) {
                     foreach ($diamondShapes as $shape) {
-                        $destinationPath = public_path('image/Final_template/' . $input . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
+                        $destinationPath = public_path('image/Final_Template/' . $input . '_' . $metal1->id . '_' . $metal2_id . '_' . $shape->id);
 
                         if (!file_exists($destinationPath)) {
                             $metal_1 = DB::table('metal')->where('id', $metal1->id)->first();
+                            $metal_1->imageUrl = $OGurl . env('METAL_URL') . $metal_1->id . '/' . $metal_1->imageUrl;
                             $metal_1->created = Carbon::parse($metal_1->created)->format('H:i:s d/m/Y');
                             if ($metal2_id == 0) {
                                 $metal_2 = null;
                             } else {
                                 $metal_2 = DB::table('metal')->where('id', $metal2_id)->first();
+                                $metal_2->imageUrl = $OGurl . env('METAL_URL') . $metal_2->id . '/' . $metal_2->imageUrl;
                                 $metal_2->created = Carbon::parse($metal_2->created)->format('H:i:s d/m/Y');
                             }
                             $diamond_shape = $shape;
@@ -654,8 +1009,10 @@ class ModelController extends Controller
                             $files = File::allFiles($destinationPath);
                             if ($files == null) {
                                 $metal_1 = DB::table('metal')->where('id', $metal1->id)->first();
+                                $metal_1->imageUrl = $OGurl . env('METAL_URL') . $metal_1->id . '/' . $metal_1->imageUrl;
                                 $metal_1->created = Carbon::parse($metal_1->created)->format('H:i:s d/m/Y');
                                 $metal_2 = DB::table('metal')->where('id', $metal2_id)->first();
+                                $metal_2->imageUrl = $OGurl . env('METAL_URL') . $metal_2->id . '/' . $metal_2->imageUrl;
                                 $metal_2->created = Carbon::parse($metal_2->created)->format('H:i:s d/m/Y');
                                 $diamond_shape = $shape;
 
@@ -773,8 +1130,37 @@ class ModelController extends Controller
                 'error' => 'No Input Received'
             ], 403);
         }
+        $validatedData = validator($input, [
+            'model_id' => 'required',
+            'diamond_shape_id' => 'required',
+            'metal_1_id' => 'required',
+            'mounting_size' => 'required',
+            'diamond_origin_id' => 'required',
+            'diamond_clarity_id' => 'required',
+            'diamond_color_id' => 'required',
+            'diamond_cut_id' => 'required',
+            'diamond_size' => 'required',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json([
+                'error' => "Something Went Wrong"
+            ], 403);
+        }
         $model_id = $input['model_id'];
         $model = DB::table('model')->where('id', $model_id)->first();
+        $product_price = 0;
+        $metal_1 = DB::table('metal')->where('id', $input['metal_1_id'])->first();
+        $metal_2 = DB::table('metal')->where('id', $input['metal_2_id'])->first();
+        $diamond_color = DB::table('diamond_color')->where('id', $input['diamond_color_id'])->first();
+        $diamond_clarity = DB::table('diamond_clarity')->where('id', $input['diamond_clarity_id'])->first();
+        $diamond_cut = DB::table('diamond_cut')->where('id', $input['diamond_cut_id'])->first();
+        $diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
+        if ($metal_2 != null) {
+            $mname = " - " . $metal_2->name;
+        } else {
+            $mname = "";
+        }
+        $name = $model->name . " In " . $metal_1->name . $mname . " With " . $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . "Cut Diamond";
         if (isset($input['metal_1_id']) && $input['metal_1_id'] != null) {
             $metal_1_id = $input['metal_1_id'];
             $metal = DB::table('metal')->where('id', $input['metal_1_id'])->first();
@@ -788,7 +1174,7 @@ class ModelController extends Controller
                     'error' => 'The Template Contain a Metal That Has Been Deactivated'
                 ], 403);
             };
-        } else $metal_1_id = 0;
+        }
         if (isset($input['metal_2_id']) && $input['metal_2_id'] != null) {
             $metal_2_id = $input['metal_2_id'];
             $metal = DB::table('metal')->where('id', $input['metal_2_id'])->first();
@@ -801,7 +1187,7 @@ class ModelController extends Controller
             }
         } else $metal_2_id = 0;
         $shape_id = $input['diamond_shape_id'];
-        $destinationPath = public_path('image/Final_template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
+        $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
         if (!file_exists($destinationPath)) {
             return response()->json([
                 'error' => 'The Selected Template Doesn\'t Exist'
@@ -822,30 +1208,37 @@ class ModelController extends Controller
             $related_image[] = $OGurl . $url . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id . '/related_' . $i . '.jpg';
         }
         $OGurl = env('ORIGIN_URL');
-        $Murl = env('METAL_URL');
         $Durl = env('DIAMOND_URL');
         $metal_1 = DB::table('metal')->where('id', $metal_1_id)->first();
-        $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
         $model_metal_1 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_1_id)->where('is_main', true)->first();
-        $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
-        $volume =  DB::table('size_to_volume')->where('size', $input['mounting_size'])->value('volume');
-        $metal_1->price = $volume * $model_metal_1->percentage * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
-        $metal_2->price = $volume * $model_metal_2->percentage * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
-        $metal_1->imageUrl = $OGurl . $Murl . $metal->id . '/' . $metal_1->imageUrl;
-        $metal_2->imageUrl = $OGurl . $Murl . $metal->id . '/' . $metal_2->imageUrl;
-        unset($metal_1->buy_price_per_gram);
-        unset($metal_1->sale_price_per_gram);
-        unset($metal_1->specific_weight);
-        unset($metal_1->deactivated);
-        unset($metal_1->created);
-        unset($metal_2->buy_price_per_gram);
-        unset($metal_2->sale_price_per_gram);
-        unset($metal_2->specific_weight);
-        unset($metal_2->deactivated);
-        unset($metal_2->created);
-        $metal_list = [
-            $metal_1,
-            $metal_2
+        if ($model->mounting_type_id != 3) {
+            $volume =  DB::table('size_to_volume')->where('size', $input['mounting_size'])->value('volume');
+            if ($metal_2_id != null || $metal_2_id != 0) {
+                $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
+                $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
+                $metal_2->price = $volume * ($model_metal_2->percentage/100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $iprice = $metal_2->price;
+            } else {
+                $iprice = 0;
+            }
+            $metal_1->price = $volume * ($model_metal_1->percentage/100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+        } else {
+            if ($metal_2_id != null || $metal_2_id != 0) {
+                $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
+                $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
+                $metal_2->price = $model->volume * ($model_metal_2->percentage/100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $iprice = $metal_2->price;
+            } else {
+                $iprice = 0;
+            }
+            $metal_1->price = $model->volume * ($model_metal_1->percentage/100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+        }
+
+        $mprice = $metal_1->price + $iprice;
+        $product_price += $mprice;
+        $metal = [
+            'name' => $metal_1->name . $mname . " " . $model->name,
+            'price' => $mprice,
         ];
         $model_diamond = DB::table('model_diamond')->where('model_id', $model_id)->get();
         $diamond_list = collect();
@@ -858,6 +1251,7 @@ class ModelController extends Controller
                             'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
                         ], 403);
                     }
+                    $diamond->name = $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . "Cut Diamond";
                     $diamond->price = $diamonds->count * $diamond->price;
                     $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
                     $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $input['diamond_shape_id'])->first();
@@ -866,6 +1260,8 @@ class ModelController extends Controller
                     $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
                     $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
                     $diamond->count = $diamonds->count;
+                    $diamond->is_editable = $diamonds->is_editable;
+                    $product_price += $diamond->price;
                     unset($diamond->deactivated);
                     unset($diamond->created);
                     unset($diamond->diamond_clarity_id);
@@ -886,6 +1282,8 @@ class ModelController extends Controller
                             'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
                         ], 403);
                     }
+                    $diamond_shape2 = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
+                    $diamond->name = $diamonds->diamond_size_max . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape2->name . " Shape " . $diamond_cut->name . "Cut Diamond";
                     $diamond->price = $diamonds->count * $diamond->price;
                     $diamond->imageUrl = $OGurl . $Durl . $diamond->imageUrl;
                     $diamond->diamond_shape = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
@@ -894,6 +1292,8 @@ class ModelController extends Controller
                     $diamond->diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
                     $diamond->diamond_origin = DB::table('diamond_origin')->where('id', $diamond->diamond_origin_id)->first();
                     $diamond->count = $diamonds->count;
+                    $diamond->is_editable = $diamonds->is_editable;
+                    $product_price += $diamond->price;
                     unset($diamond->deactivated);
                     unset($diamond->created);
                     unset($diamond->diamond_clarity_id);
@@ -908,11 +1308,18 @@ class ModelController extends Controller
                 }
             }
         }
+        $production_price = $model->production_price + (($product_price + $model->production_price) * $model->profit_rate / 100);
+        $total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100) / 100;
         return response()->json([
+            'name' => $name,
+            'model_id' => $model_id,
+            'mounting_type' => DB::table('mounting_type')->where('id', $model->mounting_type_id)->first(),
             'main_image' => $main_image,
             'related_image' => $related_image,
-            'metal_list' => $metal_list,
-            'diamond_list' => $diamond_list->values()->all()
+            'metal' => $metal,
+            'diamond_list' => $diamond_list->values()->all(),
+            'production_price' => $production_price,
+            'total_price' => $total_price
         ]);
     }
 }

@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class checkProductionStaff
 {
@@ -27,7 +28,11 @@ class checkProductionStaff
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
         if ($decodedToken) {

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import HeadServices from "../../components/Services/head";
 import ExploreCustomization from "../../components/Services/exploreCustomization";
 import ExploreTemplate from "../../components/Services/exploreTemplate";
@@ -11,6 +11,10 @@ export default function Services() {
     const scrollToSection = (ref) => {
         ref.current.scrollIntoView({ behavior: "smooth" });
     };
+    useEffect(() => {
+        localStorage.removeItem("finalProduct");
+
+    }, []);
 
     return (
         <>

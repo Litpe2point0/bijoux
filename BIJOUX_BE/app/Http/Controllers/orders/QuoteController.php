@@ -13,7 +13,10 @@ use App\Models\items\Product;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\accounts\Account;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Validator;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class QuoteController extends Controller
 {
@@ -94,11 +97,19 @@ class QuoteController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
 
         $quote_list = DB::table('quote')->where('account_id', $input)->orderBy('quote_status_id', 'ASC')->get();
         $quote_list->map(function ($quote) {
@@ -152,6 +163,33 @@ class QuoteController extends Controller
                 'error' => 'No Input Receive'
             ], 403);
         }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
+            }
+        }
+        try {
+            $account_id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $account_id = $decodedToken->id;
+        }
+        $account = DB::table('account')->where('id', $account_id)->first();
+        if ($account->deactivated) {
+            return response()->json([
+                'error' => 'The Selected Customer Account Has Been Deactivated'
+            ], 403);
+        }
+
         if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
             $type_id = $input['mounting_type_id'];
         } else $type_id = null;
@@ -160,19 +198,6 @@ class QuoteController extends Controller
         } else $note = null;
         DB::beginTransaction();
         try {
-            $account_id = $input['account']['id'];
-            $account = DB::table('account')->where('id', $account_id)->first();
-            if ($account == null) {
-                return response()->json([
-                    'error' => 'The Selected Customer Account Doesn\'t Exist'
-                ], 403);
-            }
-            if ($account->deactivated) {
-                return response()->json([
-                    'error' => 'The Selected Customer Account Has Been Deactivated'
-                ], 403);
-            }
-
             $product = new Product();
             $product->mounting_type_id = $type_id;
             $product->imageUrl = "";
@@ -328,11 +353,19 @@ class QuoteController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
         if ($quote->saleStaff_id != $id) {
             return response()->json([
@@ -404,7 +437,7 @@ class QuoteController extends Controller
                         DB::rollBack();
                         return response()->json([
                             'error' => 'One Of The Selected Diamond Is Currently Deactivated'
-                        ],403);
+                        ], 403);
                     }
                     $product_diamond->product_id = $quote->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
@@ -423,7 +456,7 @@ class QuoteController extends Controller
                     DB::rollBack();
                     return response()->json([
                         'error' => 'One Of The Selected Metal Is Currently Deactivated'
-                    ],403);
+                    ], 403);
                 }
                 $product_metal->product_id = $quote->product_id;
                 $product_metal->metal_id = $metal1['metal']['id'];
@@ -440,7 +473,7 @@ class QuoteController extends Controller
                 'profit_rate' => $input['profit_rate'],
                 'product_price' => $product_price,
                 'quote_status_id' => 3,
-                'total_price' => ($product_price + $input['production_price']) * ($input['profit_rate'] + 100) / 100
+                'total_price' => ceil(($product_price + $input['production_price']) * ($input['profit_rate'] + 100) / 100)
             ]);
             DB::commit();
         } catch (\Exception $e) {
@@ -537,11 +570,19 @@ class QuoteController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $id = (int) $decodedToken['id'];
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
         $account = Account::find($id);
         if ($account->role_id != 1 && $account->role_id != 5) {
             return response()->json([
@@ -583,11 +624,19 @@ class QuoteController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $input = (int) $decodedToken['id'];
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
         $account = Account::find($input);
         if ($account->role_id != 2) {
             return response()->json([
