@@ -2,6 +2,8 @@ import React from "react";
 import { Skeleton, Avatar, AvatarGroup } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 
+
+
 export default function ChooseMounting({ model }) {
 
     const navigate = useNavigate();
