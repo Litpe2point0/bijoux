@@ -453,7 +453,7 @@ class QuoteController extends Controller
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'note' => $input['note']
             ]);
-            if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
+            if (isset($input['mounting_type_id'])) {
                 DB::table('product')->where('id', $quote->product_id)->update([
                     'mounting_type_id' => $input['mounting_type_id'],
                     'mounting_size' => $input['mounting_size']
