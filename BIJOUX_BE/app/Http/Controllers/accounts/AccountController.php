@@ -465,9 +465,21 @@ class AccountController extends Controller
 
             //update the account
             $account->update($updateData);
+            $payload = [
+                'id' => $account->id, // Subject of the token
+                'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
+                'email' => $account->email,
+                'fullname' => $account->fullname,
+                'role_id' => $account->role_id,
+                'imageUrl' => $account->photo,
+                // Thêm các claims khác nếu cần
+            ];
+
+            $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
 
             DB::commit();
             return response()->json([
+                'token' => $jwt,
                 'success' => "Update Successfully",
             ], 201);
         } catch (\Exception $e) {
