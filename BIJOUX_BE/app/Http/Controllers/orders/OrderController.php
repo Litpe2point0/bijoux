@@ -1799,21 +1799,11 @@ class OrderController extends Controller
                     ]);
                 } else {
                     $product = DB::table('product')->where('id', $order->product_id)->first();
-                    $id = DB::table('production_process')->insertGetId([
+                    DB::table('production_process')->insert([
                         'order_id' => $order->id,
                         'production_status_id' => 1,
-                        'imageUrl' => $product->imageUrl,
                         'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s'),
                     ]);
-                    $fileName = time() . '_' . $id . '.jpg';
-                    $destinationPath = public_path('image/Job/production_process/' . $order->id);
-                    if (!file_exists($destinationPath)) {
-                        mkdir($destinationPath, 0755, true);
-                    }
-                    $destinationFilePath = public_path('image/Job/production_process/' . $order->id . '/' . $fileName);
-                    $sourceFilePath = public_path('image/Order/' . $product->id . '/' . $product->imageUrl);
-                    File::copy($sourceFilePath, $destinationFilePath);
-
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 3
                     ]);
@@ -2579,37 +2569,20 @@ class OrderController extends Controller
                             DB::table('orders')->where('id', $order_id)->update([
                                 'order_status_id' => 3
                             ]);
-                            $id = DB::table('production_process')->insertGetId([
+                            DB::table('production_process')->insert([
                                 'order_id' => $order_id,
                                 'production_status_id' => 1,
-                                'imageUrl' => $product->imageUrl,
                                 'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
                             ]);
-                            $fileName = time() . '_' . $id . '.jpg';
-                            $destinationPath = public_path('image/Job/production_process/' . $order_id);
-                            if (!file_exists($destinationPath)) {
-                                mkdir($destinationPath, 0755, true);
-                            }
-                            $destinationFilePath = public_path('image/Job/production_process/' . $order_id . '/' . $fileName);
-                            $sourceFilePath = public_path('image/Order/' . $product->id . '/' . $product->imageUrl);
-                            File::copy($sourceFilePath, $destinationFilePath);
                         } else if ($design_process != null) {
                             DB::table('orders')->where('id', $order_id)->update([
                                 'order_status_id' => 3
                             ]);
-                            $id = DB::table('production_process')->insertGetId([
+                            DB::table('production_process')->insert([
                                 'order_id' => $order_id,
                                 'production_status_id' => 1,
-                                'imageUrl' => $product->imageUrl,
                                 'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
                             ]);
-                            $fileName = time() . '_' . $id . '.jpg';
-                            $destinationPath = public_path('image/Job/production_process/' . $order_id);
-                            if (!file_exists($destinationPath)) {
-                                mkdir($destinationPath, 0755, true);
-                            }
-                            $destinationFilePath = public_path('image/Job/production_process/' . $order_id . '/' . $fileName);
-                            $sourceFilePath = public_path('image/Order/' . $product->id . '/' . $product->imageUrl);
                         } else {
                             DB::table('orders')->where('id', $order_id)->update([
                                 'order_status_id' => 2
