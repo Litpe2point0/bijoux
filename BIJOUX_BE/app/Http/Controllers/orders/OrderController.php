@@ -978,9 +978,7 @@ class OrderController extends Controller
         unset($order->order_type_id);
 
         $design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-        $design_process->mounting_type = DB::table('mounting_type')->where('id', $design_process->mounting_type_id)->first();
         $design_process->design_process_status = DB::table('design_process_status')->where('id', $design_process->design_process_status_id)->first();
-        unset($design_process->mounting_type_id);
         unset($design_process->design_process_status_id);
         $order->design_process = $design_process;
 
