@@ -46,7 +46,7 @@ class ModelController extends Controller
                     'error' => 'The model must contain at least one main metal.'
                 ], 403);
             }
-            
+
             $model_diamond = collect($input['model_diamond']);
             $editable_diamonds = $model_diamond->filter(function ($diamond) {
                 return $diamond['is_editable'] == 1;
@@ -224,7 +224,7 @@ class ModelController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -1211,16 +1211,28 @@ class ModelController extends Controller
         $Durl = env('DIAMOND_URL');
         $metal_1 = DB::table('metal')->where('id', $metal_1_id)->first();
         $model_metal_1 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_1_id)->where('is_main', true)->first();
-        $volume =  DB::table('size_to_volume')->where('size', $input['mounting_size'])->value('volume');
-        if ($metal_2_id != null) {
-            $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
-            $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
-            $metal_2->price = $volume * $model_metal_2->percentage * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
-            $iprice = $metal_2->price;
+        if ($model->mounting_type_id != 3) {
+            $volume =  DB::table('size_to_volume')->where('size', $input['mounting_size'])->value('volume');
+            if ($metal_2_id != null || $metal_2_id != 0) {
+                $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
+                $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
+                $metal_2->price = $volume * ($model_metal_2->percentage/100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $iprice = $metal_2->price;
+            } else {
+                $iprice = 0;
+            }
+            $metal_1->price = $volume * ($model_metal_1->percentage/100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
         } else {
-            $iprice = 0;
+            if ($metal_2_id != null || $metal_2_id != 0) {
+                $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
+                $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
+                $metal_2->price = $model->volume * ($model_metal_2->percentage/100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $iprice = $metal_2->price;
+            } else {
+                $iprice = 0;
+            }
+            $metal_1->price = $model->volume * ($model_metal_1->percentage/100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
         }
-        $metal_1->price = $volume * $model_metal_1->percentage * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
 
         $mprice = $metal_1->price + $iprice;
         $product_price += $mprice;
@@ -1296,7 +1308,7 @@ class ModelController extends Controller
                 }
             }
         }
-        $production_price = $model->production_price + (($product_price + $model->production_price) * $model->profit_rate/100);
+        $production_price = $model->production_price + (($product_price + $model->production_price) * $model->profit_rate / 100);
         $total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100) / 100;
         return response()->json([
             'name' => $name,
