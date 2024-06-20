@@ -93,7 +93,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -182,7 +182,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -269,14 +269,14 @@ class OrderController extends Controller
             ]);
 
             $size_to_volume = DB::table('size_to_volume')->where('size', $input['mounting_size'])->first();
-            $model_metal1 = DB::table('model_metal')->where('metal_id', $metal_1->id)->where('model_id', $input['model_id'])->where('is_main',1)->first();
+            $model_metal1 = DB::table('model_metal')->where('metal_id', $metal_1->id)->where('model_id', $input['model_id'])->where('is_main', 1)->first();
             if ($model_metal1 == null) {
                 return response()->json([
                     'error' => 'The Selected Template Doesn\'t Contain The Selected Main Metal'
                 ], 403);
             }
             if ($metal_2 != null) {
-                $model_metal2 = DB::table('model_metal')->where('metal_id', $metal_2->id)->where('model_id', $input['model_id'])->where('is_main',0)->first();
+                $model_metal2 = DB::table('model_metal')->where('metal_id', $metal_2->id)->where('model_id', $input['model_id'])->where('is_main', 0)->first();
                 if ($model_metal2 == null) {
                     return response()->json([
                         'error' => 'The Selected Template Doesn\'t Contain The Selected Secondary Metal'
@@ -288,9 +288,15 @@ class OrderController extends Controller
             $product_metal1 = new Product_Metal();
             $product_metal1->product_id = $product->id;
             $product_metal1->metal_id = $metal_1->id;
-            $product_metal1->volume = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100;
-            $product_metal1->weight = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight;
-            $product_metal1->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+            if ($model->mounting_type_id != 3) {
+                $product_metal1->volume = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100;
+                $product_metal1->weight = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight;
+                $product_metal1->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+            } else {
+                $product_metal1->volume = $model->volume * $model_metal1->percentage / 100;
+                $product_metal1->weight = $model->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight;
+                $product_metal1->price = $model->volume * $model_metal1->percentage / 100 * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+            }
             $product_metal1->status = 1;
             $product_metal1->save();
             $product_price += $product_metal1->price;
@@ -299,9 +305,15 @@ class OrderController extends Controller
                 $product_metal2 = new Product_Metal();
                 $product_metal2->product_id = $product->id;
                 $product_metal2->metal_id = $metal_2->id;
-                $product_metal2->volume = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100;
-                $product_metal2->weight = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight;
-                $product_metal2->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                if ($model->mounting_type_id != 3) {
+                    $product_metal2->volume = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100;
+                    $product_metal2->weight = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight;
+                    $product_metal2->price = $input['mounting_size'] * $size_to_volume->volume * $model_metal2->percentage / 100 * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                } else {
+                    $product_metal2->volume = $model->volume * $model_metal2->percentage / 100;
+                    $product_metal2->weight = $model->volume * ($model_metal2->percentage / 100) * $metal_2->specific_weight;
+                    $product_metal2->price = $model->volume * ($model_metal2->percentage / 100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                }
                 $product_metal2->status = 1;
                 $product_metal2->save();
                 $product_price += $product_metal2->price;
@@ -496,7 +508,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -1000,7 +1012,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -1091,7 +1103,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -1167,7 +1179,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -1293,7 +1305,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -1447,7 +1459,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -1625,7 +1637,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -1863,7 +1875,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -2135,7 +2147,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -2245,7 +2257,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -2356,7 +2368,7 @@ class OrderController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
