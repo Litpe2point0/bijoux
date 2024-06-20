@@ -376,7 +376,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                             <span className="text-dark fw-bold fs-5 ">Deposit Has Paid: </span>
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
-                                            <span className="text-secondary fs-6">{order.deposit_has_paid}000000 vnd</span>
+                                            <span className="text-secondary fs-6">{order.deposit_has_paid} vnd</span>
 
                                         </CCol>
                                     </CRow>
@@ -385,7 +385,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                             <span className="text-dark fw-bold fs-5 ">Product Price: </span>
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
-                                            <span className="text-secondary fs-6">{order.product_price}000000 vnd</span>
+                                            <span className="text-secondary fs-6">{order.product_price} vnd</span>
 
                                         </CCol>
                                     </CRow>
@@ -394,7 +394,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                             <span className="text-dark fw-bold fs-5 ">Product Price: </span>
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
-                                            <span className="text-secondary fs-6">{order.product_price}000000 vnd</span>
+                                            <span className="text-secondary fs-6">{order.product_price} vnd</span>
 
                                         </CCol>
                                     </CRow>

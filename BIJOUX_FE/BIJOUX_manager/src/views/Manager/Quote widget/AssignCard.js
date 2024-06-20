@@ -24,7 +24,7 @@ function renderValue(item) {
 
     return (
         <div color="light w-100 d-flex align-items-center justify-content-start" >
-            <CPopover
+            {/* <CPopover
                 title="Contact Info"
                 content={
                     <>
@@ -39,8 +39,11 @@ function renderValue(item) {
                     <AvatarInput size={30} src={staff.imageUrl} />
                 </ListItemDecorator>
                 {staff.fullname}
-            </CPopover>
-
+            </CPopover> */}
+            <ListItemDecorator className='px-2'>
+                    <AvatarInput size={30} src={staff.imageUrl} />
+                </ListItemDecorator>
+                {staff.fullname}
         </div>
     );
 }
