@@ -99,7 +99,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -143,6 +143,55 @@ class QuoteController extends Controller
 
             $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
             unset($quote->quote_status_id);
+
+            $sale_staff = DB::table('account')->where('id', $quote->saleStaff_id)->first();
+            if ($sale_staff != null) {
+                $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+                unset($sale_staff->role_id);
+                if (!$sale_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+                }
+                $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+                $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+                unset($sale_staff->password);
+            }
+
+            $quote->sale_staff = $sale_staff;
+            unset($quote->saleStaff_id);
+
+            $design_staff = DB::table('account')->where('id', $quote->designStaff_id)->first();
+            if ($design_staff != null) {
+                $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+                unset($design_staff->role_id);
+                if (!$design_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+                }
+                $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+                $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+                unset($design_staff->password);
+            }
+            $quote->design_staff = $design_staff;
+            unset($quote->designStaff_id);
+
+            $production_staff = DB::table('account')->where('id', $quote->productionStaff_id)->first();
+            if ($production_staff != null) {
+                $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+                unset($production_staff->role_id);
+                if (!$production_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+                }
+                $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+                $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+                unset($production_staff->password);
+            }
+            $quote->production_staff = $production_staff;
+            unset($quote->productionStaff_id);
             return $quote;
         });
         return response()->json(
@@ -172,7 +221,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -355,7 +404,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -572,7 +621,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -626,7 +675,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }

@@ -130,6 +130,55 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            
+            $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
+            if ($sale_staff != null) {
+                $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+                unset($sale_staff->role_id);
+                if (!$sale_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+                }
+                $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+                $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+                unset($sale_staff->password);
+            }
+
+            $order->sale_staff = $sale_staff;
+            unset($order->saleStaff_id);
+
+            $design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
+            if ($design_staff != null) {
+                $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+                unset($design_staff->role_id);
+                if (!$design_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+                }
+                $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+                $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+                unset($design_staff->password);
+            }
+            $order->design_staff = $design_staff;
+            unset($order->designStaff_id);
+
+            $production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
+            if ($production_staff != null) {
+                $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+                unset($production_staff->role_id);
+                if (!$production_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+                }
+                $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+                $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+                unset($production_staff->password);
+            }
+            $order->production_staff = $production_staff;
+            unset($order->productionStaff_id);
             return $order;
         });
 
@@ -158,6 +207,55 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+
+            $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
+            if ($sale_staff != null) {
+                $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+                unset($sale_staff->role_id);
+                if (!$sale_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+                }
+                $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+                $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+                unset($sale_staff->password);
+            }
+
+            $order->sale_staff = $sale_staff;
+            unset($order->saleStaff_id);
+
+            $design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
+            if ($design_staff != null) {
+                $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+                unset($design_staff->role_id);
+                if (!$design_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+                }
+                $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+                $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+                unset($design_staff->password);
+            }
+            $order->design_staff = $design_staff;
+            unset($order->designStaff_id);
+
+            $production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
+            if ($production_staff != null) {
+                $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+                unset($production_staff->role_id);
+                if (!$production_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+                }
+                $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+                $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+                unset($production_staff->password);
+            }
+            $order->production_staff = $production_staff;
+            unset($order->productionStaff_id);
             return $order;
         });
         return response()->json([
@@ -2114,7 +2212,7 @@ class OrderController extends Controller
 
         // Set the design process URL and calculate the total price
         $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
-        $design_process->total_price = ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100 ;
+        $design_process->total_price = ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100;
         $design_process->product_price = $product_price;
         unset($order->product_id);
 
