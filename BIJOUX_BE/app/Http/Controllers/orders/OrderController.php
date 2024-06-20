@@ -130,7 +130,7 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
-            
+
             $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
             if ($sale_staff != null) {
                 $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
@@ -978,8 +978,12 @@ class OrderController extends Controller
         unset($order->order_type_id);
 
         $design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-        $design_process->design_process_status = DB::table('design_process_status')->where('id', $design_process->design_process_status_id)->first();
-        unset($design_process->design_process_status_id);
+        if ($design_process != null) {
+            $design_process->mounting_type = DB::table('mounting_type')->where('id', $design_process->mounting_type_id)->first();
+            $design_process->design_process_status = DB::table('design_process_status')->where('id', $design_process->design_process_status_id)->first();
+            unset($design_process->mounting_type_id);
+            unset($design_process->design_process_status_id);
+        }
         $order->design_process = $design_process;
 
         $order->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product_url;
