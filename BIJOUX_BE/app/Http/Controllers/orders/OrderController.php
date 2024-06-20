@@ -1855,6 +1855,7 @@ class OrderController extends Controller
                 ]);
                 DB::table('product')->where('id', $order->product_id)->update([
                     'mounting_type_id' => $design_process->mounting_type_id,
+                    'mounting_size' => $design_process->mounting_size
                 ]);
 
                 $order = DB::table('orders')->where('id', $design_process->order_id)->first();
