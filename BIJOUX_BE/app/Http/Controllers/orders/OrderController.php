@@ -1869,6 +1869,7 @@ class OrderController extends Controller
                 foreach ($product_metal as $metal) {
                     $product_price += $metal->price;
                 }
+                $product = DB::table('product')->where('id', $order->product_id)->first();
 
                 $temp = [
                     'profit_rate' => $order->profit_rate,
