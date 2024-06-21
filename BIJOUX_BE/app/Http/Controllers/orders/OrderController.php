@@ -840,6 +840,7 @@ class OrderController extends Controller
         $OGurl = env('ORIGIN_URL');
         $Murl = env('MODEL_URL');
         $Ourl = env('ORDER_URL');
+        $Durl = env('DESIGN_PROCESS_URL');
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order == null) {
             return response()->json([
@@ -981,6 +982,7 @@ class OrderController extends Controller
         if ($design_process != null) {
             $design_process->mounting_type = DB::table('mounting_type')->where('id', $design_process->mounting_type_id)->first();
             $design_process->design_process_status = DB::table('design_process_status')->where('id', $design_process->design_process_status_id)->first();
+            $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
             unset($design_process->mounting_type_id);
             unset($design_process->design_process_status_id);
         }
