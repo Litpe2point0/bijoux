@@ -1906,12 +1906,10 @@ class OrderController extends Controller
                     $destinationPath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
                     $tempPath = public_path('image/Job/design_process/temp.jpg');
                     File::copy($destinationPath, $tempPath);
-                    $deletePath = public_path('image/Order/' . $order->product_id);
-                    File::cleanDirectory($deletePath);
+                    File::delete($destinationPath);
                     $sourceFilePath = public_path('image/Job/design_process/' . $design_process->id . '/' . $design_process->imageUrl);
                     File::copy($sourceFilePath, $destinationPath);
-                    $deletePath1 = public_path('image/Job/design_process/' . $design_process->id);
-                    File::cleanDirectory($deletePath1);
+                    File::delete($sourceFilePath);
                     File::copy($tempPath, $sourceFilePath);
                     File::delete($tempPath);
                     DB::table('product')->where('id', $order->product_id)->update([
