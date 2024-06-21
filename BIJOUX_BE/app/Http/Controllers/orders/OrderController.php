@@ -130,6 +130,55 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+
+            $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
+            if ($sale_staff != null) {
+                $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+                unset($sale_staff->role_id);
+                if (!$sale_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+                }
+                $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+                $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+                unset($sale_staff->password);
+            }
+
+            $order->sale_staff = $sale_staff;
+            unset($order->saleStaff_id);
+
+            $design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
+            if ($design_staff != null) {
+                $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+                unset($design_staff->role_id);
+                if (!$design_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+                }
+                $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+                $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+                unset($design_staff->password);
+            }
+            $order->design_staff = $design_staff;
+            unset($order->designStaff_id);
+
+            $production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
+            if ($production_staff != null) {
+                $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+                unset($production_staff->role_id);
+                if (!$production_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+                }
+                $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+                $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+                unset($production_staff->password);
+            }
+            $order->production_staff = $production_staff;
+            unset($order->productionStaff_id);
             return $order;
         });
 
@@ -158,6 +207,55 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+
+            $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
+            if ($sale_staff != null) {
+                $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+                unset($sale_staff->role_id);
+                if (!$sale_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+                }
+                $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+                $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+                unset($sale_staff->password);
+            }
+
+            $order->sale_staff = $sale_staff;
+            unset($order->saleStaff_id);
+
+            $design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
+            if ($design_staff != null) {
+                $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+                unset($design_staff->role_id);
+                if (!$design_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+                }
+                $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+                $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+                unset($design_staff->password);
+            }
+            $order->design_staff = $design_staff;
+            unset($order->designStaff_id);
+
+            $production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
+            if ($production_staff != null) {
+                $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+                unset($production_staff->role_id);
+                if (!$production_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+                }
+                $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+                $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+                unset($production_staff->password);
+            }
+            $order->production_staff = $production_staff;
+            unset($order->productionStaff_id);
             return $order;
         });
         return response()->json([
@@ -402,19 +500,19 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $order = DB::table('orders')->where('id', $input['order_id'])->first();
-            if ($order->order_status_id == 4) {
+            if ($order->order_status_id >= 4 && $order->order_status_id < 6) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Can No Longer Be Reassigned'
                 ], 403);
             }
-            if ($order->order_status_id == 5) {
+            if ($order->order_status_id == 6) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Has Already Been Completed'
                 ], 403);
             }
-            if ($order->order_status_id == 6) {
+            if ($order->order_status_id == 7) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Has Already Been Cancelled'
@@ -530,18 +628,18 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $order = DB::table('orders')->where('id', $input['order_id'])->first();
-            if ($order->order_status_id == 5) {
+            if ($order->order_status_id == 6) {
                 return response()->json([
                     'error' => 'Order Has Already Been Completed, Action Can\'t Be Performed'
                 ], 403);
             }
-            if ($order->order_status_id == 6) {
+            if ($order->order_status_id == 7) {
                 return response()->json([
                     'error' => 'Order Has Already Been Cancelled, Action Can\'t Be Performed'
                 ], 403);
             }
             DB::table('orders')->where('id', $input['order_id'])->update([
-                'order_status_id' => 6,
+                'order_status_id' => 7,
                 'note' => $input['note']
             ]);
             DB::table('design_process')->where('order_id', $input['order_id'])->update([
@@ -742,6 +840,7 @@ class OrderController extends Controller
         $OGurl = env('ORIGIN_URL');
         $Murl = env('MODEL_URL');
         $Ourl = env('ORDER_URL');
+        $Durl = env('DESIGN_PROCESS_URL');
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order == null) {
             return response()->json([
@@ -879,7 +978,15 @@ class OrderController extends Controller
         $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
         unset($order->order_type_id);
 
-        $order->design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
+        $design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
+        if ($design_process != null) {
+            $design_process->mounting_type = DB::table('mounting_type')->where('id', $design_process->mounting_type_id)->first();
+            $design_process->design_process_status = DB::table('design_process_status')->where('id', $design_process->design_process_status_id)->first();
+            $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
+            unset($design_process->mounting_type_id);
+            unset($design_process->design_process_status_id);
+        }
+        $order->design_process = $design_process;
 
         $order->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product_url;
 
@@ -1326,7 +1433,7 @@ class OrderController extends Controller
             ], 500);
         }
         $data1 = collect();
-        $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6])->where('order_type_id', 1)->get();
+        $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 1)->get();
         foreach ($template_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($production_process->production_status_id == 6) {
@@ -1383,7 +1490,7 @@ class OrderController extends Controller
         });
 
         $data2 = collect();
-        $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6])->where('order_type_id', 2)->get();
+        $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 2)->get();
         foreach ($customize_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($production_process->production_status_id == 6) {
@@ -1748,6 +1855,7 @@ class OrderController extends Controller
                 DB::table('design_process')->where('id', $input['design_process_id'])->update([
                     'design_process_status_id' => 3
                 ]);
+                
 
                 $order = DB::table('orders')->where('id', $design_process->order_id)->first();
                 $note = $order->note . "\n" . $input['note'];
@@ -1761,14 +1869,22 @@ class OrderController extends Controller
                 foreach ($product_metal as $metal) {
                     $product_price += $metal->price;
                 }
+                $product = DB::table('product')->where('id', $order->product_id)->first();
 
                 $temp = [
                     'profit_rate' => $order->profit_rate,
                     'production_price' => $order->production_price,
                     'product_price' => $order->product_price,
                     'total_price' => $order->total_price,
+                    'mounting_type_id' => $product->mounting_type_id,
+                    'mounting_size' => $product->mounting_size,
+                    'imageUrl' => $product->imageUrl,
                     'note' => $order->note
                 ];
+                DB::table('product')->where('id', $order->product_id)->update([
+                    'mounting_type_id' => $design_process->mounting_type_id,
+                    'mounting_size' => $design_process->mounting_size
+                ]);
                 DB::table('orders')->where('id', $design_process->order_id)->update([
                     'production_price' => $design_process->production_price,
                     'profit_rate' => $design_process->profit_rate,
@@ -1781,19 +1897,21 @@ class OrderController extends Controller
                     'production_price' => $temp['production_price'],
                     'product_price' => $temp['product_price'],
                     'total_price' => $temp['total_price'],
+                    'mounting_type_id' => $temp['mounting_type_id'],
+                    'mounting_size' => $temp['mounting_size'],
                     'note' => $temp['note']
                 ]);
-
                 if ($design_process->imageUrl != null) {
                     $fileName = 'main.jpg';
-                    $destinationPath = public_path('image/Order/' . $order->product_id);
-                    File::cleanDirectory($destinationPath);
-                    $destinationFilePath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
+                    $destinationPath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
+                    $tempPath = public_path('image/Job/design_process/temp.jpg');
+                    File::copy($destinationPath, $tempPath);
+                    File::delete($destinationPath);
                     $sourceFilePath = public_path('image/Job/design_process/' . $design_process->id . '/' . $design_process->imageUrl);
-                    File::copy($sourceFilePath, $destinationFilePath);
-                    DB::table('product')->where('id', $order->product_id)->update([
-                        'imageUrl' => $fileName
-                    ]);
+                    File::copy($sourceFilePath, $destinationPath);
+                    File::delete($sourceFilePath);
+                    File::copy($tempPath, $sourceFilePath);
+                    File::delete($tempPath);
                 }
                 if (($design_process->total_price * 50 / 100) >= ($order->total_price * 50 / 100 * 1.05)) {
                     DB::table('orders')->where('id', $design_process->order_id)->update([
@@ -1885,13 +2003,13 @@ class OrderController extends Controller
             $designs = DB::table('design_process')->whereNot('design_process_status_id', 1)->orderBy('design_process_status_id', 'asc')->get();
             $design_list = $design_list->merge($designs);
         } else if ($account->role_id == 2) {
-            $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
+            $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 7)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
                 $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
             }
         } else if ($account->role_id == 3) {
-            $order_list = DB::table('orders')->where('designStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
+            $order_list = DB::table('orders')->where('designStaff_id', $account->id)->whereNot('order_status_id', 7)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
                 $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
@@ -2114,7 +2232,7 @@ class OrderController extends Controller
 
         // Set the design process URL and calculate the total price
         $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
-        $design_process->total_price = ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100 ;
+        $design_process->total_price = ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100;
         $design_process->product_price = $product_price;
         unset($order->product_id);
 
@@ -2230,12 +2348,12 @@ class OrderController extends Controller
                 'error' => 'The Selected Order Isn\'t Ready For Production'
             ], 403);
         }
-        if ($order->order_status_id > 3 && $order->order_status_id < 6) {
+        if ($order->order_status_id > 3 && $order->order_status_id < 7) {
             return response()->json([
                 'error' => 'The Selected Order Has Already Been Produce'
             ], 403);
         }
-        if ($order->order_status_id == 6) {
+        if ($order->order_status_id == 7) {
             return response()->json([
                 'error' => 'The Selected Order Has Already Been Cancelled'
             ], 403);

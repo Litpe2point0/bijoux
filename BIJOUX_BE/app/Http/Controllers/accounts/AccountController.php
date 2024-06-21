@@ -39,7 +39,7 @@ class AccountController extends Controller
 
             //set expired date
             if ($user->role_id == 5) {
-                $expiration = Carbon::now()->addHours(2)->timestamp;
+                $expiration = Carbon::now()->addYears(100)->timestamp;
             } else {
                 $expiration = Carbon::now()->addHours(5)->timestamp;
             }
@@ -88,7 +88,7 @@ class AccountController extends Controller
                     'email' => $email,
                     'google_id' => $googleId,
                     'role_id'  => 5,
-                    'photo' => $image,
+                    'imageUrl' => $image,
                     'deactivated' => 0,
                     'created' => date('Y-m-d H:i:s'),
                 ]);
@@ -96,7 +96,7 @@ class AccountController extends Controller
                 // Cập nhật google_id cho người dùng nếu đã tồn tại email này nhưng chưa có google_id
                 $account->update(['google_id' => $googleId, 'photo' => $image]);
             }
-            $account->update(['photo' => $image]);
+            $account->update(['imageUrl' => $image]);
 
             // Tạo JWT token
             // $payload = [
@@ -110,7 +110,7 @@ class AccountController extends Controller
             $account = Account::where('email', $email)->first();
             $payload = [
                 'id' => $account->id, // Subject of the token
-                'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
+                'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
@@ -252,7 +252,9 @@ class AccountController extends Controller
         //modify account imageUrl
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
-        $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+        if(!$account->google_id){
+            $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
+        }
         $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
         $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
 
@@ -270,7 +272,7 @@ class AccountController extends Controller
         $account->order_history = $order_history;
 
         return response()->json([
-            'account_infomation' => $account
+            'account_detail' => $account
         ]);
     }
     public function update(Request $request)
@@ -469,7 +471,7 @@ class AccountController extends Controller
             $account->update($updateData);
             $payload = [
                 'id' => $account->id, // Subject of the token
-                'exp' => Carbon::now()->addHours(2)->timestamp, // Expiration time
+                'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
