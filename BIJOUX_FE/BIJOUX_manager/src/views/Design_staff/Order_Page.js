@@ -76,11 +76,12 @@ const state_creator = (table, navigate) => {
                 cellRenderer: (params) => {
 
                     const design_process_status = params.data.design_process_status;
+                    const order_status = params.data.order_status;
                     const order_id = params.data.id;
 
                     return (
                         <>
-                            {design_process_status == null ?
+                            {design_process_status == null && order_status.id == 2 ?
                                 <CButton style={{ border: 'none' }} onClick={() => {
 
                                     navigate('/orders_design_staff/detail/' + order_id);

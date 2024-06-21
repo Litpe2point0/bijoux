@@ -698,7 +698,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                             <span style={{ fontSize: '15px' }}>Mounting Type: </span>
                                         </CCol>
                                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={product.mounting_type.name} />
+                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={product.mounting_type ? product.mounting_type.name : "No Specific Type"} />
                                         </CCol>
                                     </CRow>
                                     <CRow>
