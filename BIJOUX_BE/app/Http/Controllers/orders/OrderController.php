@@ -1913,7 +1913,7 @@ class OrderController extends Controller
                     File::copy($tempPath, $sourceFilePath);
                     File::delete($tempPath);
                     DB::table('product')->where('id', $order->product_id)->update([
-                        'imageUrl' => $design_process->imageUrl
+                        'imageUrl' => $fileName
                     ]);
                     DB::table('design_process')->where('id', $design_process->id)->update([
                         'imageUrl' => $temp['imageUrl']
