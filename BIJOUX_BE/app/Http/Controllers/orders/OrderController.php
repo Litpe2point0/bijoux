@@ -1878,6 +1878,9 @@ class OrderController extends Controller
                     'production_price' => $order->production_price,
                     'product_price' => $order->product_price,
                     'total_price' => $order->total_price,
+                    'mounting_type_id' => $order->mounting_type_id,
+                    'mounting_size' => $order->mounting_size,
+                    'imageUrl' => $order->imageUrl,
                     'note' => $order->note
                 ];
                 DB::table('orders')->where('id', $design_process->order_id)->update([
@@ -1885,6 +1888,8 @@ class OrderController extends Controller
                     'profit_rate' => $design_process->profit_rate,
                     'product_price' => $product_price,
                     'total_price' => ceil(($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100),
+                    'mounting_type_id' => $design_process->mounting_type_id,
+                    'mounting_size' => $design_process->mounting_size,
                     'note' => $note
                 ]);
                 DB::table('design_process')->where('id', $design_process->id)->update([
@@ -1892,18 +1897,29 @@ class OrderController extends Controller
                     'production_price' => $temp['production_price'],
                     'product_price' => $temp['product_price'],
                     'total_price' => $temp['total_price'],
+                    'mounting_type_id' => $temp['mounting_type_id'],
+                    'mounting_size' => $temp['mounting_size'],
                     'note' => $temp['note']
                 ]);
-
                 if ($design_process->imageUrl != null) {
                     $fileName = 'main.jpg';
-                    $destinationPath = public_path('image/Order/' . $order->product_id);
-                    File::cleanDirectory($destinationPath);
-                    $destinationFilePath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
+                    $destinationPath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
+                    $tempPath = public_path('image/Job/design_process/temp.jpg');
+                    File::copy($destinationPath, $tempPath);
+                    File::delete($destinationPath);
                     $sourceFilePath = public_path('image/Job/design_process/' . $design_process->id . '/' . $design_process->imageUrl);
-                    File::copy($sourceFilePath, $destinationFilePath);
+                    File::copy($sourceFilePath, $destinationPath);
+                    File::delete($sourceFilePath);
+                    File::copy($tempPath, $sourceFilePath);
+                    File::delete($tempPath);
                     DB::table('product')->where('id', $order->product_id)->update([
                         'imageUrl' => $fileName
+                    ]);
+                    DB::table('orders')->where('id', $design_process->order_id)->update([
+                        'imageUrl' => $design_process->imageUrl
+                    ]);
+                    DB::table('design_process')->where('id', $design_process->id)->update([
+                        'imageUrl' => $temp['imageUrl']
                     ]);
                 }
                 if (($design_process->total_price * 50 / 100) >= ($order->total_price * 50 / 100 * 1.05)) {
