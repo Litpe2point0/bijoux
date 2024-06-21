@@ -1912,12 +1912,6 @@ class OrderController extends Controller
                     File::delete($sourceFilePath);
                     File::copy($tempPath, $sourceFilePath);
                     File::delete($tempPath);
-                    DB::table('product')->where('id', $order->product_id)->update([
-                        'imageUrl' => $design_process->imageUrl
-                    ]);
-                    DB::table('design_process')->where('id', $design_process->id)->update([
-                        'imageUrl' => $temp['imageUrl']
-                    ]);
                 }
                 if (($design_process->total_price * 50 / 100) >= ($order->total_price * 50 / 100 * 1.05)) {
                     DB::table('orders')->where('id', $design_process->order_id)->update([
