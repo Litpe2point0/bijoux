@@ -111,7 +111,14 @@ class QuoteController extends Controller
             $input = $decodedToken->id;
         }
 
-        $quote_list = DB::table('quote')->where('account_id', $input)->orderBy('quote_status_id', 'ASC')->get();
+        $quote_list = DB::table('quote')->orderByRaw("
+            CASE 
+                WHEN quote_status_id = 5 THEN 2 
+                WHEN quote_status_id = 4 THEN 1 
+                ELSE 0 
+            END, 
+            quote_status_id ASC
+        ")->get();
         $quote_list->map(function ($quote) {
             $product = DB::table('product')->where('id', $quote->product_id)->first();
             $OGurl = env('ORIGIN_URL');
