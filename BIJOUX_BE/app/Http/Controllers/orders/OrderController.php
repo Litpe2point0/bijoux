@@ -1855,10 +1855,7 @@ class OrderController extends Controller
                 DB::table('design_process')->where('id', $input['design_process_id'])->update([
                     'design_process_status_id' => 3
                 ]);
-                DB::table('product')->where('id', $order->product_id)->update([
-                    'mounting_type_id' => $design_process->mounting_type_id,
-                    'mounting_size' => $design_process->mounting_size
-                ]);
+                
 
                 $order = DB::table('orders')->where('id', $design_process->order_id)->first();
                 $note = $order->note . "\n" . $input['note'];
@@ -1878,18 +1875,20 @@ class OrderController extends Controller
                     'production_price' => $order->production_price,
                     'product_price' => $order->product_price,
                     'total_price' => $order->total_price,
-                    'mounting_type_id' => $order->mounting_type_id,
-                    'mounting_size' => $order->mounting_size,
-                    'imageUrl' => $order->imageUrl,
+                    'mounting_type_id' => $product->mounting_type_id,
+                    'mounting_size' => $product->mounting_size,
+                    'imageUrl' => $product->imageUrl,
                     'note' => $order->note
                 ];
+                DB::table('product')->where('id', $order->product_id)->update([
+                    'mounting_type_id' => $design_process->mounting_type_id,
+                    'mounting_size' => $design_process->mounting_size
+                ]);
                 DB::table('orders')->where('id', $design_process->order_id)->update([
                     'production_price' => $design_process->production_price,
                     'profit_rate' => $design_process->profit_rate,
                     'product_price' => $product_price,
                     'total_price' => ceil(($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100),
-                    'mounting_type_id' => $design_process->mounting_type_id,
-                    'mounting_size' => $design_process->mounting_size,
                     'note' => $note
                 ]);
                 DB::table('design_process')->where('id', $design_process->id)->update([
@@ -1913,9 +1912,6 @@ class OrderController extends Controller
                     File::copy($tempPath, $sourceFilePath);
                     File::delete($tempPath);
                     DB::table('product')->where('id', $order->product_id)->update([
-                        'imageUrl' => $fileName
-                    ]);
-                    DB::table('orders')->where('id', $design_process->order_id)->update([
                         'imageUrl' => $design_process->imageUrl
                     ]);
                     DB::table('design_process')->where('id', $design_process->id)->update([
