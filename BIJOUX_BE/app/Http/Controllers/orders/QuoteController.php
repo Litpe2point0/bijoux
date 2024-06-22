@@ -116,8 +116,7 @@ class QuoteController extends Controller
                 WHEN quote_status_id = 5 THEN 2 
                 WHEN quote_status_id = 4 THEN 1 
                 ELSE 0 
-            END, 
-            quote_status_id ASC
+            END ASC 
         ")->get();
         $quote_list->map(function ($quote) {
             $product = DB::table('product')->where('id', $quote->product_id)->first();

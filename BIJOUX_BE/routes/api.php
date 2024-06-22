@@ -145,5 +145,6 @@ Route::group([], function () {
 
 // "DMMM"
 Route::get('/confirm_payment', [OrderController::class, 'confirm_payment']);
+Route::get('/get_deposit_url', [OrderController::class, 'get_deposit_url']);
 // Route::post('/decode', [AccountController::class, 'decode']);
 // Route::get('/get_image', [AccountController::class, 'get_image']);

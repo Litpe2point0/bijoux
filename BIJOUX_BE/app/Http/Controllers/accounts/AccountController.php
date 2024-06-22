@@ -114,7 +114,7 @@ class AccountController extends Controller
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
-                'imageUrl' => $account->photo,
+                'imageUrl' => $account->imageUrl,
                 'phone' => $account->phone,
                 'address' => $account->address
                 // Thêm các claims khác nếu cần
@@ -475,7 +475,7 @@ class AccountController extends Controller
                 'email' => $account->email,
                 'fullname' => $account->fullname,
                 'role_id' => $account->role_id,
-                'imageUrl' => $account->photo,
+                'imageUrl' => $account->imageUrl,
                 'phone' => $account->phone,
                 'address' => $account->address
                 // Thêm các claims khác nếu cần

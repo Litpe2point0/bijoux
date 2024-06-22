@@ -1855,7 +1855,7 @@ class OrderController extends Controller
                 DB::table('design_process')->where('id', $input['design_process_id'])->update([
                     'design_process_status_id' => 3
                 ]);
-                
+
 
                 $order = DB::table('orders')->where('id', $design_process->order_id)->first();
                 $note = $order->note . "\n" . $input['note'];
@@ -2679,7 +2679,7 @@ class OrderController extends Controller
                         'order_id' => $order_id,
                         'payment_type_id' => $payment_type_id,
                         'money' => $money,
-                        'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                        'created' => Carbon::now()->format('Y-m-d H:i:s')
                     ]);
                     if ($payment_type_id == 1) {
                         $order = DB::table('orders')->where('id', $order_id)->first();
@@ -2692,7 +2692,7 @@ class OrderController extends Controller
                             DB::table('production_process')->insert([
                                 'order_id' => $order_id,
                                 'production_status_id' => 1,
-                                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                                'created' => Carbon::now()->format('Y-m-d H:i:s')
                             ]);
                         } else if ($design_process != null) {
                             DB::table('orders')->where('id', $order_id)->update([
@@ -2701,7 +2701,7 @@ class OrderController extends Controller
                             DB::table('production_process')->insert([
                                 'order_id' => $order_id,
                                 'production_status_id' => 1,
-                                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                                'created' => Carbon::now()->format('Y-m-d H:i:s')
                             ]);
                         } else {
                             DB::table('orders')->where('id', $order_id)->update([
@@ -2733,5 +2733,54 @@ class OrderController extends Controller
         return response()->json([
             'success' => 'Transaction Complete'
         ], 200);
+    }
+    public function unique_code($limit)
+    {
+        return substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, $limit);
+    }
+    public function get_deposit_url()
+    {
+        $vnp_tmncode = (string) env('VNP_TMN_CODE');
+        $inputData = array(
+            "vnp_Version" => "2.1.0",
+            "vnp_TmnCode" => $vnp_tmncode,
+            "vnp_Amount" => 10000 * 100,
+            "vnp_Command" => "pay",
+            "vnp_CreateDate" => Carbon::now()->format('YmdHis'),
+            "vnp_CurrCode" => "VND",
+            "vnp_IpAddr" => "13.160.92.202",
+            "vnp_Locale" => "vn",
+            "vnp_OrderInfo" => "Thanh toan GD: 6969",
+            "vnp_OrderType" => "other",
+            "vnp_ReturnUrl" => "https://www.youtube.com/",
+            "vnp_TxnRef" => $this->unique_code(30),
+            "vnp_ExpireDate" => Carbon::now()->addMinutes(30)->format('YmdHis'),
+        );
+
+        if (isset($vnp_BankCode) && $vnp_BankCode != "") {
+            $inputData['vnp_BankCode'] = $vnp_BankCode;
+        }
+
+        ksort($inputData);
+        $query = "";
+        $i = 0;
+        $hashdata = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashdata .= urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+            $query .= urlencode($key) . "=" . urlencode($value) . '&';
+        }
+        $vnp_HashSecret = env("VNP_HASH_SECRET");
+        $vnp_Url = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html' . "?" . $query;
+        if (isset($vnp_HashSecret)) {
+            $vnpSecureHash =   hash_hmac('sha512', $hashdata, $vnp_HashSecret); //  
+            $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+        }
+        header('Location: ' . $vnp_Url);
+        return response()->json($vnp_Url);
     }
 }
