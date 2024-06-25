@@ -14,10 +14,14 @@ use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Email;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Throwable;
+use PayOS\PayOS;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
@@ -477,7 +481,7 @@ class OrderController extends Controller
             $order->order_type_id = 1;
             $order->order_status_id = 1;
             $order->note = $input['note'];
-            $order->created = Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s');
+            $order->created = Carbon::now()->format('Y-m-d H:i:s');
             $order->save();
 
             DB::commit();
@@ -1616,14 +1620,15 @@ class OrderController extends Controller
                             'error' => 'One Of The Selected Diamond Is Currently Deactivated'
                         ], 403);
                     }
+                    $diamond = DB::table('diamond')->where('id', $diamond1['diamond']['id'])->first();
                     $product_diamond = new Product_Diamond();
                     $product_diamond->product_id = $order->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
                     $product_diamond->count = $diamond1['count'];
-                    $product_diamond->price = $diamond1['price'];
+                    $product_diamond->price = ceil($diamond->price * $diamond1['count']);
                     $product_diamond->diamond_shape_id = $diamond1['diamond_shape']['id'];
                     $product_diamond->status = 0;
-                    $product_price += $diamond1['price'];
+                    $product_price += ceil($diamond->price * $diamond1['count']);
                     $product_diamond->save();
                 }
             }
@@ -1637,14 +1642,15 @@ class OrderController extends Controller
                             'error' => 'One Of The Selected Metal Is Currently Deactivated'
                         ], 403);
                     }
+                    $metal = DB::table('metal')->where('id', $metal1['metal']['id'])->first();
                     $product_metal = new Product_Metal();
                     $product_metal->product_id = $order->product_id;
                     $product_metal->metal_id = $metal1['metal']['id'];
-                    $product_metal->price = $metal1['price'];
+                    $product_metal->price = ceil($metal->sale_price_per_gram * $metal1['weight']);
                     $product_metal->volume = $metal1['volume'];
                     $product_metal->weight = $metal1['weight'];
                     $product_metal->status = 0;
-                    $product_price += $metal1['price'];
+                    $product_price += ceil($metal->sale_price_per_gram * $metal1['weight']);
                     $product_metal->save();
                 }
             }
@@ -1659,7 +1665,7 @@ class OrderController extends Controller
                 'profit_rate' => $order->profit_rate,
                 'product_price' => 0,
                 'total_price' => 0,
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s'),
+                'created' => Carbon::now()->format('Y-m-d H:i:s'),
             ]);
 
             $imageUrl = "";
@@ -1669,7 +1675,7 @@ class OrderController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $id . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 $imageUrl = $fileName;
             } else {
@@ -1679,7 +1685,7 @@ class OrderController extends Controller
                 }
                 $product = DB::table('product')->where('id', $order->product_id)->first();
                 $cpyfileName = $product->imageUrl;
-                $fileName = time() . '_' . $id . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                 $destinationFilePath = public_path('image/Job/design_process/' . $id . '/' . $fileName);
                 $sourceFilePath = public_path('image/Order/' . $order->product_id . '/' . $cpyfileName);
                 File::copy($sourceFilePath, $destinationFilePath);
@@ -1922,7 +1928,7 @@ class OrderController extends Controller
                     DB::table('production_process')->insert([
                         'order_id' => $order->id,
                         'production_status_id' => 1,
-                        'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s'),
+                        'created' => Carbon::now()->format('Y-m-d H:i:s'),
                     ]);
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 3
@@ -2280,7 +2286,7 @@ class OrderController extends Controller
             $id = DB::table('design_updating')->insertGetId([
                 'order_id' => $input['order_id'],
                 'imageUrl' => "",
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
@@ -2288,7 +2294,7 @@ class OrderController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $id . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 DB::table('design_updating')->where('id', $id)->update([
                     'imageUrl' => $fileName
@@ -2400,7 +2406,7 @@ class OrderController extends Controller
                     'order_id' => $input['order_id'],
                     'production_status_id' => $input['production_status_id'],
                     'imageUrl' => "",
-                    'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                    'created' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
 
                 if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
@@ -2409,7 +2415,7 @@ class OrderController extends Controller
                     if (!file_exists($destinationPath)) {
                         mkdir($destinationPath, 0755, true);
                     }
-                    $fileName = time() . '_' . $id . '.jpg';
+                    $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                     file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 } else {
                     $fileName = null;
@@ -2544,188 +2550,158 @@ class OrderController extends Controller
             return response()->json($e->getMessage(), 500);
         }
     }
-
-    // public function get_product_detail(Request $request) //chưa test
-    // {
-    //     $input = json_decode($request->input('product_id'), true);
-    //     if (!isset($input) || $input == null) {
-    //         return response()->json([
-    //             'error' => 'No Input Received'
-    //         ], 403);
-    //     }
-    //     $product = DB::table('product')->where('id', $input)->first();
-    //     $model = DB::table('model')->where('id', $product->model_id)->first();
-    //     if ($model != null) {
-    //         $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
-    //         $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
-    //         unset($model->mounting_type_id);
-    //         unset($model->mounting_style_id);
-
-    //         $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-    //         $model_shape->map(function ($model_shape) {
-    //             $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-    //             unset($model_shape->model_id);
-    //             unset($model_shape->diamond_shape_id);
-    //             return $model_shape;
-    //         });
-    //         $model->model_diamond_shape = $model_shape;
-
-    //         $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
-    //         $model_diamond->map(function ($model_diamond) {
-    //             $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
-    //             unset($model_diamond->model_id);
-    //             unset($model_diamond->id);
-    //             unset($model_diamond->diamond_shape_id);
-    //             return $model_diamond;
-    //         });
-    //         $model->model_diamond = $model_diamond;
-
-    //         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-    //         $model_metal->map(function ($model_metal) {
-    //             $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-    //             $OGurl = env('ORIGIN_URL');
-    //             $url = env('METAL_URL');
-    //             $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
-    //             $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
-    //             $model_metal->metal = $metal;
-    //             unset($model_metal->model_id);
-    //             unset($model_metal->id);
-    //             unset($model_metal->metal_id);
-    //             return $model_metal;
-    //         });
-    //         $model->model_metal = $model_metal;
-    //         $OGurl = env('ORIGIN_URL');
-    //         $url = env('MODEL_URL');
-    //         $model->imageUrl = $OGurl . $url . $model->id . '/' . $model->imageUrl;
-    //     }
-
-
-    //     $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
-    //     unset($product->mounting_type_id);
-    //     $product->model = $model;
-    //     unset($product->model_id);
-
-    //     $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
-    //     $product_diamond->map(function ($product_diamond) {
-    //         $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
-    //         $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
-    //         $OGurl = env('ORIGIN_URL');
-    //         $url = env('DIAMOND_URL');
-    //         $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
-    //         $product_diamond->diamond = $diamond;
-    //         $product_diamond->diamond_shape_id = DB::table('diamond_shape_id')->where('id', $product_diamond->diamond_shape_id)->first();
-    //         unset($product_diamond->diamond_id);
-    //         unset($product_diamond->diamond_shape_id);
-    //         return $product_diamond;
-    //     });
-    //     $product->product_diamond = $product_diamond;
-
-    //     $product_metal = DB::table('product_metal')->where('product_id', $product->id)->get();
-    //     $product_metal->map(function ($product_metal) {
-    //         $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
-    //         $OGurl = env('ORIGIN_URL');
-    //         $url = env('METAL_URL');
-    //         $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
-    //         $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
-    //         $product_metal->metal = $metal;
-    //         unset($product_metal->metal_id);
-    //         return $product_metal;
-    //     });
-    //     $product->product_diamond = $product_metal;
-    //     $OGurl = env('ORIGIN_URL');
-    //     $url = env('ORDER_ID');
-    //     $product->imageUrl = $OGurl . $url . $product->id . '/' . $product->imageUrl;
-
-    //     return response()->json([
-    //         $product
-    //     ]);
-    // }
-
-    public function confirm_payment() //chưa test
+    public function generateOrderCode()
     {
-        $vnp_HashSecret = env('VNP_HASH_SECRET');
-        $vnp_SecureHash = $_GET['vnp_SecureHash'];
-        $inputData = array();
-        foreach ($_GET as $key => $value) {
-            if (substr($key, 0, 4) == "vnp_") {
-                $inputData[$key] = $value;
-            }
+        $orderCode = intval(substr(strval(microtime(true) * 10000), -6));
+        $payment = DB::table('payment')->where('id', $orderCode)->get();
+        if ($payment->count() > 0) {
+            $this->generateOrderCode();
         }
-
-        unset($inputData['vnp_SecureHash']);
-        ksort($inputData);
-        $i = 0;
-        $hashData = "";
-        foreach ($inputData as $key => $value) {
-            if ($i == 1) {
-                $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
-            } else {
-                $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
-                $i = 1;
-            }
+        return $orderCode;
+    }
+    public function create_payment_link(Request $request)
+    {
+        $input = json_decode($request->input('order_information'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
         }
+        $order = DB::table('orders')->where('id', $input['order_id'])->first();
+        if ($order == null) {
+            return response()->json([
+                'error' => 'The Selected Order Doesn\'t Exist'
+            ], 403);
+        }
+        if ($order->order_status_id == 1) {
+            $amount = $order->total_price / 2 - $order->deposit_has_paid;
+            $payment_type_id = 1;
+            $description = "Deposit";
+        } else if ($order->order_status_id == 4) {
+            $amount = $order->total_price - $order->deposit_has_paid;
+            $payment_type_id = 2;
+            $description = "Payment";
+        } else {
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Ready For Deposit/Payment'
+            ], 403);
+        }
+        $client_id = env('CLIENT_ID');
+        $api_key = env('API_KEY');
+        $checksum_key = env('CHECK_SUM_KEY');
+        $payOS = new PayOS($client_id, $api_key, $checksum_key);
 
+        $data = [
+            "orderCode" => $this->generateOrderCode(),
+            "amount" => $amount,
+            "description" => $description,
+            "returnUrl" => $input['return_url'],
+            "cancelUrl" => $input['cancel_url'],
+        ];
+        try {
+            DB::beginTransaction();
+            DB::table('payment')->insert([
+                'id' => $data['orderCode'],
+                'account_id' => $order->account_id,
+                'order_id' => $order->id,
+                'payment_type_id' => $payment_type_id,
+                'isSuccess' => 0,
+                'money' => $amount,
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
+            ]);
+            $response = $payOS->createPaymentLink($data);
+            DB::commit();
+            return response()->json([
+                'payment_link' => $response['checkoutUrl']
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $th->getMessage();
+        }
+    }
+    public function isValidData($transaction, $transaction_signature, $checksum_key)
+    {
+        ksort($transaction);
+        $transaction_str_arr = [];
+        foreach ($transaction as $key => $value) {
+            if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
+                $value = "";
+            }
+
+            if (is_array($value)) {
+                $valueSortedElementObj = array_map(function ($ele) {
+                    ksort($ele);
+                    return $ele;
+                }, $value);
+                $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
+            }
+            $transaction_str_arr[] = $key . "=" . $value;
+        }
+        $transaction_str = implode("&", $transaction_str_arr);
+        dump($transaction_str);
+        $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
+        dump($signature);
+        return $signature == $transaction_signature;
+    }
+    public function confirm_payment(Request $request)
+    {
+        $checksum_key = env('CHECK_SUM_KEY');
+        $input = $request->input();
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
         DB::beginTransaction();
         try {
-            $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-            if ($secureHash == $vnp_SecureHash) {
-                if ($_GET['vnp_ResponseCode'] == '00') {
-                    $account_id = $_GET['account_id'];
-                    $order_id = $_GET['order_id'];
-                    $payment_type_id = $_GET['payment_type_id'];
-                    $money = $_GET['vnp_Amount'];
-                    DB::table('payment')->insert([
-                        'account_id' => $account_id,
-                        'order_id' => $order_id,
-                        'payment_type_id' => $payment_type_id,
-                        'money' => $money,
-                        'created' => Carbon::now()->format('Y-m-d H:i:s')
-                    ]);
-                    if ($payment_type_id == 1) {
-                        $order = DB::table('orders')->where('id', $order_id)->first();
-                        $design_process = DB::table('design_process')->where('order_id', $order_id)->first();
-                        $product = DB::table('product')->where('id', $order->product_id)->first();
-                        if ($order->order_type_id == 1) {
-                            DB::table('orders')->where('id', $order_id)->update([
+            if ($this->isValidData($input['data'], $input['signature'], $checksum_key)) {
+                $payment = DB::table('payment')->where('id', $input['data']['orderCode'])->first();
+                $order = DB::table('orders')->where('id', $payment->order_id)->first();
+                if ($order->order_status_id == 1) {
+                    if ($order->order_type_id == 1) {
+                        DB::table('orders')->where('id', $order->id)->update([
+                            'deposit_has_paid' => $order->deposit_has_paid += $payment->money,
+                            'order_status_id' => 3
+                        ]);
+                        DB::table('production_process')->insert([
+                            'order_id' => $order->id,
+                            'production_status_id' => 1,
+                            'created' => Carbon::now()->format('Y-m-d H:i:s')
+                        ]);
+                    } else {
+                        $design_process = DB::table('design_process')->where('order_id', $order->id)->where('design_process_status_id', 3)->first();
+                        if ($design_process != null) {
+                            DB::table('orders')->where('id', $order->id)->update([
+                                'deposit_has_paid' => $order->deposit_has_paid += $payment->money,
                                 'order_status_id' => 3
                             ]);
                             DB::table('production_process')->insert([
-                                'order_id' => $order_id,
-                                'production_status_id' => 1,
-                                'created' => Carbon::now()->format('Y-m-d H:i:s')
-                            ]);
-                        } else if ($design_process != null) {
-                            DB::table('orders')->where('id', $order_id)->update([
-                                'order_status_id' => 3
-                            ]);
-                            DB::table('production_process')->insert([
-                                'order_id' => $order_id,
+                                'order_id' => $order->id,
                                 'production_status_id' => 1,
                                 'created' => Carbon::now()->format('Y-m-d H:i:s')
                             ]);
                         } else {
-                            DB::table('orders')->where('id', $order_id)->update([
+                            DB::table('orders')->where('id', $order->id)->update([
+                                'deposit_has_paid' => $order->deposit_has_paid += $payment->money,
                                 'order_status_id' => 2
                             ]);
                         }
-                    } else if ($payment_type_id == 2) {
-                        DB::table('orders')->where('id', $order_id)->update([
-                            'order_status_id' => 5
-                        ]);
                     }
                 } else {
-                    DB::rollBack();
-                    return response()->json([
-                        'error' => 'Transaction Not Successfull'
-                    ], 403);
+                    $this->generatePDF($payment->id);
+                    DB::table('orders')->where('id', $order->id)->update([
+                        'order_status_id' => 5
+                    ]);
                 }
+                DB::table('payment')->where('id', $input['data']['orderCode'])->update([
+                    'isSuccess' => 1
+                ]);
+                DB::commit();
             } else {
-                DB::rollBack();
                 return response()->json([
-                    'error' => 'Invalid VNP Hash'
+                    'error' => 'Invalid Signature'
                 ], 403);
             }
-            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
@@ -2734,53 +2710,99 @@ class OrderController extends Controller
             'success' => 'Transaction Complete'
         ], 200);
     }
-    public function unique_code($limit)
+    public function generatePDF($orderCode = 1)
     {
-        return substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, $limit);
+        $payment = DB::table('payment')->where('id', $orderCode)->first();
+        $account = DB::table('account')->where('id', $payment->account_id)->first();
+        $order = DB::table('orders')->where('id', $payment->order_id)->first();
+        $product = DB::table('product')->where('id', $order->product_id)->first();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status',1)->get();
+        $product_diamond->map(function ($product_diamond) {
+            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+            $diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
+
+            $product_diamond->name = $diamond->size . " (mm) " . $diamond_color->name . '-' . $diamond_clarity->name . ' ' . $diamond_shape->name . ' Shape ' . $diamond_cut->name . ' Cut Diamond';
+            $product_diamond->price = $this->formatCurrency($product_diamond->price);
+            $product_diamond->unit_price = $this->formatCurrency($diamond->price);
+            return $product_diamond;
+        });
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status',1)->get();
+        $product_metal->map(function ($product_metal){
+            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $product_metal->name = $metal->name;
+            $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
+            $product_metal->price = $this->formatCurrency($product_metal->price);
+            return $product_metal;
+        });
+        $data = [
+            'date' => Carbon::now()->format('d/m/Y'),
+            'account' => $account,
+            'payment' => $payment,
+            'product_diamond' => $product_diamond,
+            'product_metal' => $product_metal,
+            'order' => $order,
+            'product_price' => $this->formatCurrency($order->product_price),
+            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price + $order->production_price) * $order->profit_rate / 100),
+            'total_price' => $this->formatCurrency($order->total_price)
+        ]; 
+              
+        $pdf = PDF::loadView('pdf', $data);
+        $fileName = Carbon::now()->timestamp . '_' . $payment->id . '.pdf';
+        // $fileName = $payment->id . '.pdf';
+        $content = $pdf->download()->getOriginalContent();
+        $destinationPath = public_path('pdf/' . $order->id);
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+        $filePath = public_path('pdf/' . $order->id .'/'.$fileName);
+        File::put($filePath, $content);
+        $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
+        $this->sendMail("bachdxse182030@fpt.edu.vn", $messageContent, 'Payment Invoice', $filePath);
     }
-    public function get_deposit_url()
+    function formatCurrency($amount) {
+        return number_format($amount, 0) . ' VND';
+    }
+    public function sendMail($toEmail, $messageContent, $subject, $pathToFile){
+        try {
+            Mail::to($toEmail)->send(new Email($messageContent, $subject, $pathToFile));
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+        }
+    }
+    public function get_payment_history(Request $request)
     {
-        $vnp_tmncode = (string) env('VNP_TMN_CODE');
-        $inputData = array(
-            "vnp_Version" => "2.1.0",
-            "vnp_TmnCode" => $vnp_tmncode,
-            "vnp_Amount" => 10000 * 100,
-            "vnp_Command" => "pay",
-            "vnp_CreateDate" => Carbon::now()->format('YmdHis'),
-            "vnp_CurrCode" => "VND",
-            "vnp_IpAddr" => "13.160.92.202",
-            "vnp_Locale" => "vn",
-            "vnp_OrderInfo" => "Thanh toan GD: 6969",
-            "vnp_OrderType" => "other",
-            "vnp_ReturnUrl" => "https://www.youtube.com/",
-            "vnp_TxnRef" => $this->unique_code(30),
-            "vnp_ExpireDate" => Carbon::now()->addMinutes(30)->format('YmdHis'),
-        );
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
 
-        if (isset($vnp_BankCode) && $vnp_BankCode != "") {
-            $inputData['vnp_BankCode'] = $vnp_BankCode;
-        }
-
-        ksort($inputData);
-        $query = "";
-        $i = 0;
-        $hashdata = "";
-        foreach ($inputData as $key => $value) {
-            if ($i == 1) {
-                $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
-            } else {
-                $hashdata .= urlencode($key) . "=" . urlencode($value);
-                $i = 1;
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
-            $query .= urlencode($key) . "=" . urlencode($value) . '&';
         }
-        $vnp_HashSecret = env("VNP_HASH_SECRET");
-        $vnp_Url = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html' . "?" . $query;
-        if (isset($vnp_HashSecret)) {
-            $vnpSecureHash =   hash_hmac('sha512', $hashdata, $vnp_HashSecret); //  
-            $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
         }
-        header('Location: ' . $vnp_Url);
-        return response()->json($vnp_Url);
+        $payment_list = DB::table('payment')->where('account_id', $input)->where('isSuccess',1)->orderBy('created','desc')->get();
+        $payment_list->map(function ($payment) {
+            $payment->created = Carbon::parse($payment->created)->format('H:i:s d/m/Y');
+            $payment->payment_type = DB::table('payment_type')->where('id', $payment->payment_type_id)->first();
+            unset($payment->payment_type_id);
+            return $payment;
+        });
+        return response()->json(
+            $payment_list
+        );
     }
 }

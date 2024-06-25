@@ -90,7 +90,7 @@ class AccountController extends Controller
                     'role_id'  => 5,
                     'imageUrl' => $image,
                     'deactivated' => 0,
-                    'created' => date('Y-m-d H:i:s'),
+                    'created' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
             } else if (!$account->google_id) {
                 // Cập nhật google_id cho người dùng nếu đã tồn tại email này nhưng chưa có google_id
@@ -368,7 +368,7 @@ class AccountController extends Controller
                     mkdir($destinationPath, 0755, true);
                 }
 
-                $fileName = time() . '_' . $id . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                 //delete all files in the account directory
                 File::cleanDirectory($destinationPath);
                 //input filedata through destination path with fileName 
@@ -458,7 +458,7 @@ class AccountController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $accountId . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $accountId . '.jpg';
                 //delete all files in the account directory
                 File::cleanDirectory($destinationPath);
                 //input filedata through destination path with fileName 
@@ -549,14 +549,14 @@ class AccountController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $accountId . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $accountId . '.jpg';
                 //input filedata through destination path with fileName 
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 $account->imageUrl = $fileName;
                 $account->save();
             } else {
                 //input unknown.jpg into account image
-                $fileName = time() . '_' . $accountId . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $accountId . '.jpg';
                 $destinationPath = public_path('image/Account/' . $accountId);
                 //check destination path if not create one
                 if (!file_exists($destinationPath)) {
@@ -633,7 +633,7 @@ class AccountController extends Controller
             if ($input['deactivate']) {
                 DB::table('account')->where('id', $input['account_id'])->update([
                     'deactivated' => true,
-                    'deactivated_date' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                    'deactivated_date' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
                 $tf = true;
             } else if ($input['deactivate'] == false) {

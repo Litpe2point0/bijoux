@@ -111,7 +111,7 @@ class QuoteController extends Controller
             $input = $decodedToken->id;
         }
 
-        $quote_list = DB::table('quote')->orderByRaw("
+        $quote_list = DB::table('quote')->where('account_id',$input)->orderByRaw("
             CASE 
                 WHEN quote_status_id = 5 THEN 2 
                 WHEN quote_status_id = 4 THEN 1 
@@ -280,7 +280,7 @@ class QuoteController extends Controller
             $quote->profit_rate = 0;
             $quote->total_price = 0;
             $quote->note = $note;
-            $quote->created = Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s');
+            $quote->created = Carbon::now()->format('Y-m-d H:i:s');
             $quote->save();
 
             DB::commit();
@@ -587,7 +587,7 @@ class QuoteController extends Controller
                     'saleStaff_id' => $quote->saleStaff_id,
                     'designStaff_id' => $quote->designStaff_id,
                     'productionStaff_id' => $quote->productionStaff_id,
-                    'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                    'created' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
             } else if (!$input['approve'] || $input['approve'] == 0) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
