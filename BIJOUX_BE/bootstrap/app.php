@@ -21,7 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->prepend(CorsMiddleware::class);
         $middleware->appendToGroup('checkAdminLogin', [
             checkAdminLogin::class,
         ]);
@@ -39,6 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->appendToGroup('checkProductionStaff', [
             checkProductionStaff::class,
+        ]);
+        $middleware->appendToGroup('checkCors', [
+            CorsMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

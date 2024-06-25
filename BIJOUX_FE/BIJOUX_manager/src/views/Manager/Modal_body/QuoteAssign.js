@@ -10,11 +10,10 @@ import {
     CRow,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list, get_staff_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import DateTimePicker from "../../component_items/DatePicker/DateTimePicker";
 import AccountCard from "../Quote widget/AccountCard";
@@ -22,8 +21,10 @@ import QuoteDetailCard from "../Quote widget/QuoteDetailCard";
 import NoteCard from "../Quote widget/NoteCard";
 import AssignCard from "../Quote widget/AssignCard";
 import { useNavigate } from "react-router-dom";
+import { QuotePageContext } from "../Quote_Page";
+import { assign_quote } from "../../../api/main/orders/Quote_api";
 
-const sales_staff =[
+const sales_staff = [
     {
         "id": 23,
         "username": "john_doe đần",
@@ -63,7 +64,7 @@ const sales_staff =[
                 "created": "2023-01-10T10:00:00.000Z"
             },
             {
-                "id": 102,
+                "id": 123,
                 "product_id": 202,
                 "account_id": 1,
                 "deposit_has_paid": 200.00,
@@ -88,7 +89,7 @@ const sales_staff =[
         ]
     },
     {
-        "id": 31,
+        "id": 123,
         "username": "jane_smith ngu",
         "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
         "phone": "+0987654321",
@@ -127,10 +128,10 @@ const sales_staff =[
             }
         ]
     }
-] 
-const design_staff =[
+]
+const design_staff = [
     {
-        "id": 13,
+        "id": 123,
         "username": "jane_smith hhhhh",
         "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
         "phone": "+0987654321",
@@ -209,10 +210,10 @@ const design_staff =[
             }
         ]
     }
-] 
-const production_staff =[
+]
+const production_staff = [
     {
-        "id": 224,
+        "id": 123,
         "username": "alice_johnson ngốc",
         "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
         "phone": "+1122334455",
@@ -337,43 +338,48 @@ const production_staff =[
             }
         ]
     }
-] 
+]
 
-const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
+const CustomForm = ({ quoteInfo, onClose }) => {
     const dispatch = useDispatch();
-    const navigate= useNavigate();
-    const [validated, setValidated] = useState(false)
+    const navigate = useNavigate();
+    const { handleDataChange } = useContext(QuotePageContext);
 
     const [loading, setLoading] = useState(true);
 
-    const[quote,setQuote] = useState(null)
-    
+    const [quote, setQuote] = useState(null)
+
     const [saleStaffs, setSaleStaffs] = useState(null)
     const [designStaffs, setDesignStaffs] = useState(null)
     const [productionStaffs, setProductionStaffs] = useState(null)
 
     const [note, setNote] = useState(null);
+
     const [assignedSaleStaff, setAssignedSaleStaff] = useState(null);
     const [assignedDesignStaff, setAssignedDesignStaff] = useState(null);
     const [assignedProductionStaff, setAssignedProductionStaff] = useState(null);
 
     useEffect(() => {
         const setAttribute = async () => {
-            //const staffList= await get_staff_list();
-            //const accounts = await get_account_list();
 
-            await get_account_list();
 
             setQuote(quoteInfo)
             setNote(quoteInfo.note)
 
-            setSaleStaffs(sales_staff);
-            setDesignStaffs(design_staff);
-            setProductionStaffs(production_staff);
 
-            setAssignedSaleStaff(sales_staff[0]);
-            setAssignedDesignStaff(design_staff[0]);
-            setAssignedProductionStaff(production_staff[0]);
+            const staffList = await get_staff_list();
+            const sale_staff_list=staffList.data.sale_staff_list;
+            const design_staff_list=staffList.data.design_staff_list;
+            const production_staff_list=staffList.data.production_staff_list;
+
+            setSaleStaffs(sale_staff_list);
+            setDesignStaffs(design_staff_list);
+            setProductionStaffs(production_staff_list);
+
+
+            setAssignedSaleStaff(quoteInfo.saleStaff_id != null ? sale_staff_list.filter(staff => staff.id == quoteInfo.saleStaff_id)[0] : null);
+            setAssignedDesignStaff(quoteInfo.designStaff_id != null ? design_staff_list.filter(staff => staff.id == quoteInfo.designStaff_id)[0] : null);
+            setAssignedProductionStaff(quoteInfo.productionStaff_id != null ? production_staff_list.filter(staff => staff.id == quoteInfo.productionStaff_id)[0] : null);
             setLoading(false);
         }
         setAttribute()
@@ -387,7 +393,6 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setValidated(true);
         const form = event.currentTarget
         if (form.checkValidity() === false) {
             event.stopPropagation()
@@ -396,7 +401,7 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
             const assigned_information = {
                 quote_id: quote.id,
                 saleStaff_id: assignedSaleStaff.id,
-                designStaff_id:assignedDesignStaff.id ,
+                designStaff_id: assignedDesignStaff.id,
                 productionStaff_id: assignedProductionStaff.id,
                 note: note.trim()
             }
@@ -404,40 +409,26 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
             const formData = new FormData();
             formData.append('assigned_information', JSON.stringify(assigned_information));
 
-            await get_account_list();
-            // let mess = '';
-            // let mess_color = '';
 
-            // if (response.success) {
-            //     mess = response.success
-            //     handleTableChange();
-            //     onClose();
-            //     setValidated(false)
-            //     mess_color = 'success'
-            // } else if (response.error) {
-            //     mess = response.error;
-            //     mess_color = 'danger'
-            // }
-            // let product = {
-            //     id: response.new_product_id,
-            // }
+            let response = await assign_quote(formData, 'Quote ID ' + quote.id);
 
-            dispatch(setToast({ color: 'success', title: 'Quote id ' + quote.id, mess: "Assigned successfully !" }))
-            onClose();
-            navigate("/quotes_manager/table")
+            if (response.success) {
+                handleDataChange();
+                onClose();
+            }
+            dispatch(setToast(response.mess))
 
+
+            
         }
 
     }
     const handleAssign = (selectedStaff, role_id) => {
         if (role_id == 2) {
-            console.log("sale Staff", selectedStaff)
             setAssignedSaleStaff(selectedStaff)
         } else if (role_id == 3) {
-            console.log("design Staff", selectedStaff)
             setAssignedDesignStaff(selectedStaff)
         } else if (role_id == 4) {
-            console.log("production Staff", selectedStaff)
             setAssignedProductionStaff(selectedStaff)
         }
 
@@ -445,7 +436,7 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
 
     return (
         <CForm
-            className="row g-3 needs-validation"            
+            className="row g-3 needs-validation"
             onSubmit={handleSubmit}
         >
             <CCol md={6}>
@@ -467,7 +458,7 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
                                 Loading...
                             </CButton>
                             :
-                            <AssignCard staffList={saleStaffs} handleAssign={handleAssign} />
+                            <AssignCard selection={assignedSaleStaff} staffList={saleStaffs} handleAssign={handleAssign} />
 
                         }
                     </CCol>
@@ -479,7 +470,7 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
                                 Loading...
                             </CButton>
                             :
-                            <AssignCard staffList={designStaffs} handleAssign={handleAssign} />
+                            <AssignCard selection={assignedDesignStaff} staffList={designStaffs} handleAssign={handleAssign} />
                         }
                     </CCol>
                     <CCol md={4}>
@@ -490,7 +481,7 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
                                 Loading...
                             </CButton>
                             :
-                            <AssignCard staffList={productionStaffs} handleAssign={handleAssign} />
+                            <AssignCard selection={assignedProductionStaff} staffList={productionStaffs} handleAssign={handleAssign} />
                         }
                     </CCol>
                 </CRow>
@@ -504,9 +495,9 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
     )
 }
 
-const AssignForm = ({ quote, handleTableChange, onClose }) => {
+const AssignForm = ({ quote, onClose }) => {
     return (
-        <CustomForm quoteInfo={quote}  handleTableChange={handleTableChange} onClose={onClose} />
+        <CustomForm quoteInfo={quote} onClose={onClose} />
     );
 };
 

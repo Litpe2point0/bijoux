@@ -23,7 +23,7 @@ class Account extends Authenticatable implements JWTSubject
     protected $fillable = [
         'username',
         'fullname',
-        'imageURL',
+        'imageUrl',
         'email',
         'password',
         'phone',
@@ -53,15 +53,11 @@ class Account extends Authenticatable implements JWTSubject
     {
         return [
             'id' => $this->id,
-            'username' => $this->username,
             'email' => $this->email,
             'role_id' => $this->role_id,
             'fullname' => $this->fullname,
             'phone' => $this->phone,
-            'dob' => $this->dob,
-            'address' => $this->address,
-            'deactivated' => $this->deactivated,
-            'deactivated_date' => $this->deactivated_date,
+            'address' => $this->address
         ];
     }
 }

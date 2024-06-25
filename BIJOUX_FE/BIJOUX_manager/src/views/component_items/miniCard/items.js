@@ -20,7 +20,6 @@ function CustomCard(item) {
                 <svg  fill='none' viewBox="0 0 18 18" style={{ width: 'fit-content' }} height="40" xmlns="http://www.w3.org/2000/svg">
                     <path stroke="#151542" stroke-linejoin="bevel" stroke-width="0.3" d={item.path} />
                 </svg>
-
             </CCardHeader>
 
             <CCardBody className='p-0'>

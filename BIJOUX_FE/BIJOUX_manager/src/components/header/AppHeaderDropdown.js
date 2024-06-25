@@ -23,14 +23,15 @@ import {
   cilUser,
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import {backend_url, image_url} from '../../api/Back_End_Url';
+import { backend_url, image_url } from '../../api/Back_End_Url';
 
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
 
-const AppHeaderDropdown = ({user}) => {
+const AppHeaderDropdown = ({ user }) => {
   //console.log(user)
-  const Avatar= `${image_url}/Accounts/${user.id}/${user.image_url}`
+
+  const Avatar = user.imageUrl
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
@@ -74,11 +75,11 @@ const AppHeaderDropdown = ({user}) => {
 
         </CDropdownItem>
         <Link to={'/profile2'}>
-        <CDropdownItem >
-          
+          <CDropdownItem >
+
             <a href="" >abc</a>
-          
-        </CDropdownItem>
+
+          </CDropdownItem>
         </Link>
         <CDropdownItem href="#">
           <CIcon icon={cilSettings} className="me-2" />

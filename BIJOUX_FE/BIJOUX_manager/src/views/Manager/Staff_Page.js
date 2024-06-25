@@ -38,23 +38,23 @@ import './style/style.css'
 import { Card } from "@mui/material";
 import Staff_Add from "./Modal_body/StaffAdd";
 import StaffAdd from "./Modal_body/StaffAdd";
-import { get_role_list, get_account_list } from "../../api/accounts/Account_Api";
+import {get_account_list, get_staff_list } from "../../api/main/accounts/Account_api";
 import StaffUpdate from "./Modal_body/StaffUpdate";
 
 
 
-export const Staff_Page_Context = createContext();
+export const StaffPageContext = createContext();
 
 
 const state_creator = (table) => {
     const state = {
         columnDefs: [
-            { headerName: "id", field: "id", flex: 0.4 },
+            { headerName: "ID", field: "id", flex: 0.4 },
             {
                 headerName: "Avatar", flex: 0.5,
                 cellRenderer: (params) => {
                     return (
-                        <AvatarInput size={50} src={`${image_url}/${params.data.imageUrl}`} />)
+                        <AvatarInput size={50} src={params.data.imageUrl} />)
 
                 },
                 editable: false,
@@ -89,7 +89,6 @@ const state_creator = (table) => {
                 headerName: "Option",
                 cellClass: 'd-flex justify-content-center py-0',
                 cellRenderer: (params) => {
-                    console.log(params.data)
                     const Modal_props = {
                         updateForm: <StaffUpdate account={params.data} />,
                         title: 'Update Staff [ID: #' + params.data.id+']',
@@ -125,26 +124,25 @@ const Staff_Page = () => {
 
     let [state, setState] = useState(null);
 
-    const handleTableChange = async () => {
-        const accountList = await get_account_list();
-        const staffList = accountList.staff_list;
-        console.log("staffList ", staffList)
+    const handleDataChange = async () => {
+        //const accountList = await get_account_list();
+        const staffList =  await get_staff_list();
+        console.log("staffList ", staffList.data)
         setState({
-            sale: state_creator(staffList.sale_list),
-            design: state_creator(staffList.design_list),
-            production: state_creator(staffList.production_list)
+            sale: state_creator(staffList.data.sale_staff_list),
+            design: state_creator(staffList.data.design_staff_list),
+            production: state_creator(staffList.data.production_staff_list)
         })
+
+       // alert('ON DATA CHANGE NÈ')
     }
+
 
     useEffect(() => {
-        handleTableChange()
+        handleDataChange()
     }, [])
 
-    const get_roles = async () => {
-        const list = await get_role_list()
-        setRoles(list)
-        setSelectedRole(list[0])
-    }
+
 
 
     const defaultColDef = useMemo(() => {
@@ -157,7 +155,7 @@ const Staff_Page = () => {
         };
     }, [])
     return (
-        <Staff_Page_Context.Provider value={{ onDataChange: handleTableChange }}>
+        <StaffPageContext.Provider value={{ handleDataChange: handleDataChange }}>
             <CRow>
                 <CCol xs={12}>
                     {state === null ? <CButton className="w-100" color="secondary" disabled>
@@ -265,7 +263,7 @@ const Staff_Page = () => {
                                 >
                                     <CCardHeader>Add New Staff</CCardHeader>
                                     <CCardBody>
-                                        <StaffAdd handleTableChange={handleTableChange} />
+                                        <StaffAdd handleDataChange={handleDataChange} />
                                     </CCardBody>
                                 </CCard>}
 
@@ -283,7 +281,7 @@ const Staff_Page = () => {
 
 
 
-        </Staff_Page_Context.Provider>
+        </StaffPageContext.Provider>
     );
 
 }

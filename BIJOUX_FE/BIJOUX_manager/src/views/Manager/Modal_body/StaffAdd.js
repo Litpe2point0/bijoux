@@ -9,40 +9,27 @@ import {
   CFormLabel,
   CFormCheck
 } from '@coreui/react'
-import { get_role_list } from "../../../api/accounts/Account_Api";
+import { get_account_list, get_staff_role_list, register } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import DateTimePicker from "../../component_items/DatePicker/DateTimePicker";
 import { get } from "jquery";
+import { StaffPageContext } from "../Staff_Page";
 
 
-const CustomForm = ({handleTableChange}) => {
+const CustomForm = () => {
   const dispatch = useDispatch();
+  const { handleDataChange } = useContext(StaffPageContext);
+
+
   const [validated, setValidated] = useState(false)
   const [disabled, setDisabled] = useState(false);
-  // const [imageFile, setImageFile] = useState(null);
-  const [imageBase64, setImageBase64] = useState(null);
+  const [imageBase64, setImageBase64] = useState('http://127.0.0.1:8000/image/Account/unknown.jpg');
   const [roles, setRoles] = useState([]);  
 
-  // const roles = (
-  //   [
-  //     {
-  //       id: 1,
-  //       name: 'Saler',
-  //     },
-  //     {
-  //       id: 2,
-  //       name: 'Designer',
-  //     },
-  //     {
-  //       id: 3,
-  //       name: 'Productioner',
-  //     }
 
-  //   ]);
   const [selectedRole, setSelectedRole] = useState(null);
 
   const fullname = useRef();
@@ -55,11 +42,14 @@ const CustomForm = ({handleTableChange}) => {
 
 
   const empty_input = () => {
-    add_name.current.value = "";
-    add_price.current.value = "";
-    add_quantity.current.value = "";
-    setImageBase64(null);
-    setImageFile(null)
+    username.current.value = "";
+    password.current.value = 123;
+    dob.current.value = "";
+    email.current.value = "";
+    fullname.current.value = "";
+    phone.current.value = "";
+    address.current.value = "";
+    setImageBase64('http://127.0.0.1:8000/image/Account/unknown.jpg');
 
   }
   const handleSingleFileBase64 = (base64) => {
@@ -79,11 +69,11 @@ const CustomForm = ({handleTableChange}) => {
       const new_account = {
         username: username.current.value,
         password: password.current.value,
-        image : imageBase64,
+        imageUrl : imageBase64.includes('unknown.jpg') ? null : imageBase64,
         dob: dob.current.value,
         email: email.current.value,
         fullname: fullname.current.value,
-        role_id: selectedRole.id,
+        role: selectedRole,
         phone: phone.current.value,
         address: address.current.value
       }
@@ -92,25 +82,18 @@ const CustomForm = ({handleTableChange}) => {
 
       const formData = new FormData();
       formData.append('new_account', JSON.stringify(new_account));
-      let response = await register(formData);
-      let mess = '';
-      let mess_color = '';
+      let response = await register(formData,'New Staff');
+      
+
 
       if (response.success) {
-        mess = response.success
-        handleTableChange();
+        handleDataChange();
+        //onClose();
         setValidated(false)
-        mess_color = 'success'
-      } else if (response.error) {
-        mess = response.error;
-        mess_color = 'danger'
       }
-      let product = {
-        id: response.new_product_id,
-      }
-
-      dispatch(setToast({ color: mess_color, title: 'Product id ' + product.id, mess: mess }))
-
+      dispatch(setToast(response.mess))
+      setValidated(false)
+      empty_input()
     }
 
     setDisabled(false)
@@ -124,9 +107,9 @@ const CustomForm = ({handleTableChange}) => {
   }
   useEffect( ()=>{
     const get_roles = async () => {
-      const list=await get_role_list()
-      setRoles(list)
-      setSelectedRole(list[0])
+      const roleList=await get_staff_role_list()
+      setRoles(roleList.data)
+      setSelectedRole(roleList.data[0])
     }
     get_roles();
     
@@ -180,7 +163,6 @@ const CustomForm = ({handleTableChange}) => {
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Date Of Birth</CFormLabel>
         <CFormInput type="date" id="validationCustom02" ref={dob} required />
-        {/* <DateTimePicker ref={dob} required/> */}
         <CFormFeedback valid>Looks good!</CFormFeedback>
       </CCol>
       <CCol md={12}>
@@ -210,7 +192,7 @@ const CustomForm = ({handleTableChange}) => {
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Avatar</CFormLabel>
-        <AvatarUpload defualtImage={'http://127.0.0.1:8000/image/Accounts/unknown.jpg'} handleSingleFileBase64={handleSingleFileBase64} />
+        <AvatarUpload defualtImage={imageBase64} handleSingleFileBase64={handleSingleFileBase64} />
       </CCol>
       <CCol xs={12} className="d-flex justify-content-center">
         <CButton color="success" type="submit" disabled={disabled}>
@@ -221,9 +203,9 @@ const CustomForm = ({handleTableChange}) => {
   )
 }
 
-const StaffAdd = ({ handleTableChange }) => {
+const StaffAdd = () => {
   return (
-    <CustomForm handleTableChange={handleTableChange} />
+    <CustomForm  />
   );
 };
 

@@ -189,45 +189,45 @@ const get_roleNav = (role_id, account_id) => {
 
 
 
-      {
-        component: CNavItem,
-        name: 'Product',
-        to: '/product/table',
-        icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
-      },
-      {
-        component: CNavGroup,
-        name: 'Product',
-        to: '/product',
-        icon: <HardDrives size={20} color="hotpink" weight="duotone" />,
-        items: [
-          {
-            component: CNavItem,
-            name: 'Table',
-            to: '/product/table',
-          },
-          {
-            component: CNavItem,
-            name: 'Add',
-            to: '/product/add',
-          },
+      // {
+      //   component: CNavItem,
+      //   name: 'Product',
+      //   to: '/product/table',
+      //   icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+      //   badge: {
+      //     color: 'info',
+      //     text: 'NEW',
+      //   },
+      // },
+      // {
+      //   component: CNavGroup,
+      //   name: 'Product',
+      //   to: '/product',
+      //   icon: <HardDrives size={20} color="hotpink" weight="duotone" />,
+      //   items: [
+      //     {
+      //       component: CNavItem,
+      //       name: 'Table',
+      //       to: '/product/table',
+      //     },
+      //     {
+      //       component: CNavItem,
+      //       name: 'Add',
+      //       to: '/product/add',
+      //     },
 
-        ],
-      },
-      {
-        component: CNavItem,
-        name: 'Customize items',
-        to: '/ItemsManage',
-        icon: <MagicWand size={20} color="hotpink" weight="duotone" />,  //cil-fastfood
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
-      }
+      //   ],
+      // },
+      // {
+      //   component: CNavItem,
+      //   name: 'Customize items',
+      //   to: '/ItemsManage',
+      //   icon: <MagicWand size={20} color="hotpink" weight="duotone" />,  //cil-fastfood
+      //   badge: {
+      //     color: 'info',
+      //     text: 'NEW',
+      //   },
+      // }
 
 
     ],
@@ -264,9 +264,11 @@ const get_roleNav = (role_id, account_id) => {
       {
         component: CNavItem,
         name: 'Assigned Quotes',
-        disabled: account_id == 7,
+        //disabled: account_id == 7,
         to: '/quotes_sale_staff/table',
-        icon: <FileText size={35} color={account_id == 7 ? "gray": "red"} weight="duotone" />,  //cil-fastfood
+        //icon: <FileText size={35} color={account_id == 7 ? "gray": "red"} weight="duotone" />,  //cil-fastfood
+        icon: <FileText size={35} color={"red"} weight="duotone" />,  //cil-fastfood
+
         badge: {
           color: 'info',
           text: 'NEW',

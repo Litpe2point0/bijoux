@@ -10,22 +10,24 @@ import {
     CRow,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import NoteCard from "../Quote widget/NoteCard";
 import AssignCard from "../Quote widget/AssignCard";
 import { useNavigate } from "react-router-dom";
 import { queue } from "jquery";
+import { OrderPageContext } from "../Order_Page";
+import { cancel_order, get_order_detail } from "../../../api/main/orders/Order_api";
 
 
 
-const CustomForm = ({ orderInfo, account, handleTableChange, onClose }) => {
+const CustomForm = ({ orderInfo, account, onClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { handleDataChange } = useContext(OrderPageContext);
 
     const [loading, setLoading] = useState(true);
 
@@ -33,9 +35,17 @@ const CustomForm = ({ orderInfo, account, handleTableChange, onClose }) => {
 
     useEffect(() => {
         const setAttribute = async () => {
-            await get_account_list();
+            const formData = new FormData();
+            formData.append('order_id', orderInfo.id);
+            const detail_data = await get_order_detail(formData);
 
-            setNote(orderInfo.note)
+
+
+            const order_detail = detail_data.data.order_detail
+
+
+
+            setNote(order_detail.note)
 
             setLoading(false);
         }
@@ -49,7 +59,7 @@ const CustomForm = ({ orderInfo, account, handleTableChange, onClose }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-       
+
         const form = event.currentTarget
         if (form.checkValidity() === false) {
             event.stopPropagation()
@@ -63,26 +73,17 @@ const CustomForm = ({ orderInfo, account, handleTableChange, onClose }) => {
             const formData = new FormData();
             formData.append('cancel', JSON.stringify(cancel));
 
-            await get_account_list();
-            // let mess = '';
-            // let mess_color = '';
+            const response = await cancel_order(formData, 'Order ID ' + orderInfo.id);
 
-            // if (response.success) {
-            //     mess = response.success
-            //     handleTableChange();
-            //     onClose();
-            //     setValidated(false)
-            //     mess_color = 'success'
-            // } else if (response.error) {
-            //     mess = response.error;
-            //     mess_color = 'danger'
-            // }
-            // let product = {
-            //     id: response.new_product_id,
-            // }
-
-            dispatch(setToast({ color: 'success', title: 'Order id ' + orderInfo.id, mess: "Cancel successfully !" }))
-            onClose();
+            if (response.success) {
+                handleDataChange();
+                onClose();
+            }
+            dispatch(setToast(response.mess))
+            
+            // handleDataChange();
+            // dispatch(setToast({ color: 'success', title: 'Order id ' + orderInfo.id, mess: "Cancel successfully !" }))
+            // onClose();
 
         }
 
@@ -99,21 +100,21 @@ const CustomForm = ({ orderInfo, account, handleTableChange, onClose }) => {
                 <NoteCard isLoading={loading} note={note} handleChange={handleNote} />
             </CCol>
             <CCol xs={12} className="d-flex justify-content-center">
-               
-                    <CButton color="danger" type="submit" disabled={loading} >
-                        Sure to cancel
-                    </CButton>
-                
+
+                <CButton color="danger" type="submit" disabled={loading} >
+                    Sure to cancel
+                </CButton>
+
 
             </CCol>
-            
+
         </CForm>
     )
 }
 
-const OrderCancel = ({ order, handleTableChange, onClose }) => {
+const OrderCancel = ({ order, onClose }) => {
     return (
-        <CustomForm orderInfo={order} handleTableChange={handleTableChange} onClose={onClose} />
+        <CustomForm orderInfo={order} onClose={onClose} />
     );
 };
 

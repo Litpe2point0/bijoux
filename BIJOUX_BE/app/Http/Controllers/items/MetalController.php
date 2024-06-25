@@ -9,6 +9,10 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Throwable;
 
 class MetalController extends Controller
 {
@@ -19,7 +23,7 @@ class MetalController extends Controller
     //     if (!isset($input) || $input == null) {
     //         return response()->json([
     //             'error' => 'No Input Received'
-    //         ], 404);
+    //         ], 403);
     //     }
     //     DB::beginTransaction();
     //     try {
@@ -66,17 +70,23 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
+            $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
+            if ($metal->deactivated) {
+                return response()->json([
+                    'error' => 'The Selected Metal Has Been Deactivated'
+                ], 403);
+            }
             //find all product that contain the selected metal
             $product_metal = DB::table('product_metal')->select('product_id')->where('metal_id', $input['metal_id'])->groupby('product_id')->get();
             //update the metal price
             DB::table('metal')->where('id', $input['metal_id'])->update([
                 'buy_price_per_gram' => $input['buy_price_per_gram'],
                 'sale_price_per_gram' => $input['sale_price_per_gram'],
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
             $data = [];
             foreach ($product_metal as $product) {
@@ -141,8 +151,8 @@ class MetalController extends Controller
                     $profit_rate = $order->profit_rate;
                     $production_price = $order->production_price;
                     $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->get();
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 1)->get();
                     //calculate new product price after update metal price
                     foreach ($diamond_list as $diamond) {
                         if ($diamond->status == 1) {
@@ -156,7 +166,7 @@ class MetalController extends Controller
                     }
                     DB::table('orders')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                     ]);
                 }
 
@@ -166,8 +176,8 @@ class MetalController extends Controller
                     $profit_rate = $quote->profit_rate;
                     $production_price = $quote->production_price;
                     $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->get();
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->where('status', 1)->get();
                     //calculate new product price after update metal price
                     foreach ($diamond_list as $diamond) {
                         if ($diamond->status == 1) {
@@ -181,8 +191,39 @@ class MetalController extends Controller
                     }
                     DB::table('quote')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => $product_price * ($profit_rate + 100) / 100 + $production_price
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                     ]);
+                }
+                if ($order != null) {
+                    $design_process =  DB::table('design_process')->where('order_id', $order->id)->first();
+                    //check if quote exist
+                    if ($design_process != null && $design_process->design_process_status_id < 4) {
+                        $profit_rate = $design_process->profit_rate;
+                        $production_price = $design_process->production_price;
+                        $product_price = 0;
+                        if ($design_process->design_process_status_id < 3) {
+                            $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->get();
+                            $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->get();
+                        } else if($design_process->design_process_status_id = 3){
+                            $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 2)->get();
+                            $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 2)->get();
+                        }
+                        //calculate new product price after update metal price
+                        foreach ($diamond_list as $diamond) {
+                            if ($diamond->status == 1) {
+                                $product_price += $diamond->price;
+                            }
+                        }
+                        foreach ($metal_list as $metal) {
+                            if ($metal->status == 1) {
+                                $product_price += $metal->price;
+                            }
+                        }
+                        DB::table('design_process')->where('order_id', $order->id)->update([
+                            'product_price' => $product_price,
+                            'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
+                        ]);
+                    }
                 }
             }
             DB::commit();
@@ -201,47 +242,44 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         DB::beginTransaction();
         try {
+            $tf = false;
             $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
             //check metal
             if ($metal == null) {
                 return response()->json([
-                    'error' => 'The selected metal doesn\'t exist'
+                    'error' => 'The Selected Metal Doesn\'t Exist'
                 ], 403);
             }
             //check input deactivate
             if ($input['deactivate']) {
-                if ($metal->deactivated == false) {
-                    DB::table('metal')->where('id', $input['metal_id'])->update([
-                        'deactivated' => true,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The Selected Metal\'s Already Been Deactivated'
-                    ], 403);
-                }
+                DB::table('metal')->where('id', $input['metal_id'])->update([
+                    'deactivated' => true,
+                ]);
+                $tf = true;
             } else {
-                if ($metal->deactivated == true) {
-                    DB::table('metal')->where('id', $input['metal_id'])->update([
-                        'deactivated' => false,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => 'The Selected Metal\'s Already Been Activated'
-                    ], 403);
-                }
+                DB::table('metal')->where('id', $input['metal_id'])->update([
+                    'deactivated' => false,
+                ]);
+                $tf = false;
             }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
-        return response()->json([
-            'success' => 'Successfully Deactivated'
-        ], 201);
+        if ($tf) {
+            return response()->json([
+                'success' => 'Deactivate Metal Successfully'
+            ], 201);
+        } else {
+            return response()->json([
+                'success' => 'Activate Metal Successfully'
+            ], 201);
+        }
     }
     public function get_list(Request $request)
     {
@@ -253,16 +291,28 @@ class MetalController extends Controller
             $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
             try {
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Invalid Token'], 401);
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
             }
         }
-        $role_id = (int) $decodedToken['role_id'];
+        if ($token == null) {
+            $role_id = 5;
+        } else {
+            try {
+                $role_id = $decodedToken['role_id'];
+            } catch (Throwable $e) {
+                $role_id = $decodedToken->role_id;
+            }
+        }
 
         //create query
         $query = Metal::query();
         //check role
-        if ($role_id == 5) {
+        if ($role_id == 5 || $role_id == 4 || $role_id == 3 || $role_id == 2) {
             //configure query
             $metal = $query->where('deactivated', false)->get();
             $metal->map(function ($metal) {
@@ -273,7 +323,7 @@ class MetalController extends Controller
                 return $metal;
             });
         } else {
-            $metal = $query->get();
+            $metal = $query->orderBy('deactivated', 'asc')->get();
             $metal->map(function ($metal) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('METAL_URL');
@@ -282,9 +332,9 @@ class MetalController extends Controller
                 return $metal;
             });
         }
-        return response()->json([
+        return response()->json(
             $metal
-        ]);
+        );
     }
     public function get_detail(Request $request)
     {
@@ -293,7 +343,7 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $metal = DB::table('metal')->where('id', $input)->first();
         $OGurl = env('ORIGIN_URL');
@@ -311,9 +361,14 @@ class MetalController extends Controller
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
         $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
+        if ($metal->deactivated) {
+            return response()->json([
+                'error' => 'The Selected Metal Is Deactivated'
+            ], 403);
+        }
         $weight = $metal->specific_weight * $input['volume'];
         $price = $weight * $metal->sale_price_per_gram;
         $temp['weight'] = $weight;
@@ -322,18 +377,18 @@ class MetalController extends Controller
             'weight_price' => $temp
         ]);
     }
-    public function get_metal_is_main(Request $request)// chưa test
+    public function get_metal_is_main(Request $request)
     {
         //input
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
-        $metal_list = DB::table('model_metal')->where('model_id', $input)->where('is_main',true)->pluck('metal_id');
+        $metal_list = DB::table('model_metal')->where('model_id', $input)->where('is_main', true)->pluck('metal_id');
         $data = collect();
-        foreach($metal_list as $metal){
+        foreach ($metal_list as $metal) {
             $temp = DB::table('metal')->where('id', $metal)->first();
             $temp->created = Carbon::parse($temp->created)->format('H:i:s d/m/Y');
             $data->push($temp);
@@ -342,23 +397,47 @@ class MetalController extends Controller
             $data
         );
     }
-    public function get_metal_compatibility(Request $request)// chưa test
+    public function get_metal_compatibility(Request $request)
     {
         //input
         $input = json_decode($request->input('metal_compatibility'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No Input Received'
-            ], 404);
+            ], 403);
         }
-        $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main',false)->pluck('metal_id');
-        $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1',$input['metal_id'])->pluck('Metal_id_2');
+        $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
+        if ($metal->deactivated) {
+            return response()->json([
+                'error' => 'The Selected Metal Has Been Deactivated'
+            ], 403);
+        }
+        $OGurl = env('ORIGIN_URL');
+        $url = env('METAL_URL');
+        $metal_list = DB::table('model_metal')->where('model_id', $input['model_id'])->where('is_main', false)->pluck('metal_id')->values();
+        foreach ($metal_list as $metal) {
+            $temp1 = DB::table('metal')->where('id', $metal)->first();
+            if ($temp1->deactivated) {
+                $metal_list = $metal_list->reject(function ($value, $key) use ($metal) {
+                    return $value == $metal;
+                });
+            }
+        }
+        $metal_compatibility = DB::table('metal_compatibility')->where('Metal_id_1', $input['metal_id'])->pluck('Metal_id_2')->values();
         $data = collect();
-        foreach($metal_list as $metal){
-            foreach($metal_compatibility as $compability){
-                if($metal == $compability){
-                    $temp = DB::table('metal')->where('id',$metal)->first();
-                    $temp->created = Carbon::parse($temp->created)->format('H:i:s d/m/Y');
+        foreach ($metal_list as $metal1) {
+            foreach ($metal_compatibility as $compability) {
+                if ($metal1 == $compability) {
+                    $temp = DB::table('model_metal')->where('model_id', $input['model_id'])->where('metal_id', $metal1)->first();
+                    $temp->metal = DB::table('metal')->where('id', $metal1)->first();
+                    if ($temp->metal->deactivated) {
+                        continue;
+                    }
+                    $temp->metal->imageUrl = $OGurl . $url . $temp->metal->id . "/" . $temp->metal->imageUrl;
+                    $temp->metal->created = Carbon::parse($temp->metal->created)->format('H:i:s d/m/Y');
+                    unset($temp->metal_id);
+                    unset($temp->model_id);
+                    unset($temp->id);
                     $data->push($temp);
                 }
             }

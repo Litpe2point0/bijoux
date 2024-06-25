@@ -9,40 +9,29 @@ import {
   CFormLabel,
   CFormCheck
 } from '@coreui/react'
-import { } from "../../../api/accounts/Account_Api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import DateTimePicker from "../../component_items/DatePicker/DateTimePicker";
+import { CustomerPageContext } from "../Customer_Page";
+import { account_set_deactivate, account_update, get_account_list } from "../../../api/main/accounts/Account_api";
 
 
-const CustomForm = ({account, handleTableChange, onClose}) => {
+const CustomForm = ({ account, onClose }) => {
   const dispatch = useDispatch();
+  const { handleDataChange } = useContext(CustomerPageContext);
+
+
   const [validated, setValidated] = useState(false)
   const [disabled, setDisabled] = useState(false);
-  // const [imageFile, setImageFile] = useState(null);
+  const dobDefaultValue= convertDateToYYYYMMDD(account.dob)
   const [imageBase64, setImageBase64] = useState(null);
 
+  
 
-  const roles = (
-    [
-      {
-        id: 1,
-        name: 'Saler',
-      },
-      {
-        id: 2,
-        name: 'Designer',
-      },
-      {
-        id: 3,
-        name: 'Productioner',
-      }
-
-    ]);
-  const [selectedRole, setSelectedRole] = useState(roles[0]);
+  
+  const [selectedRole, setSelectedRole] = useState(account.role);
 
   const fullname = useRef();
   const dob = useRef();
@@ -53,14 +42,11 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
   const password = useRef();
 
 
-  const empty_input = () => {
-    add_name.current.value = "";
-    add_price.current.value = "";
-    add_quantity.current.value = "";
-    setImageBase64(null);
-    setImageFile(null)
-
+  function convertDateToYYYYMMDD(dateString) {
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
   }
+
   const handleSingleFileBase64 = (base64) => {
     setImageBase64(base64)
     console.log(base64)
@@ -76,46 +62,60 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
     } else if (form.checkValidity() === true) {
 
       const new_account = {
+        id: account.id,
         username: username.current.value,
-        password: password.current.value,
-        image : imageBase64,
+        password: password.current.value ? password.current.value : null,
+        imageUrl: imageBase64,
         dob: dob.current.value,
         email: email.current.value,
         fullname: fullname.current.value,
-        role_id: selectedRole.id,
+        role: selectedRole,
         phone: phone.current.value,
         address: address.current.value
       }
 
-      console.log("add account", new_account)
+      console.log("new_account", new_account)
 
       const formData = new FormData();
       formData.append('new_account', JSON.stringify(new_account));
-      let response = await register(formData);
-      let mess = '';
-      let mess_color = '';
 
+      let response = await account_update(formData, 'Account ID ' + account.id);
+      // let mess = '';
+      // let mess_color = '';
+      
       if (response.success) {
-        mess = response.success
-        handleTableChange();
+        //mess = response.success
+        handleDataChange();
         onClose();
         setValidated(false)
-        mess_color = 'success'
-      } else if (response.error) {
-        mess = response.error;
-        mess_color = 'danger'
-      }
-      let product = {
-        id: response.new_product_id,
-      }
+        //mess_color = 'success'
+      } 
+      //await get_account_list(formData);
+      //handleDataChange();
 
-      dispatch(setToast({ color: mess_color, title: 'Product id ' + product.id, mess: mess }))
 
+      dispatch(setToast(response.mess))
+
+      //onClose()
     }
 
     setDisabled(false)
   }
+  const handleActivate = async (new_activate) => {
+    const deactivate= {
+        account_id: account.id,
+        deactivate: new_activate 
+    }
+    const formData = new FormData();
+    formData.append('deactivate', JSON.stringify(deactivate));
+    const response= await account_set_deactivate(formData, 'Account ID ' + account.id);
 
+    handleDataChange();
+
+    dispatch(setToast(response.mess))
+
+    onClose();
+  }
   return (
     <CForm
       className="row g-3 needs-validation"
@@ -124,7 +124,7 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
       onSubmit={handleSubmit}
 
     >
-      
+
 
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom01">Full Name</CFormLabel>
@@ -133,7 +133,7 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Date Of Birth</CFormLabel>
-        <CFormInput type="date" id="validationCustom02" defaultValue={account.dob} ref={dob} required />
+        <CFormInput type="date" id="validationCustom02" defaultValue={dobDefaultValue} ref={dob} required />
         {/* <DateTimePicker ref={dob} required/> */}
         <CFormFeedback valid>Looks good!</CFormFeedback>
       </CCol>
@@ -154,30 +154,36 @@ const CustomForm = ({account, handleTableChange, onClose}) => {
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Username</CFormLabel>
-        <CFormInput type="text" id="validationCustom02" defaultValue={account.username} ref={username} required disabled/>
+        <CFormInput type="text" id="validationCustom02" defaultValue={account.username} ref={username} required disabled />
         <CFormFeedback valid>Looks good!</CFormFeedback>
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Password (default: 123)</CFormLabel>
-        <CFormInput type="text" id="validationCustom02" defaultValue={account.password} ref={password} required />
+        <CFormInput type="text" id="validationCustom02" ref={password} />
         <CFormFeedback valid>Looks good!</CFormFeedback>
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Avatar</CFormLabel>
-        <AvatarUpload defualtImage={'http://127.0.0.1:8000/image/Accounts/unknown.jpg'} handleSingleFileBase64={handleSingleFileBase64} />
+        <AvatarUpload defualtImage={account.imageUrl} handleSingleFileBase64={handleSingleFileBase64} />
       </CCol>
-      <CCol xs={12} className="d-flex justify-content-center">
-        <CButton color="success" type="submit" disabled={disabled}>
-          Confirm add
+      <CCol xs={12} className="d-flex justify-content-center align-items-center">
+        
+        <CButton className="mx-2" color={account.deactivated == 0 ? "danger" : "info"} value={account.deactivated == 0 ? 1 : 0} onClick={(e) => handleActivate(e.target.value)}  >
+          {account.deactivated == 0 ? 'Deactivate' : 'Activate'}
         </CButton>
+        |
+        <CButton className="mx-2" color="success" type="submit" disabled={disabled}>
+          Confirm Update
+        </CButton>
+
       </CCol>
     </CForm>
   )
 }
 
-const CustomerUpdate = ({account, handleTableChange, onClose }) => {
+const CustomerUpdate = ({ account, onClose }) => {
   return (
-    <CustomForm account={account} handleTableChange={handleTableChange} onClose={onClose} />
+    <CustomForm account={account} onClose={onClose} />
   );
 };
 

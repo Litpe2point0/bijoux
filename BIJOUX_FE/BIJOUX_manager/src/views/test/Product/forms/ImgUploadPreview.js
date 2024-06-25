@@ -35,21 +35,7 @@ export default function ImgUploadPreview({ handleFileUpload, handleFileBase64 })
         }
         console.log('new url,', newUrls)
         setUrls([...newUrls]);
-        // for (let i = 0; i < files.length; i++) {
-        //     const file = files[i];
-        //     const reader = new FileReader();
-
-        //     reader.onloadend = () => {
-        //         const base64 = reader.result;
-        //         handleFileBase64(base64);
-        //         newUrls.push(base64);
-        //         if (newUrls.length === files.length) {
-        //             setUrls((prevUrls) => [...prevUrls, ...newUrls]);
-        //         }
-        //     };
-
-        //     reader.readAsDataURL(file);
-        // }
+        
     };
     
     const handleFileChange = (event) => {

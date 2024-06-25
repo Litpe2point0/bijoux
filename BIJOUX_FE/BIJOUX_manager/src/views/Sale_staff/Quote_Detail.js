@@ -38,14 +38,16 @@ import Textarea from '@mui/joy/Textarea';
 import AccountCard from "./Quote widget/AccountCard";
 import QuoteDetailCard from "./Quote widget/QuoteDetailCard";
 import NoteCard from "./Quote widget/NoteCard";
-import MetalCard from "./Quote widget/MetalCard";
-import DiamondCard from "./Quote widget/DiamondCard";
+import MetalCard from "./Modal_body/model/widget/MetalCard";
+import DiamondCard from "./Modal_body/model/widget/DiamondCard";
 import UploadSingle from "./Quote widget/UploadSingle";
 import OtherCard from "./Quote widget/OtherCard";
 import PriceCard from "./Quote widget/PriceCard";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../redux/notification/toastSlice";
-import { get_account_list } from "../../api/accounts/Account_Api";
+import { get_account_list } from "../../api/main/accounts/Account_api";
+import { get_quote_detail, pricing_quote } from "../../api/main/orders/Quote_api";
+import { get_mounting_type_list } from "../../api/main/items/Model_api";
 
 
 const quote_detail_data = {
@@ -196,7 +198,7 @@ const quote_detail_data = {
             "name": "Custom"
         },
         "product_price": 0,
-        "production_price":0,
+        "production_price": 0,
         "profit_rate": 0,
         "sale_staff": {
             "id": 2,
@@ -267,8 +269,10 @@ const mounting_type = [
 
 
 const Quote_Detail = () => {
-    const navigate= useNavigate();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
+    const index = useParams();
+
     const [quote, setQuote] = useState(null);
     const [account, setAccount] = useState(null);
     const [product, setProduct] = useState(null);
@@ -307,37 +311,47 @@ const Quote_Detail = () => {
         console.log('mounting_type id', type_id)
         console.log('mounting_size', mounting_size)
         setTypeId(type_id);
-        setSize(mounting_size);
+        setSize(mounting_size > 0 ? mounting_size : 0);
     }
     const handlePrice = (profit_rate, production_price) => {
         console.log('profit rate', profit_rate)
         console.log('production price', production_price)
         setProfitRate(profit_rate);
-        setProductionPrice(isNaN(production_price) ? 0 : production_price);
+        setProductionPrice(production_price > 0 ? production_price : 0);
     }
 
 
-    const url_param = useParams();
 
     useEffect(() => {
         const setAttribute = async () => {
-            await get_account_list();
-            const quote_id = url_param.id;
-            
-            
-            const quote_detail = quote_detail_data.quote_detail;
-            if(quote_detail.quote_status.id !== 2){
-                dispatch(setToast({ color: "danger", title: 'Quote [ID: #' + quote_detail.id+']' , mess: "This quote is not in pricing process" }))
+
+            const formData = new FormData();
+            formData.append('quote_id', index.id);
+            const detail_data = await get_quote_detail(formData);
+            const quote_detail = detail_data.data.quote_detail;
+
+
+
+            if (quote_detail.quote_status.id !== 2) {
+                dispatch(setToast({ color: "danger", title: 'Quote [ID: #' + quote_detail.id + ']', mess: "This quote is not in pricing process" }))
                 navigate('/quotes_sale_staff/table')
-            } 
-            
+            }
+
+
+
             setQuote(quote_detail)
             setAccount(quote_detail.account)
             setProduct(quote_detail.product)
-            setMountingType(mounting_type)
+
+
+            const mounting_type_list = await get_mounting_type_list();
+            //const quote_detail = detail_data.data.quote_detail;
+            setMountingType(mounting_type_list.data)
+
+
             setImageBase64(quote_detail.product.imageUrl)
             setTypeId(quote_detail.product.mounting_type ? quote_detail.product.mounting_type.id : null)
-            setSize(quote_detail.product.mounting_size )
+            setSize(quote_detail.product.mounting_size)
             setNote(quote_detail.note)
 
             setLoading(false)
@@ -347,36 +361,48 @@ const Quote_Detail = () => {
 
     }, [])
     useEffect(() => {
-        const total = (parseFloat(productionPrice)  + (metalList.reduce((total, item) => total + item.price, 0) + diamondList.reduce((total, item) => total + item.price, 0)) * (profitRate+100) / 100).toFixed(2);
+        const total = (parseFloat(productionPrice) + (metalList.reduce((total, item) => total + item.price, 0) + diamondList.reduce((total, item) => total + item.price, 0)) * (profitRate + 100) / 100).toFixed(2);
         console.log('Total', total)
         setTotalPrice(parseFloat(total));
     }, [profitRate, productionPrice, metalList, diamondList])
 
 
     const handleReport = async () => {
-        await get_account_list()
-        const report = {
+        //await get_account_list()
+        const priced_quote = {
             "quote_id": quote.id,
-            "imageUrl": imageBase64.includes('unknown.jpg') ? null : imageBase64,
             "mounting_type_id": isNaN(typeId) ? null : typeId,
             "mounting_size": isNaN(size) ? null : size,
-            "metal_list": metalList,
+            "imageUrl": imageBase64.includes('unknown.jpg') ? null : imageBase64,
             "diamond_list": diamondList,
+            "metal_list": metalList,
             "production_price": productionPrice,
             "profit_rate": profitRate,
             "note": note.trim(),
-            "total": totalPrice,
+            "total_price": totalPrice,
 
         }
-        console.log('report', report)
+        console.log('priced_quote', priced_quote)
+        const formData = new FormData();
+        formData.append('priced_quote', JSON.stringify(priced_quote));
+
+
+        let response = await pricing_quote(formData, 'Quote ID ' + quote.id);
+
+        if (response.success) {
+            navigate('/quotes_sale_staff/table')
+        }
+        dispatch(setToast(response.mess))
         // set toast
-        navigate('/quotes_sale_staff/table')
+        //dispatch(setToast({ color: "success", title: 'Quote [ID: #' + quote.id + ']', mess: "Pricing successfully !" }))
+
+
     }
     return (
         <div>
             <CRow>
                 <CCol xs={12}>
-                    {quote == null ? <CButton className="w-100" color="secondary" disabled>
+                    {loading ? <CButton className="w-100" color="secondary" disabled>
                         <CSpinner as="span" size="sm" aria-hidden="true" />
                         Loading...
                     </CButton> :
@@ -388,10 +414,10 @@ const Quote_Detail = () => {
 
                                 <CRow >
                                     <CCol className="d-flex flex-column " xs={12} md={7} lg={7} >
-                                        
-                                        <AccountCard account={account} avatarSize={130} cardHeight={'120px'}/>
+
+                                        <AccountCard account={account} avatarSize={130} cardHeight={'120px'} />
                                         <div className="flex-grow-1">
-                                        <NoteCard handleChange={handleNote} note={note} />
+                                            <NoteCard handleChange={handleNote} note={note} />
 
                                         </div>
                                     </CCol>

@@ -10,11 +10,10 @@ import {
     CRow,
     CSpinner
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import DateTimePicker from "../../component_items/DatePicker/DateTimePicker";
 import AccountCard from "../Quote widget/AccountCard";
@@ -23,12 +22,15 @@ import NoteCard from "../Quote widget/NoteCard";
 import AssignCard from "../Quote widget/AssignCard";
 import { useNavigate } from "react-router-dom";
 import { queue } from "jquery";
+import { QuotePageContext } from "../Quote_Page";
+import { cancel_quote } from "../../../api/main/orders/Quote_api";
 
 
 
-const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
+const CustomForm = ({ quoteInfo, onClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { handleDataChange } = useContext(QuotePageContext);   
 
     const [loading, setLoading] = useState(true);
 
@@ -65,28 +67,18 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
             console.log('cancel quote', cancel)
             const formData = new FormData();
             formData.append('cancel', JSON.stringify(cancel));
+            
 
-            await get_account_list();
-            // let mess = '';
-            // let mess_color = '';
 
-            // if (response.success) {
-            //     mess = response.success
-            //     handleTableChange();
-            //     onClose();
-            //     setValidated(false)
-            //     mess_color = 'success'
-            // } else if (response.error) {
-            //     mess = response.error;
-            //     mess_color = 'danger'
-            // }
-            // let product = {
-            //     id: response.new_product_id,
-            // }
+            let response = await cancel_quote(formData, 'Quote ID ' + quoteInfo.id);
 
-            dispatch(setToast({ color: 'success', title: 'Quote id ' + quoteInfo.id, mess: "Cancel successfully !" }))
-            onClose();
+            if (response.success) {
+                handleDataChange();
+                onClose();
+            }
+            dispatch(setToast(response.mess))
 
+            
 
         }
 
@@ -115,9 +107,9 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
     )
 }
 
-const QuoteCancel = ({ quote, handleTableChange, onClose }) => {
+const QuoteCancel = ({ quote, onClose }) => {
     return (
-        <CustomForm quoteInfo={quote} handleTableChange={handleTableChange} onClose={onClose} />
+        <CustomForm quoteInfo={quote}  onClose={onClose} />
     );
 };
 

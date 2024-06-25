@@ -22,6 +22,9 @@ export default function AvatarUpload({ handleSingleFileBase64 , defualtImage }) 
         handleSingleFileBase64(files.base64);
         setUrl(files.base64);
     };
+    useEffect(()=>{
+        setUrl(defualtImage)
+    },[defualtImage])
     
     
    

@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { getUserFromToken, login } from "../../../api/login/LoginApi";
+import { getUserFromToken, login } from "../../../api/main/accounts/Login";
 import { Link, useNavigate } from 'react-router-dom'
 import { setAuthToken } from "../../../redux/auth/authSlice";
 import { useCallback } from "react";
@@ -13,8 +13,6 @@ const save_login = (dispatch,token, user) => {
     const saveInfo = {
         token: token,
         user: user,
-        //token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNjA5NDU5MjAwLCJleHAiOjE3MDAwMDAwMDB9.-hpZsJmY7MhbyY1fbC0O_t_PYfKkZZKq7MD_LhERm8k",
-        //user: getUserFromToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNjA5NDU5MjAwLCJleHAiOjE3MDAwMDAwMDB9.-hpZsJmY7MhbyY1fbC0O_t_PYfKkZZKq7MD_LhERm8k"),
     };
 
     dispatch(setAuthToken(saveInfo))

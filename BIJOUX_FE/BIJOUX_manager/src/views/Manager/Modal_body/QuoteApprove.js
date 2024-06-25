@@ -14,11 +14,10 @@ import {
     CCardBody,
     CPlaceholder
 } from '@coreui/react'
-import { get_account_list } from "../../../api/accounts/Account_Api";
+import { get_account_list } from "../../../api/main/accounts/Account_api";
 import AvatarUpload from "../../component_items/ImageUploader/AvatarUpload";
 import { useDispatch } from "react-redux";
 import { setToast } from "../../../redux/notification/toastSlice";
-import { Staff_Page_Context } from "../Staff_Page";
 import { FaUserCheck } from "react-icons/fa";
 import DateTimePicker from "../../component_items/DatePicker/DateTimePicker";
 import AccountCard from "../Quote widget/AccountCard";
@@ -29,10 +28,13 @@ import { useNavigate } from "react-router-dom";
 import ListItemDecorator from "@mui/joy/ListItemDecorator";
 import AvatarInput from "../../component_items/Avatar/Avatar";
 import { get } from "jquery";
-import MetalCard from "../../Sale_staff/Quote widget/MetalCard";
-import DiamondCard from "../../Sale_staff/Quote widget/DiamondCard";
+import MetalCard from "../../Sale_staff/Modal_body/model/widget/MetalCard";
+import DiamondCard from "../../Sale_staff/Modal_body/model/widget/DiamondCard";
 import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextareaAutosize } from "@mui/material";
 import QuoteProductImage from "../Quote widget/QuoteProductImage";
+import { QuotePageContext } from "../Quote_Page";
+import { QuotePriceContext } from "../Quote_Price";
+import { approve_quote, get_quote_detail } from "../../../api/main/orders/Quote_api";
 
 
 
@@ -404,13 +406,15 @@ const quote_detail_data = {
 }
 
 
-const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
+const CustomForm = ({ quoteInfo, onClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { handleDataChange } = useContext(QuotePriceContext);
+
 
     const [loading, setLoading] = useState(true);
 
-    
+
 
     const [quote, setQuote] = useState(null)
     const [product, setProduct] = useState(null)
@@ -424,19 +428,16 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
     const [diamondList, setDiamondList] = useState([])
     const [note, setNote] = useState(null);
 
-    // const [approve, setApprove] = useState(null);
     useEffect(() => {
         const setAttribute = async () => {
 
-            await get_account_list();
-            //console.log("quote", quoteInfo)
-            // gọi api lấy quote detail từ quoteInfo.id 
-            const quote_detail = quote_detail_data.quote_detail
+            const formData = new FormData();
+            formData.append('quote_id', quoteInfo.id);
+            const detail_data = await get_quote_detail(formData);
+            const quote_detail = detail_data.data.quote_detail;
+
             setQuote(quote_detail)
             setProduct(quote_detail.product)
-            console.log('quote_detail.product', quote_detail.product)
-
-            
 
 
             setSaleStaff(quote_detail.sale_staff);
@@ -460,38 +461,29 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
     }
 
     const handleSubmit = async (approve) => {
-       
-            
-            const approval = {
-                quote_id: quote.id,
-                approve: approve,
-                note: note
-            }
-            console.log('approval', approval)
-            const formData = new FormData();
-            formData.append('approval', JSON.stringify(approval));
 
-            await get_account_list();
-            // let mess = '';
-            // let mess_color = '';
 
-            // if (response.success) {
-            //     mess = response.success
-            //     handleTableChange();
-            //     onClose();
-            //     mess_color = 'success'
-            // } else if (response.error) {
-            //     mess = response.error;
-            //     mess_color = 'danger'
-            // }
-            // let product = {
-            //     id: response.new_product_id,
-            // }
+        const approval = {
+            quote_id: quote.id,
+            approve: approve,
+            note: note
+        }
+        console.log('approval', approval)
+        const formData = new FormData();
+        formData.append('approval', JSON.stringify(approval));
 
-            dispatch(setToast({ color: 'success', title: 'Quote id ' + quote.id, mess: "Approve successfully !" }))
+        await get_account_list();
+
+        let response = await approve_quote(formData, 'Quote ID ' + quote.id);
+
+        if (response.success) {
+            handleDataChange();
             onClose();
-           
+        }
+        dispatch(setToast(response.mess))
         
+
+
 
     }
 
@@ -534,7 +526,7 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
                                             <span style={{ fontSize: '15px' }}>Mounting Type: </span>
                                         </CCol>
                                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={product.mounting_type.name} />
+                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={product.mounting_type ? product.mounting_type.name : "No Specific Type"} />
                                         </CCol>
                                     </CRow>
                                     <CRow>
@@ -563,12 +555,6 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
 
                                 </CCardBody>
                             </CCard>
-                            {/* <span className="text-light fw-bold fs-5 text-center">PRODUCT IMAGE</span>
-
-                            <QuoteProductImage defaultImage={product.imageUrl} disabled={true} /> */}
-
-
-
                         </div>
 
 
@@ -674,6 +660,7 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
                                                     <ListItemText className="text-dark w-25" primary='Origin' secondary={item.diamond.diamond_origin.name} />
                                                     <ListItemText className="text-dark w-25" primary='Color' secondary={item.diamond.diamond_color.name} />
                                                     <ListItemText className="text-dark w-25" primary='Clarity' secondary={item.diamond.diamond_clarity.name} />
+                                                    <ListItemText className="text-dark w-25" primary='Cut' secondary={item.diamond.diamond_cut.name} />
                                                     <ListItemText className="text-dark w-25" primary='Count' secondary={item.count} />
                                                     <ListItemText className="text-dark w-25" primary='Total Price' secondary={item.price + ' vnd'} />
                                                     {diamondList.length == 0 &&
@@ -750,11 +737,11 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
                         </div>
                     </CCol>
                     <CCol xs={12} className="d-flex justify-content-center align-items-center">
-                        <CButton  className="mx-2" color="danger" onClick={()=>handleSubmit(false)}  >
+                        <CButton className="mx-2" color="danger" onClick={() => handleSubmit(false)}  >
                             Decline
                         </CButton>
                         |
-                        <CButton  className="mx-2" color="success" onClick={(e)=>handleSubmit(true)}  >
+                        <CButton className="mx-2" color="success" onClick={(e) => handleSubmit(true)}  >
                             Approve
                         </CButton>
 
@@ -764,9 +751,9 @@ const CustomForm = ({ quoteInfo, handleTableChange, onClose }) => {
     )
 }
 
-const QuoteApprove = ({ quote, handleTableChange, onClose }) => {
+const QuoteApprove = ({ quote, onClose }) => {
     return (
-        <CustomForm quoteInfo={quote}  handleTableChange={handleTableChange} onClose={onClose} />
+        <CustomForm quoteInfo={quote} onClose={onClose} />
     );
 };
 

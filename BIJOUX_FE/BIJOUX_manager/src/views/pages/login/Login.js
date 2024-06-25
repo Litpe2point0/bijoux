@@ -19,7 +19,7 @@ import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import * as jwtDecode from 'jwt-decode';
 
-import {login, getUserFromToken } from '../../../api/login/LoginApi'
+import {login, getUserFromToken } from '../../../api/main/accounts/Login'
 import { useDispatch, useSelector } from 'react-redux'
 import { setAuthToken } from '../../../redux/auth/authSlice'
 import {  proccess_login, useLogin } from './proccesslogin'
@@ -36,31 +36,6 @@ const Login = () => {
   
   const auth = useSelector((state) => state.auth);
   
-  // useEffect(() => {
-  //   const handleStorageChange = () => {
-  //     const token = getTokenFromPersist();
-  //     const user = getUserFromPersist();
-  //     if (!token) {
-  //       //alert("trong use handleStorageChange trong login js")
-  //       navigate('/login_test');
-  //     }else{
-  //       //alert("đang navigate sang dashboard")
-  //       const saveInfo = {
-  //         token: token,
-  //         user: user,
-  //       };
-
-  //       dispatch(setAuthToken(saveInfo))
-  //       navigate('/dashboard');
-  //     } 
-  //   };
-
-  //   window.addEventListener('storage', handleStorageChange);
-
-  //   return () => {
-  //     window.removeEventListener('storage', handleStorageChange);
-  //   };
-  // }, []);
 
 const [validated, setValidated] = useState(false)
 
