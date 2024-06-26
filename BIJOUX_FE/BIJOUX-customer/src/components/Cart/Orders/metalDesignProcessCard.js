@@ -7,9 +7,7 @@ const CurrencyFormatter = ({ value }) => {
 };
 
 export default function MetalDesignProcessCard({ metal, status }) {
-
-
-
+    if (!metal || metal === undefined) return null;
     return (
         <div className='w-full flex justify-center items-center border border-black rounded-md mt-5'>
             <div className='w-[40px] h-full flex md:items-center justify-center xs:items-start'>
