@@ -378,7 +378,7 @@ const Quote_Detail = () => {
             "metal_list": metalList,
             "production_price": productionPrice,
             "profit_rate": profitRate,
-            "note": note.trim(),
+            "note": note !=  null ? note.trim() : '',
             "total_price": totalPrice,
 
         }

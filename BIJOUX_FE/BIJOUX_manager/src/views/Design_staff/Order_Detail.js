@@ -426,7 +426,7 @@ const Order_Detail = () => {
         const new_design_process = {
             "order_id": order.id,
             "imageUrl": imageBase64 ? imageBase64 : null,
-            "note": note.trim(),
+            "note": note !=  null ? note.trim() : '',
             "mounting_type_id": isNaN(typeId) ? null : typeId,
             "mounting_size": isNaN(size) ? null : size,
             "metal_list": metalList,

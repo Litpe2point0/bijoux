@@ -34,7 +34,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
 
     const [loading, setLoading] = useState(true);
 
-    const [note, setNote] = useState(null);
+    const [note, setNote] = useState('');
 
     useEffect(() => {
         const setAttribute = async () => {
@@ -62,7 +62,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
 
             const cancel = {
                 quote_id: quoteInfo.id,
-                note: note.trim()
+                note: note !=  null ? note.trim() : ''
             }
             console.log('cancel quote', cancel)
             const formData = new FormData();
