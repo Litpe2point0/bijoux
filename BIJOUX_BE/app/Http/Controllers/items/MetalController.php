@@ -90,7 +90,7 @@ class MetalController extends Controller
             ]);
             $data = [];
             foreach ($product_metal as $product) {
-                $temp1 = DB::table('orders')->where('product_id', $product->id)->first();
+                $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
                 if($temp1 != null){
                     if($temp1->order_status_id >= 3){
                         continue;
@@ -151,6 +151,12 @@ class MetalController extends Controller
             DB::table('product_metal')->insert($data);
             //loop to update metal price in order and quote
             foreach ($product_metal as $product) {
+                $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
+                if($temp1 != null){
+                    if($temp1->order_status_id >= 3){
+                        continue;
+                    }
+                }
                 $order =  DB::table('orders')->where('product_id', $product->product_id)->first();
                 //check if order exist
                 if ($order != null) {

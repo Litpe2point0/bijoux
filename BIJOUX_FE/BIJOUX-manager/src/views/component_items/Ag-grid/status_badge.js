@@ -119,6 +119,16 @@ export const order_status_creator = (status) => {
             <CCard
                 textColor="light"
                 style={{ width: '100%' }}
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-dark `}>
+                {status.name}
+            </CCard>
+        )
+    }
+    if (status.id == 7) {
+        return (
+            <CCard
+                textColor="light"
+                style={{ width: '100%' }}
                 className={` text-center px-2 fw-bold rounded-pill px-1 bg-danger `}>
                 {status.name}
             </CCard>

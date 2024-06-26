@@ -165,7 +165,7 @@ class DiamondController extends Controller
             ]);
             $data = [];
             foreach ($product_diamond as $product) {
-                $temp1 = DB::table('orders')->where('product_id', $product->id)->first();
+                $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
                 if($temp1 != null){
                     if($temp1->order_status_id >= 3){
                         continue;
@@ -226,6 +226,12 @@ class DiamondController extends Controller
             DB::table('product_diamond')->insert($data);
             //loop to update diamond price in order and quote
             foreach ($product_diamond as $product) {
+                $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
+                if($temp1 != null){
+                    if($temp1->order_status_id >= 3){
+                        continue;
+                    }
+                }
                 $order =  DB::table('orders')->where('product_id', $product->product_id)->first();
                 //check if order exist
                 if ($order != null) {

@@ -27,7 +27,7 @@ class OrderController extends Controller
 {
     public function get_order_list_admin()
     {
-        $customize_order_list = DB::table('orders')->orderBy('order_status_id', 'asc')->get();
+        $customize_order_list = DB::table('orders')->where('order_type_id',2)->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -54,7 +54,7 @@ class OrderController extends Controller
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
             return $order;
         });
-        $template_order_list = DB::table('orders')->orderBy('order_status_id', 'asc')->get();
+        $template_order_list = DB::table('orders')->where('order_type_id',1)->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -2572,11 +2572,11 @@ class OrderController extends Controller
             ], 403);
         }
         if ($order->order_status_id == 1) {
-            $amount = $order->total_price / 2 - $order->deposit_has_paid;
+            $amount = ceil(($order->total_price / 2) - $order->deposit_has_paid);
             $payment_type_id = 1;
             $description = "Deposit";
         } else if ($order->order_status_id == 4) {
-            $amount = $order->total_price - $order->deposit_has_paid;
+            $amount = ceil(($order->total_price) - $order->deposit_has_paid);
             $payment_type_id = 2;
             $description = "Payment";
         } else {
@@ -2597,7 +2597,6 @@ class OrderController extends Controller
             "cancelUrl" => $input['cancel_url'],
         ];
         try {
-            DB::beginTransaction();
             DB::table('payment')->insert([
                 'id' => $data['orderCode'],
                 'account_id' => $order->account_id,
@@ -2608,11 +2607,10 @@ class OrderController extends Controller
                 'created' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
             $response = $payOS->createPaymentLink($data);
-            DB::commit();
             return response()->json([
                 'payment_link' => $response['checkoutUrl']
             ]);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             return $th->getMessage();
         }
@@ -2708,7 +2706,7 @@ class OrderController extends Controller
             'success' => 'Transaction Complete'
         ], 200);
     }
-    public function generatePDF($orderCode = 1)
+    public function generatePDF($orderCode)
     {
         $payment = DB::table('payment')->where('id', $orderCode)->first();
         $account = DB::table('account')->where('id', $payment->account_id)->first();
@@ -2758,7 +2756,7 @@ class OrderController extends Controller
         $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
         File::put($filePath, $content);
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
-        $this->sendMail("bachdxse182030@fpt.edu.vn", $messageContent, 'Payment Invoice', $filePath);
+        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
     }
     function formatCurrency($amount)
     {
