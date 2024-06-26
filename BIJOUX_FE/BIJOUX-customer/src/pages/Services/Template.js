@@ -7,24 +7,25 @@ import CompleteJewelry from "./TemplateStep/CompleteJewelry";
 import { useLocation } from "react-router-dom";
 import { Button, ButtonGroup } from "@mui/material";
 import { CgSpinner } from "react-icons/cg";
+import { get_mounting_type_list } from "../../api/main/items/Model_api";
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
-const mountingTypes = [
-    {
-        id: 1,
-        name: "Ring",
-    },
-    {
-        id: 2,
-        name: "Band",
-    },
-    {
-        id: 3,
-        name: "Pendant",
-    },
-];
+// const mountingTypes = [
+//     {
+//         id: 1,
+//         name: "Ring",
+//     },
+//     {
+//         id: 2,
+//         name: "Band",
+//     },
+//     {
+//         id: 3,
+//         name: "Pendant",
+//     },
+// ];
 export default function Template() {
 
     const query = useQuery();
@@ -53,8 +54,9 @@ export default function Template() {
                 window.location.href = "/services";
             }
             //gọi lấy mounting_type để filterr
+            const mountingTypes = await get_mounting_type_list();
 
-            const mountingType = mountingTypes.filter(item => item.id == parseInt(mountingTypeQuery))[0];
+            const mountingType = mountingTypes.data.filter(item => item.id == parseInt(mountingTypeQuery))[0];
             const mountingType_storage = JSON.parse(localStorage.getItem("mountingType"));
 
             if (mountingType == null || (mountingType_storage && mountingType_storage.id != mountingType.id)) {

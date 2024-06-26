@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { Link, useNavigate } from "react-router-dom";
-import { logoLight } from "../../assets/images";
+import { loginLogo2 } from "../../assets/images";
 import LoginByGoogle from "./LoginByGoogle";
 import { setAuthToken } from "../../redux/auth/authSlice";
 
 
-export const save_login = (dispatch,token, user) => {
-    
-    const saveInfo = {
-        token: token,
-        user: user,
-    };
+export const save_login = (dispatch, token, user) => {
 
-    dispatch(setAuthToken(saveInfo))
+  const saveInfo = {
+    token: token,
+    user: user,
+  };
+
+  dispatch(setAuthToken(saveInfo))
 }
 
 const Login = () => {
@@ -56,7 +56,7 @@ const Login = () => {
   //     setPassword("");
   //   }
   // };
-  const navigate= useNavigate();
+  const navigate = useNavigate();
   const handleSignUp = (e) => {
     e.preventDefault();
 
@@ -64,10 +64,10 @@ const Login = () => {
   };
   return (
     <div className="w-full h-screen flex items-center justify-center">
-      {/* <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
+      <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
         <div className="w-[450px] h-full bg-primeColor px-10 flex flex-col gap-6 justify-center">
           <Link to="/">
-            <img src={logoLight} alt="logoImg" className="w-28" />
+            <img src={loginLogo2} alt="logoImg" className="w-48" />
           </Link>
           <div className="flex flex-col gap-1 -mt-1">
             <h1 className="font-titleFont text-xl font-medium">
@@ -81,11 +81,10 @@ const Login = () => {
             </span>
             <p className="text-base text-gray-300">
               <span className="text-white font-semibold font-titleFont">
-                Get started fast with OREBI
+                Get started fast with BIJOUX
               </span>
               <br />
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
-              nisi dolor recusandae consectetur!
+              BIJOUX offers bespoke jewelry crafting services with the utmost professionalism and convenience for our esteemed customers.
             </p>
           </div>
           <div className="w-[300px] flex items-start gap-3">
@@ -94,11 +93,10 @@ const Login = () => {
             </span>
             <p className="text-base text-gray-300">
               <span className="text-white font-semibold font-titleFont">
-                Access all OREBI services
+                Access all BIJOUX services
               </span>
               <br />
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
-              nisi dolor recusandae consectetur!
+              Experience our array of jewelry crafting services, including custom designs based on templates or the creation of unique pieces from your own inspirations.
             </p>
           </div>
           <div className="w-[300px] flex items-start gap-3">
@@ -110,14 +108,13 @@ const Login = () => {
                 Trusted by online Shoppers
               </span>
               <br />
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
-              nisi dolor recusandae consectetur!
+              Trusted by over 10,000 customers worldwide, BIJOUX stands as a beacon of excellence in the jewelry industry.
             </p>
           </div>
           <div className="flex items-center justify-between mt-10">
             <Link to="/">
               <p className="text-sm font-titleFont font-semibold text-gray-300 hover:text-white cursor-pointer duration-300">
-                © OREBI
+                © BIJOUX
               </p>
             </Link>
             <p className="text-sm font-titleFont font-semibold text-gray-300 hover:text-white cursor-pointer duration-300">
@@ -131,7 +128,7 @@ const Login = () => {
             </p>
           </div>
         </div>
-      </div> */}
+      </div>
       <div className="w-full lgl:w-1/2 h-full">
         {successMsg ? (
           <div className="w-full lgl:w-[500px] h-full flex flex-col justify-center">
@@ -157,7 +154,7 @@ const Login = () => {
                 {/* Email */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Work Email
+                    Email
                   </p>
                   <input
                     onChange={handleEmail}
@@ -200,7 +197,7 @@ const Login = () => {
                 >
                   Sign In
                 </button>
-                  <LoginByGoogle/>
+                <LoginByGoogle />
 
 
                 <p className="text-sm text-center font-titleFont font-medium">

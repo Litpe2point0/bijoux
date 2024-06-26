@@ -17,7 +17,7 @@ function filterArray(arr) {
     arr.forEach(element => {
         lastElements[element.production_status.id] = element;
     });
-    console.log("111",lastElements)
+    console.log("111", lastElements)
 
     const maxId = arr[arr.length - 1].production_status.id;
 
@@ -51,8 +51,8 @@ export default function ManufactureProgress({ order }) {
             setProductionProcessList(filter_process);
 
             setActiveStep(filter_process.length);
-            
-            setLoading(false); 
+
+            setLoading(false);
         }
 
         setAttribute()
@@ -81,44 +81,44 @@ export default function ManufactureProgress({ order }) {
 
     return (
         <div className='w-full flex flex-col items-start'>
-            {loading ?   (
+            {loading ? (
                 <Typography>Loading...</Typography>
             )
-            :
-            (
-                <Box sx={{ maxWidth: 400 }}>
-                    <Stepper activeStep={activeStep} orientation="vertical">
-                        {productionStatusList.map((status, index) => {
-                            const process = productionProcessList.find(pp => pp.production_status.id === status.id);
-                            console.log(process);
-                            return (
-                                <Step key={status.id}>
-                                    <StepLabel>{status.name}</StepLabel>
+                :
+                (
+                    <Box sx={{ maxWidth: 400 }}>
+                        <Stepper activeStep={activeStep} orientation="vertical">
+                            {productionStatusList.map((status, index) => {
+                                const process = productionProcessList.find(pp => pp.production_status.id === status.id);
+                                console.log(process);
+                                return (
+                                    <Step key={status.id}>
+                                        <StepLabel>{status.name}</StepLabel>
 
-                                    {process ? (
-                                        <div>
-                                            <p>Complete on: {process.created}</p>
-                                            <button disabled={process.imageUrl == null}  onClick={() => handleOpen(process.imageUrl)} className={'font-semibold ' + (process.imageUrl ? 'text-sky-500 hover:text-sky-900' : 'text-grey-900')}>View Image</button>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <p>Not yet ...</p>
-                                        </div>
-                                    )}
+                                        {process ? (
+                                            <div>
+                                                <p>Complete on: {process.created}</p>
+                                                <button disabled={process.imageUrl == null} onClick={() => handleOpen(process.imageUrl)} className={'font-semibold ' + (process.imageUrl ? 'text-sky-500 hover:text-sky-900' : 'text-grey-900')}>View Image</button>
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                <p>Not yet ...</p>
+                                            </div>
+                                        )}
 
-                                </Step>
-                            );
-                        })}
-                    </Stepper>
-                </Box>
-            )
-            
+                                    </Step>
+                                );
+                            })}
+                        </Stepper>
+                    </Box>
+                )
+
             }
             <Modal
                 open={open}
                 onClose={handleClose}
             >
-                <div className='w-[450px] h-[450px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
+                <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
                     <img src={imageUrl} alt="Step Image" className='w-full h-full object-cover' />
                 </div>
             </Modal>

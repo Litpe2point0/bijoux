@@ -12,7 +12,9 @@ import './alert.css';
 import { useDispatch } from "react-redux";
 import { save_login } from "../../pages/Account/Login";
 import { getUserFromToken } from "../../api/main/accounts/Login";
-
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
+import { isValidPhoneNumber } from 'react-phone-number-input';
 
 
 export default function ExploreCustomization() {
@@ -27,7 +29,29 @@ export default function ExploreCustomization() {
     const [selectedMountingType, setSelectedMountingType] = useState(null);
     const [idea, setIdea] = useState('');
     const [phoneNumber, setPhoneNumber] = useState(null);
+
+
+    const [errPhone, setErrPhone] = useState();
+    const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(true);
+
+    const handlePhone = (value) => {
+        setPhoneNumber(value);
+        if (value) {
+            const isValid = isValidPhoneNumber(value);
+            setIsPhoneNumberValid(isValid);
+            if (isValid) {
+                setErrPhone("");
+            } else {
+                setErrPhone("Enter a valid phone number");
+            }
+        } else {
+            setIsPhoneNumberValid(true); // Giả sử giá trị trống là hợp lệ
+            setErrPhone("");
+        }
+    };
+
     const [address, setAddress] = useState(null);
+
     useEffect(() => {
         const account = getUserFromPersist();
         // if (!account) {
@@ -57,7 +81,7 @@ export default function ExploreCustomization() {
         const account = getUserFromPersist();
         if (!account) {
             return loginRequiredAlert();
-        }else if (account && (!account.phone || !account.email)) {
+        } else if (account && (!account.phone || !account.email)) {
             setAdditionalInfoShow(true);
         }
         setOpen(true);
@@ -78,7 +102,7 @@ export default function ExploreCustomization() {
             if (!phoneNumber || !address) {
                 setLoadingSubmit(false)
                 return showAlert('error', 'New Phone Number And Address Required', 'Your Account Need To Be Update To Use Our Features');
-                
+
             }
             const new_account = {
                 phone: phoneNumber,
@@ -223,7 +247,17 @@ export default function ExploreCustomization() {
                                     <>
                                         <div className="mb-4 flex flex-col">
                                             <label>Your Phone Number</label>
-                                            <TextField type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+                                            <PhoneInput
+                                                placeholder="Enter phone number"
+                                                value={phoneNumber}
+                                                onChange={handlePhone} />
+
+                                            {errPhone && (
+                                                <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                                                    <span className="font-bold italic mr-1">!</span>
+                                                    {errPhone}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="mb-4 flex flex-col">
                                             <label>Your Address</label>
@@ -237,6 +271,8 @@ export default function ExploreCustomization() {
                                         {loadingSubmit ? 'Loading...' : 'Submit'}
                                     </button>
                                 </div>
+
+                                <p className="text-xs italic text-gray-400">Please make sure that you confirm the correct informations</p>
 
                             </DialogContent>
                         }

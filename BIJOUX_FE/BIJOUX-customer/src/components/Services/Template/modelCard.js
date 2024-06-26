@@ -15,11 +15,11 @@ export default function ChooseMounting({ model }) {
 
 
     return (
-        <div className="md:w-full xs:w-auto hover:border border-black mb-10" onClick={() => handleModelClick(model.id)}>
-            <div className="h-3/4">
+        <div className="md:w-full flex flex-col xs:w-auto hover:border border-black mb-10" onClick={() => handleModelClick(model.id)}>
+            <div className="w-full flex items-center justify-center">
                 {model.imageUrl ? (
                     <img
-                        className="w-full h-full object-cover"
+                        className="md:w-[220px] md:h-[220px] sm:w-[150px] sm:h-[150px] object-cover"
                         alt={model.name}
                         src={model.imageUrl}
                     />
@@ -28,9 +28,9 @@ export default function ChooseMounting({ model }) {
                 )}
 
             </div>
-            <div className="flex justify-start ml-2 mr-2 items-center">
+            <div className="flex w-full justify-start ml-2 mr-2 items-center">
                 {model.name ? (
-                    <p className="font-semibold text-base font-loraFont text-[#151542]">{model.name}</p>
+                    <p className="font-semibold text-base sm:text-sm font-loraFont text-[#151542]">{model.name}</p>
                 ) : (
                     <Skeleton width="100%" height="100%" />
                 )}

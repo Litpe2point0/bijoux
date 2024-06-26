@@ -19,6 +19,8 @@ import diamondImg from "./diamond_waiting_image.jpg"
 import demoFinalMain from "./finalTemplate/main.jpg"
 import demoFinalRelated1 from "./finalTemplate/Related_1.jpg"
 import demoFinalRelated2 from "./finalTemplate/Related_2.jpg"
+import loginLogo from "./login/login_logo.jpg";
+import loginLogo2 from "./login/login_logo2.jpg";
 // ============== Products Start here ====================
 import pdf1 from "../pdf/pdf1.pdf";
 // New Arrivals
@@ -89,6 +91,8 @@ import espson1 from "../images/products/imprimante/espson1.webp";
 import espson2 from "../images/products/imprimante/espson2.webp";
 
 export {
+  loginLogo2,
+  loginLogo,
   demoFinalMain,
   demoFinalRelated1,
   demoFinalRelated2,
