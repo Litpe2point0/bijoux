@@ -7,7 +7,7 @@ import OrderInformations from "../../components/Cart/Orders/orderInformations";
 import ManufactureProgress from "../../components/Cart/Orders/manufactureProgress";
 import DesignProcess from "../../components/Cart/Orders/designProcess";
 import { get_order_detail, get_order_detail_customer } from "../../api/main/orders/Order_api";
-import { instantAlertMaker } from "../../api/instance/axiosInstance";
+import { instantAlertMaker, paymentAlertMaker } from "../../api/instance/axiosInstance";
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -26,9 +26,9 @@ export default function OrderDetails() {
     //call api để lấy order_detail từ id
     useEffect(() => {
         if (query.get("payment_status") == "success") {
-            instantAlertMaker('success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
+            paymentAlertMaker(navigate,'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
         } else if (query.get("payment_status") == "cancel") {
-            instantAlertMaker('error', 'Payment failed', 'Your payment has failed. Please try again!')
+            paymentAlertMaker(navigate,'error', 'Payment failed', 'Your payment has failed. Please try again!')
         }
     }, [query])
     useEffect(() => {
@@ -52,7 +52,7 @@ export default function OrderDetails() {
 
 
     const handleBack = () => {
-        navigate(-1); // Navigate back to the previous page
+        navigate("/cart/order"); // Navigate back to the previous page
     };
 
     const handleChangeContent = (content) => {

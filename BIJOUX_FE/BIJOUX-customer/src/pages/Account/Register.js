@@ -7,7 +7,7 @@ import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber } from 'react-phone-number-input';
 const nonNameWords = ['admin', 'sale', 'designer', 'production', 'manager']
 
-const SignUp = () => {
+const Register = () => {
   // ============= Initial State Start here =============
   const [clientName, setClientName] = useState("");
   const [email, setEmail] = useState("");
@@ -113,7 +113,7 @@ const SignUp = () => {
   };
   // ================= Email Validation End here ===============
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     if (checked) {
       if (!clientName) {
@@ -161,8 +161,20 @@ const SignUp = () => {
         zip
       ) {
         setSuccessMsg(
-          `Hello dear ${clientName}, Welcome you to BIJOUX Admin panel. We received your Sign up request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
+          `Hello dear ${clientName}, Welcome you to BIJOUX Admin panel. We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
         );
+        // const new_account={
+        //   username: clientName,
+        //   password: password,
+        // imageUrl: null,
+        // dob: ,
+        // email,
+        // fullname,
+        // role:{id,name},
+        // phone,
+        // address
+        // }
+        
         setClientName("");
         setEmail("");
         setPhone("");
@@ -260,7 +272,7 @@ const SignUp = () => {
                 className="w-full h-10 bg-primeColor rounded-md text-gray-200 text-base font-titleFont font-semibold 
             tracking-wide hover:bg-black hover:text-white duration-300"
               >
-                Sign in
+                Log in
               </button>
             </Link>
           </div>
@@ -411,7 +423,7 @@ const SignUp = () => {
                   )}
                 </div>
                 {/* Zip code */}
-                <div className="flex flex-col gap-.5">
+                {/* <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
                     Zip/Postal code
                   </p>
@@ -428,7 +440,7 @@ const SignUp = () => {
                       {errZip}
                     </p>
                   )}
-                </div>
+                </div> */}
                 {/* Checkbox */}
                 <div className="flex items-start mdl:items-center gap-2">
                   <input
@@ -455,7 +467,7 @@ const SignUp = () => {
                   Already have an Account?{" "}
                   <Link to="/login">
                     <span className="hover:text-blue-600 duration-300">
-                      Sign in
+                      Log in
                     </span>
                   </Link>
                 </p>
@@ -468,4 +480,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Register;
