@@ -182,13 +182,13 @@ class ModelController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $modelId . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $modelId . '.jpg';
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
 
                 $model->imageUrl = $fileName;
                 $model->save();
             } else {
-                $fileName = time() . '_' . $modelId . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $modelId . '.jpg';
                 $destinationPath = public_path('image/Mounting/mounting_model/' . $modelId);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
@@ -538,7 +538,7 @@ class ModelController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $input['id'] . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $input['id'] . '.jpg';
                 //delete all files in the model directory
                 File::cleanDirectory($destinationPath);
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);

@@ -86,7 +86,7 @@ class MetalController extends Controller
             DB::table('metal')->where('id', $input['metal_id'])->update([
                 'buy_price_per_gram' => $input['buy_price_per_gram'],
                 'sale_price_per_gram' => $input['sale_price_per_gram'],
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
             $data = [];
             foreach ($product_metal as $product) {

@@ -16,7 +16,9 @@ class CorsMiddleware
     protected $allowedOrigins = [
         'http://localhost:3000',
         'http://localhost:3001',
-        'http://localhost:8000'
+        'http://localhost:8000',
+        'https://advanced-fine-baboon.ngrok-free.app',
+        'https://fair-upward-satyr.ngrok-free.app',
     ];
     public function handle(Request $request, Closure $next): Response
     {
