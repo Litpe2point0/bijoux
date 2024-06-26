@@ -608,8 +608,8 @@ export default function ChooseMounting() {
         }
 
     }, [mounting_type, setMountingType, mounting_style, diamond_shape, metal]);
-    
-    
+
+
     const updateMountingStyle = (id) => {
         //console.log("SEARCH MOUNTING STYLE ID: ",id)
         setMountingStyle((prev) => {
@@ -722,7 +722,7 @@ export default function ChooseMounting() {
                     <div className="h-px bg-slate-600 w-full">
                     </div>
 
-                    <div className="w-full grid md:grid-cols-4 xs:grid-cols-2 gap-1 mt-5">
+                    <div className="w-full grid md:grid-cols-4 xs:grid-cols-2 gap-32 mt-5">
                         {loadingModel ? <CSpinner color="primary" /> :
                             <>
                                 {filterModels.map((model, index) => (

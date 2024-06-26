@@ -312,7 +312,7 @@ export default function ViewQuote() {
             confirmButtonText: "Yes, cancel it!"
         }).then(async (result) => {
             if (result.isConfirmed) {
-                
+
 
                 // const updatedQuoteList = quoteList.map(quote =>
                 //     quote.id === quoteId ? { ...quote, quote_status: { ...quote.quote_status, id: 5, name: 'Declined' } } : quote
@@ -321,10 +321,10 @@ export default function ViewQuote() {
                 // // Cập nhật lại trạng thái của quoteList
                 // setQuoteList(sortQuotes(updatedQuoteList));
 
-                const cancel={
+                const cancel = {
                     quote_id: quoteId,
                     note: null
-                    }
+                }
                 const formData = new FormData();
                 formData.append("cancel", JSON.stringify(cancel));
                 const response = await cancel_quote(formData, "Cancel quote", true);
@@ -355,7 +355,7 @@ export default function ViewQuote() {
                 </div>
             </div>
             <div className="w-full">
-                <div className="max-h-[675px] overflow-auto">
+                <div>
                     <div className="w-full flex flex-col items-center justify-center">
                         {quoteList.map((quote) => (
                             <QuoteCard key={quote.id} quote={quote} staffList={staffList} onCancel={() => handleCancel(quote.id)} />

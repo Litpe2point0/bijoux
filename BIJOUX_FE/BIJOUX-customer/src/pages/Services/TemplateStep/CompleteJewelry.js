@@ -3,6 +3,8 @@ import { demoFinalMain, demoFinalRelated1, demoFinalRelated2, gold } from "../..
 import { useState } from 'react'
 import { Carousel } from 'primereact/carousel';
 import numeral from 'numeral';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 import { RiVipDiamondLine } from "react-icons/ri";
 import { GiDiamondRing } from "react-icons/gi";
 import { FiTruck } from "react-icons/fi";
@@ -12,9 +14,14 @@ import { useNavigate } from 'react-router-dom';
 import { CSpinner } from "@coreui/react";
 import { get_final_checkout } from "../../../api/main/items/Model_api";
 import { add_order_template } from "../../../api/main/orders/Order_api";
+import ThanksPage from "../../../components/home/ThanksPage/ThanksPage";
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
+import { isValidPhoneNumber } from 'react-phone-number-input';
+import { TextField } from "@mui/material";
 
 const CurrencyFormatter = ({ value }) => {
-    const formattedValue = numeral(value).format('0,0') + ' VND';
+    const formattedValue = numeral(value).format('0,0') + " VND";
     return <span>{formattedValue}</span>;
 };
 
@@ -159,6 +166,32 @@ export default function CompleteRing() {
     //note đây
     const [note, setNote] = useState('');
 
+    const [checkPhoneAndAddress, setCheckPhoneAndAddress] = useState(false);
+    const [phone, setPhone] = useState('');
+    const [errPhone, setErrPhone] = useState();
+    const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(true);
+    const handlePhone = (value) => {
+        setPhone(value);
+        if (value) {
+            const isValid = isValidPhoneNumber(value);
+            setIsPhoneNumberValid(isValid);
+            if (isValid) {
+                setErrPhone("");
+            } else {
+                setErrPhone("Enter a valid phone number");
+            }
+        } else {
+            setIsPhoneNumberValid(true); // Giả sử giá trị trống là hợp lệ
+            setErrPhone("");
+        }
+    };
+
+    const [address, setAddress] = useState('');
+    const handleAddress = (event) => {
+        setAddress(event.target.value);
+    };
+
+
     const productTemplate = (product) => {
         return (
             <div className="hover:border">
@@ -255,10 +288,10 @@ export default function CompleteRing() {
         formData.append('new_order', JSON.stringify(new_order));
         const response = await add_order_template(formData, "New Order Has Been Add To Your Account", true);
         if (response.success) {
-            
+
             localStorage.removeItem('finalProduct');
-            //navigate tới trang cảm ơn
-            navigate('/services');
+            setLoading(2);
+            // navigate('/services');
         }
         setLoadingComplete(false);
     }
@@ -268,7 +301,7 @@ export default function CompleteRing() {
             <p className="text-[#151542] text-4xl font-loraFont font-semibold">Your Final Jewelry Has Been Complete !</p>
             <div className="w-3/4 h-0.5 bg-slate-500 mb-20 mt-5"></div>
             {loading == 1 && <CSpinner color="primary" />}
-            {loading == 2 && <CSpinner color="primary" />}
+            {loading == 2 && <ThanksPage />}
             {loading == 3 &&
 
 
@@ -407,6 +440,12 @@ export default function CompleteRing() {
                             <p>RESTART SELECT</p>
                         </div>
 
+                        {/* Button để test open submit Phone&Address */}
+                        {/* <div onClick={() => setCheckPhoneAndAddress(true)} className="w-full h-[48px] flex items-center justify-center text-xl text-[#151542] bg-white border-2 border-[#151542] hover:cursor-pointer hover:text-[#29296b] mb-6">
+                            <p>OPEN CHECK ADDRESS</p>
+                        </div> */}
+
+
                         <div>
                             <p className="font-gantariFont text-[#151542] font-semibold">Our Policies:</p>
                         </div>
@@ -455,6 +494,47 @@ export default function CompleteRing() {
                     </div>
                 </div>
             }
+            <Modal
+                open={checkPhoneAndAddress}
+                onClose={() => setCheckPhoneAndAddress(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+
+            >
+                <Box className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white w-[400px] h-[350px]" sx={{ border: 'none' }}>
+                    <div className="bg-sky-800 text-white font-gantariFont flex flex-col items-center justify-center h-[80px]">
+                        <p className="font-bold">Opps, seems like we don't have your contact yet!</p>
+                        <p className="text-xs italic text-center">Please submit your phone number and Address to complete step</p>
+                    </div>
+                    <div className="flex flex-col p-4">
+                        <p className="font-titleFont text-base font-semibold text-gray-600">Your Phone Number</p>
+                        <PhoneInput
+                            placeholder="Enter phone number"
+                            value={phone}
+                            onChange={handlePhone} />
+
+                        {errPhone && (
+                            <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                                <span className="font-bold italic mr-1">!</span>
+                                {errPhone}
+                            </p>
+                        )}
+
+                        <p className="font-titleFont text-base font-semibold text-gray-600 mt-5">Your Address</p>
+                        <TextField
+                            id="outlined-controlled"
+                            label="Address"
+                            value={address}
+                            onChange={(event) => handleAddress(event)}
+                            fullWidth
+                        />
+                    </div>
+                    <div className="flex flex-col items-center justify-center mt-2">
+                        <button className="w-[150px] h-[40px] text-white font-semibold font-gantariFont bg-sky-800 hover:bg-sky-500 rounded-sm">Submit</button>
+                        <p className="text-xs text-center text-gray-500 font-gantariFont mt-4">Please make sure that you submit correct informations.</p>
+                    </div>
+                </Box>
+            </Modal>
 
         </div>
     );
