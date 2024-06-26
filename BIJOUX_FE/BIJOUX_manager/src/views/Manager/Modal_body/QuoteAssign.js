@@ -353,7 +353,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
     const [designStaffs, setDesignStaffs] = useState(null)
     const [productionStaffs, setProductionStaffs] = useState(null)
 
-    const [note, setNote] = useState(null);
+    const [note, setNote] = useState('');
 
     const [assignedSaleStaff, setAssignedSaleStaff] = useState(null);
     const [assignedDesignStaff, setAssignedDesignStaff] = useState(null);
@@ -403,7 +403,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
                 saleStaff_id: assignedSaleStaff.id,
                 designStaff_id: assignedDesignStaff.id,
                 productionStaff_id: assignedProductionStaff.id,
-                note: note.trim()
+                note: note !=  null ? note.trim() : ''
             }
             console.log('assigned_information', assigned_information)
             const formData = new FormData();
