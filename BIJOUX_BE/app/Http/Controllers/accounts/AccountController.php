@@ -122,8 +122,6 @@ class AccountController extends Controller
 
             $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
 
-
-
             return response()->json(['success' => 'User logged in', 'token' => $jwt]);
         } else {
             return response()->json(['error' => 'Invalid token'], 401);
