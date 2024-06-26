@@ -3,6 +3,7 @@ import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the grid
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the grid
 import numeral from "numeral";
+import { get_payment_history } from "../../api/main/accounts/Account_api";
 
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = numeral(value).format('0,0') + ' VND';
@@ -100,8 +101,13 @@ export default function PaymentHistory() {
     }, [])
 
     useEffect(() => {
-        setState(state_creator(payment_history_data));
-        setLoading(false);
+        const setAttribute = async () => {
+            const payment_history_data = await get_payment_history(null, 'get payment history', true);
+            setState(state_creator(payment_history_data.data));
+            setLoading(false);
+        }
+        
+        setAttribute();
     }, []);
 
     return (
