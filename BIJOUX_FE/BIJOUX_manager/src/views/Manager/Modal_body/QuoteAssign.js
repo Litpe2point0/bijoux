@@ -353,7 +353,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
     const [designStaffs, setDesignStaffs] = useState(null)
     const [productionStaffs, setProductionStaffs] = useState(null)
 
-    const [note, setNote] = useState(null);
+    const [note, setNote] = useState('');
 
     const [assignedSaleStaff, setAssignedSaleStaff] = useState(null);
     const [assignedDesignStaff, setAssignedDesignStaff] = useState(null);

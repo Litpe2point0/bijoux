@@ -34,7 +34,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
 
     const [loading, setLoading] = useState(true);
 
-    const [note, setNote] = useState(null);
+    const [note, setNote] = useState('');
 
     useEffect(() => {
         const setAttribute = async () => {
