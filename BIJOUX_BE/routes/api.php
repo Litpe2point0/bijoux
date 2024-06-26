@@ -116,7 +116,7 @@ Route::middleware('checkCors')->group(function () {
             Route::group(['prefix' => 'account'], function () {
                 Route::post('/update', [AccountController::class, 'update_self']);
                 Route::post('/get_account_detail', [AccountController::class, 'get_account_detail']);
-                Route::post('/get_payment_history', [AccountController::class, 'get_payment_history']);
+                Route::post('/get_payment_history', [OrderController::class, 'get_payment_history']);
             });
 
             Route::group(['prefix' => 'quote'], function () {
@@ -139,6 +139,7 @@ Route::middleware('checkCors')->group(function () {
                 Route::post('/get_design_updating_list', [OrderController::class, 'get_design_updating_list']);
                 Route::post('/get_production_process_list', [OrderController::class, 'get_production_process_list']);
                 Route::post('/get_product_detail', [OrderController::class, 'get_product_detail']);
+                Route::post('/confirm_delivery', [OrderController::class, 'confirm_delivery']);
             });
         });
     });

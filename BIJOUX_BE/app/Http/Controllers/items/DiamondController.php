@@ -165,6 +165,12 @@ class DiamondController extends Controller
             ]);
             $data = [];
             foreach ($product_diamond as $product) {
+                $temp1 = DB::table('orders')->where('product_id', $product->id)->first();
+                if($temp1 != null){
+                    if($temp1->order_status_id >= 3){
+                        continue;
+                    }
+                }
                 $true = false;
                 //find all product_diamond list to update price
                 $diamond_list = DB::table('product_diamond')->where('product_id', $product->product_id)->where('diamond_id', $input['diamond_id'])->get();

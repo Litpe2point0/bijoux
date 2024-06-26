@@ -90,6 +90,12 @@ class MetalController extends Controller
             ]);
             $data = [];
             foreach ($product_metal as $product) {
+                $temp1 = DB::table('orders')->where('product_id', $product->id)->first();
+                if($temp1 != null){
+                    if($temp1->order_status_id >= 3){
+                        continue;
+                    }
+                }
                 $true = false;
                 //find all product_metal list to update price
                 $metal_list = DB::table('product_metal')->where('product_id', $product->product_id)->where('metal_id', $input['metal_id'])->get();
