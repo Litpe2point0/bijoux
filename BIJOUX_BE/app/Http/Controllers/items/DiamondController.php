@@ -161,7 +161,7 @@ class DiamondController extends Controller
             //update the diamond price
             DB::table('diamond')->where('id', $input['diamond_id'])->update([
                 'price' => $input['price'],
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
             $data = [];
             foreach ($product_diamond as $product) {
