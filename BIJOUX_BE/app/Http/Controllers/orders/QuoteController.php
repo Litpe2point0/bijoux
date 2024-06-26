@@ -111,7 +111,7 @@ class QuoteController extends Controller
             $input = $decodedToken->id;
         }
 
-        $quote_list = DB::table('quote')->where('account_id',$input)->orderByRaw("
+        $quote_list = DB::table('quote')->where('account_id', $input)->orderByRaw("
             CASE 
                 WHEN quote_status_id = 5 THEN 2 
                 WHEN quote_status_id = 4 THEN 1 
@@ -369,11 +369,9 @@ class QuoteController extends Controller
                     ], 403);
                 }
             }
-            if (isset($input['note']) && $input['note'] != null) {
-                DB::table('quote')->where('id', $input['quote_id'])->update([
-                    'note' => $input['note']
-                ]);
-            }
+            DB::table('quote')->where('id', $input['quote_id'])->update([
+                'note' => $input['note']
+            ]);
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'saleStaff_id' => $saleStaff_id,
                 'designStaff_id' => $designStaff_id,

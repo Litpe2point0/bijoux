@@ -7,6 +7,7 @@ use App\Http\Middleware\checkSaleStaff;
 use App\Http\Middleware\checkDesignStaff;
 use App\Http\Middleware\checkProductionStaff;
 use App\Http\Middleware\CorsMiddleware;
+use App\Http\Middleware\SkipNgrokBrowserWarning;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -42,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('checkCors', [
             CorsMiddleware::class,
         ]);
+        $middleware->append(SkipNgrokBrowserWarning::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
