@@ -8,6 +8,10 @@ const CurrencyFormatter = ({ value }) => {
 };
 
 export default function DiamondDesignProcessCard({ diamond, status }) {
+    // if (!diamond || !diamond.diamond_shape || !diamond.diamond_size || !diamond.diamond.diamond_color || !diamond.diamond.diamond_clarity || !diamond.diamond.diamond_cut || !diamond.diamond.diamond_origin) {
+    //     console.log(">>>diamondfwefwfwef", diamond)
+    //     return null; // Hoặc hiển thị một phần tử khác như 'N/A' nếu không có dữ liệu
+    // }
     return (
         <div className='w-full flex-col flex items-center border border-black rounded-md mt-5'>
             <div className='flex w-full items-center'>

@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import PricedMetalCard from '../Quotes/pricedMetalCard';
 import PricedDiamondCard from '../Quotes/pricedDiamondCard';
 import MetalDesignProcessCard from './metalDesignProcessCard';
+import DiamondDesignProcessCard from './diamondDesignProcessCard';
 
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = numeral(value).format('0,0');
@@ -50,14 +51,27 @@ const getRightFormattedCreatedDate = (inputString) => {
 
 export default function OrderInformations({ order }) {
     const updateProductionPrice = order.total_price - order.product_price;
+    const formattedCreatedDate = getFormattedDate(order.created);
+    const today = new Date();
+
+
     const currentMetals = order.product.product_metal.filter(metal => metal.status === 1);
     const oldMetals = order.product.product_metal.filter(metal => metal.status === 3);
     const unchangedMetals = currentMetals.filter(current =>
         !oldMetals.some(old => old.metal.id === current.metal.id)
     );
-    const formattedCreatedDate = getFormattedDate(order.created);
-    const today = new Date();
-    console.log(">>> created date:", getFormattedDate(order.created))
+
+    const currentDiamonds = order.product.product_diamond.filter(diamond => diamond.status === 1);
+    const oldDiamonds = order.product.product_diamond.filter(diamond => diamond.status === 3);
+    const unchangedDiamonds = currentDiamonds.filter(current =>
+        !oldDiamonds.some(old => old.diamond.id === current.diamond.id)
+    );
+
+    // console.log(">>>curDiamond", currentDiamonds)
+    // console.log(">>>oldDiamond", oldDiamonds)
+    // console.log(">>>unchangedDiamond", unchangedDiamonds)
+    console.log("diamond", order.product.product_diamond)
+
     return (
         <div className="w-full flex flex-col items-center">
             <div className="w-full flex justify-center items-center mb-5">
@@ -188,13 +202,29 @@ export default function OrderInformations({ order }) {
                 </div>
             </div>
 
-            <div className="w-3/4 flex flex-col mt-10">
+            <div className="w-3/4 flex flex-col my-10">
                 <p className="font-gantariFont text-2xl text-[#151542] font-bold">Diamonds:</p>
-                {order.product.product_diamond
-                    .filter(diamond => diamond.status === 1)
-                    .map((diamond, index) => (
-                        <PricedDiamondCard key={index} diamond={diamond} />
-                    ))}
+                <div className='grid grid-cols-2 gap-5'>
+                    <div className='flex flex-col'>
+                        <p className='font-gantariFont font-semibold text-gray-500 text-xl'>Price at {getRightFormattedCreatedDate(order.created)}</p>
+                        {oldDiamonds.length > 0 && (
+                            oldDiamonds.map((diamond, index) => (
+                                <DiamondDesignProcessCard key={index} diamond={diamond} status={2} />
+                            ))
+                        )}
+                        {unchangedDiamonds.length > 0 && (
+                            unchangedDiamonds.map((diamond, index) => (
+                                <DiamondDesignProcessCard key={index} diamond={diamond} status={2} />
+                            ))
+                        )}
+                    </div>
+                    <div className='flex flex-col'>
+                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>Price at {getFormattedDate(today)}</p>
+                        {currentDiamonds.map((diamond, index) => (
+                            <DiamondDesignProcessCard diamond={diamond} status={1} />
+                        ))}
+                    </div>
+                </div>
             </div>
 
         </div>
