@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import { logoLight } from "../../assets/images";
+import { loginLogo2 } from "../../assets/images";
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
+import { isValidPhoneNumber } from 'react-phone-number-input';
+const nonNameWords = ['admin', 'sale', 'designer', 'production', 'manager']
 
 const SignUp = () => {
   // ============= Initial State Start here =============
@@ -16,6 +20,7 @@ const SignUp = () => {
   const [checked, setChecked] = useState(false);
   // ============= Initial State End here ===============
   // ============= Error Msg Start here =================
+  const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(true);
   const [errClientName, setErrClientName] = useState("");
   const [errEmail, setErrEmail] = useState("");
   const [errPhone, setErrPhone] = useState("");
@@ -35,9 +40,20 @@ const SignUp = () => {
     setEmail(e.target.value);
     setErrEmail("");
   };
-  const handlePhone = (e) => {
-    setPhone(e.target.value);
-    setErrPhone("");
+  const handlePhone = (value) => {
+    setPhone(value);
+    if (value) {
+      const isValid = isValidPhoneNumber(value);
+      setIsPhoneNumberValid(isValid);
+      if (isValid) {
+        setErrPhone("");
+      } else {
+        setErrPhone("Enter a valid phone number");
+      }
+    } else {
+      setIsPhoneNumberValid(true); // Giả sử giá trị trống là hợp lệ
+      setErrPhone("");
+    }
   };
   const handlePassword = (e) => {
     setPassword(e.target.value);
@@ -61,6 +77,35 @@ const SignUp = () => {
   };
   // ============= Event Handler End here ===============
   // ================= Email Validation start here =============
+  //Valid có dấu
+  const validateSingleWord = (word) => {
+    const regex = /^[A-ZÀ-Ý][a-zA-Zà-ý]*$/;
+    return regex.test(word);
+  };
+
+  const NameValidation = (name) => {
+    // Tách tên thành các từ riêng lẻ
+    const words = name.split(' ');
+
+    // Kiểm tra từng từ
+    for (const word of words) {
+      // Bỏ qua các từ rỗng (trường hợp người dùng nhập nhiều khoảng trắng)
+      if (word.trim() === '') continue;
+
+      // Nếu từ không hợp lệ, trả về false
+      if (!validateSingleWord(word)) {
+        return false;
+      }
+
+      // Nếu từ thuộc danh sách cấm, trả về false
+      if (nonNameWords.includes(word.toLowerCase())) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const EmailValidation = (email) => {
     return String(email)
       .toLowerCase()
@@ -105,7 +150,7 @@ const SignUp = () => {
       }
       // ============== Getting the value ==============
       if (
-        clientName &&
+        NameValidation(clientName) &&
         email &&
         EmailValidation(email) &&
         password &&
@@ -116,7 +161,7 @@ const SignUp = () => {
         zip
       ) {
         setSuccessMsg(
-          `Hello dear ${clientName}, Welcome you to OREBI Admin panel. We received your Sign up request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
+          `Hello dear ${clientName}, Welcome you to BIJOUX Admin panel. We received your Sign up request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
         );
         setClientName("");
         setEmail("");
@@ -127,6 +172,14 @@ const SignUp = () => {
         setCountry("");
         setZip("");
       }
+      if (!NameValidation(clientName)) {
+        setErrClientName("Name isn't valid, please Capitalize the first letter and use only alphabets. Real name cannot contains Admin, Sale, Designer, Production, Manager");
+      }
+      if (!EmailValidation(email)) {
+        setErrEmail("Enter a Valid email");
+      }
+
+
     }
   };
   return (
@@ -134,13 +187,13 @@ const SignUp = () => {
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
         <div className="w-[450px] h-full bg-primeColor px-10 flex flex-col gap-6 justify-center">
           <Link to="/">
-            <img src={logoLight} alt="logoImg" className="w-28" />
+            <img src={loginLogo2} alt="logoImg" className="w-48" />
           </Link>
           <div className="flex flex-col gap-1 -mt-1">
             <h1 className="font-titleFont text-xl font-medium">
-              Get started for free
+              Stay sign in for more
             </h1>
-            <p className="text-base">Create your account to access more</p>
+            <p className="text-base">When you sign in, you are with us!</p>
           </div>
           <div className="w-[300px] flex items-start gap-3">
             <span className="text-green-500 mt-1">
@@ -148,11 +201,10 @@ const SignUp = () => {
             </span>
             <p className="text-base text-gray-300">
               <span className="text-white font-semibold font-titleFont">
-                Get started fast with OREBI
+                Get started fast with BIJOUX
               </span>
               <br />
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
-              nisi dolor recusandae consectetur!
+              BIJOUX offers bespoke jewelry crafting services with the utmost professionalism and convenience for our esteemed customers.
             </p>
           </div>
           <div className="w-[300px] flex items-start gap-3">
@@ -161,11 +213,10 @@ const SignUp = () => {
             </span>
             <p className="text-base text-gray-300">
               <span className="text-white font-semibold font-titleFont">
-                Access all OREBI services
+                Access all BIJOUX services
               </span>
               <br />
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
-              nisi dolor recusandae consectetur!
+              Experience our array of jewelry crafting services, including custom designs based on templates or the creation of unique pieces from your own inspirations.
             </p>
           </div>
           <div className="w-[300px] flex items-start gap-3">
@@ -177,14 +228,15 @@ const SignUp = () => {
                 Trusted by online Shoppers
               </span>
               <br />
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
-              nisi dolor recusandae consectetur!
+              Trusted by over 10,000 customers worldwide, BIJOUX stands as a beacon of excellence in the jewelry industry.
             </p>
           </div>
           <div className="flex items-center justify-between mt-10">
-            <p className="text-sm font-titleFont font-semibold text-gray-300 hover:text-white cursor-pointer duration-300">
-              © OREBI
-            </p>
+            <Link to="/">
+              <p className="text-sm font-titleFont font-semibold text-gray-300 hover:text-white cursor-pointer duration-300">
+                © BIJOUX
+              </p>
+            </Link>
             <p className="text-sm font-titleFont font-semibold text-gray-300 hover:text-white cursor-pointer duration-300">
               Terms
             </p>
@@ -203,7 +255,7 @@ const SignUp = () => {
             <p className="w-full px-4 py-10 text-green-500 font-medium font-titleFont">
               {successMsg}
             </p>
-            <Link to="/signin">
+            <Link to="/login">
               <button
                 className="w-full h-10 bg-primeColor rounded-md text-gray-200 text-base font-titleFont font-semibold 
             tracking-wide hover:bg-black hover:text-white duration-300"
@@ -262,19 +314,25 @@ const SignUp = () => {
                   <p className="font-titleFont text-base font-semibold text-gray-600">
                     Phone Number
                   </p>
-                  <input
+                  {/* <input
                     onChange={handlePhone}
                     value={phone}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="text"
                     placeholder="008801234567891"
-                  />
+                  /> */}
+                  <PhoneInput
+                    placeholder="Enter phone number"
+                    value={phone}
+                    onChange={handlePhone} />
+
                   {errPhone && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
                       <span className="font-bold italic mr-1">!</span>
                       {errPhone}
                     </p>
                   )}
+
                 </div>
                 {/* Password */}
                 <div className="flex flex-col gap-.5">
@@ -379,24 +437,23 @@ const SignUp = () => {
                     type="checkbox"
                   />
                   <p className="text-sm text-primeColor">
-                    I agree to the OREBI{" "}
+                    I agree to the BIJOUX{" "}
                     <span className="text-blue-500">Terms of Service </span>and{" "}
                     <span className="text-blue-500">Privacy Policy</span>.
                   </p>
                 </div>
                 <button
                   onClick={handleSignUp}
-                  className={`${
-                    checked
-                      ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
-                      : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
-                  } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
+                  className={`${checked
+                    ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
+                    : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
+                    } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
                 >
                   Create Account
                 </button>
                 <p className="text-sm text-center font-titleFont font-medium">
-                  Don't have an Account?{" "}
-                  <Link to="/signin">
+                  Already have an Account?{" "}
+                  <Link to="/login">
                     <span className="hover:text-blue-600 duration-300">
                       Sign in
                     </span>

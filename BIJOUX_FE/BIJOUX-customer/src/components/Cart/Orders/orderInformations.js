@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import PricedMetalCard from '../Quotes/pricedMetalCard';
 import PricedDiamondCard from '../Quotes/pricedDiamondCard';
 const CurrencyFormatter = ({ value }) => {
-    const formattedValue = numeral(value).format('0,0') + ' VND';
+    const formattedValue = numeral(value).format('0,0');
     return <span>{formattedValue}</span>;
 };
 
