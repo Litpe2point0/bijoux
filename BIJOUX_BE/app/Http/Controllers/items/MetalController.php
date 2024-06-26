@@ -151,6 +151,37 @@ class MetalController extends Controller
             DB::table('product_metal')->insert($data);
             //loop to update metal price in order and quote
             foreach ($product_metal as $product) {
+                $temp3 = DB::table('quote')->where('product_id', $product->product_id)->first();
+                if($temp3 != null){
+                    if($temp3->quote_status_id >= 4){
+                        continue;
+                    }
+                }
+                $quote =  DB::table('quote')->where('product_id', $product->product_id)->first();
+                //check if quote exist
+                if ($quote != null) {
+                    $profit_rate = $quote->profit_rate;
+                    $production_price = $quote->production_price;
+                    $product_price = 0;
+                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->where('status', 1)->get();
+                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->where('status', 1)->get();
+                    //calculate new product price after update metal price
+                    foreach ($diamond_list as $diamond) {
+                        if ($diamond->status == 1) {
+                            $product_price += $diamond->price;
+                        }
+                    }
+                    foreach ($metal_list as $metal) {
+                        if ($metal->status == 1) {
+                            $product_price += $metal->price;
+                        }
+                    }
+                    DB::table('quote')->where('product_id', $product->product_id)->update([
+                        'product_price' => $product_price,
+                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
+                    ]);
+                }
+                
                 $temp2 = DB::table('orders')->where('product_id', $product->product_id)->first();
                 if($temp2 != null){
                     if($temp2->order_status_id >= 3){
@@ -210,38 +241,6 @@ class MetalController extends Controller
                             'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
                         ]);
                     }
-                }
-            }
-            foreach ($product_metal as $product) {
-                $temp3 = DB::table('quote')->where('product_id', $product->product_id)->first();
-                if($temp3 != null){
-                    if($temp3->quote_status_id >= 4){
-                        continue;
-                    }
-                }
-                $quote =  DB::table('quote')->where('product_id', $product->product_id)->first();
-                //check if quote exist
-                if ($quote != null) {
-                    $profit_rate = $quote->profit_rate;
-                    $production_price = $quote->production_price;
-                    $product_price = 0;
-                    $diamond_list = DB::table('product_diamond')->where('product_id', $quote->product_id)->where('status', 1)->get();
-                    $metal_list = DB::table('product_metal')->where('product_id', $quote->product_id)->where('status', 1)->get();
-                    //calculate new product price after update metal price
-                    foreach ($diamond_list as $diamond) {
-                        if ($diamond->status == 1) {
-                            $product_price += $diamond->price;
-                        }
-                    }
-                    foreach ($metal_list as $metal) {
-                        if ($metal->status == 1) {
-                            $product_price += $metal->price;
-                        }
-                    }
-                    DB::table('quote')->where('product_id', $product->product_id)->update([
-                        'product_price' => $product_price,
-                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
-                    ]);
                 }
             }
             DB::commit();
