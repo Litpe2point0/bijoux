@@ -570,11 +570,9 @@ class OrderController extends Controller
                     ], 403);
                 }
             }
-            if (isset($input['note']) && $input['note'] != null) {
-                DB::table('orders')->where('id', $input['order_id'])->update([
-                    'note' => $input['note']
-                ]);
-            }
+            DB::table('orders')->where('id', $input['order_id'])->update([
+                'note' => $input['note']
+            ]);
             DB::table('orders')->where('id', $input['order_id'])->update([
                 'saleStaff_id' => $saleStaff_id,
                 'designStaff_id' => $designStaff_id,
@@ -2716,7 +2714,7 @@ class OrderController extends Controller
         $account = DB::table('account')->where('id', $payment->account_id)->first();
         $order = DB::table('orders')->where('id', $payment->order_id)->first();
         $product = DB::table('product')->where('id', $order->product_id)->first();
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status',1)->get();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
         $product_diamond->map(function ($product_diamond) {
             $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
             $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
@@ -2729,8 +2727,8 @@ class OrderController extends Controller
             $product_diamond->unit_price = $this->formatCurrency($diamond->price);
             return $product_diamond;
         });
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status',1)->get();
-        $product_metal->map(function ($product_metal){
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
+        $product_metal->map(function ($product_metal) {
             $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
             $product_metal->name = $metal->name;
             $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
@@ -2747,8 +2745,8 @@ class OrderController extends Controller
             'product_price' => $this->formatCurrency($order->product_price),
             'production_price' => $this->formatCurrency($order->production_price + ($order->product_price + $order->production_price) * $order->profit_rate / 100),
             'total_price' => $this->formatCurrency($order->total_price)
-        ]; 
-              
+        ];
+
         $pdf = PDF::loadView('pdf', $data);
         $fileName = Carbon::now()->timestamp . '_' . $payment->id . '.pdf';
         // $fileName = $payment->id . '.pdf';
@@ -2757,15 +2755,17 @@ class OrderController extends Controller
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0755, true);
         }
-        $filePath = public_path('pdf/' . $order->id .'/'.$fileName);
+        $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
         File::put($filePath, $content);
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
         $this->sendMail("bachdxse182030@fpt.edu.vn", $messageContent, 'Payment Invoice', $filePath);
     }
-    function formatCurrency($amount) {
+    function formatCurrency($amount)
+    {
         return number_format($amount, 0) . ' VND';
     }
-    public function sendMail($toEmail, $messageContent, $subject, $pathToFile){
+    public function sendMail($toEmail, $messageContent, $subject, $pathToFile)
+    {
         try {
             Mail::to($toEmail)->send(new Email($messageContent, $subject, $pathToFile));
         } catch (\Exception $e) {
@@ -2794,7 +2794,7 @@ class OrderController extends Controller
         } catch (Throwable $e) {
             $input = $decodedToken->id;
         }
-        $payment_list = DB::table('payment')->where('account_id', $input)->where('isSuccess',1)->orderBy('created','desc')->get();
+        $payment_list = DB::table('payment')->where('account_id', $input)->where('isSuccess', 1)->orderBy('created', 'desc')->get();
         $payment_list->map(function ($payment) {
             $payment->created = Carbon::parse($payment->created)->format('H:i:s d/m/Y');
             $payment->payment_type = DB::table('payment_type')->where('id', $payment->payment_type_id)->first();
