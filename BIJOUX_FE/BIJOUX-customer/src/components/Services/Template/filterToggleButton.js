@@ -78,7 +78,7 @@ export default function FilterToggleButton({ list, filterName, options, updateLi
                                 <img src={option.imageUrl} alt={option.name} className="w-10 h-auto inline-block mr-1 align-middle" />
                             ) : (
                                 <svg fill='none' viewBox="0 0 18 18" height="20" xmlns="http://www.w3.org/2000/svg" className="inline-block mr-1 align-middle">
-                                    <path stroke="#151542" stroke-linejoin="bevel" stroke-width="0.3" d={option.drawingPath} />
+                                    <path stroke="#151542" stroke-linejoin="bevel" stroke-width="0.3" d={option.drawing_path} />
                                 </svg>
                             )}
 
