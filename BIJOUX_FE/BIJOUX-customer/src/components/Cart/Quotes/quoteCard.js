@@ -4,7 +4,7 @@ import { Collapse } from '@mui/material';
 import { Envelope, Phone } from 'phosphor-react';
 
 const CurrencyFormatter = ({ value }) => {
-    const formattedValue = numeral(value).format('0,0') + ' VND';
+    const formattedValue = '$' + numeral(value).format('0,0');
     return <span>{formattedValue}</span>;
 };
 const saleStaffInformations = {
@@ -60,25 +60,26 @@ export default function QuoteCard({ quote, onCancel }) {
     return (
         <div className="w-full flex flex-col items-center">
             <div className="flex w-10/12 h-[200px] items-center bg-white  p-4 border-b border-black">
-                <div className="h-full">
+                <div className="md:border-2 md:w-[150px] md:h-[150px] my-5 sm:w-0 flex items-center justify-center overflow-hidden">
                     {quote.product.imageUrl ? (
-                        <img src={quote.product.imageUrl} alt="product" className="h-full" />
+                        <img src={quote.product.imageUrl} alt="product" className="h-[150px] w-[150px] object-cover object-center" />
                     ) : (
-                        <img src={templateImage} alt="product" className="h-full" />
+                        <img src={templateImage} alt="product" className="h-[150px] w-[150px] object-cover object-center" />
                     )}
                 </div>
 
-                <div className="flex flex-col h-full ml-5 w-[630px]">
+                <div className="flex flex-col h-full ml-5 w-1/3">
                     <div className="flex">
-                        <p className="font-semibold font-cartFont text-2xl">Quote ID: </p>
-                        <p className="ml-1 font-semibold font-cartFont text-2xl">#{quote.id}</p>
+                        <p className="font-semibold font-cartFont md:text-2xl sm:text-lg">Quote ID: </p>
+                        <p className="ml-1 font-semibold font-cartFont md:text-2xl sm:text-lg">#{quote.id}</p>
                     </div>
                     <div className="flex mt-1">
-                        <p className="font-cartFont">Created Date: {quote.created_date}</p>
+                        <p className="font-cartFont">Created Date: {quote.created}</p>
                     </div>
                     <div className="flex flex-col mt-1">
-                        <p className="font-cartFont">Note:</p>
-                        <div className="w-10/12 h-[75px] bg-slate-200 overflow-y-auto">
+                        {/* Sử dụng lớp `hidden` để ẩn và `md:block` để hiển thị khi màn hình từ md trở lên */}
+                        <p className="font-cartFont hidden md:block">Note:</p>
+                        <div className="w-10/12 h-[75px] bg-slate-200 overflow-y-auto hidden md:block">
                             <p className="font-gantariFont ml-2 mt-2 mr-2 mb-1">{quote.note}</p>
                         </div>
                     </div>
@@ -125,11 +126,11 @@ export default function QuoteCard({ quote, onCancel }) {
                     </div>
 
                     <div className="w-full h-[65px] flex items-center justify-around">
-                        <button onClick={handleOpenClose} className="w-[130px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">DETAILS</button>
+                        <button onClick={handleOpenClose} className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">DETAILS</button>
                         {quote.quote_status.id === 4 || quote.quote_status.id === 5 ? (
-                            <button className="w-[130px] h-[35px] bg-slate-500 text-white ">CANCEL</button>
+                            <button className="md:w-[130px] sm:w-[100px] h-[35px] bg-slate-500 text-white ">CANCEL</button>
                         ) : (
-                            <button onClick={onCancel} className="w-[130px] h-[35px] bg-[#CD0B2A] text-white hover:bg-[#8B1023]">CANCEL</button>
+                            <button onClick={onCancel} className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#CD0B2A] text-white hover:bg-[#8B1023]">CANCEL</button>
                         )}
 
                     </div>

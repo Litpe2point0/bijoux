@@ -228,6 +228,19 @@ export async function production_complete(formData, title, loginRequired, { sign
     }
 }
 
+export async function create_payment_link(formData, title, loginRequired, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const apiInstance = loginRequired ? login_required_api : api;
+        const response = await apiInstance.post('/create_payment_link', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("create_payment_link" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
+
 
 export async function add_order_template(formData, title, loginRequired, { signal } = {}) {
     const mess_title = title ? title : null;
@@ -277,6 +290,19 @@ export async function get_order_detail_customer(formData, title, loginRequired, 
         return response_with_mess(true, mess_title, response.data.success, response.data);
     } catch (error) {
         console.log("get_order_detail_customer" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
+
+export async function get_order_status_list(formData, title, loginRequired, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const apiInstance = loginRequired ? login_required_api : api;
+        const response = await apiInstance.post('/order/get_order_status_list', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("get_order_status_list" + " BIG ERROR", error)
         return response_with_mess(false, mess_title, error.response.data.error, null);
     }
 }

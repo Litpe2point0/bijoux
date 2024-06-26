@@ -309,7 +309,7 @@ export default function ChooseDiamond() {
                 const model_detail = model_data.data.model;
                 setModel(model_detail)
 
-                
+
                 const shape_list = await get_shape_list();
                 const color_list = await get_color_list();
                 const origin_list = await get_origin_list();
@@ -326,7 +326,7 @@ export default function ChooseDiamond() {
                 setSizeList(size_list_data);
 
                 setSelectedShape(finalProduct.diamond_shape || model_detail.model_diamond_shape[0]);
-                
+
                 setDiamond_size(finalProduct.diamond_size || size_list_data[0]);
                 setSelectedOrigin(finalProduct.diamond_origin || origin_list.data[0]);
                 setSelectedClarity(finalProduct.diamond_clarity || clarity_list.data[0]);
@@ -403,7 +403,7 @@ export default function ChooseDiamond() {
         const formData = new FormData();
         formData.append('diamond_search_information', JSON.stringify(diamond_search_information));
         //goi api lay diamond
-        
+
         const diamond_data = await get_diamond_list(formData);
         const newDiamond = diamond_data.data[0];
         setSearchedDiamond(newDiamond)
@@ -418,7 +418,7 @@ export default function ChooseDiamond() {
             icon: 'error',
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'OK EM HIỂU RỒI'
+            confirmButtonText: 'OK'
         })
     };
     const handleSelectDiamond = () => {
@@ -427,7 +427,7 @@ export default function ChooseDiamond() {
         }
 
         let finalProduct = JSON.parse(localStorage.getItem('finalProduct'));
-        if (!finalProduct || !searchedDiamond ) {
+        if (!finalProduct || !searchedDiamond) {
             console.log('không có finalProduct trong local storage hoặc có finalProduct mà không có diamond_search ở bước submit diamond')
             alert('ok')
             window.location.href = '/services'
@@ -440,15 +440,15 @@ export default function ChooseDiamond() {
         finalProduct.diamond_cut = selectedCut;
         finalProduct.diamond_search = searchedDiamond;
         localStorage.setItem('finalProduct', JSON.stringify(finalProduct));
-        
-        window.location.href = '/template?step=3&mountingType=' + model.mounting_type.id + '&model_id=' + model.id 
+
+        window.location.href = '/template?step=3&mountingType=' + model.mounting_type.id + '&model_id=' + model.id
     }
 
     useEffect(() => {
-        if(!isSearch){
+        if (!isSearch) {
             setSearchedDiamond(null)
         }
-    },[isSearch])
+    }, [isSearch])
 
     return (
         <div className="flex flex-col items-center" >
@@ -631,14 +631,14 @@ export default function ChooseDiamond() {
                                 </div>
                                 <div className="flex justify-center flex-col">
                                     <div className="w-full mb-5 flex justify-center">
-                                        {loadingDiamond ? <CSpinner  color='primary' /> :
+                                        {loadingDiamond ? <CSpinner color='primary' /> :
                                             <div className=" flex flex-col items-center">
-                                            <img src={searchedDiamond ? searchedDiamond.imageUrl : diamondImg} alt="diamond" className="w-3/4" />
-                                            <div>
-                                            <p className="font-gantariFont text-[#151542] font-semibold ">Price In Piece: <CurrencyFormatter value={searchedDiamond ? searchedDiamond.price : 0} /></p>
+                                                <img src={searchedDiamond ? searchedDiamond.imageUrl : diamondImg} alt="diamond" className="w-3/4" />
+                                                <div>
+                                                    <p className="font-gantariFont text-[#151542] font-semibold ">Price In Piece: <CurrencyFormatter value={searchedDiamond ? searchedDiamond.price : 0} /></p>
+                                                </div>
                                             </div>
-                                            </div>
-                                            
+
                                         }
 
                                     </div>
