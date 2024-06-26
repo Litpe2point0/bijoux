@@ -10,19 +10,20 @@ export default function DesignProcess({ order }) {
     const [currentlyDiamondList, setCurrentlyDiamondList] = useState([]);
     const [currentlyMetalList, setCurrentlyMetalList] = useState([]);
     const [maxMetalLength, setMaxLength] = useState(0);
+    console.log(">>>order", order);
     useEffect(() => {
         setPreviousDiamondList(order.product.product_diamond.filter(diamond => diamond.status === 2));
         setPreviousMetalList(order.product.product_metal.filter(metal => metal.status === 2));
         setCurrentlyDiamondList(order.product.product_diamond.filter(diamond => diamond.status === 1));
         setCurrentlyMetalList(order.product.product_metal.filter(metal => metal.status === 1));
 
-        console.log(">>> max Length", maxMetalLength);
-        console.log(">>> currentlyMetakList", currentlyMetalList.length);
-        console.log(">>> previousMetalList", previousMetalList.length);
+        console.log(">>>previousDiamond", order.product.product_diamond.filter(diamond => diamond.status === 2));
     }, [order]);
     useEffect(() => {
         setMaxLength(Math.max(currentlyMetalList.length, previousMetalList.length));
+
     }, [currentlyMetalList, previousMetalList]);
+
     return (
         <div className='w-full flex flex-col items-center'>
             <h1 className='font-loraFont text-2xl font-light text-[#151542]'>Design Process</h1>
@@ -36,7 +37,7 @@ export default function DesignProcess({ order }) {
                     ))}
                     {previousMetalList.length < maxMetalLength &&
                         Array(maxMetalLength - previousMetalList.length).fill().map((_, index) => (
-                            <div key={index} className='w-full md:h-[66px] sm:h-[106px] mt-5'></div>
+                            <div key={index} className='w-full md:h-[66px] sm:h-[106px] md:mt-3 sm:mt-1'></div>
                         ))
                     }
                     <p className='mt-5 font-gantariFont font-semibold text-xl text-[#151542]'>Diamond List:</p>

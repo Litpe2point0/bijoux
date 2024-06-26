@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import numeral from 'numeral';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { confirm_delivery } from "../../../api/main/orders/Order_api";
 
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = '$' + numeral(value).format('0,0');
@@ -9,7 +10,7 @@ const CurrencyFormatter = ({ value }) => {
 };
 
 
-export default function OrderCard({ order, onCancel }) {
+export default function OrderCard({ order, onCancel, handleDataChange }) {
     const newProductionPrice = order.total_price - order.product_price;
     const navigate = useNavigate();
     const handleViewDetails = () => {
@@ -23,29 +24,7 @@ export default function OrderCard({ order, onCancel }) {
     // const templateImage = "https://i.pinimg.com/564x/d0/65/b0/d065b0f511204401fe8af162372091a6.jpg";
 
 
-    const saleStaffInformations = {
-        id: 1,
-        name: "Ngô Thị Hồng Hào",
-        imageUrl: "https://i.pinimg.com/564x/f1/35/c4/f135c40157fb7cae9e960d169ab9ac1c.jpg",
-        phone: "0987654321",
-        email: "thuydungngo@gmail.com"
-    }
 
-    const designStaffInformations = {
-        id: 1,
-        name: "Võ Thị Kim Chỉ",
-        imageUrl: "https://i.pinimg.com/564x/f1/74/83/f17483058438a9fbe95aa80a7e273414.jpg",
-        phone: "0987654321",
-        email: "themankimchi@gmail.com"
-    }
-
-    const productionStaffInformations = {
-        id: 1,
-        name: "Hoàng Việt Vị",
-        imageUrl: "https://i.pinimg.com/564x/b4/3a/89/b43a892e3f68c50a5b7ce996aa41a1af.jpg",
-        phone: "0987654321",
-        email: "dabongtoanvietvi@gmail.com"
-    }
 
     const handleConfirmReceived = async (orderID) => {
         Swal.fire({
@@ -58,24 +37,23 @@ export default function OrderCard({ order, onCancel }) {
             confirmButtonText: "Yes, i have received the jewelry!"
         }).then(async (result) => {
             if (result.isConfirmed) {
-                // const cancel = {
-                //     quote_id: quoteId,
-                //     note: null
-                // }
-                // const formData = new FormData();
-                // formData.append("cancel", JSON.stringify(cancel));
-                // const response = await cancel_quote(formData, "Cancel quote", true);
-                // if (!response.success) {
-                //     instantAlertMaker("error", "Error", "The quote has not been canceled. Please try again !");
-                //     return;
-                // }
-                // Hiển thị thông báo thành công
-                Swal.fire({
-                    title: "Success",
-                    text: "Enjoy your jewelry! Thank you for choosing us!",
-                    icon: "success"
-                });
-                // handleDataChange();
+                const formData = new FormData();
+                formData.append('order_id', orderID);
+                const response = await confirm_delivery(formData, 'confirm delivery', true);
+                if (response.success) {
+                    Swal.fire({
+                        title: "Success",
+                        text: "Enjoy your jewelry! Thank you for choosing us!",
+                        icon: "success"
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: response.mess,
+                        icon: "error"
+                    });
+                }
+                handleDataChange();
             }
         });
     };

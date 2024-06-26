@@ -7,29 +7,7 @@ const CurrencyFormatter = ({ value }) => {
     const formattedValue = '$' + numeral(value).format('0,0');
     return <span>{formattedValue}</span>;
 };
-const saleStaffInformations = {
-    id: 1,
-    name: "Ngô Thị Hồng Hào",
-    imageUrl: "https://i.pinimg.com/564x/f1/35/c4/f135c40157fb7cae9e960d169ab9ac1c.jpg",
-    phone: "0987654321",
-    email: "thuydungngo@gmail.com"
-}
 
-const designStaffInformations = {
-    id: 1,
-    name: "Võ Thị Kim Chỉ",
-    imageUrl: "https://i.pinimg.com/564x/f1/74/83/f17483058438a9fbe95aa80a7e273414.jpg",
-    phone: "0987654321",
-    email: "themankimchi@gmail.com"
-}
-
-const productionStaffInformations = {
-    id: 1,
-    name: "Hoàng Việt Vị",
-    imageUrl: "https://i.pinimg.com/564x/b4/3a/89/b43a892e3f68c50a5b7ce996aa41a1af.jpg",
-    phone: "0987654321",
-    email: "dabongtoanvietvi@gmail.com"
-}
 export default function QuoteCard({ quote, onCancel }) {
     const newProductionPrice = quote.total_price - quote.product_price;
     const [checkOpen, setCheckOpen] = useState(false);
@@ -37,18 +15,6 @@ export default function QuoteCard({ quote, onCancel }) {
     const [designStaff, setDesignStaff] = useState(quote.design_staff);
     const [productionStaff, setProductionStaff] = useState(quote.production_staff);
 
-
-    // useEffect(() => {
-    //     if (staffList) {
-    //         const saleStaff = staffList.sale_staff_list.find(staff => staff.id === quote.saleStaff_id);
-    //         const designStaff = staffList.design_staff_list.find(staff => staff.id === quote.designStaff_id);
-    //         const productionStaff = staffList.production_staff_list.find(staff => staff.id === quote.productionStaff_id);
-
-    //         setSaleStaff(saleStaff);
-    //         setDesignStaff(designStaff);
-    //         setProductionStaff(productionStaff);
-    //     }
-    // }, [])
 
     const handleOpenClose = () => {
         setCheckOpen(!checkOpen);
@@ -126,7 +92,7 @@ export default function QuoteCard({ quote, onCancel }) {
                     </div>
 
                     <div className="w-full h-[65px] flex items-center justify-around">
-                        <button onClick={handleOpenClose} className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">DETAILS</button>
+                        <button onClick={handleOpenClose} className="md:w-[140px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">SUPPORT STAFFS</button>
                         {quote.quote_status.id === 4 || quote.quote_status.id === 5 ? (
                             <button className="md:w-[130px] sm:w-[100px] h-[35px] bg-slate-500 text-white ">CANCEL</button>
                         ) : (

@@ -27,7 +27,7 @@ class OrderController extends Controller
 {
     public function get_order_list_admin()
     {
-        $customize_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
+        $customize_order_list = DB::table('orders')->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -54,7 +54,7 @@ class OrderController extends Controller
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
             return $order;
         });
-        $template_order_list = DB::table('orders')->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
+        $template_order_list = DB::table('orders')->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -2804,5 +2804,54 @@ class OrderController extends Controller
         return response()->json(
             $payment_list
         );
+    }
+    public function confirm_delivery(Request $request){
+        $input = json_decode($request->input('order_id'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
+            }
+        }
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
+        $order = DB::table('orders')->where('id',$input)->first();
+        if($order->account_id != $id){
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Your Order'
+            ], 403);
+        }
+        if($order->order_status_id != 5){
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Being Deliver'
+            ], 403);
+        }
+        DB::beginTransaction();
+        try{
+            DB::table('orders')->where('id',$input)->update([
+                'order_status_id' => 6
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
     }
 }
