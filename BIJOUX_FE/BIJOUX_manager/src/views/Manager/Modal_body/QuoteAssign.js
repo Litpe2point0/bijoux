@@ -403,7 +403,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
                 saleStaff_id: assignedSaleStaff.id,
                 designStaff_id: assignedDesignStaff.id,
                 productionStaff_id: assignedProductionStaff.id,
-                note: note.trim()
+                note: note !=  null ? note.trim() : ''
             }
             console.log('assigned_information', assigned_information)
             const formData = new FormData();

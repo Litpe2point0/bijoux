@@ -62,7 +62,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
 
             const cancel = {
                 quote_id: quoteInfo.id,
-                note: note.trim()
+                note: note !=  null ? note.trim() : ''
             }
             console.log('cancel quote', cancel)
             const formData = new FormData();

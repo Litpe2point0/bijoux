@@ -67,7 +67,7 @@ const CustomForm = ({ orderInfo, account, onClose }) => {
 
             const cancel = {
                 order_id: orderInfo.id,
-                note: note.trim()
+                note: note != null ? note.trim() : ''
             }
             console.log('cancel order', cancel)
             const formData = new FormData();
