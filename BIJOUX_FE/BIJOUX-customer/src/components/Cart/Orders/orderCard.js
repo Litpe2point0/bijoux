@@ -2,9 +2,10 @@ import React, { useEffect } from "react";
 import numeral from 'numeral';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-
+import Button from '@mui/material/Button';
+import { Wallet } from "@phosphor-icons/react";
 const CurrencyFormatter = ({ value }) => {
-    const formattedValue = '$' + numeral(value).format('0,0');
+    const formattedValue = numeral(value).format('0,0') + ' VND';
     return <span>{formattedValue}</span>;
 };
 
@@ -156,42 +157,42 @@ export default function OrderCard({ order, onCancel }) {
                     </div>
 
                     <div className="w-full h-[65px] flex items-center justify-around">
-                        <button onClick={() => handleViewDetails(order.id)} className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">DETAILS</button>
+                        {/* <button className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F] text-xs">DETAILS</button> */}
+                        <Button onClick={() => handleViewDetails(order.id)} variant="contained">
+                            DETAILS
+                        </Button>
                         {
                             order.order_status.id === 5 ? (
-                                <button
-                                    onClick={() => handleConfirmReceived(order.id)}
-                                    className="md:w-[130px] sm:w-[100px] h-[35px] bg-sky-500 text-white text-xs hover:bg-[#071E6F]"
-                                >
+                                <Button onClick={() => handleConfirmReceived(order.id)} variant="contained">
                                     CONFIRM RECEIVED
-                                </button>
+                                </Button>
                             ) : order.order_status.id === 6 ? (
-                                <button
-                                    disabled
-                                    className="md:w-[130px] sm:w-[100px] h-[35px] bg-gray-500 text-white text-xs"
-                                >
+                                <Button disabled variant="contained">
                                     CONFIRM RECEIVED
-                                </button>
+                                </Button>
                             ) : order.order_status.id === 7 ? (
-                                <button
-                                    disabled
-                                    className="md:w-[130px] sm:w-[100px] h-[35px] bg-gray-500 text-white"
-                                >
+                                <Button disabled variant="contained">
                                     CANCEL
-                                </button>
+                                </Button>
                             ) :
                                 (
-                                    <button
-                                        onClick={onCancel}
-                                        className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#CD0B2A] text-white hover:bg-[#8B1023]"
-                                    >
+                                    <Button onClick={onCancel} variant="contained" color="error">
                                         CANCEL
-                                    </button>
+                                    </Button>
                                 )
                         }
                     </div>
 
                 </div>
+                <div className="items-start h-full flex">
+                    {order.order_status.id === 1 || order.order_status.id === 4 ? (
+                        <Button variant="outlined" sx={{ color: '#33ab95', borderBlockColor: '#33ab95' }} startIcon={<Wallet size={27} weight="duotone" />}>
+                            {order.order_status.id === 1 ? 'Pay Deposit' : 'Pay The Rest'}
+                        </Button>
+                    ) :
+                        (<div className="md:w-[157.92px] sm:w-[121.32px]"></div>)}
+                </div>
+
 
             </div>
         </div >

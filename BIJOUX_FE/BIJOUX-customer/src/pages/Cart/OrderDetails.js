@@ -75,7 +75,15 @@ export default function OrderDetails() {
                 </div>
             </div>
             <div className="w-10/12 my-7">
-                {!loading && <OrderStepper order={orderDetail} />}
+                {!loading && (
+                    orderDetail.order_status.id === 7 ? (
+                        <div className="w-full flex justify-center items-center">
+                            <p className="text-lg text-red-800 font-gantariFont font-semibold">Your order has been canceled, please contact +077 9999 213 for more information</p>
+                        </div>
+                    ) : (
+                        <OrderStepper order={orderDetail} />
+                    )
+                )}
             </div>
             {!loading &&
                 <div className="w-10/12 grid grid-cols-3">
@@ -103,7 +111,7 @@ export default function OrderDetails() {
                         <DesignProcess order={orderDetail} />
                     ) : (
                         <div className="flex justify-center">
-                            <p className="font-loraFont font-light text-xl text-[#151542]">Đơn hàng của bạn chưa tới bước Design, vui lòng đợi trong tương lai.</p>
+                            <p className="font-gantariFont font-semibold my-5 text-xl text-[#151542]">Your order hasn't reach Design Step. Please wait in the future</p>
                         </div>
                     )
                 )}
@@ -112,7 +120,7 @@ export default function OrderDetails() {
                         <ManufactureProgress order={orderDetail} />
                     ) : (
                         <div className="flex justify-center">
-                            <p className="font-loraFont font-light text-xl text-[#151542]">Đơn hàng của bạn chưa tới bước Manufacture, vui lòng đợi trong tương lai.</p>
+                            <p className="font-gantariFont font-semibold my-5 text-xl text-[#151542]">Your order hasn't reach Manufacture Step. Please wait in the future</p>
                         </div>
                     )
                 )}

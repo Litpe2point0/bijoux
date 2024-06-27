@@ -75,10 +75,28 @@ export default function OrderStepper({ order }) {
     return (
         <Box sx={{ width: '100%' }}>
             {!loading && (
+                // <Stepper activeStep={activeStep - 1} alternativeLabel>
+                //     {orderStatusList.map((step, index) => (
+                //         <Step key={step.id}>
+                //             <StepLabel >
+                //                 <div className='flex flex-col items-center w-full'>
+                //                     {step.name}
+                //                     {activeStep == step.id && activeStep == 1 &&
+                //                         <button onClick={() => handleCreatePaymentLink()} className='bg-sky-500 hover:bg-sky-900 rounded-md w-[300px] text-white font-semibold h-[25px]'>Paynow <CurrencyFormatter value={order.total_price / 2 - order.deposit_has_paid} /> </button>
+                //                     }
+                //                     {activeStep == step.id && activeStep == 4 &&
+                //                         <button onClick={() => handleCreatePaymentLink()} className='bg-sky-500 hover:bg-sky-900 rounded-md w-[300px] text-white font-semibold h-[25px]'>Paynow <CurrencyFormatter value={order.total_price - order.deposit_has_paid} /> </button>
+                //                     }
+                //                 </div>
+                //             </StepLabel>
+
+                //         </Step>
+                //     ))}
+                // </Stepper>
                 <Stepper activeStep={activeStep - 1} alternativeLabel>
-                    {orderStatusList.map((step, index) => (
+                    {orderStatusList.filter(step => step.id !== 7).map((step, index) => (
                         <Step key={step.id}>
-                            <StepLabel >
+                            <StepLabel>
                                 <div className='flex flex-col items-center w-full'>
                                     {step.name}
                                     {activeStep == step.id && activeStep == 1 &&
@@ -89,7 +107,6 @@ export default function OrderStepper({ order }) {
                                     }
                                 </div>
                             </StepLabel>
-
                         </Step>
                     ))}
                 </Stepper>
