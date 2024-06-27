@@ -161,10 +161,16 @@ class DiamondController extends Controller
             //update the diamond price
             DB::table('diamond')->where('id', $input['diamond_id'])->update([
                 'price' => $input['price'],
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
             $data = [];
             foreach ($product_diamond as $product) {
+                $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
+                if($temp1 != null){
+                    if($temp1->order_status_id >= 3){
+                        continue;
+                    }
+                }
                 $true = false;
                 //find all product_diamond list to update price
                 $diamond_list = DB::table('product_diamond')->where('product_id', $product->product_id)->where('diamond_id', $input['diamond_id'])->get();
@@ -220,6 +226,12 @@ class DiamondController extends Controller
             DB::table('product_diamond')->insert($data);
             //loop to update diamond price in order and quote
             foreach ($product_diamond as $product) {
+                $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
+                if($temp1 != null){
+                    if($temp1->order_status_id >= 3){
+                        continue;
+                    }
+                }
                 $order =  DB::table('orders')->where('product_id', $product->product_id)->first();
                 //check if order exist
                 if ($order != null) {

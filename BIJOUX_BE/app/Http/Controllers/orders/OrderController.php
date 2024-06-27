@@ -14,16 +14,20 @@ use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Email;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Throwable;
+use PayOS\PayOS;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
     public function get_order_list_admin()
     {
-        $customize_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
+        $customize_order_list = DB::table('orders')->where('order_type_id',2)->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -50,7 +54,7 @@ class OrderController extends Controller
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
             return $order;
         });
-        $template_order_list = DB::table('orders')->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
+        $template_order_list = DB::table('orders')->where('order_type_id',1)->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -130,6 +134,55 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+
+            $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
+            if ($sale_staff != null) {
+                $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+                unset($sale_staff->role_id);
+                if (!$sale_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+                }
+                $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+                $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+                unset($sale_staff->password);
+            }
+
+            $order->sale_staff = $sale_staff;
+            unset($order->saleStaff_id);
+
+            $design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
+            if ($design_staff != null) {
+                $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+                unset($design_staff->role_id);
+                if (!$design_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+                }
+                $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+                $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+                unset($design_staff->password);
+            }
+            $order->design_staff = $design_staff;
+            unset($order->designStaff_id);
+
+            $production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
+            if ($production_staff != null) {
+                $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+                unset($production_staff->role_id);
+                if (!$production_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+                }
+                $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+                $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+                unset($production_staff->password);
+            }
+            $order->production_staff = $production_staff;
+            unset($order->productionStaff_id);
             return $order;
         });
 
@@ -158,6 +211,55 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+
+            $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
+            if ($sale_staff != null) {
+                $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+                unset($sale_staff->role_id);
+                if (!$sale_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+                }
+                $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+                $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+                unset($sale_staff->password);
+            }
+
+            $order->sale_staff = $sale_staff;
+            unset($order->saleStaff_id);
+
+            $design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
+            if ($design_staff != null) {
+                $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+                unset($design_staff->role_id);
+                if (!$design_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+                }
+                $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+                $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+                unset($design_staff->password);
+            }
+            $order->design_staff = $design_staff;
+            unset($order->designStaff_id);
+
+            $production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
+            if ($production_staff != null) {
+                $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+                unset($production_staff->role_id);
+                if (!$production_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+                }
+                $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+                $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+                unset($production_staff->password);
+            }
+            $order->production_staff = $production_staff;
+            unset($order->productionStaff_id);
             return $order;
         });
         return response()->json([
@@ -379,7 +481,7 @@ class OrderController extends Controller
             $order->order_type_id = 1;
             $order->order_status_id = 1;
             $order->note = $input['note'];
-            $order->created = Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s');
+            $order->created = Carbon::now()->format('Y-m-d H:i:s');
             $order->save();
 
             DB::commit();
@@ -402,19 +504,19 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $order = DB::table('orders')->where('id', $input['order_id'])->first();
-            if ($order->order_status_id == 4) {
+            if ($order->order_status_id >= 4 && $order->order_status_id < 6) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Can No Longer Be Reassigned'
                 ], 403);
             }
-            if ($order->order_status_id == 5) {
+            if ($order->order_status_id == 6) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Has Already Been Completed'
                 ], 403);
             }
-            if ($order->order_status_id == 6) {
+            if ($order->order_status_id == 7) {
                 DB::rollback();
                 return response()->json([
                     'error' => 'The Selected Order Has Already Been Cancelled'
@@ -468,11 +570,9 @@ class OrderController extends Controller
                     ], 403);
                 }
             }
-            if (isset($input['note']) && $input['note'] != null) {
-                DB::table('orders')->where('id', $input['order_id'])->update([
-                    'note' => $input['note']
-                ]);
-            }
+            DB::table('orders')->where('id', $input['order_id'])->update([
+                'note' => $input['note']
+            ]);
             DB::table('orders')->where('id', $input['order_id'])->update([
                 'saleStaff_id' => $saleStaff_id,
                 'designStaff_id' => $designStaff_id,
@@ -530,18 +630,18 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $order = DB::table('orders')->where('id', $input['order_id'])->first();
-            if ($order->order_status_id == 5) {
+            if ($order->order_status_id == 6) {
                 return response()->json([
                     'error' => 'Order Has Already Been Completed, Action Can\'t Be Performed'
                 ], 403);
             }
-            if ($order->order_status_id == 6) {
+            if ($order->order_status_id == 7) {
                 return response()->json([
                     'error' => 'Order Has Already Been Cancelled, Action Can\'t Be Performed'
                 ], 403);
             }
             DB::table('orders')->where('id', $input['order_id'])->update([
-                'order_status_id' => 6,
+                'order_status_id' => 7,
                 'note' => $input['note']
             ]);
             DB::table('design_process')->where('order_id', $input['order_id'])->update([
@@ -742,6 +842,7 @@ class OrderController extends Controller
         $OGurl = env('ORIGIN_URL');
         $Murl = env('MODEL_URL');
         $Ourl = env('ORDER_URL');
+        $Durl = env('DESIGN_PROCESS_URL');
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order == null) {
             return response()->json([
@@ -879,7 +980,15 @@ class OrderController extends Controller
         $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
         unset($order->order_type_id);
 
-        $order->design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
+        $design_process = DB::table('design_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
+        if ($design_process != null) {
+            $design_process->mounting_type = DB::table('mounting_type')->where('id', $design_process->mounting_type_id)->first();
+            $design_process->design_process_status = DB::table('design_process_status')->where('id', $design_process->design_process_status_id)->first();
+            $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
+            unset($design_process->mounting_type_id);
+            unset($design_process->design_process_status_id);
+        }
+        $order->design_process = $design_process;
 
         $order->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product_url;
 
@@ -1326,7 +1435,7 @@ class OrderController extends Controller
             ], 500);
         }
         $data1 = collect();
-        $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6])->where('order_type_id', 1)->get();
+        $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 1)->get();
         foreach ($template_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($production_process->production_status_id == 6) {
@@ -1383,7 +1492,7 @@ class OrderController extends Controller
         });
 
         $data2 = collect();
-        $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6])->where('order_type_id', 2)->get();
+        $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 2)->get();
         foreach ($customize_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
             if ($production_process->production_status_id == 6) {
@@ -1509,14 +1618,15 @@ class OrderController extends Controller
                             'error' => 'One Of The Selected Diamond Is Currently Deactivated'
                         ], 403);
                     }
+                    $diamond = DB::table('diamond')->where('id', $diamond1['diamond']['id'])->first();
                     $product_diamond = new Product_Diamond();
                     $product_diamond->product_id = $order->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
                     $product_diamond->count = $diamond1['count'];
-                    $product_diamond->price = $diamond1['price'];
+                    $product_diamond->price = ceil($diamond->price * $diamond1['count']);
                     $product_diamond->diamond_shape_id = $diamond1['diamond_shape']['id'];
                     $product_diamond->status = 0;
-                    $product_price += $diamond1['price'];
+                    $product_price += ceil($diamond->price * $diamond1['count']);
                     $product_diamond->save();
                 }
             }
@@ -1530,14 +1640,15 @@ class OrderController extends Controller
                             'error' => 'One Of The Selected Metal Is Currently Deactivated'
                         ], 403);
                     }
+                    $metal = DB::table('metal')->where('id', $metal1['metal']['id'])->first();
                     $product_metal = new Product_Metal();
                     $product_metal->product_id = $order->product_id;
                     $product_metal->metal_id = $metal1['metal']['id'];
-                    $product_metal->price = $metal1['price'];
+                    $product_metal->price = ceil($metal->sale_price_per_gram * $metal1['weight']);
                     $product_metal->volume = $metal1['volume'];
                     $product_metal->weight = $metal1['weight'];
                     $product_metal->status = 0;
-                    $product_price += $metal1['price'];
+                    $product_price += ceil($metal->sale_price_per_gram * $metal1['weight']);
                     $product_metal->save();
                 }
             }
@@ -1552,7 +1663,7 @@ class OrderController extends Controller
                 'profit_rate' => $order->profit_rate,
                 'product_price' => 0,
                 'total_price' => 0,
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s'),
+                'created' => Carbon::now()->format('Y-m-d H:i:s'),
             ]);
 
             $imageUrl = "";
@@ -1562,7 +1673,7 @@ class OrderController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $id . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 $imageUrl = $fileName;
             } else {
@@ -1572,7 +1683,7 @@ class OrderController extends Controller
                 }
                 $product = DB::table('product')->where('id', $order->product_id)->first();
                 $cpyfileName = $product->imageUrl;
-                $fileName = time() . '_' . $id . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                 $destinationFilePath = public_path('image/Job/design_process/' . $id . '/' . $fileName);
                 $sourceFilePath = public_path('image/Order/' . $order->product_id . '/' . $cpyfileName);
                 File::copy($sourceFilePath, $destinationFilePath);
@@ -1749,6 +1860,7 @@ class OrderController extends Controller
                     'design_process_status_id' => 3
                 ]);
 
+
                 $order = DB::table('orders')->where('id', $design_process->order_id)->first();
                 $note = $order->note . "\n" . $input['note'];
 
@@ -1761,14 +1873,22 @@ class OrderController extends Controller
                 foreach ($product_metal as $metal) {
                     $product_price += $metal->price;
                 }
+                $product = DB::table('product')->where('id', $order->product_id)->first();
 
                 $temp = [
                     'profit_rate' => $order->profit_rate,
                     'production_price' => $order->production_price,
                     'product_price' => $order->product_price,
                     'total_price' => $order->total_price,
+                    'mounting_type_id' => $product->mounting_type_id,
+                    'mounting_size' => $product->mounting_size,
+                    'imageUrl' => $product->imageUrl,
                     'note' => $order->note
                 ];
+                DB::table('product')->where('id', $order->product_id)->update([
+                    'mounting_type_id' => $design_process->mounting_type_id,
+                    'mounting_size' => $design_process->mounting_size
+                ]);
                 DB::table('orders')->where('id', $design_process->order_id)->update([
                     'production_price' => $design_process->production_price,
                     'profit_rate' => $design_process->profit_rate,
@@ -1781,19 +1901,21 @@ class OrderController extends Controller
                     'production_price' => $temp['production_price'],
                     'product_price' => $temp['product_price'],
                     'total_price' => $temp['total_price'],
+                    'mounting_type_id' => $temp['mounting_type_id'],
+                    'mounting_size' => $temp['mounting_size'],
                     'note' => $temp['note']
                 ]);
-
                 if ($design_process->imageUrl != null) {
                     $fileName = 'main.jpg';
-                    $destinationPath = public_path('image/Order/' . $order->product_id);
-                    File::cleanDirectory($destinationPath);
-                    $destinationFilePath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
+                    $destinationPath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
+                    $tempPath = public_path('image/Job/design_process/temp.jpg');
+                    File::copy($destinationPath, $tempPath);
+                    File::delete($destinationPath);
                     $sourceFilePath = public_path('image/Job/design_process/' . $design_process->id . '/' . $design_process->imageUrl);
-                    File::copy($sourceFilePath, $destinationFilePath);
-                    DB::table('product')->where('id', $order->product_id)->update([
-                        'imageUrl' => $fileName
-                    ]);
+                    File::copy($sourceFilePath, $destinationPath);
+                    File::delete($sourceFilePath);
+                    File::copy($tempPath, $sourceFilePath);
+                    File::delete($tempPath);
                 }
                 if (($design_process->total_price * 50 / 100) >= ($order->total_price * 50 / 100 * 1.05)) {
                     DB::table('orders')->where('id', $design_process->order_id)->update([
@@ -1804,7 +1926,7 @@ class OrderController extends Controller
                     DB::table('production_process')->insert([
                         'order_id' => $order->id,
                         'production_status_id' => 1,
-                        'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s'),
+                        'created' => Carbon::now()->format('Y-m-d H:i:s'),
                     ]);
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 3
@@ -1885,13 +2007,13 @@ class OrderController extends Controller
             $designs = DB::table('design_process')->whereNot('design_process_status_id', 1)->orderBy('design_process_status_id', 'asc')->get();
             $design_list = $design_list->merge($designs);
         } else if ($account->role_id == 2) {
-            $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
+            $order_list = DB::table('orders')->where('saleStaff_id', $account->id)->whereNot('order_status_id', 7)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
                 $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
             }
         } else if ($account->role_id == 3) {
-            $order_list = DB::table('orders')->where('designStaff_id', $account->id)->whereNot('order_status_id', 6)->orderby('order_status_id', 'asc')->get();
+            $order_list = DB::table('orders')->where('designStaff_id', $account->id)->whereNot('order_status_id', 7)->orderby('order_status_id', 'asc')->get();
             foreach ($order_list as $order) {
                 $designs = DB::table('design_process')->where('order_id', $order->id)->orderBy('design_process_status_id', 'asc')->get();
                 $design_list = $design_list->merge($designs);
@@ -2114,7 +2236,7 @@ class OrderController extends Controller
 
         // Set the design process URL and calculate the total price
         $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
-        $design_process->total_price = ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100 ;
+        $design_process->total_price = ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100;
         $design_process->product_price = $product_price;
         unset($order->product_id);
 
@@ -2162,7 +2284,7 @@ class OrderController extends Controller
             $id = DB::table('design_updating')->insertGetId([
                 'order_id' => $input['order_id'],
                 'imageUrl' => "",
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
@@ -2170,7 +2292,7 @@ class OrderController extends Controller
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $fileName = time() . '_' . $id . '.jpg';
+                $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 DB::table('design_updating')->where('id', $id)->update([
                     'imageUrl' => $fileName
@@ -2230,12 +2352,12 @@ class OrderController extends Controller
                 'error' => 'The Selected Order Isn\'t Ready For Production'
             ], 403);
         }
-        if ($order->order_status_id > 3 && $order->order_status_id < 6) {
+        if ($order->order_status_id > 3 && $order->order_status_id < 7) {
             return response()->json([
                 'error' => 'The Selected Order Has Already Been Produce'
             ], 403);
         }
-        if ($order->order_status_id == 6) {
+        if ($order->order_status_id == 7) {
             return response()->json([
                 'error' => 'The Selected Order Has Already Been Cancelled'
             ], 403);
@@ -2282,7 +2404,7 @@ class OrderController extends Controller
                     'order_id' => $input['order_id'],
                     'production_status_id' => $input['production_status_id'],
                     'imageUrl' => "",
-                    'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                    'created' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
 
                 if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
@@ -2291,7 +2413,7 @@ class OrderController extends Controller
                     if (!file_exists($destinationPath)) {
                         mkdir($destinationPath, 0755, true);
                     }
-                    $fileName = time() . '_' . $id . '.jpg';
+                    $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
                     file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 } else {
                     $fileName = null;
@@ -2426,188 +2548,156 @@ class OrderController extends Controller
             return response()->json($e->getMessage(), 500);
         }
     }
-
-    // public function get_product_detail(Request $request) //chưa test
-    // {
-    //     $input = json_decode($request->input('product_id'), true);
-    //     if (!isset($input) || $input == null) {
-    //         return response()->json([
-    //             'error' => 'No Input Received'
-    //         ], 403);
-    //     }
-    //     $product = DB::table('product')->where('id', $input)->first();
-    //     $model = DB::table('model')->where('id', $product->model_id)->first();
-    //     if ($model != null) {
-    //         $model->mounting_type = DB::table('mounting_type')->where('id', $model->mounting_type_id)->first();
-    //         $model->mounting_style = DB::table('mounting_style')->where('id', $model->mounting_style_id)->first();
-    //         unset($model->mounting_type_id);
-    //         unset($model->mounting_style_id);
-
-    //         $model_shape = DB::table('model_diamondshape')->where('model_id', $model->id)->get();
-    //         $model_shape->map(function ($model_shape) {
-    //             $model_shape->diamond_shape = DB::table('diamond_shape')->where('id', $model_shape->diamond_shape_id)->first();
-    //             unset($model_shape->model_id);
-    //             unset($model_shape->diamond_shape_id);
-    //             return $model_shape;
-    //         });
-    //         $model->model_diamond_shape = $model_shape;
-
-    //         $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
-    //         $model_diamond->map(function ($model_diamond) {
-    //             $model_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $model_diamond->diamond_shape_id)->first();
-    //             unset($model_diamond->model_id);
-    //             unset($model_diamond->id);
-    //             unset($model_diamond->diamond_shape_id);
-    //             return $model_diamond;
-    //         });
-    //         $model->model_diamond = $model_diamond;
-
-    //         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-    //         $model_metal->map(function ($model_metal) {
-    //             $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-    //             $OGurl = env('ORIGIN_URL');
-    //             $url = env('METAL_URL');
-    //             $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
-    //             $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
-    //             $model_metal->metal = $metal;
-    //             unset($model_metal->model_id);
-    //             unset($model_metal->id);
-    //             unset($model_metal->metal_id);
-    //             return $model_metal;
-    //         });
-    //         $model->model_metal = $model_metal;
-    //         $OGurl = env('ORIGIN_URL');
-    //         $url = env('MODEL_URL');
-    //         $model->imageUrl = $OGurl . $url . $model->id . '/' . $model->imageUrl;
-    //     }
-
-
-    //     $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
-    //     unset($product->mounting_type_id);
-    //     $product->model = $model;
-    //     unset($product->model_id);
-
-    //     $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
-    //     $product_diamond->map(function ($product_diamond) {
-    //         $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
-    //         $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
-    //         $OGurl = env('ORIGIN_URL');
-    //         $url = env('DIAMOND_URL');
-    //         $diamond->imageUrl = $OGurl . $url . $diamond->imageUrl;
-    //         $product_diamond->diamond = $diamond;
-    //         $product_diamond->diamond_shape_id = DB::table('diamond_shape_id')->where('id', $product_diamond->diamond_shape_id)->first();
-    //         unset($product_diamond->diamond_id);
-    //         unset($product_diamond->diamond_shape_id);
-    //         return $product_diamond;
-    //     });
-    //     $product->product_diamond = $product_diamond;
-
-    //     $product_metal = DB::table('product_metal')->where('product_id', $product->id)->get();
-    //     $product_metal->map(function ($product_metal) {
-    //         $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
-    //         $OGurl = env('ORIGIN_URL');
-    //         $url = env('METAL_URL');
-    //         $metal->created = Carbon::parse($metal->created)->format('H:i:s d/m/Y');
-    //         $metal->imageUrl = $OGurl . $url . $metal->id . '/' . $metal->imageUrl;
-    //         $product_metal->metal = $metal;
-    //         unset($product_metal->metal_id);
-    //         return $product_metal;
-    //     });
-    //     $product->product_diamond = $product_metal;
-    //     $OGurl = env('ORIGIN_URL');
-    //     $url = env('ORDER_ID');
-    //     $product->imageUrl = $OGurl . $url . $product->id . '/' . $product->imageUrl;
-
-    //     return response()->json([
-    //         $product
-    //     ]);
-    // }
-
-    public function confirm_payment() //chưa test
+    public function generateOrderCode()
     {
-        $vnp_HashSecret = env('VNP_HASH_SECRET');
-        $vnp_SecureHash = $_GET['vnp_SecureHash'];
-        $inputData = array();
-        foreach ($_GET as $key => $value) {
-            if (substr($key, 0, 4) == "vnp_") {
-                $inputData[$key] = $value;
-            }
+        $orderCode = intval(substr(strval(microtime(true) * 10000), -6));
+        $payment = DB::table('payment')->where('id', $orderCode)->get();
+        if ($payment->count() > 0) {
+            $this->generateOrderCode();
         }
-
-        unset($inputData['vnp_SecureHash']);
-        ksort($inputData);
-        $i = 0;
-        $hashData = "";
-        foreach ($inputData as $key => $value) {
-            if ($i == 1) {
-                $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
-            } else {
-                $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
-                $i = 1;
-            }
+        return $orderCode;
+    }
+    public function create_payment_link(Request $request)
+    {
+        $input = json_decode($request->input('order_information'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
         }
+        $order = DB::table('orders')->where('id', $input['order_id'])->first();
+        if ($order == null) {
+            return response()->json([
+                'error' => 'The Selected Order Doesn\'t Exist'
+            ], 403);
+        }
+        if ($order->order_status_id == 1) {
+            $amount = ceil(($order->total_price / 2) - $order->deposit_has_paid);
+            $payment_type_id = 1;
+            $description = "Deposit";
+        } else if ($order->order_status_id == 4) {
+            $amount = ceil(($order->total_price) - $order->deposit_has_paid);
+            $payment_type_id = 2;
+            $description = "Payment";
+        } else {
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Ready For Deposit/Payment'
+            ], 403);
+        }
+        $client_id = env('CLIENT_ID');
+        $api_key = env('API_KEY');
+        $checksum_key = env('CHECK_SUM_KEY');
+        $payOS = new PayOS($client_id, $api_key, $checksum_key);
 
+        $data = [
+            "orderCode" => $this->generateOrderCode(),
+            "amount" => $amount,
+            "description" => $description,
+            "returnUrl" => $input['return_url'],
+            "cancelUrl" => $input['cancel_url'],
+        ];
+        try {
+            DB::table('payment')->insert([
+                'id' => $data['orderCode'],
+                'account_id' => $order->account_id,
+                'order_id' => $order->id,
+                'payment_type_id' => $payment_type_id,
+                'isSuccess' => 0,
+                'money' => $amount,
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
+            ]);
+            $response = $payOS->createPaymentLink($data);
+            return response()->json([
+                'payment_link' => $response['checkoutUrl']
+            ]);
+        } catch (Throwable $th) {
+            DB::rollBack();
+            return $th->getMessage();
+        }
+    }
+    public function isValidData($transaction, $transaction_signature, $checksum_key)
+    {
+        ksort($transaction);
+        $transaction_str_arr = [];
+        foreach ($transaction as $key => $value) {
+            if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
+                $value = "";
+            }
+
+            if (is_array($value)) {
+                $valueSortedElementObj = array_map(function ($ele) {
+                    ksort($ele);
+                    return $ele;
+                }, $value);
+                $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
+            }
+            $transaction_str_arr[] = $key . "=" . $value;
+        }
+        $transaction_str = implode("&", $transaction_str_arr);
+        dump($transaction_str);
+        $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
+        dump($signature);
+        return $signature == $transaction_signature;
+    }
+    public function confirm_payment(Request $request)
+    {
+        $checksum_key = env('CHECK_SUM_KEY');
+        $input = $request->input();
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
         DB::beginTransaction();
         try {
-            $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-            if ($secureHash == $vnp_SecureHash) {
-                if ($_GET['vnp_ResponseCode'] == '00') {
-                    $account_id = $_GET['account_id'];
-                    $order_id = $_GET['order_id'];
-                    $payment_type_id = $_GET['payment_type_id'];
-                    $money = $_GET['vnp_Amount'];
-                    DB::table('payment')->insert([
-                        'account_id' => $account_id,
-                        'order_id' => $order_id,
-                        'payment_type_id' => $payment_type_id,
-                        'money' => $money,
-                        'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
-                    ]);
-                    if ($payment_type_id == 1) {
-                        $order = DB::table('orders')->where('id', $order_id)->first();
-                        $design_process = DB::table('design_process')->where('order_id', $order_id)->first();
-                        $product = DB::table('product')->where('id', $order->product_id)->first();
-                        if ($order->order_type_id == 1) {
-                            DB::table('orders')->where('id', $order_id)->update([
+            if ($this->isValidData($input['data'], $input['signature'], $checksum_key)) {
+                $payment = DB::table('payment')->where('id', $input['data']['orderCode'])->first();
+                $order = DB::table('orders')->where('id', $payment->order_id)->first();
+                if ($order->order_status_id == 1) {
+                    if ($order->order_type_id == 1) {
+                        DB::table('orders')->where('id', $order->id)->update([
+                            'deposit_has_paid' => $order->deposit_has_paid += $payment->money,
+                            'order_status_id' => 3
+                        ]);
+                        DB::table('production_process')->insert([
+                            'order_id' => $order->id,
+                            'production_status_id' => 1,
+                            'created' => Carbon::now()->format('Y-m-d H:i:s')
+                        ]);
+                    } else {
+                        $design_process = DB::table('design_process')->where('order_id', $order->id)->where('design_process_status_id', 3)->first();
+                        if ($design_process != null) {
+                            DB::table('orders')->where('id', $order->id)->update([
+                                'deposit_has_paid' => $order->deposit_has_paid += $payment->money,
                                 'order_status_id' => 3
                             ]);
                             DB::table('production_process')->insert([
-                                'order_id' => $order_id,
+                                'order_id' => $order->id,
                                 'production_status_id' => 1,
-                                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
-                            ]);
-                        } else if ($design_process != null) {
-                            DB::table('orders')->where('id', $order_id)->update([
-                                'order_status_id' => 3
-                            ]);
-                            DB::table('production_process')->insert([
-                                'order_id' => $order_id,
-                                'production_status_id' => 1,
-                                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                                'created' => Carbon::now()->format('Y-m-d H:i:s')
                             ]);
                         } else {
-                            DB::table('orders')->where('id', $order_id)->update([
+                            DB::table('orders')->where('id', $order->id)->update([
+                                'deposit_has_paid' => $order->deposit_has_paid += $payment->money,
                                 'order_status_id' => 2
                             ]);
                         }
-                    } else if ($payment_type_id == 2) {
-                        DB::table('orders')->where('id', $order_id)->update([
-                            'order_status_id' => 5
-                        ]);
                     }
                 } else {
-                    DB::rollBack();
-                    return response()->json([
-                        'error' => 'Transaction Not Successfull'
-                    ], 403);
+                    $this->generatePDF($payment->id);
+                    DB::table('orders')->where('id', $order->id)->update([
+                        'order_status_id' => 5
+                    ]);
                 }
+                DB::table('payment')->where('id', $input['data']['orderCode'])->update([
+                    'isSuccess' => 1
+                ]);
+                DB::commit();
             } else {
-                DB::rollBack();
                 return response()->json([
-                    'error' => 'Invalid VNP Hash'
+                    'error' => 'Invalid Signature'
                 ], 403);
             }
-            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
@@ -2615,5 +2705,151 @@ class OrderController extends Controller
         return response()->json([
             'success' => 'Transaction Complete'
         ], 200);
+    }
+    public function generatePDF($orderCode)
+    {
+        $payment = DB::table('payment')->where('id', $orderCode)->first();
+        $account = DB::table('account')->where('id', $payment->account_id)->first();
+        $order = DB::table('orders')->where('id', $payment->order_id)->first();
+        $product = DB::table('product')->where('id', $order->product_id)->first();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
+        $product_diamond->map(function ($product_diamond) {
+            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+            $diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
+
+            $product_diamond->name = $diamond->size . " (mm) " . $diamond_color->name . '-' . $diamond_clarity->name . ' ' . $diamond_shape->name . ' Shape ' . $diamond_cut->name . ' Cut Diamond';
+            $product_diamond->price = $this->formatCurrency($product_diamond->price);
+            $product_diamond->unit_price = $this->formatCurrency($diamond->price);
+            return $product_diamond;
+        });
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
+        $product_metal->map(function ($product_metal) {
+            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $product_metal->name = $metal->name;
+            $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
+            $product_metal->price = $this->formatCurrency($product_metal->price);
+            return $product_metal;
+        });
+        $data = [
+            'date' => Carbon::now()->format('d/m/Y'),
+            'account' => $account,
+            'payment' => $payment,
+            'product_diamond' => $product_diamond,
+            'product_metal' => $product_metal,
+            'order' => $order,
+            'product_price' => $this->formatCurrency($order->product_price),
+            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price + $order->production_price) * $order->profit_rate / 100),
+            'total_price' => $this->formatCurrency($order->total_price)
+        ];
+
+        $pdf = PDF::loadView('pdf', $data);
+        $fileName = Carbon::now()->timestamp . '_' . $payment->id . '.pdf';
+        // $fileName = $payment->id . '.pdf';
+        $content = $pdf->download()->getOriginalContent();
+        $destinationPath = public_path('pdf/' . $order->id);
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+        $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
+        File::put($filePath, $content);
+        $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
+        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
+    }
+    function formatCurrency($amount)
+    {
+        return number_format($amount, 0) . ' VND';
+    }
+    public function sendMail($toEmail, $messageContent, $subject, $pathToFile)
+    {
+        try {
+            Mail::to($toEmail)->send(new Email($messageContent, $subject, $pathToFile));
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+        }
+    }
+    public function get_payment_history(Request $request)
+    {
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
+            }
+        }
+        try {
+            $input = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->id;
+        }
+        $payment_list = DB::table('payment')->where('account_id', $input)->where('isSuccess', 1)->orderBy('created', 'desc')->get();
+        $payment_list->map(function ($payment) {
+            $payment->created = Carbon::parse($payment->created)->format('H:i:s d/m/Y');
+            $payment->payment_type = DB::table('payment_type')->where('id', $payment->payment_type_id)->first();
+            unset($payment->payment_type_id);
+            return $payment;
+        });
+        return response()->json(
+            $payment_list
+        );
+    }
+    public function confirm_delivery(Request $request){
+        $input = json_decode($request->input('order_id'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid Token'], 401);
+                }
+            }
+        }
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
+        $order = DB::table('orders')->where('id',$input)->first();
+        if($order->account_id != $id){
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Your Order'
+            ], 403);
+        }
+        if($order->order_status_id != 5){
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Being Deliver'
+            ], 403);
+        }
+        DB::beginTransaction();
+        try{
+            DB::table('orders')->where('id',$input)->update([
+                'order_status_id' => 6
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json($e->getMessage(), 500);
+        }
     }
 }

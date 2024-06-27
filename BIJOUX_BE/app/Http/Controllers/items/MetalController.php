@@ -86,10 +86,16 @@ class MetalController extends Controller
             DB::table('metal')->where('id', $input['metal_id'])->update([
                 'buy_price_per_gram' => $input['buy_price_per_gram'],
                 'sale_price_per_gram' => $input['sale_price_per_gram'],
-                'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                'created' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
             $data = [];
             foreach ($product_metal as $product) {
+                $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
+                if($temp1 != null){
+                    if($temp1->order_status_id >= 3){
+                        continue;
+                    }
+                }
                 $true = false;
                 //find all product_metal list to update price
                 $metal_list = DB::table('product_metal')->where('product_id', $product->product_id)->where('metal_id', $input['metal_id'])->get();
@@ -145,6 +151,12 @@ class MetalController extends Controller
             DB::table('product_metal')->insert($data);
             //loop to update metal price in order and quote
             foreach ($product_metal as $product) {
+                $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
+                if($temp1 != null){
+                    if($temp1->order_status_id >= 3){
+                        continue;
+                    }
+                }
                 $order =  DB::table('orders')->where('product_id', $product->product_id)->first();
                 //check if order exist
                 if ($order != null) {

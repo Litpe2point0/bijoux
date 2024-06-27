@@ -99,7 +99,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -111,7 +111,13 @@ class QuoteController extends Controller
             $input = $decodedToken->id;
         }
 
-        $quote_list = DB::table('quote')->where('account_id', $input)->orderBy('quote_status_id', 'ASC')->get();
+        $quote_list = DB::table('quote')->where('account_id', $input)->orderByRaw("
+            CASE 
+                WHEN quote_status_id = 5 THEN 2 
+                WHEN quote_status_id = 4 THEN 1 
+                ELSE 0 
+            END ASC 
+        ")->get();
         $quote_list->map(function ($quote) {
             $product = DB::table('product')->where('id', $quote->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -143,6 +149,55 @@ class QuoteController extends Controller
 
             $quote->quote_status = DB::table('quote_status')->where('id', $quote->quote_status_id)->first();
             unset($quote->quote_status_id);
+
+            $sale_staff = DB::table('account')->where('id', $quote->saleStaff_id)->first();
+            if ($sale_staff != null) {
+                $sale_staff->role = DB::table('role')->where('id', $sale_staff->role_id)->first();
+                unset($sale_staff->role_id);
+                if (!$sale_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $sale_staff->imageUrl = $OGurl . $url . $sale_staff->id . "/" . $sale_staff->imageUrl;
+                }
+                $sale_staff->dob = Carbon::parse($sale_staff->dob)->format('d/m/Y');
+                $sale_staff->deactivated_date = Carbon::parse($sale_staff->deactivated_date)->format('d/m/Y');
+                unset($sale_staff->password);
+            }
+
+            $quote->sale_staff = $sale_staff;
+            unset($quote->saleStaff_id);
+
+            $design_staff = DB::table('account')->where('id', $quote->designStaff_id)->first();
+            if ($design_staff != null) {
+                $design_staff->role = DB::table('role')->where('id', $design_staff->role_id)->first();
+                unset($design_staff->role_id);
+                if (!$design_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $design_staff->imageUrl = $OGurl . $url . $design_staff->id . "/" . $design_staff->imageUrl;
+                }
+                $design_staff->dob = Carbon::parse($design_staff->dob)->format('d/m/Y');
+                $design_staff->deactivated_date = Carbon::parse($design_staff->deactivated_date)->format('d/m/Y');
+                unset($design_staff->password);
+            }
+            $quote->design_staff = $design_staff;
+            unset($quote->designStaff_id);
+
+            $production_staff = DB::table('account')->where('id', $quote->productionStaff_id)->first();
+            if ($production_staff != null) {
+                $production_staff->role = DB::table('role')->where('id', $production_staff->role_id)->first();
+                unset($production_staff->role_id);
+                if (!$production_staff->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $production_staff->imageUrl = $OGurl . $url . $production_staff->id . "/" . $production_staff->imageUrl;
+                }
+                $production_staff->dob = Carbon::parse($production_staff->dob)->format('d/m/Y');
+                $production_staff->deactivated_date = Carbon::parse($production_staff->deactivated_date)->format('d/m/Y');
+                unset($production_staff->password);
+            }
+            $quote->production_staff = $production_staff;
+            unset($quote->productionStaff_id);
             return $quote;
         });
         return response()->json(
@@ -172,7 +227,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -225,7 +280,7 @@ class QuoteController extends Controller
             $quote->profit_rate = 0;
             $quote->total_price = 0;
             $quote->note = $note;
-            $quote->created = Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s');
+            $quote->created = Carbon::now()->format('Y-m-d H:i:s');
             $quote->save();
 
             DB::commit();
@@ -314,11 +369,9 @@ class QuoteController extends Controller
                     ], 403);
                 }
             }
-            if (isset($input['note']) && $input['note'] != null) {
-                DB::table('quote')->where('id', $input['quote_id'])->update([
-                    'note' => $input['note']
-                ]);
-            }
+            DB::table('quote')->where('id', $input['quote_id'])->update([
+                'note' => $input['note']
+            ]);
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'saleStaff_id' => $saleStaff_id,
                 'designStaff_id' => $designStaff_id,
@@ -355,7 +408,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -404,12 +457,10 @@ class QuoteController extends Controller
             DB::table('quote')->where('id', $input['quote_id'])->update([
                 'note' => $input['note']
             ]);
-            if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
-                DB::table('product')->where('id', $quote->product_id)->update([
-                    'mounting_type_id' => $input['mounting_type_id'],
-                    'mounting_size' => $input['mounting_size']
-                ]);
-            }
+            DB::table('product')->where('id', $quote->product_id)->update([
+                'mounting_type_id' => $input['mounting_type_id'],
+                'mounting_size' => $input['mounting_size']
+            ]);
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
                 $destinationPath = public_path('image/Order/' . $quote->product_id);
@@ -534,7 +585,7 @@ class QuoteController extends Controller
                     'saleStaff_id' => $quote->saleStaff_id,
                     'designStaff_id' => $quote->designStaff_id,
                     'productionStaff_id' => $quote->productionStaff_id,
-                    'created' => Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s')
+                    'created' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
             } else if (!$input['approve'] || $input['approve'] == 0) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
@@ -572,7 +623,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
@@ -626,7 +677,7 @@ class QuoteController extends Controller
                 $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
             } catch (JWTException $e) {
                 try {
-                    $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
                     return response()->json(['error' => 'Invalid Token'], 401);
                 }
