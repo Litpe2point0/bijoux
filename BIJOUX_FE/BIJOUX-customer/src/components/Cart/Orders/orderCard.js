@@ -107,7 +107,7 @@ export default function OrderCard({ order, onCancel }) {
                         {/* <div className="w-10/12 h-[75px] bg-slate-200 overflow-y-auto">
                             <p className="font-gantariFont ml-2 mt-2 mr-2 mb-1">{order.note}</p>
                         </div> */}
-                        <textarea className="w-10/12 h-[75px] bg-slate-200 overflow-y-auto font-gantariFont p-2 border-2 border-gray-200 rounded-md">
+                        <textarea readOnly className="w-[395px] h-[75px] disabled bg-slate-200 overflow-y-auto font-gantariFont p-2 border-2 resize-none  border-gray-200 rounded-md">
                             {order.note}
                         </textarea>
                     </div>
