@@ -306,3 +306,17 @@ export async function get_order_status_list(formData, title, loginRequired, { si
         return response_with_mess(false, mess_title, error.response.data.error, null);
     }
 }
+
+export async function confirm_delivery(formData, title, loginRequired, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const apiInstance = loginRequired ? login_required_api : api;
+        const response = await apiInstance.post('/order/confirm_delivery', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("confirm_delivery" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
+

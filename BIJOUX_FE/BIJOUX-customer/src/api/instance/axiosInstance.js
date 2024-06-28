@@ -3,6 +3,7 @@ import {backend_url} from '../Back_End_Url';
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
+import { Navigate } from 'react-router-dom';
 
 // Tạo axios instance
 const api_admin = axios.create({
@@ -60,6 +61,20 @@ export const instantAlertMaker = (icon, title, text) => {
     cancelButtonColor: '#d33',
     confirmButtonText: 'Đông Ý',
 })
+};
+export const paymentAlertMaker = (navigate, icon, title, text) => {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: icon,
+    allowOutsideClick: false,
+    confirmButtonColor: '#3085d6',
+    confirmButtonText: 'Đông Ý',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      navigate(window.location.pathname)
+    }
+  })
 };
 
 // Lấy token từ Redux Persist

@@ -16,7 +16,13 @@ class CorsMiddleware
     protected $allowedOrigins = [
         'http://localhost:3000',
         'http://localhost:3001',
-        'http://localhost:8000'
+        'http://localhost:8000',
+        'https://advanced-fine-baboon.ngrok-free.app',
+        'https://fair-upward-satyr.ngrok-free.app',
+        'https://bijoux-demo1.netlify.app',
+        'https://customerss-7jmoqnvmm-hungs-projects-5beaef07.vercel.app',
+        'https://bijoux-jewelry.netlify.app',
+        'https://bijoux-management.netlify.app'
     ];
     public function handle(Request $request, Closure $next): Response
     {

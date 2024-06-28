@@ -6,6 +6,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
 import { create_payment_link, get_order_status_list } from '../../../api/main/orders/Order_api';
 import numeral from 'numeral';
+import { instantAlertMaker } from '../../../api/instance/axiosInstance';
 
 // Danh sách các bước trong stepper
 // const steps = [
@@ -21,7 +22,9 @@ const CurrencyFormatter = ({ value }) => {
     return <span>{formattedValue}</span>;
 };
 
-
+function getUrlWithoutQuery() {
+    return window.location.origin + window.location.pathname;
+}
 
 
 export default function OrderStepper({ order }) {
@@ -62,13 +65,18 @@ export default function OrderStepper({ order }) {
     const handleCreatePaymentLink = async () => {
         const order_information = {
             order_id: order.id,
-            return_url: window.location.href + "?payment_status=success",
-            cancel_url: window.location.href + "?payment_status=cancel",
+            return_url: getUrlWithoutQuery() + "?payment_status=success",
+            cancel_url: getUrlWithoutQuery() + "?payment_status=cancel",
         }
         const formData = new FormData();
         formData.append("order_information", JSON.stringify(order_information));
         const payment_link = await create_payment_link(formData, "Create payment link", true);
-        window.location.href = payment_link.data.payment_link;
+        if (payment_link.data.payment_link) {
+            window.location.href = payment_link.data.payment_link;
+        }else{
+            
+            instantAlertMaker('warning', 'Error', "So Sorry, You Can Not Pay It For Now, Because Of Some Unexpected Reason!");
+        }
 
     }
 
