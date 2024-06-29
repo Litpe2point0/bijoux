@@ -2574,11 +2574,11 @@ class OrderController extends Controller
         if ($order->order_status_id == 1) {
             $amount = ceil(($order->total_price / 2) - $order->deposit_has_paid);
             $payment_type_id = 1;
-            $description = "Deposit";
+            $description = "Pay Deposit For ORDER " . $order->id;
         } else if ($order->order_status_id == 4) {
             $amount = ceil(($order->total_price) - $order->deposit_has_paid);
             $payment_type_id = 2;
-            $description = "Payment";
+            $description = "Pay The Rest For ORDER " . $order->id;
         } else {
             return response()->json([
                 'error' => 'The Selected Order Isn\'t Ready For Deposit/Payment'
