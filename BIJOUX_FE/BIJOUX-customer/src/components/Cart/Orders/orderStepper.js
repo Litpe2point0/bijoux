@@ -73,8 +73,8 @@ export default function OrderStepper({ order }) {
         const payment_link = await create_payment_link(formData, "Create payment link", true);
         if (payment_link.data.payment_link) {
             window.location.href = payment_link.data.payment_link;
-        }else{
-            
+        } else {
+
             instantAlertMaker('warning', 'Error', "So Sorry, You Can Not Pay It For Now, Because Of Some Unexpected Reason!");
         }
 
@@ -84,16 +84,16 @@ export default function OrderStepper({ order }) {
         <Box sx={{ width: '100%' }}>
             {!loading && (
                 <Stepper activeStep={activeStep - 1} alternativeLabel>
-                    {orderStatusList.map((step, index) => (
+                    {orderStatusList.filter(step => step.id !== 7).map((step, index) => (
                         <Step key={step.id}>
                             <StepLabel >
                                 <div className='flex flex-col items-center w-full'>
                                     {step.name}
                                     {activeStep == step.id && activeStep == 1 &&
-                                        <button onClick={() => handleCreatePaymentLink()} className='bg-sky-500 hover:bg-sky-900 rounded-md w-[300px] text-white font-semibold h-[25px]'>Paynow <CurrencyFormatter value={order.total_price / 2 - order.deposit_has_paid} /> </button>
+                                        <button onClick={() => handleCreatePaymentLink()} className='bg-sky-500 hover:bg-sky-900 rounded-md w-[200px] text-white font-semibold h-[25px]'>Paynow <CurrencyFormatter value={order.total_price / 2 - order.deposit_has_paid} /> </button>
                                     }
                                     {activeStep == step.id && activeStep == 4 &&
-                                        <button onClick={() => handleCreatePaymentLink()} className='bg-sky-500 hover:bg-sky-900 rounded-md w-[300px] text-white font-semibold h-[25px]'>Paynow <CurrencyFormatter value={order.total_price - order.deposit_has_paid} /> </button>
+                                        <button onClick={() => handleCreatePaymentLink()} className='bg-sky-500 hover:bg-sky-900 rounded-md w-[200px] text-white font-semibold h-[25px]'>Paynow <CurrencyFormatter value={order.total_price - order.deposit_has_paid} /> </button>
                                     }
                                 </div>
                             </StepLabel>
