@@ -30,6 +30,7 @@ import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemTex
 //import Button from '@mui/joy/Button';
 import { PlusCircle, XCircle } from "phosphor-react";
 import MetalAdd from "../MetalAdd";
+import { CurrencyFormatterLowercase } from "../../../../component_items/Ag-grid/money_formatter";
 
 
 
@@ -99,13 +100,8 @@ export default function MetalCard({ product, handleChange }) {
                                 <ListItemText className="text-dark w-25" primary='Type' secondary={item.metal.name} />
                                 <ListItemText className="text-dark w-25" primary='Volume' secondary={item.volume} />
                                 <ListItemText className="text-dark w-25" primary='Weight' secondary={item.weight} />
-                                <ListItemText className="text-dark w-25" primary='Caculated Price' secondary={item.price + ' vnd'} />
+                                <ListItemText className="text-dark w-25" primary='Caculated Price' secondary={<CurrencyFormatterLowercase value={item.price}/>} />
 
-                                {/* {product.product_metal.length == 0 && 
-                                <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
-                                    <XCircle size={30} color="crimson" weight="duotone" />
-                                </IconButton>
-                                } */}
                               
                                 <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
                                     <XCircle size={30} color="crimson" weight="duotone" />

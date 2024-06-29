@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import { create_payment_link, get_order_status_list } from '../../../api/main/orders/Order_api';
 import numeral from 'numeral';
 import { instantAlertMaker } from '../../../api/instance/axiosInstance';
+import { ArrowBendRightUp, Package } from 'phosphor-react';
 
 // Danh sách các bước trong stepper
 // const steps = [
@@ -83,10 +84,10 @@ export default function OrderStepper({ order }) {
     return (
         <Box sx={{ width: '100%' }}>
             {!loading && (
-                <Stepper activeStep={activeStep - 1} alternativeLabel>
+                <Stepper activeStep={activeStep - 1} alternativeLabel >
                     {orderStatusList.filter(step => step.id !== 7).map((step, index) => (
                         <Step key={step.id}>
-                            <StepLabel >
+                            <StepLabel icon={step.id == 6 && (activeStep ) == 6 && <Package color='limegreen' size={'1.5rem'} weight="duotone"  />}  >
                                 <div className='flex flex-col items-center w-full'>
                                     {step.name}
                                     {activeStep == step.id && activeStep == 1 &&

@@ -32,6 +32,7 @@ import { PlusCircle, XCircle } from "phosphor-react";
 import MetalAdd from "../MetalAdd";
 import DiamondAdd from "../DiamondAdd";
 import { get_diamond_imageUrl } from "../../../../../api/Back_End_Url";
+import { CurrencyFormatterLowercase } from "../../../../component_items/Ag-grid/money_formatter";
 
 
 
@@ -69,7 +70,6 @@ export default function DiamondCard({ product, handleChange }) {
                             variant="outlined"
                             color="warning"
                             startIcon={<PlusCircle size={25} color="peru" weight="duotone" />}    
-                            /* disabled={product.product_diamond.length > 0} */
                             >
                             Add Diamond
                         </Button>
@@ -103,7 +103,7 @@ export default function DiamondCard({ product, handleChange }) {
                                 <ListItemText className="text-dark w-25" primary='Clarity' secondary={item.diamond.diamond_clarity.name} />
                                 <ListItemText className="text-dark w-25" primary='Cut' secondary={item.diamond.diamond_cut.name} />
                                 <ListItemText className="text-dark w-25" primary='Count' secondary={item.count} />
-                                <ListItemText className="text-dark w-25" primary='Total Price' secondary={item.price + ' vnd'} />
+                                <ListItemText className="text-dark w-25" primary='Total Price' secondary={<CurrencyFormatterLowercase value={item.price}/>} />
                                 {/* {product.product_metal.length == 0 &&
                                     <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
                                         <XCircle size={30} color="crimson" weight="duotone" />

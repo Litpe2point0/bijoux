@@ -8,6 +8,7 @@ import ManufactureProgress from "../../components/Cart/Orders/manufactureProgres
 import DesignProcess from "../../components/Cart/Orders/designProcess";
 import { get_order_detail, get_order_detail_customer } from "../../api/main/orders/Order_api";
 import { instantAlertMaker, paymentAlertMaker } from "../../api/instance/axiosInstance";
+import { Box, CircularProgress } from "@mui/material";
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
@@ -23,7 +24,6 @@ export default function OrderDetails() {
     const [loading, setLoading] = useState(true);
     const [checkContent, setCheckContent] = useState("order-informations");
     const [checkPayment, setCheckPayment] = useState(false);
-    //call api để lấy order_detail từ id
     useEffect(() => {
         if (query.get("payment_status") == "success") {
             paymentAlertMaker(navigate, 'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
@@ -74,50 +74,59 @@ export default function OrderDetails() {
 
                 </div>
             </div>
-            <div className="w-10/12 my-7">
-                {!loading && <OrderStepper order={orderDetail} />}
-            </div>
-            {!loading &&
-                <div className="w-10/12 grid grid-cols-3">
-                    <div className="w-full flex items-center justify-center">
-                        <button onClick={() => handleChangeContent("order-informations")} className="md:w-[190px] md:h-[40px] sm:w-[165px] sm:h-[40px] sm:text-sm md:text-base bg-[#151542] text-white font-semibold hover:bg-[#2323D5] hover:text-yellow-400">Order Informations</button>
+            {loading ?
+                <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', padding: '100px' }}>
+                <CircularProgress color="inherit" />
+                </Box>
+                :
+                <>
+
+
+                    <div className="w-10/12 my-7">
+                        {!loading && <OrderStepper order={orderDetail} />}
                     </div>
-                    {orderDetail.order_type.id == 2 &&
-                        <div className="w-full flex items-center justify-center">
-                            <button onClick={() => handleChangeContent("design-process")} className="md:w-[190px] md:h-[40px] sm:w-[165px] sm:h-[40px] sm:text-sm md:text-base bg-[#151542] text-white font-semibold hover:bg-[#2323D5] hover:text-yellow-400">Design Process</button>
+                    {!loading &&
+                        <div className="w-10/12 grid grid-cols-3">
+                            <div className="w-full flex items-center justify-center">
+                                <button onClick={() => handleChangeContent("order-informations")} className="md:w-[190px] md:h-[40px] sm:w-[165px] sm:h-[40px] sm:text-sm md:text-base bg-[#151542] text-white font-semibold hover:bg-[#2323D5] hover:text-yellow-400">Order Informations</button>
+                            </div>
+                            {orderDetail.order_type.id == 2 &&
+                                <div className="w-full flex items-center justify-center">
+                                    <button onClick={() => handleChangeContent("design-process")} className="md:w-[190px] md:h-[40px] sm:w-[165px] sm:h-[40px] sm:text-sm md:text-base bg-[#151542] text-white font-semibold hover:bg-[#2323D5] hover:text-yellow-400">Design Process</button>
+                                </div>
+                            }
+                            <div className="w-full flex items-center justify-center">
+                                <button onClick={() => handleChangeContent("manufacture-progress")} className="md:w-[190px] md:h-[40px] sm:w-[165px] sm:h-[40px] sm:text-sm md:text-base bg-[#151542] text-white font-semibold hover:bg-[#2323D5] hover:text-yellow-400">Manufacture Progress</button>
+                            </div>
                         </div>
                     }
-                    <div className="w-full flex items-center justify-center">
-                        <button onClick={() => handleChangeContent("manufacture-progress")} className="md:w-[190px] md:h-[40px] sm:w-[165px] sm:h-[40px] sm:text-sm md:text-base bg-[#151542] text-white font-semibold hover:bg-[#2323D5] hover:text-yellow-400">Manufacture Progress</button>
+                    <div className="w-10/12 h-0.5 my-5 bg-gray-500"></div>
+
+                    <div className="w-10/12">
+                        {!loading && checkContent === "order-informations" && (
+                            <OrderInformations order={orderDetail} />
+                        )}
+                        {!loading && checkContent === "design-process" && (
+                            orderDetail.order_status.id !== 1 && orderDetail.design_process !== null && orderDetail.design_process.design_process_status.id == 3 ? (
+                                <DesignProcess order={orderDetail} />
+                            ) : (
+                                <div className="flex justify-center">
+                                    <p className="font-loraFont font-light text-xl text-[#151542]">Your order hasn't reach Design Step. Please wait in the future</p>
+                                </div>
+                            )
+                        )}
+                        {!loading && checkContent === "manufacture-progress" && (
+                            orderDetail.order_status.id !== 1 && orderDetail.order_status.id !== 2 ? (
+                                <ManufactureProgress order={orderDetail} />
+                            ) : (
+                                <div className="flex justify-center">
+                                    <p className="font-loraFont font-light text-xl text-[#151542]">Your order hasn't reach Manufacture Step. Please wait in the future</p>
+                                </div>
+                            )
+                        )}
                     </div>
-                </div>
+                </>
             }
-            <div className="w-10/12 h-0.5 my-5 bg-gray-500"></div>
-
-            <div className="w-10/12">
-                {!loading && checkContent === "order-informations" && (
-                    <OrderInformations order={orderDetail} />
-                )}
-                {!loading && checkContent === "design-process" && (
-                    orderDetail.order_status.id !== 1 && orderDetail.design_process !== null && orderDetail.design_process.design_process_status.id == 3 ? (
-                        <DesignProcess order={orderDetail} />
-                    ) : (
-                        <div className="flex justify-center">
-                            <p className="font-loraFont font-light text-xl text-[#151542]">Your order hasn't reach Design Step. Please wait in the future</p>
-                        </div>
-                    )
-                )}
-                {!loading && checkContent === "manufacture-progress" && (
-                    orderDetail.order_status.id !== 1 && orderDetail.order_status.id !== 2 ? (
-                        <ManufactureProgress order={orderDetail} />
-                    ) : (
-                        <div className="flex justify-center">
-                            <p className="font-loraFont font-light text-xl text-[#151542]">Your order hasn't reach Manufacture Step. Please wait in the future</p>
-                        </div>
-                    )
-                )}
-            </div>
-
         </div>
     );
 }

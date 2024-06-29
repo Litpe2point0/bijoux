@@ -23,11 +23,9 @@ import {
 } from '@coreui/react'
 import { get_product_list, update_product_list } from "../../api/ProductApi";
 import Modal_Button from "../component_items/Modal/ModalButton"
-import { UsersThree, Eye, UserCirclePlus, CalendarX } from "phosphor-react";
 import onGridReady, { resetHeaderProperties } from "../component_items/Ag-grid/useStickyHeader";
 import './style/style.css'
 import { design_process_status_creator, order_status_creator, quote_status_creator } from "../component_items/Ag-grid/status_badge";
-import { get_account_list } from "../../api/main/accounts/Account_api";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
 import DesignPricing from "./Modal_body/DesignPricing";
 import { get_design_process_list } from "../../api/main/orders/Order_api";

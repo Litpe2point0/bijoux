@@ -31,6 +31,7 @@ import { Pencil } from "phosphor-react";
 import { AspectRatio } from "@mui/joy";
 import { DiamondPageContext } from "../../Diamond_Page";
 import { get_diamond_detail, set_deactivate_diamond, update_price_diamond } from "../../../../api/main/items/Diamond_api";
+import { CurrencyFormatterText } from "../../../component_items/Ag-grid/money_formatter";
 
 
 
@@ -180,7 +181,7 @@ const CustomForm = ({ diamondInfo, onClose }) => {
                                             <span style={{ fontSize: '15px' }}>Current Price : </span>
                                         </CCol>
                                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={diamond.price+' vnd'+` (updated date: ${diamond.created} )` } />
+                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={CurrencyFormatterText(diamond.price)+' vnd'+` (updated date: ${diamond.created} )` } />
                                         </CCol>
                                     </CRow>
                                     <CRow>

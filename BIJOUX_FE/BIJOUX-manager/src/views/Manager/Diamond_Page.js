@@ -40,6 +40,7 @@ import { IconButton } from "@mui/material";
 import MetalUpdate from "./Modal_body/material/MetalUpdate";
 import DiamondUpdate from "./Modal_body/material/DiamondUpdate";
 import { get_diamond_list } from "../../api/main/items/Diamond_api";
+import { CurrencyFormatter } from "../component_items/Ag-grid/money_formatter";
 
 
 export const DiamondPageContext = createContext();
@@ -61,7 +62,12 @@ const state_creator = (table) => {
             { headerName: "Clarity", field: "diamond_clarity.name" },
             { headerName: "Cut", field: "diamond_cut.name" },
             { headerName: "Size", field: "size" },
-            { headerName: "Price", field: "price" ,cellClass: 'd-flex align-items-center fw-bold  text-success' },
+            { headerName: "Price", field: "price" ,cellClass: 'd-flex align-items-center fw-bold  text-success'
+                ,cellRenderer : (params) => {
+                    return (
+                        <CurrencyFormatter value={params.data.price} />)
+                }
+             },
             { headerName: "Updated Date", field: "created" },
             {
                 headerName: "Status",

@@ -8,14 +8,6 @@ import {
     CButton,
     CButtonGroup,
     CCard,
-    CCardBody,
-    CCardImage,
-    CCardTitle,
-    CCardText,
-    CModal,
-    CModalBody,
-    CModalHeader,
-    CModalTitle,
     CRow,
     CCol,
     CCardHeader,
@@ -34,6 +26,7 @@ import { get_account_list } from "../../api/main/accounts/Account_api";
 import { IconButton } from "@mui/material";
 import MetalUpdate from "./Modal_body/material/MetalUpdate";
 import { get_metal_list } from "../../api/main/items/Metal_api";
+import { CurrencyFormatter } from "../component_items/Ag-grid/money_formatter";
 
 
 export const MetalPageContext = createContext();
@@ -52,8 +45,20 @@ const state_creator = (table) => {
             },
             { headerName: "ID", field: "id" },
             { headerName: "Name", field: "name" },
-            { headerName: "Buy Price/g", field: "buy_price_per_gram",cellClass: 'd-flex align-items-center fw-bold  text-success' },
-            { headerName: "Sale Price/g", field: "sale_price_per_gram", cellClass: 'd-flex align-items-center fw-bold  text-success' },
+            { headerName: "Buy Price/g", field: "buy_price_per_gram",cellClass: 'd-flex align-items-center fw-bold  text-success'
+                ,cellRenderer: (params) => {
+                    return (
+                       <CurrencyFormatter value={params.data.buy_price_per_gram} />
+                    )
+                }
+             },
+            { headerName: "Sale Price/g", field: "sale_price_per_gram", cellClass: 'd-flex align-items-center fw-bold  text-success' 
+                ,cellRenderer: (params) => {
+                    return (
+                       <CurrencyFormatter value={params.data.sale_price_per_gram} />
+                    )
+                }
+            },
             { headerName: "S_Weight", field: "specific_weight", cellClass: 'd-flex align-items-center fw-bold  text-primary' },
             { headerName: "Updated Date", field: "created" },
             {

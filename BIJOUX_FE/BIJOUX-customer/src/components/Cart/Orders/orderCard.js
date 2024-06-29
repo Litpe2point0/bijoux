@@ -2,14 +2,20 @@ import React, { useEffect } from "react";
 import numeral from 'numeral';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { confirm_delivery } from "../../../api/main/orders/Order_api";
+import { confirm_delivery, create_payment_link } from "../../../api/main/orders/Order_api";
 import Button from '@mui/material/Button';
 import { Wallet } from "@phosphor-icons/react";
+import { instantAlertMaker } from "../../../api/instance/axiosInstance";
+
+
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = numeral(value).format('0,0') + ' VND';
     return <span>{formattedValue}</span>;
 };
 
+function getUrlWithoutQuery() {
+    return window.location.origin + window.location.pathname;
+}
 
 export default function OrderCard({ order, onCancel, handleDataChange }) {
     const newProductionPrice = order.total_price - order.product_price;
@@ -24,7 +30,23 @@ export default function OrderCard({ order, onCancel, handleDataChange }) {
     }, [order]);
     // const templateImage = "https://i.pinimg.com/564x/d0/65/b0/d065b0f511204401fe8af162372091a6.jpg";
 
+    const handleCreatePaymentLink = async () => {
+        const order_information = {
+            order_id: order.id,
+            return_url: getUrlWithoutQuery() + "?payment_status=success",
+            cancel_url: getUrlWithoutQuery() + "?payment_status=cancel",
+        }
+        const formData = new FormData();
+        formData.append("order_information", JSON.stringify(order_information));
+        const payment_link = await create_payment_link(formData, "Create payment link", true);
+        if (payment_link.data.payment_link) {
+            window.location.href = payment_link.data.payment_link;
+        } else {
 
+            instantAlertMaker('warning', 'Error', "So Sorry, You Can Not Pay It For Now, Because Of Some Unexpected Reason!");
+        }
+
+    }
 
 
     const handleConfirmReceived = async (orderID) => {
@@ -133,49 +155,13 @@ export default function OrderCard({ order, onCancel, handleDataChange }) {
                             <p>Not yet</p>
                         )}
                     </div>
-
-                    {/* <div className="w-full h-[65px] flex items-center justify-around">
-                        <button onClick={() => handleViewDetails(order.id)} className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">DETAILS</button>
-                        {
-                            order.order_status.id === 5 ? (
-                                <button
-                                    onClick={() => handleConfirmReceived(order.id)}
-                                    className="md:w-[130px] sm:w-[100px] h-[35px] bg-sky-500 text-white text-xs hover:bg-[#071E6F]"
-                                >
-                                    CONFIRM RECEIVED
-                                </button>
-                            ) : order.order_status.id === 6 ? (
-                                <button
-                                    disabled
-                                    className="md:w-[130px] sm:w-[100px] h-[35px] bg-gray-500 text-white text-xs"
-                                >
-                                    CONFIRM RECEIVED
-                                </button>
-                            ) : order.order_status.id === 7 ? (
-                                <button
-                                    disabled
-                                    className="md:w-[130px] sm:w-[100px] h-[35px] bg-gray-500 text-white"
-                                >
-                                    CANCEL
-                                </button>
-                            ) :
-                                (
-                                    <button
-                                        onClick={onCancel}
-                                        className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#CD0B2A] text-white hover:bg-[#8B1023]"
-                                    >
-                                        CANCEL
-                                    </button>
-                                )
-                        }
-                    </div> */}
                     <div className="w-full h-[65px] flex items-center justify-around">
                         <Button onClick={() => handleViewDetails(order.id)} variant="contained">
                             DETAILS
                         </Button>
                         {
                             order.order_status.id === 5 ? (
-                                <Button onClick={() => handleConfirmReceived(order.id)} variant="contained">
+                                <Button onClick={() => handleConfirmReceived(order.id)} color="success"  variant="contained">
                                     CONFIRM RECEIVED
                                 </Button>
                             ) : order.order_status.id === 6 ? (
@@ -198,7 +184,7 @@ export default function OrderCard({ order, onCancel, handleDataChange }) {
                 </div>
                 <div className="items-start h-full flex">
                     {order.order_status.id === 1 || order.order_status.id === 4 ? (
-                        <Button variant="outlined" sx={{ color: '#33ab95', borderBlockColor: '#33ab95' }} startIcon={<Wallet size={27} weight="duotone" />}>
+                        <Button onClick={() => handleCreatePaymentLink()} variant="outlined" sx={{ color: '#33ab95', borderBlockColor: '#33ab95' }} startIcon={<Wallet size={27} weight="duotone" />}>
                             {order.order_status.id === 1 ? 'Pay Deposit' : 'Pay The Rest'}
                         </Button>
                     ) :

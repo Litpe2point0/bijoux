@@ -105,7 +105,7 @@ export default function QuoteCard({ quote, onCancel }) {
                     </div> */}
                     <div className="w-full h-[65px] flex items-center justify-around">
                         <Button onClick={handleOpenClose} variant="contained">
-                            DETAILS
+                            SEE SUPPORTERS
                         </Button>
                         {quote.quote_status.id === 4 || quote.quote_status.id === 5 ? (
                             <Button disabled variant="contained" color="error">
