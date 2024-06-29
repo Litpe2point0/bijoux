@@ -695,7 +695,7 @@ class QuoteController extends Controller
             ], 500);
         }
 
-        $quote = DB::table('quote')->where('saleStaff_id', $input)->get();
+        $quote = DB::table('quote')->where('saleStaff_id', $input)->orderBy('quote_status_id','asc')->get();
         $quote->map(function ($quote) {
             $product = DB::table('product')->where('id', $quote->product_id)->first();
             $OGurl = env('ORIGIN_URL');
