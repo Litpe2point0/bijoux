@@ -4,69 +4,13 @@ import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the 
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the grid
 import numeral from "numeral";
 import { get_payment_history } from "../../api/main/accounts/Account_api";
+import { Box, CircularProgress } from "@mui/material";
 
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = numeral(value).format('0,0') + ' VND';
     return <span>{formattedValue}</span>;
 };
 
-
-const payment_history_data = [
-    {
-        id: 1,
-        account_id: 1,
-        order_id: 1,
-        payment_type: { id: 1, name: 'Deposit' },
-        isSuccess: 1,
-        money: 100000,
-        created: '10/06/2024'
-    },
-    {
-        id: 2,
-        account_id: 1,
-        order_id: 1,
-        payment_type: { id: 2, name: 'Paid the rest' },
-        isSuccess: 1,
-        money: 100000,
-        created: '10/06/2024'
-    },
-    {
-        id: 3,
-        account_id: 1,
-        order_id: 2,
-        payment_type: { id: 1, name: 'Deposit' },
-        isSuccess: 1,
-        money: 100000,
-        created: '10/06/2024'
-    },
-    {
-        id: 4,
-        account_id: 1,
-        order_id: 2,
-        payment_type: { id: 2, name: 'Paid the rest' },
-        isSuccess: 1,
-        money: 100000,
-        created: '10/06/2024'
-    },
-    {
-        id: 5,
-        account_id: 1,
-        order_id: 3,
-        payment_type: { id: 1, name: 'Deposit' },
-        isSuccess: 1,
-        money: 100000,
-        created: '11/06/2024'
-    },
-    {
-        id: 6,
-        account_id: 1,
-        order_id: 3,
-        payment_type: { id: 2, name: 'Paid the rest' },
-        isSuccess: 1,
-        money: 100000,
-        created: '12/06/2024'
-    }
-]
 export default function PaymentHistory() {
 
     const state_creator = (table) => {
@@ -106,7 +50,7 @@ export default function PaymentHistory() {
             setState(state_creator(payment_history_data.data));
             setLoading(false);
         }
-        
+
         setAttribute();
     }, []);
 
@@ -114,14 +58,20 @@ export default function PaymentHistory() {
         <div className="flex flex-col w-full items-center">
             <p className="font-loraFont text-3xl text-[#151542] font-semibold">Your Payment History</p>
             <div className="my-5 w-3/4 h-0.5 bg-[#151542]"></div>
-            <div id="customize"
-                style={{
-                    boxSizing: "border-box",
-                    height: "75%",
-                    width: "75%"
-                }}
-                className="ag-theme-quartz">
-                {!loading && (
+            {loading ?
+                <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', padding: '100px' }}>
+                <CircularProgress color="inherit" />
+                </Box>
+                :
+                <div id="customize"
+                    style={{
+                        boxSizing: "border-box",
+                        height: "75%",
+                        width: "75%"
+                    }}
+                    className="ag-theme-quartz">
+
+                    (
                     <AgGridReact
                         enableColResize={true}
                         columnDefs={state.columnDefs}
@@ -134,8 +84,9 @@ export default function PaymentHistory() {
                         domLayout='autoHeight'
                     // onGridReady={onGridReady('customize')}
                     />
-                )}
-            </div>
+                    )
+                </div>
+            }
         </div>
     );
 }

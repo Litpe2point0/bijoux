@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import numeral from 'numeral';
 import { Collapse } from '@mui/material';
 import { Envelope, Phone } from 'phosphor-react';
-
+import Button from '@mui/material/Button';
 const CurrencyFormatter = ({ value }) => {
-    const formattedValue = '$' + numeral(value).format('0,0');
+    const formattedValue = numeral(value).format('0,0') + ' VND';
     return <span>{formattedValue}</span>;
 };
 
@@ -45,9 +45,12 @@ export default function QuoteCard({ quote, onCancel }) {
                     <div className="flex flex-col mt-1">
                         {/* Sử dụng lớp `hidden` để ẩn và `md:block` để hiển thị khi màn hình từ md trở lên */}
                         <p className="font-cartFont hidden md:block">Note:</p>
-                        <div className="w-10/12 h-[75px] bg-slate-200 overflow-y-auto hidden md:block">
+                        {/* <div className="w-10/12 h-[75px] bg-slate-200 overflow-y-auto hidden md:block">
                             <p className="font-gantariFont ml-2 mt-2 mr-2 mb-1">{quote.note}</p>
-                        </div>
+                        </div> */}
+                        <textarea readOnly className="w-10/12 h-[75px] resize-none bg-slate-200 overflow-y-auto font-gantariFont p-2 border-2 border-gray-200 rounded-md">
+                            {quote.note}
+                        </textarea>
                     </div>
                 </div>
 
@@ -91,7 +94,7 @@ export default function QuoteCard({ quote, onCancel }) {
                         )}
                     </div>
 
-                    <div className="w-full h-[65px] flex items-center justify-around">
+                    {/* <div className="w-full h-[65px] flex items-center justify-around">
                         <button onClick={handleOpenClose} className="md:w-[140px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">SUPPORT STAFFS</button>
                         {quote.quote_status.id === 4 || quote.quote_status.id === 5 ? (
                             <button className="md:w-[130px] sm:w-[100px] h-[35px] bg-slate-500 text-white ">CANCEL</button>
@@ -99,7 +102,29 @@ export default function QuoteCard({ quote, onCancel }) {
                             <button onClick={onCancel} className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#CD0B2A] text-white hover:bg-[#8B1023]">CANCEL</button>
                         )}
 
+                    </div> */}
+                    <div className="w-full h-[65px] flex items-center justify-around">
+                        <Button onClick={handleOpenClose} variant="contained">
+                            SEE SUPPORTERS
+                        </Button>
+                        {quote.quote_status.id === 4 || quote.quote_status.id === 5 ? (
+                            <Button disabled variant="contained" color="error">
+                                CANCEL
+                            </Button>
+                        ) : (
+                            <Button onClick={onCancel} variant="contained" color="error">
+                                CANCEL
+                            </Button>
+                        )}
+
                     </div>
+                    {quote.quote_status.id === 4 ? (
+                        <div>
+                            <p className="italic text-green-600">(Your quote has been complete, please move to Order List to see more informations)</p>
+                        </div>
+                    ) : (
+                        ""
+                    )}
                 </div>
 
             </div>

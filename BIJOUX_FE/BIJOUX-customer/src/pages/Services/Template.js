@@ -95,7 +95,9 @@ export default function Template() {
 
     return (
         <div>
-            {loading ? <CgSpinner color='primary' />
+            {loading ? 
+                
+                <CgSpinner color='primary' />
                 :
                 <>
                     <ProgressBar progressState={progressState} />

@@ -34,6 +34,7 @@ import { get_account_list } from "../../api/main/accounts/Account_api";
 import OrderAssign from "./Modal_body/OrderAssign";
 import OrderCancel from "./Modal_body/OrderCancel";
 import { get_order_list_manager } from "../../api/main/orders/Order_api";
+import { CurrencyFormatter, CurrencyFormatterLowercase } from "../component_items/Ag-grid/money_formatter";
 
 
 
@@ -53,10 +54,31 @@ const state_creator = (table) => {
         },
       },
       { headerName: "Customer", field: "account.fullname" },
-      { headerName: "Materials Cost", field: "product_price", cellClass: 'd-flex align-items-center fw-bold text-primary' },
+      {
+        headerName: "Materials Cost", field: "product_price", cellClass: 'd-flex align-items-center fw-bold text-primary'
+        , cellRenderer: (params) => {
+          return (
+            <CurrencyFormatter value={params.data.product_price} />
+          )
+        }
+      },
       { headerName: "Profit Rate %", field: "profit_rate", cellClass: 'd-flex align-items-center fw-bold text-primary' },
-      { headerName: "Production Cost", field: "production_price", cellClass: 'd-flex align-items-center fw-bold text-primary' },
-      { headerName: "Total Cost", field: "total_price", cellClass: 'd-flex align-items-center fw-bold text-danger' },
+      {
+        headerName: "Production Cost", field: "production_price", cellClass: 'd-flex align-items-center fw-bold text-primary'
+        , cellRenderer: (params) => {
+          return (
+            <CurrencyFormatter value={params.data.production_price} />
+          )
+        }
+      },
+      {
+        headerName: "Total Cost", field: "total_price", cellClass: 'd-flex align-items-center fw-bold text-danger'
+        , cellRenderer: (params) => {
+          return (
+            <CurrencyFormatter value={params.data.total_price} />
+          )
+        }
+      },
       { headerName: "Created", field: "created" },
       {
         headerName: "Status",

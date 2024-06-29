@@ -9,6 +9,7 @@
         "barryvdh/laravel-dompdf": "^2.2",
         "firebase/php-jwt": "^6.10",
         "google/apiclient": "^2.16",
+        "kreait/laravel-firebase": "^5.8",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",

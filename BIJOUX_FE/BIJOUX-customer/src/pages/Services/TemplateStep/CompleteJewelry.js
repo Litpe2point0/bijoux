@@ -18,137 +18,12 @@ import ThanksPage from "../../../components/home/ThanksPage/ThanksPage";
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber } from 'react-phone-number-input';
-import { TextField } from "@mui/material";
+import { CircularProgress, TextField } from "@mui/material";
 
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = numeral(value).format('0,0') + " VND";
     return <span>{formattedValue}</span>;
 };
-
-// const finalCheckout = {
-//     model_id: 2,
-//     mounting_type: { id: 1, name: "Ring" },
-//     main_image: demoFinalMain,
-//     related_image: [
-//         demoFinalRelated1,
-//         demoFinalRelated2,
-//     ],
-//     metalList: [
-//         { id: 1, name: "Gold", image_Url: gold, price: 2000000 },
-//         { id: 2, name: "Gold", image_Url: gold, price: 1000000 },
-//     ],
-//     diamondList: [
-//         {
-//             id: 1,
-//             image_Url: "https://ion.bluenile.com/sgmdirect/photoID/32025442/Diamond/19751585/nl/Diamond-heart-1.01-Carat_3_first_.jpg",
-//             diamond_origin: { id: 1, name: "Natural-created" },
-//             diamond_clarity: { id: 1, name: "IF" },
-//             diamond_cut: { id: 1, name: "Excellent" },
-//             diamond_color: { id: 1, name: "D" },
-//             diamond_shape: { id: 4, name: "Heart" },
-//             diamond_size: 6,
-//             price: 20000000,
-//             count: 1
-//         },
-//         {
-//             id: 2,
-//             image_Url: "https://ion.bluenile.com/sgmdirect/photoID/34296365/Diamond/21001361/nl/Diamond-round-1-Carat_3_first_.jpg",
-//             diamond_origin: { id: 1, name: "Natural-created" },
-//             diamond_clarity: { id: 1, name: "IF" },
-//             diamond_cut: { id: 1, name: "Excellent" },
-//             diamond_color: { id: 1, name: "D" },
-//             diamond_shape: { id: 1, name: "Round" },
-//             diamond_size: 3.6,
-//             price: 28000000,
-//             count: 6
-//         }
-//     ],
-//     production_Price: 2000000,
-//     total_Price: 500000000
-// }
-const finalCheckout = {
-    "model_id": 1,
-    "mounting_type": {
-        "id": 2,
-        "name": "Solitaire",
-        "min_size": 4.5,
-        "max_size": 8.5
-    },
-    main_image: demoFinalMain,
-    related_image: [
-        demoFinalRelated1,
-        demoFinalRelated2,
-    ],
-    "metal": {
-        "name": "24k Gold - 1k Silver Two Stone Engagement Ring with East-West",
-        "price": 120000000
-    },
-    "diamond_list": [
-        {
-            "id": 201,
-            "name": "3.6 (mm) D-IF1 Round Shape Excellent Cut Diamond",
-            "imageUrl": "http://localhost:8000/image/Diamond/D1_VVS1.jpg",
-            "diamond_size": 0.5,
-            "diamond_color": {
-                "id": 301,
-                "name": "D"
-            },
-            "diamond_origin": {
-                "id": 401,
-                "name": "Natural"
-            },
-            "diamond_clarity": {
-                "id": 501,
-                "name": "VVS1"
-            },
-            "diamond_cut": {
-                "id": 601,
-                "name": "Excellent"
-            },
-            "price": 5000000,
-            "diamond_shape": {
-                "id": 701,
-                "name": "Round",
-                "drawing_path": "http://localhost:8000/image/shapes/round.jpg"
-            },
-            "count": 2,
-            "is_editable": 1
-        },
-        {
-            "id": 202,
-            "name": "6 (mm) D-IF1 Heart Shape Excellent Cut Diamond",
-            "imageUrl": "http://localhost:8000/image/Diamond/D2_VVS2.jpg",
-            "diamond_size": 0.75,
-            "diamond_color": {
-                "id": 302,
-                "name": "E"
-            },
-            "diamond_origin": {
-                "id": 402,
-                "name": "Lab-Created"
-            },
-            "diamond_clarity": {
-                "id": 502,
-                "name": "VVS2"
-            },
-            "diamond_cut": {
-                "id": 602,
-                "name": "Very Good"
-            },
-            "price": 7500000,
-            "diamond_shape": {
-                "id": 702,
-                "name": "Princess",
-                "drawing_path": "http://localhost:8000/image/shapes/princess.jpg"
-            },
-            "count": 1,
-            "is_editable": 0
-        }
-    ],
-    total_price: 20000000000,
-    production_price: 323232323
-
-}
 
 export default function CompleteRing() {
 
@@ -300,7 +175,11 @@ export default function CompleteRing() {
         <div className="flex flex-col items-center text-[#151542] mb-20">
             <p className="text-[#151542] text-4xl font-loraFont font-semibold">Your Final Jewelry Has Been Complete !</p>
             <div className="w-3/4 h-0.5 bg-slate-500 mb-20 mt-5"></div>
-            {loading == 1 && <CSpinner color="primary" />}
+            {loading == 1 &&
+                <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
+                    <CircularProgress color="inherit" />
+                </Box>
+            }
             {loading == 2 && <ThanksPage />}
             {loading == 3 &&
 
@@ -430,7 +309,9 @@ export default function CompleteRing() {
 
                         <div onClick={() => handleOrderAdding()} className="w-full h-[48px] flex items-center justify-center text-xl text-white bg-[#151542] hover:cursor-pointer hover:bg-[#29296b] mb-6">
                             {loadingComplete ?
-                                <CSpinner color="primary" />
+                                <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
+                                    <CircularProgress color="inherit" />
+                                </Box>
                                 :
                                 <p>CONFIRM ORDER</p>
                             }

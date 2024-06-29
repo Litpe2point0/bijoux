@@ -24,6 +24,7 @@ import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { get_diamond_imageUrl } from "../../../../api/Back_End_Url";
 import { get_clarity_list, get_color_list, get_cut_list, get_diamond_list, get_origin_list, get_shape_list, get_size_list } from "../../../../api/main/items/Diamond_api";
+import { CurrencyFormatterText } from "../../../component_items/Ag-grid/money_formatter";
 
 
 function renderValue(item) {
@@ -494,14 +495,14 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             <CCol md={12}>
                 <CFormLabel htmlFor="validationCustom02">Price In One</CFormLabel>
 
-                <CFormInput disabled type="number" id="validationCustom02" value={searchedDiamond?.price} required />
+                <CFormInput disabled  id="validationCustom02" value={searchedDiamond? CurrencyFormatterText(searchedDiamond.price) : ''} required />
 
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
             <CCol md={12}>
                 <CFormLabel htmlFor="validationCustom02">Price In Total</CFormLabel>
 
-                <CFormInput disabled type="number" id="validationCustom02" value={searchedDiamond?.price * count} required />
+                <CFormInput disabled  id="validationCustom02" value={searchedDiamond ? CurrencyFormatterText(searchedDiamond.price * count) : ''} required />
 
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>

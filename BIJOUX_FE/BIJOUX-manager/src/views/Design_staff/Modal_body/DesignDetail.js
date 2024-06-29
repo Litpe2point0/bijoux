@@ -40,6 +40,7 @@ import QuoteProductImage from "../../Manager/Quote widget/QuoteProductImage";
 import AccountCard from "../../Manager/Quote widget/AccountCard";
 import { DesignPageContext } from "../Design_Page";
 import { get_design_process_detail } from "../../../api/main/orders/Order_api";
+import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_formatter";
 
 
 
@@ -521,7 +522,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                             <ListItemText
                                                                 className="text-dark w-25"
                                                                 primary='Caculated Price'
-                                                                secondary={<span className="text-secondary">{item.price} vnd</span>} />
+                                                                secondary={<span className="text-secondary"><CurrencyFormatterLowercase value={item.price}/></span>} />
 
                                                         </ListItem>
                                                     )
@@ -563,7 +564,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                             <ListItemText
                                                                 className="text-dark w-25"
                                                                 primary='Carculated Price'
-                                                                secondary={<span className="text-success">{item.price} vnd</span>} />
+                                                                secondary={<span className="text-success"><CurrencyFormatterLowercase value={item.price}/></span>} />
 
                                                         </ListItem>
                                                     )
@@ -619,7 +620,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                             <ListItemText
                                                                 className="text-dark w-25"
                                                                 primary='Total Price'
-                                                                secondary={<span className="text-secondary">{item.price} vnd</span>} />
+                                                                secondary={<span className="text-secondary"><CurrencyFormatterLowercase value={item.price}/></span>} />
 
                                                         </ListItem>
                                                     )
@@ -662,7 +663,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                             <ListItemText
                                                                 className="text-dark w-25"
                                                                 primary='Total Price'
-                                                                secondary={<span className="text-success">{item.price} vnd</span>} />
+                                                                secondary={<span className="text-success"><CurrencyFormatterLowercase value={item.price}/></span>} />
 
                                                         </ListItem>
                                                     )

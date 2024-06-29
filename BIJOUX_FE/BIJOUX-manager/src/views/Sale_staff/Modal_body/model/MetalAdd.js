@@ -24,49 +24,9 @@ import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import { get_metal_list, get_weight_price } from "../../../../api/main/items/Metal_api";
+import { CurrencyFormatterText } from "../../../component_items/Ag-grid/money_formatter";
 
-const metal = [
-    {
-        "id": 1,
-        "name": "Gold",
-        'imageUrl': "http://localhost:8000/image/Metal/1/main.jpg",
-        "buy_price_per_gram": 60.00,
-        "sale_price_per_gram": 75.00,
-        "specific_weight": 19.32,
-        "deactivated": false,
-        "created": "2024-01-15T10:20:30.000Z"
-    },
-    {
-        "id": 2,
-        "name": "Silver",
-        'imageUrl': "http://localhost:8000/image/Metal/2/main.jpg",
-        "buy_price_per_gram": 0.80,
-        "sale_price_per_gram": 1.20,
-        "specific_weight": 10.49,
-        "deactivated": false,
-        "created": "2024-01-20T14:35:22.000Z"
-    },
-    {
-        "id": 3,
-        "name": "Platinum",
-        'imageUrl': "http://localhost:8000/image/Metal/3/main.jpg",
-        "buy_price_per_gram": 30.00,
-        "sale_price_per_gram": 45.00,
-        "specific_weight": 21.45,
-        "deactivated": false,
-        "created": "2024-01-25T08:15:55.000Z"
-    },
-    {
-        "id": 4,
-        "name": "Copper",
-        'imageUrl': "http://localhost:8000/image/Metal/4/main.jpg",
-        "buy_price_per_gram": 0.02,
-        "sale_price_per_gram": 0.03,
-        "specific_weight": 8.96,
-        "deactivated": true,
-        "created": "2023-12-01T12:00:00.000Z"
-    }
-]
+
 const CustomForm = ({ handleAddMetal, onClose }) => {
     const dispatch = useDispatch();
     const [validated, setValidated] = useState(false)   //check form điền đầy đủ chưa
@@ -265,7 +225,7 @@ const CustomForm = ({ handleAddMetal, onClose }) => {
             </CCol>
             <CCol md={12}>
                 <CFormLabel htmlFor="validationCustom02">Price</CFormLabel>
-                <CFormInput disabled type="number" id="validationCustom02" value={addPrice} required />
+                <CFormInput disabled  id="validationCustom02" value={CurrencyFormatterText(addPrice)} required />
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
             <CCol xs={12} className="d-flex justify-content-center">
