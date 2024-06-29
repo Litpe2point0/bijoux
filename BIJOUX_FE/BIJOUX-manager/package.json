@@ -46,6 +46,7 @@
     "formik": "^2.4.6",
     "jquery": "^3.7.1",
     "jwt-decode": "^4.0.0",
+    "numeral": "^2.0.6",
     "phosphor-react": "^1.4.1",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",

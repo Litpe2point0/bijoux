@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { SignalCellularNullRounded } from '@mui/icons-material';
 import { get_production_process_list, get_production_status_list } from '../../../api/main/orders/Order_api';
+import { CircularProgress } from '@mui/material';
 
 
 function filterArray(arr) {
@@ -82,7 +83,9 @@ export default function ManufactureProgress({ order }) {
     return (
         <div className='w-full flex flex-col items-start'>
             {loading ? (
-                <Typography>Loading...</Typography>
+                <Box sx={{ display: 'flex', height: '100%', width:'100%', alignItems: 'center', justifyContent:'center', paddingY:'100px' }}>
+                <CircularProgress color="inherit" />
+                </Box>
             )
                 :
                 (

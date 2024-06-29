@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { cancel_order, get_order_list_customer } from "../../api/main/orders/Order_api";
 import { instantAlertMaker, paymentAlertMaker } from "../../api/instance/axiosInstance";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Box, CircularProgress } from "@mui/material";
 
 
 
@@ -18,13 +19,15 @@ function removeQueryParam(param) {
 
 export default function ViewOrder() {
     const query = useQuery();
-    const navigate= useNavigate();
+    const navigate = useNavigate();
     const [orderList, setOrderList] = useState([]);
     const [customizationOrderList, setCustomizationOrderList] = useState([]);
     const [templateOrderList, setTemplateOrderList] = useState([]);
     const [deliveryOrderList, setDeliveryOrderList] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const handleDataChange = async () => {
+        setLoading(true);
         const order_list = await get_order_list_customer(null, 'get order list', true);
         const tempCustomizationOrderList = order_list.data.customize_order_list.filter(order => order.order_status.id !== 5 && order.order_status.id !== 6);
         const tempTemplateOrderList = order_list.data.template_order_list.filter(order => order.order_status.id !== 5 && order.order_status.id !== 6);
@@ -36,18 +39,18 @@ export default function ViewOrder() {
         setCustomizationOrderList(tempCustomizationOrderList);
         setTemplateOrderList(tempTemplateOrderList);
         setDeliveryOrderList(tempDeliveryOrderList);
+        setLoading(false);
     }
 
     useEffect(() => {
-        // if (query.get("payment_status") == "success") {
-        //     paymentAlertMaker(navigate,'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
-        // } else if (query.get("payment_status") == "cancel") {
-        //     paymentAlertMaker(navigate,'error', 'Payment failed', 'Your payment has failed. Please try again!')
-        // }
-        //removeQueryParam('payment_status')
+        if (query.get("payment_status") == "success") {
+            paymentAlertMaker(navigate, 'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
+        } else if (query.get("payment_status") == "cancel") {
+            paymentAlertMaker(navigate, 'error', 'Payment failed', 'Your payment has failed. Please try again!')
+        }
     }, [query])
     useEffect(() => {
-        // call api to get order list
+
         handleDataChange();
     }, []);
 
@@ -127,28 +130,38 @@ export default function ViewOrder() {
                     </div>
                 </div>
             </div>
+            {loading ?
+                <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', padding: '100px' }}>
+                <CircularProgress color="inherit" />
+                </Box>
+                :
+                <>
+                    {type === 'Customization' && (
+                        <div className="w-full flex flex-col items-center mt-5">
+                            {customizationOrderList.map(order => (
+                                <OrderCard order={order} onCancel={() => handleCancelOrder(order.id)} />
+                            ))}
+                        </div>
+                    )}
+                    {type === 'Template' && (
+                        <div className="w-full flex flex-col items-center mt-5">
+                            {templateOrderList.map(order => (
+                                <OrderCard order={order} onCancel={() => handleCancelOrder(order.id)} />
+                            ))}
+                        </div>
+                    )}
+                    {type === 'Delivery' && (
+                        <div className="w-full flex flex-col items-center mt-5">
+                            {deliveryOrderList.map(order => (
+                                <OrderCard order={order} onCancel={() => handleCancelOrder(order.id)} handleDataChange={handleDataChange} />
+                            ))}
+                        </div>
+                    )}
+                </>
 
-            {type === 'Customization' && (
-                <div className="w-full flex flex-col items-center mt-5">
-                    {customizationOrderList.map(order => (
-                        <OrderCard order={order} onCancel={() => handleCancelOrder(order.id)} />
-                    ))}
-                </div>
-            )}
-            {type === 'Template' && (
-                <div className="w-full flex flex-col items-center mt-5">
-                    {templateOrderList.map(order => (
-                        <OrderCard order={order} onCancel={() => handleCancelOrder(order.id)} />
-                    ))}
-                </div>
-            )}
-            {type === 'Delivery' && (
-                <div className="w-full flex flex-col items-center mt-5">
-                    {deliveryOrderList.map(order => (
-                        <OrderCard order={order} onCancel={() => handleCancelOrder(order.id)} handleDataChange={handleDataChange} />
-                    ))}
-                </div>
-            )}
+
+            }
+
 
         </div >
     );
