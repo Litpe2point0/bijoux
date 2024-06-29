@@ -3,9 +3,10 @@ import numeral from 'numeral';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { confirm_delivery } from "../../../api/main/orders/Order_api";
-
+import Button from '@mui/material/Button';
+import { Wallet } from "@phosphor-icons/react";
 const CurrencyFormatter = ({ value }) => {
-    const formattedValue = '$' + numeral(value).format('0,0');
+    const formattedValue = numeral(value).format('0,0') + ' VND';
     return <span>{formattedValue}</span>;
 };
 
@@ -84,7 +85,7 @@ export default function OrderCard({ order, onCancel, handleDataChange }) {
                         {/* <div className="w-10/12 h-[75px] bg-slate-200 overflow-y-auto">
                             <p className="font-gantariFont ml-2 mt-2 mr-2 mb-1">{order.note}</p>
                         </div> */}
-                        <textarea className="w-10/12 h-[75px] bg-slate-200 overflow-y-auto font-gantariFont p-2 border-2 border-gray-200 rounded-md">
+                        <textarea readOnly className="w-10/12 h-[75px] resize-none bg-slate-200 overflow-y-auto font-gantariFont p-2 border-2 border-gray-200 rounded-md">
                             {order.note}
                         </textarea>
                     </div>
@@ -133,7 +134,7 @@ export default function OrderCard({ order, onCancel, handleDataChange }) {
                         )}
                     </div>
 
-                    <div className="w-full h-[65px] flex items-center justify-around">
+                    {/* <div className="w-full h-[65px] flex items-center justify-around">
                         <button onClick={() => handleViewDetails(order.id)} className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">DETAILS</button>
                         {
                             order.order_status.id === 5 ? (
@@ -167,10 +168,42 @@ export default function OrderCard({ order, onCancel, handleDataChange }) {
                                     </button>
                                 )
                         }
+                    </div> */}
+                    <div className="w-full h-[65px] flex items-center justify-around">
+                        <Button onClick={() => handleViewDetails(order.id)} variant="contained">
+                            DETAILS
+                        </Button>
+                        {
+                            order.order_status.id === 5 ? (
+                                <Button onClick={() => handleConfirmReceived(order.id)} variant="contained">
+                                    CONFIRM RECEIVED
+                                </Button>
+                            ) : order.order_status.id === 6 ? (
+                                <Button disabled variant="contained">
+                                    CONFIRM RECEIVED
+                                </Button>
+                            ) : order.order_status.id === 7 ? (
+                                <Button disabled variant="contained">
+                                    CANCEL
+                                </Button>
+                            ) :
+                                (
+                                    <Button onClick={onCancel} variant="contained" color="error">
+                                        CANCEL
+                                    </Button>
+                                )
+                        }
                     </div>
 
                 </div>
-
+                <div className="items-start h-full flex">
+                    {order.order_status.id === 1 || order.order_status.id === 4 ? (
+                        <Button variant="outlined" sx={{ color: '#33ab95', borderBlockColor: '#33ab95' }} startIcon={<Wallet size={27} weight="duotone" />}>
+                            {order.order_status.id === 1 ? 'Pay Deposit' : 'Pay The Rest'}
+                        </Button>
+                    ) :
+                        (<div className="md:w-[157.92px] sm:w-[121.32px]"></div>)}
+                </div>
             </div>
         </div >
 

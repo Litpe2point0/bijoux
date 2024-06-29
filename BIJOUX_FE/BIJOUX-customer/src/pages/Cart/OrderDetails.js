@@ -26,9 +26,9 @@ export default function OrderDetails() {
     //call api để lấy order_detail từ id
     useEffect(() => {
         if (query.get("payment_status") == "success") {
-            paymentAlertMaker(navigate,'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
+            paymentAlertMaker(navigate, 'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
         } else if (query.get("payment_status") == "cancel") {
-            paymentAlertMaker(navigate,'error', 'Payment failed', 'Your payment has failed. Please try again!')
+            paymentAlertMaker(navigate, 'error', 'Payment failed', 'Your payment has failed. Please try again!')
         }
     }, [query])
     useEffect(() => {
@@ -103,7 +103,7 @@ export default function OrderDetails() {
                         <DesignProcess order={orderDetail} />
                     ) : (
                         <div className="flex justify-center">
-                            <p className="font-loraFont font-light text-xl text-[#151542]">Đơn hàng của bạn chưa tới bước Design, vui lòng đợi trong tương lai.</p>
+                            <p className="font-loraFont font-light text-xl text-[#151542]">Your order hasn't reach Design Step. Please wait in the future</p>
                         </div>
                     )
                 )}
@@ -112,7 +112,7 @@ export default function OrderDetails() {
                         <ManufactureProgress order={orderDetail} />
                     ) : (
                         <div className="flex justify-center">
-                            <p className="font-loraFont font-light text-xl text-[#151542]">Đơn hàng của bạn chưa tới bước Manufacture, vui lòng đợi trong tương lai.</p>
+                            <p className="font-loraFont font-light text-xl text-[#151542]">Your order hasn't reach Manufacture Step. Please wait in the future</p>
                         </div>
                     )
                 )}
