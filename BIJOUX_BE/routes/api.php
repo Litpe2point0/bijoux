@@ -150,6 +150,7 @@ Route::middleware('checkCors')->group(function () {
 // "DMMM"
 Route::post('/confirm_payment', [OrderController::class, 'confirm_payment']);
 Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);
+Route::get('/sendMail', [OrderController::class, 'sendMail']);
 
 // Route::post('/decode', [AccountController::class, 'decode']);
 // Route::get('/get_image', [AccountController::class, 'get_image']);

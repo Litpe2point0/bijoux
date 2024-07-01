@@ -59,6 +59,9 @@ class Email extends Mailable
      */
     public function attachments(): array
     {
+        if($this->pathToFile == null){
+            return [];
+        }
         return [
             Attachment::fromPath($this->pathToFile),
         ];

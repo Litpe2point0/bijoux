@@ -27,7 +27,7 @@ class OrderController extends Controller
 {
     public function get_order_list_admin()
     {
-        $customize_order_list = DB::table('orders')->where('order_type_id',2)->orderBy('order_status_id', 'asc')->get();
+        $customize_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -54,7 +54,7 @@ class OrderController extends Controller
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
             return $order;
         });
-        $template_order_list = DB::table('orders')->where('order_type_id',1)->orderBy('order_status_id', 'asc')->get();
+        $template_order_list = DB::table('orders')->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -1438,8 +1438,10 @@ class OrderController extends Controller
         $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 1)->get();
         foreach ($template_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-            if ($production_process->production_status_id == 6) {
-                $data1->push($order);
+            if($production_process != null){
+                if ($production_process->production_status_id == 6) {
+                    $data1->push($order);
+                }
             }
         }
         $data1->map(function ($order) {
@@ -2520,9 +2522,16 @@ class OrderController extends Controller
                 DB::table('product')->where('id', $order->product_id)->update([
                     'imageUrl' => $production_process->imageUrl
                 ]);
-                DB::table('orders')->where('id', $input)->update([
-                    'order_status_id' => 4
-                ]);
+                if ($order->total_price <= $order->deposit_has_paid) {
+                    $this->generatePDFextra($order->id);
+                    DB::table('orders')->where('id', $input)->update([
+                        'order_status_id' => 5
+                    ]);
+                } else {
+                    DB::table('orders')->where('id', $input)->update([
+                        'order_status_id' => 4
+                    ]);
+                }
 
                 $fileName = 'main.jpg';
                 $destinationPath = public_path('image/Order/' . $order->product_id);
@@ -2647,12 +2656,18 @@ class OrderController extends Controller
             return response()->json([
                 'error' => 'No Input Received'
             ], 403);
-        }
+        } 
         DB::beginTransaction();
         try {
             if ($this->isValidData($input['data'], $input['signature'], $checksum_key)) {
                 $payment = DB::table('payment')->where('id', $input['data']['orderCode'])->first();
                 $order = DB::table('orders')->where('id', $payment->order_id)->first();
+                if(!isset($payment) || !isset($order)){ 
+                    return response()->json([
+                        'error' => 'Invalid Order Code'
+                    ], 403);
+                }
+                //m chưa save
                 if ($order->order_status_id == 1) {
                     if ($order->order_type_id == 1) {
                         DB::table('orders')->where('id', $order->id)->update([
@@ -2742,7 +2757,8 @@ class OrderController extends Controller
             'order' => $order,
             'product_price' => $this->formatCurrency($order->product_price),
             'production_price' => $this->formatCurrency($order->production_price + ($order->product_price + $order->production_price) * $order->profit_rate / 100),
-            'total_price' => $this->formatCurrency($order->total_price)
+            'total_price' => $this->formatCurrency($order->total_price),
+            'extra' => ($payment->money + $order->deposit_has_paid) - $order->total_price
         ];
 
         $pdf = PDF::loadView('pdf', $data);
@@ -2757,10 +2773,62 @@ class OrderController extends Controller
         File::put($filePath, $content);
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
         $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
+        //$this->sendMail('bachdxse182030@fpt.edu.vn', $messageContent, 'Payment Invoice', $filePath);
+    }
+    public function generatePDFextra($orderId)
+    {
+        $order = DB::table('orders')->where('id', $orderId)->first();
+        $account = DB::table('account')->where('id', $order->account_id)->first();
+        $product = DB::table('product')->where('id', $order->product_id)->first();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
+        $product_diamond->map(function ($product_diamond) {
+            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+            $diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
+
+            $product_diamond->name = $diamond->size . " (mm) " . $diamond_color->name . '-' . $diamond_clarity->name . ' ' . $diamond_shape->name . ' Shape ' . $diamond_cut->name . ' Cut Diamond';
+            $product_diamond->price = $this->formatCurrency($product_diamond->price);
+            $product_diamond->unit_price = $this->formatCurrency($diamond->price);
+            return $product_diamond;
+        });
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
+        $product_metal->map(function ($product_metal) {
+            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $product_metal->name = $metal->name;
+            $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
+            $product_metal->price = $this->formatCurrency($product_metal->price);
+            return $product_metal;
+        });
+        $data = [
+            'date' => Carbon::now()->format('d/m/Y'),
+            'account' => $account,
+            'product_diamond' => $product_diamond,
+            'product_metal' => $product_metal,
+            'order' => $order,
+            'product_price' => $this->formatCurrency($order->product_price),
+            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price + $order->production_price) * $order->profit_rate / 100),
+            'total_price' => $this->formatCurrency($order->total_price),
+            'extra' => $order->deposit_has_paid - $order->total_price
+        ];
+
+        $pdf = PDF::loadView('pdf', $data);
+        $fileName = Carbon::now()->timestamp . '_' . $order->id . '.pdf';
+        // $fileName = $payment->id . '.pdf';
+        $content = $pdf->download()->getOriginalContent();
+        $destinationPath = public_path('pdf/' . $order->id);
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+        $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
+        File::put($filePath, $content);
+        $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
+        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
     }
     function formatCurrency($amount)
     {
-        return number_format($amount, 0) . ' VND';
+        return number_format($amount, 0);
     }
     public function sendMail($toEmail, $messageContent, $subject, $pathToFile)
     {
@@ -2803,7 +2871,8 @@ class OrderController extends Controller
             $payment_list
         );
     }
-    public function confirm_delivery(Request $request){
+    public function confirm_delivery(Request $request)
+    {
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
@@ -2830,20 +2899,20 @@ class OrderController extends Controller
         } catch (Throwable $e) {
             $id = $decodedToken->id;
         }
-        $order = DB::table('orders')->where('id',$input)->first();
-        if($order->account_id != $id){
+        $order = DB::table('orders')->where('id', $input)->first();
+        if ($order->account_id != $id) {
             return response()->json([
                 'error' => 'The Selected Order Isn\'t Your Order'
             ], 403);
         }
-        if($order->order_status_id != 5){
+        if ($order->order_status_id != 5) {
             return response()->json([
                 'error' => 'The Selected Order Isn\'t Being Deliver'
             ], 403);
         }
         DB::beginTransaction();
-        try{
-            DB::table('orders')->where('id',$input)->update([
+        try {
+            DB::table('orders')->where('id', $input)->update([
                 'order_status_id' => 6
             ]);
             DB::commit();
