@@ -9,14 +9,6 @@ import { Box, CircularProgress } from "@mui/material";
 
 export default function ViewQuote() {
 
-
-    // const sortOrder = ["Received", "Assigned", "Priced", "Completed", "Declined"];
-
-    // const sortQuotes = (quotes) => {
-    //     return quotes
-    //         .sort((a, b) => sortOrder.indexOf(a.quote_status.name) - sortOrder.indexOf(b.quote_status.name));
-    // };
-
     const [quoteList, setQuoteList] = useState([]);
     const [staffList, setStaffList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,7 +28,6 @@ export default function ViewQuote() {
     }
 
     useEffect(() => {
-        //setQuoteList(sortQuotes(initialQuoteList_data));
         handleDataChange();
     }, []);
 
@@ -51,14 +42,6 @@ export default function ViewQuote() {
             confirmButtonText: "Yes, cancel it!"
         }).then(async (result) => {
             if (result.isConfirmed) {
-
-
-                // const updatedQuoteList = quoteList.map(quote =>
-                //     quote.id === quoteId ? { ...quote, quote_status: { ...quote.quote_status, id: 5, name: 'Declined' } } : quote
-                // );
-
-                // // Cập nhật lại trạng thái của quoteList
-                // setQuoteList(sortQuotes(updatedQuoteList));
 
                 const cancel = {
                     quote_id: quoteId,
@@ -103,9 +86,13 @@ export default function ViewQuote() {
                             :
                             <>
                                 {
-                                    quoteList.map((quote) => (
+                                    quoteList.length>0  ?  quoteList.map((quote) => (
                                         <QuoteCard key={quote.id} quote={quote} staffList={staffList} onCancel={() => handleCancel(quote.id)} />
                                     ))
+                                    :
+                                    <div className="w-full flex items-center justify-center">
+                                        <p className="text-2xl">CHỈNH CHỮ Ở ĐÂY NÈ LỘC (điều kiện đung r)</p>
+                                    </div>
                                 }
                             </>
 

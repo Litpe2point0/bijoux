@@ -24,22 +24,6 @@ function renderValue(item) {
 
     return (
         <div color="light w-100 d-flex align-items-center justify-content-start" >
-            {/* <CPopover
-                title="Contact Info"
-                content={
-                    <>
-                        <div>Phone Number: {staff.phone}</div>
-                        <div>Email: {staff.email}</div>
-                    </>
-                }
-                placement="right"
-                trigger={"hover"}
-            >
-                <ListItemDecorator className='px-2'>
-                    <AvatarInput size={30} src={staff.imageUrl} />
-                </ListItemDecorator>
-                {staff.fullname}
-            </CPopover> */}
             <ListItemDecorator className='px-2'>
                     <AvatarInput size={30} src={staff.imageUrl} />
                 </ListItemDecorator>

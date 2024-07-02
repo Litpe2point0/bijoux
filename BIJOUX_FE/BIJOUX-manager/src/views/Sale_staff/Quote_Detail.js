@@ -133,7 +133,7 @@ const Quote_Detail = () => {
             setMountingType(mounting_type_list.data)
 
 
-            setImageBase64(quote_detail.product.imageUrl)
+            //setImageBase64(quote_detail.product.imageUrl)
             setTypeId(quote_detail.product.mounting_type ? quote_detail.product.mounting_type.id : null)
             setSize(quote_detail.product.mounting_size)
             setNote(quote_detail.note)
@@ -157,7 +157,7 @@ const Quote_Detail = () => {
             "quote_id": quote.id,
             "mounting_type_id": isNaN(typeId) ? null : typeId,
             "mounting_size": isNaN(size) ? null : size,
-            "imageUrl": imageBase64.includes('unknown.jpg') ? null : imageBase64,
+            "imageUrl": imageBase64 ? imageBase64 :  null ,
             "diamond_list": diamondList,
             "metal_list": metalList,
             "production_price": productionPrice,

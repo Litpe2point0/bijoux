@@ -210,3 +210,27 @@ export async function production_complete(formData, title, { signal } = {}) {
         return response_with_mess(false, mess_title, error.response.data.error, null);
     }
 }
+
+export async function get_refund_list(formData, title, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const response = await api_admin.post('/order/get_refund_list', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("get_refund_list" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
+
+export async function confirm_refund(formData, title, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const response = await api_admin.post('/order/confirm_refund', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("production_complete" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}

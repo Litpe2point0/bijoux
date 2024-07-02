@@ -40,29 +40,10 @@ const Login = () => {
     setPassword(e.target.value);
     setErrPassword("");
   };
-  // ============= Event Handler End here ===============
-  // const handleSignUp = (e) => {
-  //   e.preventDefault();
 
-  //   if (!email) {
-  //     setErrEmail("Enter your email");
-  //   }
-
-  //   if (!password) {
-  //     setErrPassword("Create a password");
-  //   }
-  //   // ============== Getting the value ==============
-  //   if (email && password) {
-  //     setSuccessMsg(
-  //       `Hello dear, Thank you for your attempt. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
-  //     );
-  //     setEmail("");
-  //     setPassword("");
-  //   }
-  // };
   const navigate = useNavigate();
-  const dispatch=useDispatch();
-  const handleSignUp = async (e) => {
+  const dispatch = useDispatch();
+  const handleLogin = async (e) => {
     setDisabled(true);
     e.preventDefault();
     const login_information = {
@@ -74,25 +55,27 @@ const Login = () => {
     let response = await login(formData);
     if (response.success) {
 
-      //alert(response.success)
       const token = response.access_token
       const user = getUserFromToken(token)
       console.log("User From JWT", user)
-      //dispatch(setToast({ color: "success", title: 'Login Successfully !', mess: 'Welcome ' + user.fullname }))
-      //sessionStorage.setItem('user', JSON.stringify(user));
+      const redirectUrl = localStorage.getItem('redirectUrl');
+      if (redirectUrl) {
+        localStorage.removeItem('redirectUrl');
+        window.location.href = redirectUrl;
+      } else {
+        window.location.href = '/';
+      }
       save_login(dispatch, token, user)
       instantAlertMaker('success', 'Login Successfully !', 'Welcome ' + user.fullname)
-      navigate('/shop')
       return;
-
     } else if (response.error) {
       instantAlertMaker('error', 'Login Failed !', 'Wrong username or password')
       console.log(response.error)
-      
+
     } else {
       instantAlertMaker('error', 'Login Failed !', response.message)
       console.log(response.error)
-      
+
     }
     setDisabled(false);
 
@@ -230,7 +213,7 @@ const Login = () => {
 
                 <button
                   disabled={disabled}
-                  onClick={handleSignUp}
+                  onClick={handleLogin}
                   className="bg-primeColor hover:bg-black text-gray-200 hover:text-white cursor-pointer w-full text-base font-medium h-10 rounded-md  duration-300"
                 >
                   Log In

@@ -33,7 +33,6 @@ function LoginByGoogle() {
                 
                 setUrl(user.imageUrl)
                 const redirectUrl = localStorage.getItem('redirectUrl');
-                //alert(redirectUrl)
                 if(redirectUrl){
                     localStorage.removeItem('redirectUrl');
                     window.location.href=redirectUrl;
@@ -42,15 +41,13 @@ function LoginByGoogle() {
                 }
                 save_login( dispatch,response.token, user)
             } else if (response.error) {
-                //dispatch(setToast({ color: "danger",title: 'Login Failed !', mess: 'Wrong username or password '}))
-                //alert(response.error)
+                
                 console.log(response.error)
             }
         } catch (error) {
             console.error('Invalid token', error);
 
         }
-        // Bạn có thể lấy token ID và gửi đến server của bạn để xác thực và lưu trữ
     };
 
     const handleLoginFailure = (response) => {

@@ -37,8 +37,9 @@ import DiamondCard from "../../Sale_staff/Modal_body/model/widget/DiamondCard";
 import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextareaAutosize } from "@mui/material";
 import QuoteProductImage from "../Quote widget/QuoteProductImage";
 import { OrderPageContext } from "../Order_Page";
-import { get_order_detail, reassign_order } from "../../../api/main/orders/Order_api";
+import { confirm_refund, get_order_detail, reassign_order } from "../../../api/main/orders/Order_api";
 import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_formatter";
+import { OrderRefundContext } from "../Order_Refund";
 
 
 
@@ -49,10 +50,10 @@ const CustomForm = ({ orderInfo, onClose }) => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { handleDataChange } = useContext(OrderPageContext);
+    const { handleDataChange } = useContext(OrderRefundContext);
 
     const [loading, setLoading] = useState(true);
-    const [isReassign, setIsReassign] = useState(false);
+    const [loadingRefund, setLoadingRefund] = useState(false);
 
     const [order, setOrder] = useState(null)
     const [product, setProduct] = useState(null)
@@ -73,10 +74,6 @@ const CustomForm = ({ orderInfo, onClose }) => {
     useEffect(() => {
         const setAttribute = async () => {
 
-            // await get_account_list();
-            // console.log("order", orderInfo)
-            // gọi api lấy order detail từ orderInfo.id 
-
             const formData = new FormData();
             formData.append('order_id', orderInfo.id);
             const detail_data = await get_order_detail(formData);
@@ -88,7 +85,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
             setProduct(order_detail.product)
 
 
-            const staffList =  await get_staff_list();
+            const staffList = await get_staff_list();
 
             setSaleStaffs(staffList.data.sale_staff_list);
             setDesignStaffs(staffList.data.design_staff_list);
@@ -109,51 +106,23 @@ const CustomForm = ({ orderInfo, onClose }) => {
         setAttribute()
     }, [])
 
-    const handleAssign = (selectedStaff, role_id) => {
-        setIsReassign(true)
-        if (role_id == 2) {
-
-            //console.log("sale Staff", selectedStaff)
-            setSaleStaff(selectedStaff)
-        } else if (role_id == 3) {
-
-            //console.log("design Staff", selectedStaff)
-            setDesignStaff(selectedStaff)
-        } else if (role_id == 4) {
-
-            //console.log("production Staff", selectedStaff)
-            setProductionStaff(selectedStaff)
-        }
-
-    }
-    const handleReassign = async () => {
-        setIsReassign(false)
-
-        const assigned_information = {
-            order_id: order.id,
-            note: note,
-            saleStaff_id: saleStaff ? saleStaff.id : null,
-            designStaff_id: designStaff ? designStaff.id : null,
-            productionStaff_id: productionStaff ? productionStaff.id : null
-        }
-        console.log('assigned_information', assigned_information)
+    const handleRefund = async () => {
+        setLoadingRefund(true)
         const formData = new FormData();
-        formData.append('assigned_information', JSON.stringify(assigned_information));
+        formData.append('order_id', order.id);
 
-        const response= await reassign_order(formData, 'Order ID ' + orderInfo.id);
-        
+        const response = await confirm_refund(formData, 'Order ID ' + orderInfo.id);
+
         if (response.success) {
             handleDataChange();
             onClose();
         }
         dispatch(setToast(response.mess))
-          
-        // if (orderInfo.order_status.id < 4) {
-            
+        setLoadingRefund(false)
+        // //gọi api ở trên
 
-        // } else {
-        //     dispatch(setToast({ color: 'danger', title: 'Order id: ' + orderInfo.id, mess: "Reassign staff failed !" }))
-        // }
+        // handleDataChange();
+
 
     }
     const handleNote = (new_note) => {
@@ -246,15 +215,23 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                     <CCol md={4}>
                                         <span ><b>Sale Staff: </b></span>
 
-
-                                        <AssignCard selection={saleStaff} staffList={saleStaffs} handleAssign={handleAssign} />
+                                        <CButton color="light w-100 d-flex align-items-center justify-content-start" >
+                                            <ListItemDecorator className='px-2'>
+                                                <AvatarInput size={30} src={saleStaff.imageUrl} />
+                                            </ListItemDecorator>
+                                            {saleStaff.fullname}
+                                        </CButton>
 
                                     </CCol>
                                     <CCol md={4}>
                                         <span><b>Design Staff: </b></span>
 
-
-                                        <AssignCard selection={designStaff} staffList={designStaffs} handleAssign={handleAssign} />
+                                        <CButton color="light w-100 d-flex align-items-center justify-content-start" >
+                                            <ListItemDecorator className='px-2'>
+                                                <AvatarInput size={30} src={designStaff.imageUrl} />
+                                            </ListItemDecorator>
+                                            {designStaff.fullname}
+                                        </CButton>
 
                                     </CCol>
                                 </>
@@ -264,11 +241,12 @@ const CustomForm = ({ orderInfo, onClose }) => {
                             <CCol md={4}>
                                 <span><b>Production Staff: </b></span>
 
-                                <AssignCard selection={productionStaff} staffList={productionStaffs} handleAssign={handleAssign} />
-
-                            </CCol>
-                            <CCol md={12} className="d-flex justify-content-center">
-                                <Button onClick={() => handleReassign()} className="fw-bold" variant="outlined" color="success" disabled={!isReassign}>Confirm Staffs Reassignment </Button>
+                                <CButton color="light w-100 d-flex align-items-center justify-content-start" >
+                                    <ListItemDecorator className='px-2'>
+                                        <AvatarInput size={30} src={productionStaff.imageUrl} />
+                                    </ListItemDecorator>
+                                    {productionStaff.fullname}
+                                </CButton>
 
                             </CCol>
                         </CRow>
@@ -295,7 +273,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                                     <ListItemText className="text-dark w-25" primary='Type' secondary={item.metal.name} />
                                                     <ListItemText className="text-dark w-25" primary='Volume' secondary={item.volume} />
                                                     <ListItemText className="text-dark w-25" primary='Weight' secondary={item.weight} />
-                                                    <ListItemText className="text-dark w-25" primary='Caculated Price' secondary={<CurrencyFormatterLowercase value={item.price}/>} />
+                                                    <ListItemText className="text-dark w-25" primary='Caculated Price' secondary={<CurrencyFormatterLowercase value={item.price} />} />
 
                                                 </ListItem>
                                             )
@@ -307,8 +285,8 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={metalList.reduce((total, item) => total + item.price, 0)}/>
-                                            {/* {metalList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                <CurrencyFormatterLowercase value={metalList.reduce((total, item) => total + item.price, 0)} />
+                                                {/* {metalList.reduce((total, item) => total + item.price, 0)} vnd */}
                                             </span>
 
                                         </CCol>
@@ -342,7 +320,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                                     <ListItemText className="text-dark w-25" primary='Clarity' secondary={item.diamond.diamond_clarity.name} />
                                                     <ListItemText className="text-dark w-25" primary='Cut' secondary={item.diamond.diamond_cut.name} />
                                                     <ListItemText className="text-dark w-25" primary='Count' secondary={item.count} />
-                                                    <ListItemText className="text-dark w-25" primary='Total Price' secondary={<CurrencyFormatterLowercase value={item.price}/>} />
+                                                    <ListItemText className="text-dark w-25" primary='Total Price' secondary={<CurrencyFormatterLowercase value={item.price} />} />
                                                     {diamondList.length == 0 &&
                                                         <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
                                                             <XCircle size={30} color="crimson" weight="duotone" />
@@ -358,8 +336,8 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={diamondList.reduce((total, item) => total + item.price, 0)}/>
-                                            {/* {diamondList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                <CurrencyFormatterLowercase value={diamondList.reduce((total, item) => total + item.price, 0)} />
+                                                {/* {diamondList.reduce((total, item) => total + item.price, 0)} vnd */}
                                             </span>
 
                                         </CCol>
@@ -380,35 +358,24 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                 <CCardBody className="d-flex flex-column justify-content-center">
                                     <CRow className="w-100  text-end d-flex justify-content-center">
                                         <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
-                                            <span className="text-dark fw-bold fs-5 ">Deposit Has Paid: </span>
-                                        </CCol>
-                                        <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
-                                            <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.deposit_has_paid}/>
-                                            {/* {order.deposit_has_paid} vnd */}
-                                            </span>
-
-                                        </CCol>
-                                    </CRow>
-                                    <CRow className="w-100  text-end d-flex justify-content-center">
-                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
                                             <span className="text-dark fw-bold fs-5 ">Product Price: </span>
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.product_price}/>
+                                                <CurrencyFormatterLowercase value={order.product_price} />
                                             </span>
+
                                         </CCol>
                                     </CRow>
-                                    
+
                                     <CRow className="w-100  text-end d-flex justify-content-center">
                                         <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
                                             <span className="text-dark fw-bold fs-5">Profit Price: </span>
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.product_price * (order.profit_rate / 100)}/>
-                                            &nbsp;({order.profit_rate}%)</span>
+                                                <CurrencyFormatterLowercase value={order.product_price * (order.profit_rate / 100)} />
+                                                &nbsp;({order.profit_rate}%)</span>
 
                                         </CCol>
                                     </CRow>
@@ -418,44 +385,67 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol lg={3} className=" p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.production_price}/>
+                                                <CurrencyFormatterLowercase value={order.production_price} />
                                             </span>
+
                                         </CCol>
                                     </CRow>
                                     <CRow className="w-100  text-end d-flex justify-content-center">
-                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center ">
-                                            <span className="text-dark fw-bold fs-5 ">Refund Price: </span>
+                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
+                                            <span className="text-dark fw-bold fs-5">Total Price: </span>
                                         </CCol>
-                                        <CCol lg={3} className=" p-0 m-0 d-flex align-items-center">
+                                        <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={(order.deposit_has_paid - order.total_price) > 0 ? (order.deposit_has_paid - order.total_price) : 0 }/>
+                                                <CurrencyFormatterLowercase value={order.total_price} />
+                                            </span>
+
+                                        </CCol>
+                                    </CRow>
+                                    <CRow className="w-100  text-end d-flex justify-content-center">
+                                        <div className="border border-1 border-secondary my-3 w-50"></div>
+                                    </CRow>
+                                    <CRow className="w-100  text-end d-flex justify-content-center   ">
+                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
+                                            <span className="text-dark fw-bold fs-5 ">Deposit Has Paid: </span>
+                                        </CCol>
+                                        <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
+                                            <span className="text-secondary fs-6">
+                                                <CurrencyFormatterLowercase value={order.deposit_has_paid} />
+                                            </span>
+
+                                        </CCol>
+                                    </CRow>
+                                    <CRow className="w-100  text-end d-flex justify-content-center">
+                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
+                                            <span className="text-danger fw-bold fs-4">Refund Price: </span>
+                                        </CCol>
+                                        <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
+                                            <span className="text-secondary fs-6">
+                                                <CurrencyFormatterLowercase value={order.deposit_has_paid - order.total_price} />
                                             </span>
                                         </CCol>
                                     </CRow>
 
-                                    <CRow className="w-100  text-end d-flex justify-content-center">
-                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
-                                            <span className="text-danger fw-bold fs-4">Total: </span>
-                                        </CCol>
-                                        <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
-                                            <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.total_price}/>
-                                            </span>
-                                        </CCol>
-                                    </CRow>
+
+
                                 </CCardBody>
                             </CCard>
                         </div>
+                    </CCol>
+                    <CCol xs={12} className="d-flex justify-content-center align-items-center">
+                        <CButton disabled={loadingRefund} className="mx-2" color="success" onClick={(e) => handleRefund(true)}  >
+                            Confirm Refund Of Excess Amount
+                        </CButton>
                     </CCol>
                 </>}
         </CForm>
     )
 }
 
-const OrderAssign = ({ order, onClose }) => {
+const OrderRefund = ({ order, onClose }) => {
     return (
         <CustomForm orderInfo={order} onClose={onClose} />
     );
 };
 
-export default OrderAssign;
+export default OrderRefund;
