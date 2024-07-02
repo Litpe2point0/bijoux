@@ -524,7 +524,7 @@ class QuoteController extends Controller
                 'profit_rate' => $input['profit_rate'],
                 'product_price' => $product_price,
                 'quote_status_id' => 3,
-                'total_price' => ceil(($product_price + $input['production_price']) * ($input['profit_rate'] + 100) / 100)
+                'total_price' => ceil(($product_price) * ($input['profit_rate'] + 100) / 100 + $input['production_price'])
             ]);
             DB::commit();
         } catch (\Exception $e) {

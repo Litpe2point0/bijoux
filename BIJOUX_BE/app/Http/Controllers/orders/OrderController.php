@@ -477,7 +477,7 @@ class OrderController extends Controller
             $order->product_price = ceil($product_price);
             $order->profit_rate = $model->profit_rate;
             $order->production_price = ceil($model->production_price);
-            $order->total_price = ceil(($product_price + $model->production_price) * ($model->profit_rate + 100) / 100);
+            $order->total_price = ceil(($product_price) * ($model->profit_rate + 100) / 100 + $model->production_price);
             $order->order_type_id = 1;
             $order->order_status_id = 1;
             $order->note = $input['note'];
@@ -1775,7 +1775,7 @@ class OrderController extends Controller
             DB::table('design_process')->where('id', $input['design_process_id'])->update([
                 'profit_rate' => $input['profit_rate'],
                 'production_price' => $input['production_price'],
-                'total_price' => ($design_process->product_price + $input['production_price']) * ($input['profit_rate'] + 100) / 100,
+                'total_price' => ceil(($design_process->product_price) * ($input['profit_rate'] + 100) / 100 + $input['production_price']),
                 'design_process_status_id' => 2
             ]);
             DB::table('orders')->where('id', $design_process->order_id)->update([
@@ -1895,7 +1895,7 @@ class OrderController extends Controller
                     'production_price' => $design_process->production_price,
                     'profit_rate' => $design_process->profit_rate,
                     'product_price' => $product_price,
-                    'total_price' => ceil(($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100),
+                    'total_price' => ceil($product_price * ($design_process->profit_rate + 100) / 100 + $design_process->production_price),
                     'note' => $note
                 ]);
                 DB::table('design_process')->where('id', $design_process->id)->update([
@@ -1919,7 +1919,7 @@ class OrderController extends Controller
                     File::copy($tempPath, $sourceFilePath);
                     File::delete($tempPath);
                 }
-                if (($design_process->total_price * 50 / 100) >= ($order->total_price * 50 / 100 * 1.05)) {
+                if (($design_process->total_price * 50 / 100) > ($order->total_price * 50 / 100 * 1.05)) {
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 1
                     ]);
@@ -2238,7 +2238,7 @@ class OrderController extends Controller
 
         // Set the design process URL and calculate the total price
         $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
-        $design_process->total_price = ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100;
+        $design_process->total_price = ceil(($product_price) * ($design_process->profit_rate + 100) / 100 + $design_process->production_price);
         $design_process->product_price = $product_price;
         unset($order->product_id);
 
@@ -2749,7 +2749,7 @@ class OrderController extends Controller
             'product_metal' => $product_metal,
             'order' => $order,
             'product_price' => $this->formatCurrency($order->product_price),
-            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price + $order->production_price) * $order->profit_rate / 100),
+            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
             'total_price' => $this->formatCurrency($order->total_price),
             'extra' => ($payment->money + $order->deposit_has_paid) - $order->total_price
         ];
@@ -2801,7 +2801,7 @@ class OrderController extends Controller
             'product_metal' => $product_metal,
             'order' => $order,
             'product_price' => $this->formatCurrency($order->product_price),
-            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price + $order->production_price) * $order->profit_rate / 100),
+            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
             'total_price' => $this->formatCurrency($order->total_price),
             'extra' => $order->deposit_has_paid - $order->total_price
         ];

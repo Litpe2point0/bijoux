@@ -178,7 +178,7 @@ class MetalController extends Controller
                     }
                     DB::table('orders')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
+                        'total_price' => ceil(($product_price) * ($profit_rate + 100) / 100 + $production_price)
                     ]);
                 }
 
@@ -203,7 +203,7 @@ class MetalController extends Controller
                     }
                     DB::table('quote')->where('product_id', $product->product_id)->update([
                         'product_price' => $product_price,
-                        'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
+                        'total_price' => ceil(($product_price) * ($profit_rate + 100) / 100 + $production_price)
                     ]);
                 }
                 if ($order != null) {
@@ -233,7 +233,7 @@ class MetalController extends Controller
                         }
                         DB::table('design_process')->where('order_id', $order->id)->update([
                             'product_price' => $product_price,
-                            'total_price' => ceil(($product_price + $production_price) * ($profit_rate + 100) / 100)
+                            'total_price' => ceil(($product_price) * ($profit_rate + 100) / 100 + $production_price)
                         ]);
                     }
                 }
