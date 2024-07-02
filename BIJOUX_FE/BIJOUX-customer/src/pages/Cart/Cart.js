@@ -10,45 +10,10 @@ const Cart = () => {
 
   return (
     <div className='flex'>
-      <div className='fixed w-[50px] h-[50px] flex items-center justify-center rounded-md bg-slate-300 mt-2 ml-2'>
+      <div className='fixed w-[50px] h-[50px] flex items-center justify-center rounded-md bg-slate-300 mt-8 ml-2'>
         <FiMenu onClick={() => setIsDrawerOpen(true)} size={35} className='text-black hover:text-indigo-500' />
       </div>
-      {/* <div className='h-screen flex-col hidden md:flex bg-[#3e4f6a] rounded-r-xl'>
-        <div className='flex items-center justify-center'>
-          <SketchLogo size={20} color="white" />
-          <h2 className='text-white font-rootFont font-semibold text-xl mt-5 ml-2 mb-5'>Bijoux</h2>
-        </div>
-        <div className='w-full justify-center flex items-center'>
-          <div className='w-10/12 h-0.5 bg-white'></div>
-        </div>
-        <List className='font-rootFont font-semibold text-white'>
 
-          <ListItem button onClick={handleQuoteClick}>
-            <Archive className='mr-2' size={20} />
-            <Link to="quote" style={{ marginLeft: '8px', textDecoration: 'none', color: 'inherit' }}>
-              View Quote
-            </Link>
-          </ListItem>
-
-
-          <ListItem button onClick={handleOrderClick}>
-            <ShoppingCartSimple className="mr-2" size={20} />
-            <Link to="order" style={{ marginLeft: '8px', textDecoration: 'none', color: 'inherit' }}>
-              View Order
-            </Link>
-          </ListItem>
-
-
-          <ListItem button>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <CurrencyCircleDollar className='mr-2' size={20} />
-              <Link to="payment" style={{ marginLeft: '8px', textDecoration: 'none', color: 'inherit' }}>
-                Payment
-              </Link>
-            </div>
-          </ListItem>
-        </List>
-      </div> */}
       <AnimatePresence>
         {isDrawerOpen && (
           <motion.div
