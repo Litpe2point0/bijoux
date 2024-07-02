@@ -50,7 +50,7 @@ const getRightFormattedCreatedDate = (inputString) => {
 };
 
 export default function OrderInformations({ order }) {
-    const updateProductionPrice = order.total_price - order.product_price;
+    const updateProductionPrice = (order.profit_rate / 100) * order.product_price + order.production_price;
     const formattedCreatedDate = getFormattedDate(order.created);
     const today = new Date();
 

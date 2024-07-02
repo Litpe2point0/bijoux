@@ -135,6 +135,28 @@ export const order_status_creator = (status) => {
         )
     }
 }
+export const order_refund_status_creator = (status) => {
+    if (status.id == 4) {
+        return (
+            <CCard
+                textColor="light"
+                style={{ width: '100%' }}
+                className={` text-center px-2 fw-bold rounded-pill px-1  bg-secondary border border-3 border-danger`}>
+                Refund Required*
+            </CCard>
+        )
+    }else{
+        return (
+            <CCard
+                textColor="light"
+                style={{ width: '100%' }}
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-success`}>
+                Paid
+            </CCard>
+        )
+    }
+    
+}
 export const design_process_status_creator = (status) => {
     if (status == null) {
         return (

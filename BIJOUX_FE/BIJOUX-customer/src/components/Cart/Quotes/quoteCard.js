@@ -9,7 +9,7 @@ const CurrencyFormatter = ({ value }) => {
 };
 
 export default function QuoteCard({ quote, onCancel }) {
-    const newProductionPrice = quote.total_price - quote.product_price;
+    const newProductionPrice = (quote.profit_rate / 100) * quote.product_price + quote.production_price;
     const [checkOpen, setCheckOpen] = useState(false);
     const [saleStaff, setSaleStaff] = useState(quote.sale_staff);
     const [designStaff, setDesignStaff] = useState(quote.design_staff);

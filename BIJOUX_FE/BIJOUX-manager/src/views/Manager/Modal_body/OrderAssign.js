@@ -397,9 +397,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
                                             <CurrencyFormatterLowercase value={order.product_price}/>
-                                            {/* {order.product_price} vnd */}
                                             </span>
-
                                         </CCol>
                                     </CRow>
                                     
@@ -410,7 +408,6 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
                                             <CurrencyFormatterLowercase value={order.product_price * (order.profit_rate / 100)}/>
-                                            {/* {order.product_price * (order.profit_rate / 100)} vnd  */}
                                             &nbsp;({order.profit_rate}%)</span>
 
                                         </CCol>
@@ -422,9 +419,17 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         <CCol lg={3} className=" p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
                                             <CurrencyFormatterLowercase value={order.production_price}/>
-                                            {/* {order.production_price} vnd */}
                                             </span>
-
+                                        </CCol>
+                                    </CRow>
+                                    <CRow className="w-100  text-end d-flex justify-content-center">
+                                        <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center ">
+                                            <span className="text-dark fw-bold fs-5 ">Refund Price: </span>
+                                        </CCol>
+                                        <CCol lg={3} className=" p-0 m-0 d-flex align-items-center">
+                                            <span className="text-secondary fs-6">
+                                            <CurrencyFormatterLowercase value={(order.deposit_has_paid - order.total_price) > 0 ? (order.deposit_has_paid - order.total_price) : 0 }/>
+                                            </span>
                                         </CCol>
                                     </CRow>
 
@@ -435,9 +440,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
                                             <CurrencyFormatterLowercase value={order.total_price}/>
-                                            {/* {order.total_price} vnd */}
                                             </span>
-
                                         </CCol>
                                     </CRow>
                                 </CCardBody>

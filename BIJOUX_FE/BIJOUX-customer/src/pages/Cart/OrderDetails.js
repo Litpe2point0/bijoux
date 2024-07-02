@@ -107,7 +107,8 @@ export default function OrderDetails() {
                             <OrderInformations order={orderDetail} />
                         )}
                         {!loading && checkContent === "design-process" && (
-                            orderDetail.order_status.id !== 1 && orderDetail.design_process !== null && orderDetail.design_process.design_process_status.id == 3 ? (
+                            //orderDetail.order_status.id !== 1 && 
+                            orderDetail.design_process !== null && orderDetail.design_process.design_process_status.id == 3 ? (
                                 <DesignProcess order={orderDetail} />
                             ) : (
                                 <div className="flex justify-center">

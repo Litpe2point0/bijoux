@@ -43,7 +43,12 @@ const HeaderBottom = () => {
     setFilteredProducts(filtered);
   }, [searchQuery]);
   const handleLogout = () => {
+
     dispatch(clearAuthToken());
+  }
+  const handleLogin = () => {
+    const redirectUrl = window.location.href;
+    localStorage.setItem('redirectUrl', redirectUrl);
   }
   return (
     <div className="w-full bg-[#F5F5F3] relative">
@@ -120,13 +125,13 @@ const HeaderBottom = () => {
               >
                 {(auth.user && auth.token) ?
                   <Link to="/login" onClick={handleLogout}>
-                      <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                        Log Out
-                      </li>
-                    </Link>
-                :
+                    <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                      Log Out
+                    </li>
+                  </Link>
+                  :
                   <>
-                    <Link to="/login">
+                    <Link to="/login" onClick={handleLogin}>
                       <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
                         Log In
                       </li>
@@ -137,10 +142,10 @@ const HeaderBottom = () => {
                       </li>
                     </Link>
                   </>
-                  
 
-                
-              }
+
+
+                }
 
                 <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
                   Profile

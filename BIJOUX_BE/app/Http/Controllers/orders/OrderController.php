@@ -27,7 +27,7 @@ class OrderController extends Controller
 {
     public function get_order_list_admin()
     {
-        $customize_order_list = DB::table('orders')->where('order_type_id',2)->orderBy('order_status_id', 'asc')->get();
+        $customize_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
         $customize_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -54,7 +54,7 @@ class OrderController extends Controller
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
             return $order;
         });
-        $template_order_list = DB::table('orders')->where('order_type_id',1)->orderBy('order_status_id', 'asc')->get();
+        $template_order_list = DB::table('orders')->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
         $template_order_list->map(function ($order) {
             $product = DB::table('product')->where('id', $order->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -477,7 +477,7 @@ class OrderController extends Controller
             $order->product_price = ceil($product_price);
             $order->profit_rate = $model->profit_rate;
             $order->production_price = ceil($model->production_price);
-            $order->total_price = ceil(($product_price + $model->production_price) * ($model->profit_rate + 100) / 100);
+            $order->total_price = ceil(($product_price) * ($model->profit_rate + 100) / 100 + $model->production_price);
             $order->order_type_id = 1;
             $order->order_status_id = 1;
             $order->note = $input['note'];
@@ -487,7 +487,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Order Succesfully Created',
@@ -586,7 +586,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Successfully Reassign'
@@ -650,7 +650,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Cancel Successfully'
@@ -1438,8 +1438,10 @@ class OrderController extends Controller
         $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 1)->get();
         foreach ($template_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-            if ($production_process->production_status_id == 6) {
-                $data1->push($order);
+            if ($production_process != null) {
+                if ($production_process->production_status_id == 6) {
+                    $data1->push($order);
+                }
             }
         }
         $data1->map(function ($order) {
@@ -1697,7 +1699,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Request Design Process Successfully'
@@ -1773,7 +1775,7 @@ class OrderController extends Controller
             DB::table('design_process')->where('id', $input['design_process_id'])->update([
                 'profit_rate' => $input['profit_rate'],
                 'production_price' => $input['production_price'],
-                'total_price' => ($design_process->product_price + $input['production_price']) * ($input['profit_rate'] + 100) / 100,
+                'total_price' => ceil(($design_process->product_price) * ($input['profit_rate'] + 100) / 100 + $input['production_price']),
                 'design_process_status_id' => 2
             ]);
             DB::table('orders')->where('id', $design_process->order_id)->update([
@@ -1782,7 +1784,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Successfully Price Design Process'
@@ -1893,7 +1895,7 @@ class OrderController extends Controller
                     'production_price' => $design_process->production_price,
                     'profit_rate' => $design_process->profit_rate,
                     'product_price' => $product_price,
-                    'total_price' => ceil(($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100),
+                    'total_price' => ceil($product_price * ($design_process->profit_rate + 100) / 100 + $design_process->production_price),
                     'note' => $note
                 ]);
                 DB::table('design_process')->where('id', $design_process->id)->update([
@@ -1917,7 +1919,7 @@ class OrderController extends Controller
                     File::copy($tempPath, $sourceFilePath);
                     File::delete($tempPath);
                 }
-                if (($design_process->total_price * 50 / 100) >= ($order->total_price * 50 / 100 * 1.05)) {
+                if (($design_process->total_price * 50 / 100) > ($order->total_price * 50 / 100 * 1.05)) {
                     DB::table('orders')->where('id', $design_process->order_id)->update([
                         'order_status_id' => 1
                     ]);
@@ -1946,7 +1948,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Design Process Approve Successfully'
@@ -2236,7 +2238,7 @@ class OrderController extends Controller
 
         // Set the design process URL and calculate the total price
         $design_process->imageUrl = $OGurl . $Durl . $design_process->id . '/' . $design_process->imageUrl;
-        $design_process->total_price = ($product_price + $design_process->production_price) * ($design_process->profit_rate + 100) / 100;
+        $design_process->total_price = ceil(($product_price) * ($design_process->profit_rate + 100) / 100 + $design_process->production_price);
         $design_process->product_price = $product_price;
         unset($order->product_id);
 
@@ -2301,7 +2303,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Successfully Added'
@@ -2429,7 +2431,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Production Process Successfully Added'
@@ -2545,7 +2547,7 @@ class OrderController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     public function generateOrderCode()
@@ -2653,6 +2655,12 @@ class OrderController extends Controller
             if ($this->isValidData($input['data'], $input['signature'], $checksum_key)) {
                 $payment = DB::table('payment')->where('id', $input['data']['orderCode'])->first();
                 $order = DB::table('orders')->where('id', $payment->order_id)->first();
+                if (!isset($payment) || !isset($order)) {
+                    return response()->json([
+                        'error' => 'Invalid Order Code'
+                    ], 403);
+                }
+                //m chưa save
                 if ($order->order_status_id == 1) {
                     if ($order->order_type_id == 1) {
                         DB::table('orders')->where('id', $order->id)->update([
@@ -2700,7 +2708,7 @@ class OrderController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Transaction Complete'
@@ -2741,8 +2749,9 @@ class OrderController extends Controller
             'product_metal' => $product_metal,
             'order' => $order,
             'product_price' => $this->formatCurrency($order->product_price),
-            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price + $order->production_price) * $order->profit_rate / 100),
-            'total_price' => $this->formatCurrency($order->total_price)
+            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
+            'total_price' => $this->formatCurrency($order->total_price),
+            'extra' => ($payment->money + $order->deposit_has_paid) - $order->total_price
         ];
 
         $pdf = PDF::loadView('pdf', $data);
@@ -2757,10 +2766,62 @@ class OrderController extends Controller
         File::put($filePath, $content);
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
         $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
+        //$this->sendMail('bachdxse182030@fpt.edu.vn', $messageContent, 'Payment Invoice', $filePath);
+    }
+    public function generatePDFextra($orderId)
+    {
+        $order = DB::table('orders')->where('id', $orderId)->first();
+        $account = DB::table('account')->where('id', $order->account_id)->first();
+        $product = DB::table('product')->where('id', $order->product_id)->first();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
+        $product_diamond->map(function ($product_diamond) {
+            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+            $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+            $diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+            $diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+            $diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
+
+            $product_diamond->name = $diamond->size . " (mm) " . $diamond_color->name . '-' . $diamond_clarity->name . ' ' . $diamond_shape->name . ' Shape ' . $diamond_cut->name . ' Cut Diamond';
+            $product_diamond->price = $this->formatCurrency($product_diamond->price);
+            $product_diamond->unit_price = $this->formatCurrency($diamond->price);
+            return $product_diamond;
+        });
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
+        $product_metal->map(function ($product_metal) {
+            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+            $product_metal->name = $metal->name;
+            $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
+            $product_metal->price = $this->formatCurrency($product_metal->price);
+            return $product_metal;
+        });
+        $data = [
+            'date' => Carbon::now()->format('d/m/Y'),
+            'account' => $account,
+            'product_diamond' => $product_diamond,
+            'product_metal' => $product_metal,
+            'order' => $order,
+            'product_price' => $this->formatCurrency($order->product_price),
+            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
+            'total_price' => $this->formatCurrency($order->total_price),
+            'extra' => $order->deposit_has_paid - $order->total_price
+        ];
+
+        $pdf = PDF::loadView('pdf', $data);
+        $fileName = Carbon::now()->timestamp . '_' . $order->id . '.pdf';
+        // $fileName = $payment->id . '.pdf';
+        $content = $pdf->download()->getOriginalContent();
+        $destinationPath = public_path('pdf/' . $order->id);
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+        $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
+        File::put($filePath, $content);
+        $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
+        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
     }
     function formatCurrency($amount)
     {
-        return number_format($amount, 0) . ' VND';
+        return number_format($amount, 0);
     }
     public function sendMail($toEmail, $messageContent, $subject, $pathToFile)
     {
@@ -2803,7 +2864,8 @@ class OrderController extends Controller
             $payment_list
         );
     }
-    public function confirm_delivery(Request $request){
+    public function confirm_delivery(Request $request)
+    {
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
@@ -2830,26 +2892,133 @@ class OrderController extends Controller
         } catch (Throwable $e) {
             $id = $decodedToken->id;
         }
-        $order = DB::table('orders')->where('id',$input)->first();
-        if($order->account_id != $id){
+        $order = DB::table('orders')->where('id', $input)->first();
+        if ($order->account_id != $id) {
             return response()->json([
                 'error' => 'The Selected Order Isn\'t Your Order'
             ], 403);
         }
-        if($order->order_status_id != 5){
+        if ($order->order_status_id != 5) {
             return response()->json([
                 'error' => 'The Selected Order Isn\'t Being Deliver'
             ], 403);
         }
         DB::beginTransaction();
-        try{
-            DB::table('orders')->where('id',$input)->update([
+        try {
+            DB::table('orders')->where('id', $input)->update([
                 'order_status_id' => 6
             ]);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+    public function get_refund_list()
+    {
+        $customize_order_list = DB::table('orders')->where('order_type_id', 2)->where('order_status_id', '>=', 4)->orderBy('order_status_id', 'asc')->get();
+        $temp1 = collect();
+        foreach ($customize_order_list as $list1) {
+            if ($list1->deposit_has_paid - $list1->total_price > 0) {
+                $temp1->push($list1);
+            }
+        }
+        $temp1->map(function ($order) {
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+            }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
+            unset($account->password);
+            $order->account = $account;
+            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
+            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
+            unset($order->order_status_id);
+            unset($order->order_type_id);
+            unset($order->account_id);
+            unset($order->product_id);
+            $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            return $order;
+        });
+        $template_order_list = DB::table('orders')->where('order_type_id', 1)->where('order_status_id', '>=', 4)->orderBy('order_status_id', 'asc')->get();
+        $temp2 = collect();
+        foreach ($template_order_list as $list2) {
+            if ($list2->deposit_has_paid - $list2->total_price > 0) {
+                $temp2->push($list2);
+            }
+        }
+        $temp2->map(function ($order) {
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+            }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
+            unset($account->password);
+            $order->account = $account;
+            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
+            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
+            unset($order->order_status_id);
+            unset($order->order_type_id);
+            unset($order->account_id);
+            unset($order->product_id);
+            $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            return $order;
+        });
+        return response()->json([
+            'customize_order_list' => $temp1,
+            'template_order_list' => $temp2
+        ]);
+    }
+    public function confirm_refund(Request $request)
+    {
+        $input = json_decode($request->input('order_id'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+        $order = DB::table('orders')->where('id', $input)->first();
+        if ($order == null) {
+            return response()->json([
+                'error' => 'The Selected Order Doesn\'t Exist'
+            ], 403);
+        }
+        if ($order->order_status_id != 4) {
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Ready For Refund'
+            ], 403);
+        }
+        DB::beginTransaction();
+        try {
+            $this->generatePDFextra($order->id);
+            DB::table('orders')->where('id', $input)->update([
+                'order_status_id' => 5
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+        return response()->json([
+            'success' => 'Refund Complete'
+        ]);
     }
 }

@@ -239,7 +239,7 @@ export default function MountingDetail() {
     return (
         <div className="flex flex-col items-center mb-20">
             <h1 className="md:text-3xl xs:text-xl mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Mounting Detail</h1>
-            <p className="text-light mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Chọn các thông số chi tiết cho mẫu khung của bạn</p>
+            <p className="text-light mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Select the detailed specifications for your mounting model.</p>
             {loading ?
                 <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
                     <CircularProgress color="inherit" />
