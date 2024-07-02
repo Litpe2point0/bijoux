@@ -153,7 +153,7 @@ export default function ExploreCustomization() {
             icon: icon,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'OK EM HIỂU RỒI',
+            confirmButtonText: 'Got It',
             customClass: {
                 popup: 'swal2-custom-zindex'
             }
@@ -165,7 +165,7 @@ export default function ExploreCustomization() {
                     icon: "success",
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'OK EM HIỂU RỒI',
+                    confirmButtonText: 'Got It',
                     customClass: {
                         popup: 'swal2-custom-zindex'
                     }

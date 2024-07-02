@@ -340,7 +340,7 @@ export default function CompleteRing() {
                             <div className="ml-3 flex flex-col">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Free Shipping</p>
                                 <div className="w-[550px]">
-                                    <p className="font-gantariFont text-sm">Trang sức của bạn sẽ được vận chuyển miễn phí toàn quốc với thời gian nhất. Chúng tôi cam kết đảm bảo tính bảo mật và nguyên vẹn của sản phẩm trong quá trình vận chuyển.</p>
+                                    <p className="font-gantariFont text-sm">Your jewelry will be shipped nationwide free of charge with the utmost expediency. We are committed to ensuring the security and integrity of your product throughout the shipping process.</p>
                                 </div>
                             </div>
                         </div>
@@ -354,7 +354,7 @@ export default function CompleteRing() {
                             <div className="ml-3 flex flex-col">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Material's Price Changing</p>
                                 <div className="w-[550px]">
-                                    <p className="font-gantariFont text-sm">Giá của trang sức có thể sẽ thay đổi do sự thay đổi giá của các nguyên vật liệu trước khi bạn đặt cọc. Vì vậy hãy đặt cọc sớm nhất để có mức giá tốt nhất.</p>
+                                    <p className="font-gantariFont text-sm">Jewelry prices may vary due to changes in the prices of raw materials before you place a deposit. Therefore, place your deposit early to lock in the best price.</p>
                                 </div>
                             </div>
                         </div>
@@ -368,7 +368,7 @@ export default function CompleteRing() {
                             <div className="ml-3 flex flex-col">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Lifetime warranty</p>
                                 <div className="w-[550px]">
-                                    <p className="font-gantariFont text-sm">Trang sức của bạn được bảo hành trọn đời từ Bijoux, mọi vấn đề liên quan đến vật liệu làm nên trang sức sẽ được chúng tôi khắc phục cho bạn.</p>
+                                    <p className="font-gantariFont text-sm">Your jewelry is covered by a lifetime warranty from Bijoux. Any issues related to the materials used in the jewelry will be resolved by us.</p>
                                 </div>
                             </div>
                         </div>

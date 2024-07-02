@@ -232,7 +232,7 @@ export default function ChooseDiamond() {
     return (
         <div className="flex flex-col items-center" >
             <h1 className="md:text-3xl xs:text-xl mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Diamond Details</h1>
-            <p className="text-light mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Chọn các thông số chi tiết cho kim cương của bạn</p>
+            <p className="text-light mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Choose detailed informations for your diamond</p>
             {loading ?
                 <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
                     <CircularProgress color="inherit" />
@@ -242,7 +242,7 @@ export default function ChooseDiamond() {
                     <div className="w-full grid grid-cols-2 ">
                         <div className="flex flex-col justify-center ml-10">
                             {model.model_diamond.map((diamond, index) => (
-                                <div className="w-full h-14 bg-gray-200 mb-5 rounded-sm flex relative">
+                                <div className="w-full items-center h-14 bg-gray-200 mb-5 rounded-sm flex relative">
                                     <div className="w-2/3">
                                         <p className="text-[#151542] text-base font-semibold ml-5">Diamond {index + 1}</p>
                                         <div className="flex w-full grid-cols-3 gap-2 ml-5 text-xs">
@@ -411,15 +411,15 @@ export default function ChooseDiamond() {
                                         <button onClick={handleGenerateDiamond} className="bg-[#151542] hover:bg-cyan-900 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Generate Diamond Image</button>
                                     </div>
                                 </div>
-                                <div className="flex justify-center flex-col">
-                                    <div className="w-full mb-5 flex justify-center">
+                                <div className="flex justify-center flex-col rounded-lg border-2 w-[562px] py-5">
+                                    <div className="w-full mb-5 flex justify-center ">
                                         {loadingDiamond ?
-                                            <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
+                                            <Box sx={{ display: 'flex', height: '324px', width: '300px', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
                                                 <CircularProgress color="inherit" />
                                             </Box>
                                             :
-                                            <div className=" flex flex-col items-center">
-                                                <img src={searchedDiamond ? searchedDiamond.imageUrl : diamondImg} alt="diamond" className="w-3/4" />
+                                            <div className=" flex flex-col rounded-full items-center">
+                                                <img src={searchedDiamond ? searchedDiamond.imageUrl : diamondImg} alt="diamond" className="w-[300px] h-[300px] rounded-full object-cover object-center" />
                                                 <div>
                                                     <p className="font-gantariFont text-[#151542] font-semibold ">Price In Piece: <CurrencyFormatter value={searchedDiamond ? searchedDiamond.price : 0} /></p>
                                                 </div>
