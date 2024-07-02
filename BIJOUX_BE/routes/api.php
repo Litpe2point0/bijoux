@@ -48,6 +48,8 @@ Route::middleware('checkCors')->group(function () {
                 Route::post('/get_assigned_orders_design ', [OrderController::class, 'get_assigned_orders_design']);
                 Route::post('/get_assigned_orders_production ', [OrderController::class, 'get_assigned_orders_production']);
                 Route::post('/get_assigned_complete_orders_production ', [OrderController::class, 'get_assigned_complete_orders_production']);
+                Route::post('/get_refund_list ', [OrderController::class, 'get_refund_list'])->middleware('checkManager');
+                Route::post('/confirm_refund ', [OrderController::class, 'confirm_refund'])->middleware('checkManager');
             });
         });
     });

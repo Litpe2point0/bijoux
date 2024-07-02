@@ -487,7 +487,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Order Succesfully Created',
@@ -586,7 +586,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Successfully Reassign'
@@ -650,7 +650,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Cancel Successfully'
@@ -1438,7 +1438,7 @@ class OrderController extends Controller
         $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 1)->get();
         foreach ($template_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-            if($production_process != null){
+            if ($production_process != null) {
                 if ($production_process->production_status_id == 6) {
                     $data1->push($order);
                 }
@@ -1699,7 +1699,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Request Design Process Successfully'
@@ -1784,7 +1784,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Successfully Price Design Process'
@@ -1948,7 +1948,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Design Process Approve Successfully'
@@ -2303,7 +2303,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Successfully Added'
@@ -2431,7 +2431,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Production Process Successfully Added'
@@ -2522,16 +2522,9 @@ class OrderController extends Controller
                 DB::table('product')->where('id', $order->product_id)->update([
                     'imageUrl' => $production_process->imageUrl
                 ]);
-                if ($order->total_price <= $order->deposit_has_paid) {
-                    $this->generatePDFextra($order->id);
-                    DB::table('orders')->where('id', $input)->update([
-                        'order_status_id' => 5
-                    ]);
-                } else {
-                    DB::table('orders')->where('id', $input)->update([
-                        'order_status_id' => 4
-                    ]);
-                }
+                DB::table('orders')->where('id', $input)->update([
+                    'order_status_id' => 4
+                ]);
 
                 $fileName = 'main.jpg';
                 $destinationPath = public_path('image/Order/' . $order->product_id);
@@ -2554,7 +2547,7 @@ class OrderController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     public function generateOrderCode()
@@ -2656,13 +2649,13 @@ class OrderController extends Controller
             return response()->json([
                 'error' => 'No Input Received'
             ], 403);
-        } 
+        }
         DB::beginTransaction();
         try {
             if ($this->isValidData($input['data'], $input['signature'], $checksum_key)) {
                 $payment = DB::table('payment')->where('id', $input['data']['orderCode'])->first();
                 $order = DB::table('orders')->where('id', $payment->order_id)->first();
-                if(!isset($payment) || !isset($order)){ 
+                if (!isset($payment) || !isset($order)) {
                     return response()->json([
                         'error' => 'Invalid Order Code'
                     ], 403);
@@ -2715,7 +2708,7 @@ class OrderController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
             'success' => 'Transaction Complete'
@@ -2918,7 +2911,114 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+    public function get_refund_list()
+    {
+        $customize_order_list = DB::table('orders')->where('order_type_id', 2)->where('order_status_id', '>=', 4)->orderBy('order_status_id', 'asc')->get();
+        $temp1 = collect();
+        foreach ($customize_order_list as $list1) {
+            if ($list1->deposit_has_paid - $list1->total_price > 0) {
+                $temp1->push($list1);
+            }
+        }
+        $temp1->map(function ($order) {
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+            }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
+            unset($account->password);
+            $order->account = $account;
+            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
+            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
+            unset($order->order_status_id);
+            unset($order->order_type_id);
+            unset($order->account_id);
+            unset($order->product_id);
+            $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            return $order;
+        });
+        $template_order_list = DB::table('orders')->where('order_type_id', 1)->where('order_status_id', '>=', 4)->orderBy('order_status_id', 'asc')->get();
+        $temp2 = collect();
+        foreach ($template_order_list as $list2) {
+            if ($list2->deposit_has_paid - $list2->total_price > 0) {
+                $temp2->push($list2);
+            }
+        }
+        $temp2->map(function ($order) {
+            $product = DB::table('product')->where('id', $order->product_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('ORDER_URL');
+            $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
+            $order->product = $product;
+
+            $account = DB::table('account')->where('id', $order->account_id)->first();
+            if (!$account->google_id) {
+                $OGurl = env('ORIGIN_URL');
+                $url = env('ACCOUNT_URL');
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
+            }
+            $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
+            $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
+            unset($account->password);
+            $order->account = $account;
+            $order->order_status = DB::table('order_status')->where('id', $order->order_status_id)->first();
+            $order->order_type = DB::table('order_type')->where('id', $order->order_type_id)->first();
+            unset($order->order_status_id);
+            unset($order->order_type_id);
+            unset($order->account_id);
+            unset($order->product_id);
+            $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            return $order;
+        });
+        return response()->json([
+            'customize_order_list' => $temp1,
+            'template_order_list' => $temp2
+        ]);
+    }
+    public function confirm_refund(Request $request)
+    {
+        $input = json_decode($request->input('order_id'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No Input Received'
+            ], 403);
+        }
+        $order = DB::table('orders')->where('id', $input)->first();
+        if ($order == null) {
+            return response()->json([
+                'error' => 'The Selected Order Doesn\'t Exist'
+            ], 403);
+        }
+        if ($order->order_status_id != 4) {
+            return response()->json([
+                'error' => 'The Selected Order Isn\'t Ready For Refund'
+            ], 403);
+        }
+        DB::beginTransaction();
+        try {
+            $this->generatePDFextra($order->id);
+            DB::table('orders')->where('id', $input)->update([
+                'order_status_id' => 5
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+        return response()->json([
+            'success' => 'Refund Complete'
+        ]);
     }
 }

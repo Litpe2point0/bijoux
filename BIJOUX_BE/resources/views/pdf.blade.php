@@ -176,7 +176,7 @@
                                 BIJOUX JEWELRY <!-- replace with logo link -->
                             </td>
                             <td>
-                                Invoice NO: #{{ $order->id }}<br />
+                                Invoice No.{{ $order->id }}<br />
                                 Issue Date: {{ $date }}<br />
                             </td>
                         </tr>
