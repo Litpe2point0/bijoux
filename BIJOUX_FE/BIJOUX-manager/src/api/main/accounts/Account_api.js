@@ -100,6 +100,18 @@ export async function account_set_deactivate(formData, title, { signal } = {}) {
     }
 }
 
+export async function get_payment_history(formData, title, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const response = await api.post('/account/get_payment_history', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("get_payment_history" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
+
 
 
 
