@@ -23,6 +23,8 @@ use Throwable;
 use PayOS\PayOS;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+use function Pest\Laravel\json;
+
 class OrderController extends Controller
 {
     public function get_order_list_admin()
@@ -2650,6 +2652,10 @@ class OrderController extends Controller
                 'error' => 'No Input Received'
             ], 403);
         }
+        DB::table('payment')->where('id', $input['data']['orderCode'])->update([
+            'isSuccess' => 1,
+            'note' => $input['data']
+        ]);
         DB::beginTransaction();
         try {
             if ($this->isValidData($input['data'], $input['signature'], $checksum_key)) {
@@ -2660,7 +2666,6 @@ class OrderController extends Controller
                         'error' => 'Invalid Order Code'
                     ], 403);
                 }
-                //m chưa save
                 if ($order->order_status_id == 1) {
                     if ($order->order_type_id == 1) {
                         DB::table('orders')->where('id', $order->id)->update([
@@ -2698,7 +2703,7 @@ class OrderController extends Controller
                     ]);
                 }
                 DB::table('payment')->where('id', $input['data']['orderCode'])->update([
-                    'isSuccess' => 1
+                    'isSuccess' => 1,
                 ]);
                 DB::commit();
             } else {
@@ -2853,13 +2858,54 @@ class OrderController extends Controller
         } catch (Throwable $e) {
             $input = $decodedToken->id;
         }
-        $payment_list = DB::table('payment')->where('account_id', $input)->where('isSuccess', 1)->orderBy('created', 'desc')->get();
-        $payment_list->map(function ($payment) {
-            $payment->created = Carbon::parse($payment->created)->format('H:i:s d/m/Y');
-            $payment->payment_type = DB::table('payment_type')->where('id', $payment->payment_type_id)->first();
-            unset($payment->payment_type_id);
-            return $payment;
-        });
+        $account = DB::table('account')->where('id', $input)->first();
+        if ($account->role_id == 5) {
+            $payment_list = DB::table('payment')->where('account_id', $input)->where('isSuccess', 1)->orderBy('created', 'desc')->get();
+            $payment_list->map(function ($payment) {
+                $payment->created = Carbon::parse($payment->created)->format('H:i:s d/m/Y');
+                $payment->payment_type = DB::table('payment_type')->where('id', $payment->payment_type_id)->first();
+                $temp = DB::table('account')->where('id', $payment->account_id)->first();
+                $temp->role = DB::table('role')->where('id', $temp->role_id)->first();
+                unset($temp->role_id);
+                if (!$temp->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $temp->imageUrl = $OGurl . $url . $temp->id . "/" . $temp->imageUrl;
+                }
+                $temp->dob = Carbon::parse($temp->dob)->format('d/m/Y');
+                $temp->deactivated_date = Carbon::parse($temp->deactivated_date)->format('d/m/Y');
+                unset($temp->password);
+                $payment->account = $temp;
+                unset($payment->account_id);
+                unset($payment->payment_type_id);
+                return $payment;
+            });
+        } else if ($account->role_id == 1 || $account->role_id == 2) {
+            $payment_list = DB::table('payment')->orderBy('created', 'desc')->get();
+            $payment_list->map(function ($payment) {
+                $payment->created = Carbon::parse($payment->created)->format('H:i:s d/m/Y');
+                $payment->payment_type = DB::table('payment_type')->where('id', $payment->payment_type_id)->first();
+                $temp = DB::table('account')->where('id', $payment->account_id)->first();
+                $temp->role = DB::table('role')->where('id', $temp->role_id)->first();
+                unset($temp->role_id);
+                if (!$temp->google_id) {
+                    $OGurl = env('ORIGIN_URL');
+                    $url = env('ACCOUNT_URL');
+                    $temp->imageUrl = $OGurl . $url . $temp->id . "/" . $temp->imageUrl;
+                }
+                $temp->dob = Carbon::parse($temp->dob)->format('d/m/Y');
+                $temp->deactivated_date = Carbon::parse($temp->deactivated_date)->format('d/m/Y');
+                unset($temp->password);
+                $payment->account = $temp;
+                unset($payment->account_id);
+                unset($payment->payment_type_id);
+                return $payment;
+            });
+        } else {
+            return response()->json([
+                'error' => 'You Don\'t Have Permission To Access This Page'
+            ], 403);
+        }
         return response()->json(
             $payment_list
         );
