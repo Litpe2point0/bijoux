@@ -281,55 +281,40 @@ export const production_process_status_creator = (status, order_status_id) => {
         )
     }
 }
-// export const design_status_creator = (status) => {
-//     if (status == null) {
-//         return (
-//             <CCard
-//                 textColor="light"
-//                 style={{ width: '100%'}}
-//                 className={` text-center px-2 fw-bold rounded-pill px-1  bg-secondary border border-3 border-danger`}>
-//                 Update Required*
-//             </CCard>
-//         )
-//     }
-//     if (status.id == 1) {
-//         return (
-//             <CCard
-//                 textColor="light"
-//                 style={{ width: '100%'}}
-//                 className={` text-center px-2 fw-bold rounded-pill px-1  bg-info`}>
-//                 {status.name}
-//             </CCard>
-//         )
-//     }
-//     if (status.id == 2) {
-//         return (
-//             <CCard
-//                 textColor="light"
-//                 style={{ width: '100%' }}
-//                 className={` text-center px-2 fw-bold rounded-pill px-1 bg-warning`}>
-//                 {status.name}
-//             </CCard>
-//         )
-//     }
-//     if (status.id == 3) {
-//         return (
-//             <CCard
-//                 textColor="light"
-//                 style={{ width: '100%' }}
-//                 className={` text-center px-2 fw-bold rounded-pill px-1 bg-success`}>
-//                 {status.name}
-//             </CCard>
-//         )
-//     }
-//     if (status.id == 4) {
-//         return (
-//             <CCard
-//                 textColor="light"
-//                 style={{ width: '100%' }}
-//                 className={` text-center px-2 fw-bold rounded-pill px-1 bg-danger`}>
-//                 {status.name}
-//             </CCard>
-//         )
-//     }
-// }
+
+
+export const payment_status_creator = (status) => {
+    
+    if (status == 0) {
+        return (
+            <CCard
+                textColor="light"
+                style={{ width: '100%' }}
+                className={` text-center px-2 fw-bold rounded-pill px-1  bg-warning`}>
+                Pending
+            </CCard>
+        )
+    }
+    if (status == 1) {
+        return (
+            <CCard
+                textColor="light"
+                style={{ width: '100%' }}
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-success`}>
+                Success
+            </CCard>
+        )
+    }
+    if (status == 2) {
+        return (
+            <CCard
+                textColor="light"
+                style={{ width: '100%' }}
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-danger`}>
+                Canceled
+            </CCard>
+        )
+    }
+
+}
+

@@ -27,7 +27,8 @@ import { image_url } from "../../api/Back_End_Url";
 import AvatarInput from "../component_items/Avatar/Avatar";
 import onGridReady from "../component_items/Ag-grid/useStickyHeader";
 import CustomerUpdate from "./Modal_body/CustomerUpdate";
-import { get_account_list } from "../../api/main/accounts/Account_api";
+import { get_account_list, get_payment_history } from "../../api/main/accounts/Account_api";
+import { payment_status_creator } from "../component_items/Ag-grid/status_badge";
 
 
 
@@ -37,66 +38,22 @@ export const CustomerPageContext = createContext();
 const state_creator = (table) => {
     const state = {
         columnDefs: [
-            { headerName: "ID", field: "id", flex: 0.4 },
-            {
-                headerName: "Avatar", flex: 0.5,
-                cellRenderer: (params) => {
-                    return (
-                        <AvatarInput size={50} src={params.data.imageUrl} />)
-
-                },
-            },
-            { headerName: "Name", field: "fullname" },
-            { headerName: "Contact Number", field: "phone" },
-            { headerName: "Address", field: "address" },
+            { headerName: "Transaction ID", field: "id", },
+            { headerName: "Order ID", field: "order_id", },
+            { headerName: "Customer ID", field: "account.id", },
+            { headerName: "Name", field: "account.fullname" },
+            { headerName: "Contact Number", field: "account.phone" },
+            { headerName: "Type", field: "payment_type.name" },
+            { headerName: "Amount", field: "money" },
             {
                 headerName: "Status",
-                cellClass: 'd-flex align-items-center ',
-                valueGetter: 'data.deactivated',
+                valueGetter: 'data.isSuccess',
+                cellClass: 'd-flex align-items-center py-1',
                 cellRenderer: (params) => {
-                    const status = {
-                        title: ((params.data.deactivated == 0) ? 'Activated' : 'Deactivated'),
-                        color: ((params.data.deactivated == 0) ? 'success' : 'danger'),
-                        bg: 'light'
-                    }
-                    return (
-                        <CCard
-                            textColor={`${status.color}`}
-                            style={{ width: '100px' }}
-                            className={` text-center fw-bold rounded-pill px-1 border-2 border-${status.color} bg-${status.bg}`}>
-                            {status.title}
-                        </CCard>
-                    )
-
-
-                },
-            },
-            {
-                headerName: "Option",
-                cellClass: 'd-flex justify-content-center py-0',
-                cellRenderer: (params) => {
-                    const Modal_props = {
-                        updateForm: <CustomerUpdate account={params.data} />,
-                        title: 'Update Customer [ID: #' + params.data.id+']',
-                        button: <Eye size={30} color="purple" weight="duotone" />,
-                        update_button_color: 'white'
-                    }
-                    return (
-
-                        <CButtonGroup style={{ width: '100%', height: "100%" }} role="group" aria-label="Basic mixed styles example">
-                            <Modal_Button
-                                disabled={false}
-                                title={Modal_props.title}
-                                content={Modal_props.button}
-                                color={Modal_props.color} >
-                                {Modal_props.updateForm}
-                            </Modal_Button>
-                        </CButtonGroup>
-                    )
-
-                },
-                flex: 0.5,
-            }
+                  return payment_status_creator(params.data.isSuccess);
+                }
+              },
+            { headerName: "Date", field: "created" },
 
         ],
         rowData: table
@@ -106,15 +63,15 @@ const state_creator = (table) => {
 }
 
 
-const Customer_Page = () => {
+const Transaction_Page = () => {
     let [state, setState] = useState(null);
 
 
     
     const handleDataChange = async () => {
-        const accountList = await get_account_list();
+        const transactions_list = await get_payment_history();
        
-        setState(state_creator(accountList.data.customer_list))
+        setState(state_creator(transactions_list.data))
         //alert("ON DATA CHANGE NÈ")
     }
 
@@ -168,4 +125,4 @@ const Customer_Page = () => {
     );
 
 }
-export default Customer_Page;
+export default Transaction_Page;
