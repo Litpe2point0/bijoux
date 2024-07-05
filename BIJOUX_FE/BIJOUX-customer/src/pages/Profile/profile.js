@@ -46,6 +46,10 @@ export default function Profile() {
             // formData.append("account_id", user.id);
             formData.append("account_id", user ? user.id : null);
             const account_detail_data = await get_account_detail(formData, "Get account detail", true);
+            // if(!account_detail_data.success){
+                
+            //     window.location.href = "/login";
+            // }
             const account_detail = account_detail_data.data.account_detail;
             //console.log("detail  nef",account_detail);
             setId(account_detail.id);

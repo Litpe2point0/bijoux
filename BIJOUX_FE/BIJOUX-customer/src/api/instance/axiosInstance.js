@@ -76,6 +76,21 @@ export const paymentAlertMaker = (navigate, icon, title, text) => {
     }
   })
 };
+export const deactivatedAlertMaker = (navigate, icon, title, text) => {
+  Swal.fire({
+    title: 'Your Account Has Been Deactivated',
+    text: 'Please contact the admin for more information!',
+    icon: 'error',
+    allowOutsideClick: false,
+    confirmButtonColor: '#3085d6',
+    confirmButtonText: 'OK',
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      window.location.href = '/login?clear=true';
+    }
+  })
+};
 
 // Lấy token từ Redux Persist
 export const getUserFromPersist = () => {

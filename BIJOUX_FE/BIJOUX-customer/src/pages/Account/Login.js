@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginLogo2 } from "../../assets/images";
 import LoginByGoogle from "./LoginByGoogle";
-import { setAuthToken } from "../../redux/auth/authSlice";
+import { clearAuthToken, setAuthToken } from "../../redux/auth/authSlice";
 import { getUserFromToken, login } from "../../api/main/accounts/Login";
 import { useDispatch } from "react-redux";
 import { instantAlertMaker } from "../../api/instance/axiosInstance";
+import { Box, CircularProgress } from "@mui/material";
 
 
 export const save_login = (dispatch, token, user) => {
@@ -19,8 +20,13 @@ export const save_login = (dispatch, token, user) => {
   dispatch(setAuthToken(saveInfo))
 }
 
+const useQuery = () => {
+  return new URLSearchParams(useLocation().search);
+};
+
 const Login = () => {
   const [disabled, setDisabled] = useState(false);
+  const query = useQuery();
   // ============= Initial State Start here =============
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -69,17 +75,26 @@ const Login = () => {
       instantAlertMaker('success', 'Login Successfully !', 'Welcome ' + user.fullname)
       return;
     } else if (response.error) {
-      instantAlertMaker('error', 'Login Failed !', 'Wrong username or password')
+      instantAlertMaker('error', 'Login Failed !', response.error)
       console.log(response.error)
 
     } else {
-      instantAlertMaker('error', 'Login Failed !', response.message)
+      instantAlertMaker('error', 'Login Failed !', response.error)
       console.log(response.error)
 
     }
     setDisabled(false);
 
   };
+
+  
+  useEffect(() => {
+    if (query.get("clear")) {
+      //alert('ngu')
+      dispatch(clearAuthToken());
+      localStorage.removeItem("persist:root");
+    }
+  }, [query]);
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
@@ -201,7 +216,7 @@ const Login = () => {
                     value={password}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="password"
-                    placeholder="Create password"
+                    placeholder="Enter password"
                   />
                   {errPassword && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
@@ -216,9 +231,14 @@ const Login = () => {
                   onClick={handleLogin}
                   className="bg-primeColor hover:bg-black text-gray-200 hover:text-white cursor-pointer w-full text-base font-medium h-10 rounded-md  duration-300"
                 >
-                  Log In
+                {disabled? 
+                <Box display={'flex'} alignItems={'center'} justifyContent={'center'} >
+                <CircularProgress color="inherit" size={20} /> Logging...
+                </Box>
+                 : 'Log In'}
+                 
                 </button>
-                <LoginByGoogle />
+                <LoginByGoogle  />
 
 
                 <p className="text-sm text-center font-titleFont font-medium">

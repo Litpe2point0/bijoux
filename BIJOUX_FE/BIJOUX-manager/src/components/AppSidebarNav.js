@@ -47,7 +47,7 @@ export const AppSidebarNav = ({ items }) => {
     return (
       <Component as="div" key={index}>
         {rest.to || rest.href ? (
-          <CNavLink {...(rest.to && { as: NavLink })} {...rest} onClick={()=> setCurrent(rest.to)}>
+          <CNavLink  {...(rest.to && { as: NavLink })} {...rest} onClick={()=> setCurrent(rest.to)}>
             {navLink(name, icon, badge, indent)}
           </CNavLink>
         ) : (
@@ -58,10 +58,10 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navGroup = (item, index) => {
-    const { component, name, icon, items, to, ...rest } = item
+    const { component, name, icon, items, to, show, ...rest } = item
     const Component = component
     return (
-      <Component compact as="div" key={index} toggler={navLink(name, icon)} {...rest}>
+      <Component compact as="div" className={show && 'show'} key={index} toggler={navLink(name, icon)} {...rest}>
         {item.items?.map((item, index) =>
           item.items ? navGroup(item, index) : navItem(item, index, true),
         )}

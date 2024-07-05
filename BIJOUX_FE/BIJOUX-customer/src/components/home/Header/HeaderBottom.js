@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { paginationItems } from "../../../constants";
 import { BsSuitHeartFill } from "react-icons/bs";
 import { clearAuthToken } from "../../../redux/auth/authSlice";
+import { Avatar } from "@mui/material";
 
 const HeaderBottom = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,10 @@ const HeaderBottom = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showSearchBar, setShowSearchBar] = useState(false);
+  //Check xem co' user hay khong
+  const [isUser, setIsUser] = useState(false);
+  //Co thi set avatar vao day
+  const [userAvatar, setUserAvatar] = useState();
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -42,6 +47,13 @@ const HeaderBottom = () => {
     );
     setFilteredProducts(filtered);
   }, [searchQuery]);
+  useEffect(() => {
+    if (auth.user && auth.token) {
+      setIsUser(true);
+      setUserAvatar(auth.user.imageUrl);
+    }
+  }, [auth])
+
   const handleLogout = () => {
 
     dispatch(clearAuthToken());
@@ -113,8 +125,9 @@ const HeaderBottom = () => {
           </div>
           <div className="flex gap-4 mt-2 lg:mt-0 items-center pr-6 cursor-pointer relative">
             <div onClick={() => setShowUser(!showUser)} className="flex">
-              <FaUser />
-              <FaCaretDown />
+              {/* <FaUser />
+              <FaCaretDown /> */}
+              <Avatar alt="User Avatar" src={userAvatar} />
             </div>
             {showUser && (
               <motion.ul

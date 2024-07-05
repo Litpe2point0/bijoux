@@ -29,6 +29,7 @@ import onGridReady from "../component_items/Ag-grid/useStickyHeader";
 import CustomerUpdate from "./Modal_body/CustomerUpdate";
 import { get_account_list, get_payment_history } from "../../api/main/accounts/Account_api";
 import { payment_status_creator } from "../component_items/Ag-grid/status_badge";
+import { CurrencyFormatterText } from "../component_items/Ag-grid/money_formatter";
 
 
 
@@ -44,7 +45,9 @@ const state_creator = (table) => {
             { headerName: "Name", field: "account.fullname" },
             { headerName: "Contact Number", field: "account.phone" },
             { headerName: "Type", field: "payment_type.name" },
-            { headerName: "Amount", field: "money" },
+            { headerName: "Amount", field: "money", 
+                cellRenderer: (params) => CurrencyFormatterText(params.data.money)
+             },
             {
                 headerName: "Status",
                 valueGetter: 'data.isSuccess',
