@@ -59,7 +59,7 @@ export default function ExploreTemplate() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 1: Select Jewelry Type</h1>
-                            <p className="mt-2 ml-4">Chọn loại trang sức bạn muốn tạo, chúng tôi cung cấp các loại trang sức như Nhẫn / Mặt dây chuyền / Vòng tay.</p>
+                            <p className="mt-2 ml-4">Choose the type of jewelry you would like to create. We offer options such as Rings / Bands / Pendants.</p>
 
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
@@ -69,7 +69,7 @@ export default function ExploreTemplate() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 2: Select Mounting</h1>
-                            <p className="mt-2 ml-4">Chọn khung trang sức bạn yêu thích cũng như chất liệu của khung, độ rộng, xem ảnh khung ở nhiều góc độ.</p>
+                            <p className="mt-2 ml-4">Select the jewelry frame you prefer, along with the material, width, and view the frame from multiple angles in photos.</p>
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
@@ -78,7 +78,7 @@ export default function ExploreTemplate() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 3: Select Diamonds</h1>
-                            <p className="mt-2 ml-4">Chọn loại kim cương gắn lên khung trang sức, tùy biến theo tiêu chuẩn 4C: Cut, Color, Clarity, Carat và hình dạng đá</p>
+                            <p className="mt-2 ml-4">Choose the type of diamond to mount on the jewelry frame, customized according to the 4C standards: Cut, Color, Clarity, Carat, and the diamond shape.</p>
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
@@ -87,7 +87,7 @@ export default function ExploreTemplate() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 4: View completed jewelry and checkout</h1>
-                            <p className="mt-2 m-4"> Xem tác phẩm của bạn ở mọi góc độ và thanh toán để hoàn tất.</p>
+                            <p className="mt-2 m-4"> View your creation from every angle and proceed to payment to complete your purchase.</p>
                         </div>
                     </div>
                     <div className="flex justify-around w-96 items-center mt-5">
@@ -99,7 +99,7 @@ export default function ExploreTemplate() {
                             <DialogContent className="flex gap-5">
                                 {loading ?
                                     <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
-                                    <CircularProgress color="inherit" />
+                                        <CircularProgress color="inherit" />
                                     </Box>
                                     : modelTypes.map((modelType) => (
                                         <ModelTypeOptionCard

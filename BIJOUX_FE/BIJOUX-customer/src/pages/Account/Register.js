@@ -9,37 +9,51 @@ const nonNameWords = ['admin', 'sale', 'designer', 'production', 'manager']
 
 const Register = () => {
   // ============= Initial State Start here =============
-  const [clientName, setClientName] = useState("");
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [zip, setZip] = useState("");
   const [checked, setChecked] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [dob, setDob] = useState(null);
+  const [fullName, setFullName] = useState(null);
+
   // ============= Initial State End here ===============
   // ============= Error Msg Start here =================
   const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(true);
-  const [errClientName, setErrClientName] = useState("");
+  const [erruserName, setErruserName] = useState("");
   const [errEmail, setErrEmail] = useState("");
   const [errPhone, setErrPhone] = useState("");
   const [errPassword, setErrPassword] = useState("");
   const [errAddress, setErrAddress] = useState("");
-  const [errCity, setErrCity] = useState("");
-  const [errCountry, setErrCountry] = useState("");
-  const [errZip, setErrZip] = useState("");
+  const [errFullName, setErrFullName] = useState("");
+  const [errImageUrl, setErrImageUrl] = useState("");
+  const [errDob, setErrDob] = useState("");
+
   // ============= Error Msg End here ===================
   const [successMsg, setSuccessMsg] = useState("");
   // ============= Event Handler Start here =============
-  const handleName = (e) => {
-    setClientName(e.target.value);
-    setErrClientName("");
+  const handleUserName = (e) => {
+    setUserName(e.target.value);
+    setErruserName("");
   };
+  const handleFullName = (e) => {
+    setFullName(e.target.value);
+    setErrFullName("");
+  };
+  const handleChangeImage = (e) => {
+    setImageUrl(e.target.value)
+    setErrImageUrl("");
+  }
   const handleEmail = (e) => {
     setEmail(e.target.value);
     setErrEmail("");
   };
+  const handleDob = (e) => {
+    setDob(e.target.value);
+    setErrDob("");
+  }
   const handlePhone = (value) => {
     setPhone(value);
     if (value) {
@@ -63,41 +77,51 @@ const Register = () => {
     setAddress(e.target.value);
     setErrAddress("");
   };
-  const handleCity = (e) => {
-    setCity(e.target.value);
-    setErrCity("");
-  };
-  const handleCountry = (e) => {
-    setCountry(e.target.value);
-    setErrCountry("");
-  };
-  const handleZip = (e) => {
-    setZip(e.target.value);
-    setErrZip("");
-  };
   // ============= Event Handler End here ===============
   // ================= Email Validation start here =============
   //Valid có dấu
   const validateSingleWord = (word) => {
-    const regex = /^[A-ZÀ-Ý][a-zA-Zà-ý]*$/;
+    const regex = /^[A-ZÀ-Ý][a-zA-Zà-ýÀ-Ý]*$/;
     return regex.test(word);
   };
 
+  const checkUserName = (username) => {
+    if (!username || username.length === 0) {
+      return 0; // Trường hợp chuỗi rỗng
+    }
+
+    const firstChar = username.charAt(0);
+
+    // Kiểm tra nếu ký tự đầu tiên là chữ cái viết hoa
+    if (firstChar.match(/[A-Z]/)) {
+      return 2;
+    }
+
+    // Kiểm tra nếu ký tự đầu tiên là số hoặc các ký tự đặc biệt
+    if (firstChar.match(/[^a-zA-Z]/)) {
+      return 3;
+    }
+
+    // Kiểm tra nếu chuỗi có dấu cách
+    if (username.includes(' ')) {
+      return 4;
+    }
+
+    // Nếu chuỗi hợp lệ
+    return 1;
+  };
+
   const NameValidation = (name) => {
-    // Tách tên thành các từ riêng lẻ
+    const nonNameWords = ['admin', 'sale', 'designer', 'production', 'manager'];
     const words = name.split(' ');
 
-    // Kiểm tra từng từ
     for (const word of words) {
-      // Bỏ qua các từ rỗng (trường hợp người dùng nhập nhiều khoảng trắng)
       if (word.trim() === '') continue;
 
-      // Nếu từ không hợp lệ, trả về false
       if (!validateSingleWord(word)) {
         return false;
       }
 
-      // Nếu từ thuộc danh sách cấm, trả về false
       if (nonNameWords.includes(word.toLowerCase())) {
         return false;
       }
@@ -105,6 +129,8 @@ const Register = () => {
 
     return true;
   };
+
+
 
   const EmailValidation = (email) => {
     return String(email)
@@ -115,85 +141,106 @@ const Register = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-    if (checked) {
-      if (!clientName) {
-        setErrClientName("Enter your name");
+    let isValid = true;
+
+    // Reset error messages
+    setErruserName("");
+    setErrEmail("");
+    setErrImageUrl("");
+    setErrDob("");
+    setErrFullName("");
+    setErrPhone("");
+    setErrPassword("");
+    setErrAddress("");
+
+    // Validate fields
+    if (!userName) {
+      setErruserName("Enter your username");
+      isValid = false;
+    } else {
+      const userNameCheck = checkUserName(userName);
+      if (userNameCheck === 2) {
+        setErruserName("Username cannot start with a capital letter");
+        isValid = false;
       }
-      if (!email) {
-        setErrEmail("Enter your email");
-      } else {
-        if (!EmailValidation(email)) {
-          setErrEmail("Enter a Valid email");
-        }
+      if (userNameCheck === 3) {
+        setErruserName("Username must start with a letter");
+        isValid = false;
       }
-      if (!phone) {
-        setErrPhone("Enter your phone number");
+      if (userNameCheck === 4) {
+        setErruserName("Username cannot contain spaces");
+        isValid = false;
       }
-      if (!password) {
-        setErrPassword("Create a password");
-      } else {
-        if (password.length < 6) {
-          setErrPassword("Passwords must be at least 6 characters");
-        }
-      }
-      if (!address) {
-        setErrAddress("Enter your address");
-      }
-      if (!city) {
-        setErrCity("Enter your city name");
-      }
-      if (!country) {
-        setErrCountry("Enter the country you are residing");
-      }
-      if (!zip) {
-        setErrZip("Enter the zip code of your area");
-      }
-      // ============== Getting the value ==============
-      if (
-        NameValidation(clientName) &&
-        email &&
-        EmailValidation(email) &&
-        password &&
-        password.length >= 6 &&
-        address &&
-        city &&
-        country &&
-        zip
-      ) {
-        setSuccessMsg(
-          `Hello dear ${clientName}, Welcome you to BIJOUX Admin panel. We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
-        );
-        // const new_account={
-        //   username: clientName,
-        //   password: password,
-        // imageUrl: null,
-        // dob: ,
-        // email,
-        // fullname,
-        // role:{id,name},
-        // phone,
-        // address
-        // }
-        
-        setClientName("");
-        setEmail("");
-        setPhone("");
-        setPassword("");
-        setAddress("");
-        setCity("");
-        setCountry("");
-        setZip("");
-      }
-      if (!NameValidation(clientName)) {
-        setErrClientName("Name isn't valid, please Capitalize the first letter and use only alphabets. Real name cannot contains Admin, Sale, Designer, Production, Manager");
-      }
+    }
+
+    if (!email) {
+      setErrEmail("Enter your email");
+      isValid = false;
+    } else {
       if (!EmailValidation(email)) {
         setErrEmail("Enter a Valid email");
+        isValid = false;
       }
+    }
 
+    if (!imageUrl) {
+      setErrImageUrl("Enter your image");
+      isValid = false;
+    }
 
+    if (!dob) {
+      setErrDob("Enter your date of birth");
+      isValid = false;
+    }
+
+    if (!fullName) {
+      setErrFullName("Enter your full name");
+      isValid = false;
+    } else {
+      if (!NameValidation(fullName)) {
+        setErrFullName("Name isn't valid, please Capitalize the first letter and use only alphabets. Real name cannot contains Admin, Sale, Designer, Production, Manager");
+        isValid = false;
+      }
+    }
+
+    if (!phone) {
+      setErrPhone("Enter your phone number");
+      isValid = false;
+    }
+
+    if (!password) {
+      setErrPassword("Create a password");
+      isValid = false;
+    } else {
+      if (password.length < 6) {
+        setErrPassword("Passwords must be at least 6 characters");
+        isValid = false;
+      }
+    }
+
+    if (!address) {
+      setErrAddress("Enter your address");
+      isValid = false;
+    }
+
+    // Check if all validations pass
+    if (isValid) {
+      setSuccessMsg(
+        `Hello dear ${userName}, Welcome you to BIJOUX Admin panel. We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
+      );
+
+      // Clear form fields
+      setUserName("");
+      setEmail("");
+      setPhone("");
+      setPassword("");
+      setAddress("");
+      setFullName(""); // Clear fullName as well
+      setImageUrl(""); // Clear imageUrl as well
+      setDob(""); // Clear dob as well
     }
   };
+
   return (
     <div className="w-full h-screen flex items-center justify-start">
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
@@ -286,19 +333,76 @@ const Register = () => {
                 {/* client name */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Full Name
+                    User Name
                   </p>
                   <input
-                    onChange={handleName}
-                    value={clientName}
+                    onChange={handleUserName}
+                    value={userName}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="text"
-                    placeholder="eg. John Doe"
+                    placeholder="eg. bijouxjewelry"
                   />
-                  {errClientName && (
+                  {erruserName && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
                       <span className="font-bold italic mr-1">!</span>
-                      {errClientName}
+                      {erruserName}
+                    </p>
+                  )}
+                </div>
+                {/* Password */}
+                <div className="flex flex-col gap-.5">
+                  <p className="font-titleFont text-base font-semibold text-gray-600">
+                    Password
+                  </p>
+                  <input
+                    onChange={handlePassword}
+                    value={password}
+                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                    type="password"
+                    placeholder="Create password"
+                  />
+                  {errPassword && (
+                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                      <span className="font-bold italic mr-1">!</span>
+                      {errPassword}
+                    </p>
+                  )}
+                </div>
+                {/* Image CHỈNH LẠI GIÚP TAO THÀNH UPFILE */}
+                <div className="flex flex-col gap-.5">
+                  <p className="font-titleFont text-base font-semibold text-gray-600">
+                    Image
+                  </p>
+                  <input
+                    onChange={handleChangeImage}
+                    value={imageUrl}
+                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide text-base font-medium placeholder:font-normal rounded-md outline-none"
+                    type="file"
+                    placeholder="Upload your Image"
+                  />
+                  {errImageUrl && (
+                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                      <span className="font-bold italic mr-1">!</span>
+                      {errImageUrl}
+                    </p>
+                  )}
+                </div>
+                {/* Date Of Birth */}
+                <div className="flex flex-col gap-.5">
+                  <p className="font-titleFont text-base font-semibold text-gray-600">
+                    Your Birth Date
+                  </p>
+                  <input
+                    onChange={handleDob}
+                    value={dob}
+                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                    type="date"
+                    placeholder="Enter Your BirthDay"
+                  />
+                  {errDob && (
+                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                      <span className="font-bold italic mr-1">!</span>
+                      {errDob}
                     </p>
                   )}
                 </div>
@@ -321,18 +425,30 @@ const Register = () => {
                     </p>
                   )}
                 </div>
+                {/* Email */}
+                <div className="flex flex-col gap-.5">
+                  <p className="font-titleFont text-base font-semibold text-gray-600">
+                    Full Name
+                  </p>
+                  <input
+                    onChange={handleFullName}
+                    value={fullName}
+                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                    type="text"
+                    placeholder="eg. John Doe"
+                  />
+                  {errFullName && (
+                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                      <span className="font-bold italic mr-1">!</span>
+                      {errFullName}
+                    </p>
+                  )}
+                </div>
                 {/* Phone Number */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
                     Phone Number
                   </p>
-                  {/* <input
-                    onChange={handlePhone}
-                    value={phone}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="008801234567891"
-                  /> */}
                   <PhoneInput
                     placeholder="Enter phone number"
                     value={phone}
@@ -345,25 +461,6 @@ const Register = () => {
                     </p>
                   )}
 
-                </div>
-                {/* Password */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Password
-                  </p>
-                  <input
-                    onChange={handlePassword}
-                    value={password}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="password"
-                    placeholder="Create password"
-                  />
-                  {errPassword && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errPassword}
-                    </p>
-                  )}
                 </div>
                 {/* Address */}
                 <div className="flex flex-col gap-.5">
@@ -384,64 +481,6 @@ const Register = () => {
                     </p>
                   )}
                 </div>
-                {/* City */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    City
-                  </p>
-                  <input
-                    onChange={handleCity}
-                    value={city}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your city"
-                  />
-                  {errCity && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errCity}
-                    </p>
-                  )}
-                </div>
-                {/* Country */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Country
-                  </p>
-                  <input
-                    onChange={handleCountry}
-                    value={country}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your country"
-                  />
-                  {errCountry && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errCountry}
-                    </p>
-                  )}
-                </div>
-                {/* Zip code */}
-                {/* <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Zip/Postal code
-                  </p>
-                  <input
-                    onChange={handleZip}
-                    value={zip}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your country"
-                  />
-                  {errZip && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errZip}
-                    </p>
-                  )}
-                </div> */}
-                {/* Checkbox */}
                 <div className="flex items-start mdl:items-center gap-2">
                   <input
                     onChange={() => setChecked(!checked)}

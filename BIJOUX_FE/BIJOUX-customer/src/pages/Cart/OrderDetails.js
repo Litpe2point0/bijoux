@@ -9,10 +9,14 @@ import DesignProcess from "../../components/Cart/Orders/designProcess";
 import { get_order_detail, get_order_detail_customer } from "../../api/main/orders/Order_api";
 import { instantAlertMaker, paymentAlertMaker } from "../../api/instance/axiosInstance";
 import { Box, CircularProgress } from "@mui/material";
-
+import numeral from "numeral";
 function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
+const CurrencyFormatter = ({ value }) => {
+    const formattedValue = numeral(value).format('0,0') + " VND";
+    return <span>{formattedValue}</span>;
+};
 
 
 export default function OrderDetails() {
@@ -24,6 +28,9 @@ export default function OrderDetails() {
     const [loading, setLoading] = useState(true);
     const [checkContent, setCheckContent] = useState("order-informations");
     const [checkPayment, setCheckPayment] = useState(false);
+    const [updateProductionPrice, setUpdateProductionPrice] = useState(0);
+    const [refundPrice, setRefundPrice] = useState(0);
+
     useEffect(() => {
         if (query.get("payment_status") == "success") {
             paymentAlertMaker(navigate, 'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
@@ -31,6 +38,7 @@ export default function OrderDetails() {
             paymentAlertMaker(navigate, 'error', 'Payment failed', 'Your payment has failed. Please try again!')
         }
     }, [query])
+
     useEffect(() => {
         const setAttribute = async () => {
             const formData = new FormData();
@@ -45,11 +53,17 @@ export default function OrderDetails() {
             setLoading(false);
 
         }
-
         setAttribute()
     }, []);
 
-
+    useEffect(() => {
+        if (orderDetail) {
+            const updateProductionPriceTemp = orderDetail.production_price + orderDetail.product_price * (orderDetail.profit_rate / 100);
+            const refundPriceTemp = orderDetail.deposit_has_paid - orderDetail.total_price;
+            setUpdateProductionPrice(updateProductionPriceTemp);
+            setRefundPrice(refundPriceTemp);
+        }
+    }, [orderDetail]);
 
     const handleBack = () => {
         navigate("/cart/order"); // Navigate back to the previous page
@@ -76,7 +90,7 @@ export default function OrderDetails() {
             </div>
             {loading ?
                 <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', padding: '100px' }}>
-                <CircularProgress color="inherit" />
+                    <CircularProgress color="inherit" />
                 </Box>
                 :
                 <>
@@ -128,6 +142,40 @@ export default function OrderDetails() {
                     </div>
                 </>
             }
+            <div className="w-3/4 h-0.5 bg-slate-500 my-4"></div>
+            {loading ?
+                <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', padding: '100px' }}>
+                    <CircularProgress color="inherit" />
+                </Box>
+                :
+                <div className="w-1/2 flex flex-col">
+                    <div className="flex w-full">
+                        <p className="font-titleFont text-xl font-bold">Deposit Has Paid:</p>
+                        <div className="flex-1"></div>
+                        <p><CurrencyFormatter value={orderDetail.deposit_has_paid} /></p>
+                    </div>
+                    <div className="flex w-full">
+                        <p className="font-titleFont text-xl font-bold">Product Price:</p>
+                        <div className="flex-1"></div>
+                        <p><CurrencyFormatter value={orderDetail.product_price} /></p>
+                    </div>
+                    <div className="flex w-full">
+                        <p className="font-titleFont text-xl font-bold">Production Price:</p>
+                        <div className="flex-1"></div>
+                        <p><CurrencyFormatter value={updateProductionPrice} /></p>
+                    </div>
+                    <div className="flex w-full">
+                        <p className="font-titleFont text-xl font-bold">Change:</p>
+                        <div className="flex-1"></div>
+                        <p><CurrencyFormatter value={refundPrice < 0 ? 0 : refundPrice} /></p>
+                    </div>
+                    <div className="flex w-full">
+                        <p className="font-titleFont text-2xl text-red-500 font-bold">Total:</p>
+                        <div className="flex-1"></div>
+                        <p><CurrencyFormatter value={orderDetail.total_price} /></p>
+                    </div>
+
+                </div>}
         </div>
     );
 }
