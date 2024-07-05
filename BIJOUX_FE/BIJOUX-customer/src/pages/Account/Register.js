@@ -1,13 +1,25 @@
 import React, { useState } from "react";
+import ReactFileReader from "react-file-reader";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginLogo2 } from "../../assets/images";
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber } from 'react-phone-number-input';
+import { activate_account, register } from "../../api/main/accounts/Account_api";
+import { instantAlertMaker } from "../../api/instance/axiosInstance";
+import Swal from "sweetalert2";
+import { Avatar, Box, CircularProgress } from "@mui/material";
+import { FolderPlus } from "phosphor-react";
+//import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
+
 const nonNameWords = ['admin', 'sale', 'designer', 'production', 'manager']
 
+
+
 const Register = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   // ============= Initial State Start here =============
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -15,7 +27,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
   const [checked, setChecked] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
   const [dob, setDob] = useState(null);
   const [fullName, setFullName] = useState(null);
 
@@ -42,10 +54,22 @@ const Register = () => {
     setFullName(e.target.value);
     setErrFullName("");
   };
-  const handleChangeImage = (e) => {
-    setImageUrl(e.target.value)
+  const handleChangeImage = (event) => {
+    //alert('ngu')
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    if (file) {
+      reader.readAsDataURL(file);
+      reader.onload = function () {
+        setImageUrl(reader.result);
+      };
+    }
+
+    //setImageUrl(reader.value)
+    //console.log(reader.value)
     setErrImageUrl("");
   }
+
   const handleEmail = (e) => {
     setEmail(e.target.value);
     setErrEmail("");
@@ -225,21 +249,126 @@ const Register = () => {
 
     // Check if all validations pass
     if (isValid) {
-      setSuccessMsg(
-        `Hello dear ${userName}, Welcome you to BIJOUX Admin panel. We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
-      );
+      setLoading(true);
+      const new_account = {
+        username: userName,
+        password: password,
+        imageUrl: imageUrl,
+        dob: dob,
+        email: email,
+        fullname: fullName,
+        role: { id: 5, name: 'Customer' },
+        phone: phone,
+        address: address,
+      }
 
-      // Clear form fields
-      setUserName("");
-      setEmail("");
-      setPhone("");
-      setPassword("");
-      setAddress("");
-      setFullName(""); // Clear fullName as well
-      setImageUrl(""); // Clear imageUrl as well
-      setDob(""); // Clear dob as well
+      const formData = new FormData();
+      formData.append('new_account', JSON.stringify(new_account));
+      const response = await register(formData);
+      if (response.success) {
+        messAlertMaker('info', 'Register Successfully !', 'We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ' + email)
+      } else {
+        messAlertMaker('error', 'Register Failed !', 'Please try again later !')
+      }
+      // setSuccessMsg(
+      //   `Hello dear ${userName}, Welcome you to BIJOUX Admin panel. We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
+      // );
+
+
     }
   };
+  const empty_input = () => {
+    setUserName("");
+    setEmail("");
+    setPhone("");
+    setPassword("");
+    setAddress("");
+    setFullName(""); // Clear fullName as well
+    setImageUrl(""); // Clear imageUrl as well
+    setDob(""); // Clear dob as well
+  }
+  const messAlertMaker = (icon, title, text) => {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      allowOutsideClick: false,
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'OK',
+    }).then(async (result) => {
+      if (result.isConfirmed && icon === 'info') {
+        await securityAlertMaker();
+      }else{
+        empty_input();
+        setLoading(false);
+      }
+    })
+  };
+
+  const securityAlertMaker = async () => {
+    Swal.fire({
+      title: 'Enter your 6-digit activation code',
+      input: 'text',
+      inputAttributes: {
+        maxlength: 6,
+        pattern: '\\d{6}', // Chỉ cho phép nhập số và phải đúng 6 chữ số
+        inputmode: 'numeric' // Hiển thị bàn phím số trên các thiết bị di động
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Submit',
+      showLoaderOnConfirm: true,
+      preConfirm: (code) => {
+        return new Promise((resolve) => {
+          if (/^\d{6}$/.test(code)) {
+            resolve(code); // Trả về mã nếu hợp lệ
+          } else {
+            Swal.showValidationMessage('Please enter a valid 6-digit code');
+          }
+        });
+      },
+      allowOutsideClick: false
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        //gọi api để kích hoạt
+        const security = {
+          username: userName,
+          security_code: result.value
+
+        }
+        const formData = new FormData();
+        formData.append('security', JSON.stringify(security) );
+        const response = await activate_account(formData);
+        if (response.success) {
+          navigateAlertMaker();
+        } else {
+          instantAlertMaker('error', 'Activation Failed !', 'Please try again later !')
+        }
+        setLoading(false);
+      }else{
+        //empty_input();
+        setLoading(false);
+      }
+    });
+  };
+
+  const navigateAlertMaker = () => {
+    Swal.fire({
+      title: 'Account Activated',
+      text: 'Your account has been activated successfully. You can now log in to your account.',
+      icon: 'success',
+      allowOutsideClick: false,
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Go to Login Page',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate('/login');
+      }else{
+        empty_input();
+        setLoading(false);
+      }
+    })
+  }
+
 
   return (
     <div className="w-full h-screen flex items-center justify-start">
@@ -333,7 +462,7 @@ const Register = () => {
                 {/* client name */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
-                    User Name
+                    Username
                   </p>
                   <input
                     onChange={handleUserName}
@@ -373,13 +502,35 @@ const Register = () => {
                   <p className="font-titleFont text-base font-semibold text-gray-600">
                     Image
                   </p>
+                  <div style={{display:'flex', alignItems:'center'}}>
+                  {imageUrl &&
+                    <Avatar alt="User Avatar" src={imageUrl} />
+                    
+                  }
                   <input
+          
                     onChange={handleChangeImage}
-                    value={imageUrl}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide text-base font-medium placeholder:font-normal rounded-md outline-none"
+                    //value={imageUrl}
+                    className="w-50 h-8 placeholder:text-sm placeholder:tracking-wide text-base font-medium placeholder:font-normal rounded-md outline-none"
                     type="file"
                     placeholder="Upload your Image"
+                    accept=".jpg,.png"
                   />
+                  </div>
+                  
+                  {/* <ReactFileReader
+                    fileTypes={[".png", ".jpg"]}
+                    base64={true}
+                    handleFiles={handleFile}
+
+                  >
+                    <Button >
+                      <FolderPlus size={20} color="white" weight="duotone" />
+                      Upload File
+
+                    </Button>
+                  </ReactFileReader> */}
+                  
                   {errImageUrl && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
                       <span className="font-bold italic mr-1">!</span>
@@ -494,14 +645,38 @@ const Register = () => {
                   </p>
                 </div>
                 <button
+                  disabled={!checked  || loading}
                   onClick={handleSignUp}
                   className={`${checked
                     ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
                     : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
                     } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
                 >
-                  Create Account
+                {loading? 
+                <Box display={'flex'} alignItems={'center'} justifyContent={'center'} >
+                <CircularProgress color="inherit" size={20} /> Registering...
+                </Box>
+                
+                 
+                 : 'Register'}
                 </button>
+                {/* <LoadingButton
+                  variant="contained"
+                  color="secondary"
+                  disabled={!checked}
+                  loading={loading}
+                  onClick={() => handleSignUp()}
+
+                // className={`${checked
+                //   ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
+                //   : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
+                //   } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
+                >
+                  <span>
+                    Register
+                  </span>
+
+                </LoadingButton>  */}
                 <p className="text-sm text-center font-titleFont font-medium">
                   Already have an Account?{" "}
                   <Link to="/login">

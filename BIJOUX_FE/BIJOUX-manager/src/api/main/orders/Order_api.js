@@ -239,7 +239,7 @@ export async function get_dashboard(formData, title, { signal } = {}) {
     const mess_title = title ? title : null;
     const request_body = formData ? formData : null;
     try {
-        const response = await api_admin.post('/order/get_dashboard', request_body, { signal });
+        const response = await api_admin.post('/get_dashboard', request_body, { signal });
         return response_with_mess(true, mess_title, response.data.success, response.data);
     } catch (error) {
         console.log("get_dashboard" + " BIG ERROR", error)

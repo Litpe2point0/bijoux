@@ -180,10 +180,9 @@ const Dashboard = () => {
   ]
   const [loading, setLoading] = useState(true);
 
+  const [data, setData] = useState([]);
+
   const [months, setMonths] = useState([]);
-  const [user, setUser] = useState(null);
-  const [profit, setProfit] = useState(null);
-  const [order, setOrder] = useState(null);
 
   const [order_deposit, setOrderDeposit] = useState(null);
   const [order_design, setOrderDesign] = useState(null);
@@ -191,15 +190,18 @@ const Dashboard = () => {
   const [order_payment, setOrderPayment] = useState(null);
   const [order_delivery, setOrderDelivery] = useState(null);
 
+ 
+
   useEffect(() => {
 
     const setAttribute = async () => {
       const dashboard = await get_dashboard();
       const data = dashboard.data;
+      setData(data);
       setMonths(data.months);
-      setUser(data.user);
-      setProfit(data.profit);
-      setOrder(data.order);
+      // setUser(data.user);
+      // setProfit(data.profit);
+      // setOrder(data.order);
       setOrderDeposit(data.order_deposit);
       setOrderDesign(data.order_design);
       setOrderProduction(data.order_production);
@@ -220,7 +222,7 @@ const Dashboard = () => {
         :
 
         <>
-          <WidgetsDropdown className="mb-4" />
+          <WidgetsDropdown data={data} className="mb-4" />
           <CRow
             xs={{ cols: 1, gutter: 4 }}
             sm={{ cols: 2 }}
@@ -228,20 +230,59 @@ const Dashboard = () => {
             xl={{ cols: 5 }}
             className="mb-2 text-center"
           >
-            {progressExample.map((item, index, items) => (
-              <CCol
-                className={classNames({
-                  'd-none d-xl-block': index + 1 === items.length,
-                })}
-                key={index}
-              >
-                <div className="text-body-secondary">{item.title}</div>
-                <div className="fw-semibold text-truncate">
-                  {item.value} ({item.percent}%)
-                </div>
-                <CProgress thin className="mt-2" color={item.color} value={item.percent} />
-              </CCol>
-            ))}
+
+            <CCol
+              className={'d-none d-xl-block'}
+              
+            >
+              <div className="text-body-secondary">Pending Deposit</div>
+              <div className="fw-semibold text-truncate">
+                {order_deposit.deposit_count} ({order_deposit.deposit_percentage}%)
+              </div>
+              <CProgress thin className="mt-2" color="success" value={order_deposit.deposit_percentage} />
+            </CCol>
+            <CCol
+              className={'d-none d-xl-block'}
+              
+            >
+              <div className="text-body-secondary">Designing</div>
+              <div className="fw-semibold text-truncate">
+                {order_design.design_count} ({order_design.design_percentage}%)
+              </div>
+              <CProgress thin className="mt-2" color="success" value={order_design.design_percentage} />
+            </CCol>
+            <CCol
+              className={'d-none d-xl-block'}
+              
+            >
+              <div className="text-body-secondary">Manufacturing</div>
+              <div className="fw-semibold text-truncate">
+                {order_production.production_count} ({order_production.production_percentage}%)
+              </div>
+              <CProgress thin className="mt-2" color="success" value={order_production.production_percentage} />
+            </CCol>
+            <CCol
+              className={'d-none d-xl-block'}
+              
+            >
+              <div className="text-body-secondary">Pending Payment</div>
+              <div className="fw-semibold text-truncate">
+                {order_payment.payment_count} ({order_payment.payment_percentage}%)
+              </div>
+              <CProgress thin className="mt-2" color="success" value={order_payment.payment_percentage} />
+            </CCol>
+            <CCol
+              className={'d-none d-xl-block'}
+              
+            >
+              <div className="text-body-secondary">Delivering</div>
+              <div className="fw-semibold text-truncate">
+                {order_delivery.delivery_count} ({order_delivery.delivery_percentage}%)
+              </div>
+              <CProgress thin className="mt-2" color="success" value={order_delivery.delivery_percentage} />
+            </CCol>
+            
+
           </CRow>
           <CCard className="mb-4">
             <CCardBody>

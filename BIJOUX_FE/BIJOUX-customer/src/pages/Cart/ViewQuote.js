@@ -20,7 +20,7 @@ export default function ViewQuote() {
         if (response.success) {
             setQuoteList(response.data);
         } else {
-            instantAlertMaker("error", "Error", response.mess);
+            instantAlertMaker("error", "Error", response.mess.mess);
         }
         const staff_list = await get_staff_list(null, "Get staff list", true);
         setStaffList(staff_list.data);

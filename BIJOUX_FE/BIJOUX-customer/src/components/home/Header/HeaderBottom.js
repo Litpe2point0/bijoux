@@ -47,6 +47,13 @@ const HeaderBottom = () => {
     );
     setFilteredProducts(filtered);
   }, [searchQuery]);
+  useEffect(() => {
+    if (auth.user && auth.token) {
+      setIsUser(true);
+      setUserAvatar(auth.user.imageUrl);
+    }
+  }, [auth])
+
   const handleLogout = () => {
 
     dispatch(clearAuthToken());
