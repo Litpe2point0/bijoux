@@ -243,6 +243,12 @@ class QuoteController extends Controller
             return response()->json([
                 'error' => 'The Selected Customer Account Has Been Deactivated'
             ], 403);
+        } else {
+            if(!$account->status){
+                return response()->json([
+                    'error' => 'The Selected Customer Account Hasn\'t Been Activated'
+                ], 403);  
+            }
         }
 
         if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {

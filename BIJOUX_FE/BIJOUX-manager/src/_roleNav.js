@@ -202,12 +202,12 @@ const get_roleNav = (role_id, account_id) => {
     ],
     // sale_staff ID: 2
     [
-      {
-        component: CNavItem,
-        name: 'Dashboard',
-        to: '/dashboard',
-        icon: <Gauge size={35} color="red" weight="duotone" />,
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Dashboard',
+      //   to: '/dashboard',
+      //   icon: <Gauge size={35} color="red" weight="duotone" />,
+      // },
       {
         component: CNavTitle,
         name: 'Accounts Management',
@@ -263,18 +263,19 @@ const get_roleNav = (role_id, account_id) => {
     ],
     // design_staff ID: 3
     [
-      {
-        component: CNavItem,
-        name: 'Dashboard',
-        to: '/dashboard',
-        icon: <Gauge size={35} color="red" weight="duotone" />,
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Dashboard',
+      //   to: '/dashboard',
+      //   icon: <Gauge size={35} color="red" weight="duotone" />,
+      // },
       {
         component: CNavTitle,
         name: 'Orders Management',
       },
       {
         component: CNavGroup,
+        show: true,
         name: 'Assigned Orders',
         to: '/orders_design_staff',
         icon: <ShoppingCartSimple size={35} color="red" weight="duotone" />,  //cil-fastfood
@@ -299,18 +300,19 @@ const get_roleNav = (role_id, account_id) => {
     ],
     // production_staff ID: 4
     [
-      {
-        component: CNavItem,
-        name: 'Dashboard',
-        to: '/dashboard',
-        icon: <Gauge size={35} color="red" weight="duotone" />,
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Dashboard',
+      //   to: '/dashboard',
+      //   icon: <Gauge size={35} color="red" weight="duotone" />,
+      // },
       {
         component: CNavTitle,
         name: 'Orders Management',
       },
       {
         component: CNavGroup,
+        show: true,
         name: 'Assigned Orders',
         to: '/orders_production_staff',
         icon: <FcFactoryBreakdown size={35} color="red" weight="duotone" />,

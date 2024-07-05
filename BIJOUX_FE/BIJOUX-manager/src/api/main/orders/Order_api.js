@@ -234,3 +234,15 @@ export async function confirm_refund(formData, title, { signal } = {}) {
         return response_with_mess(false, mess_title, error.response.data.error, null);
     }
 }
+
+export async function get_dashboard(formData, title, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const response = await api_admin.post('/get_dashboard', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("get_dashboard" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}

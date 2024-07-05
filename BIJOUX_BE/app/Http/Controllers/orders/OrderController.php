@@ -302,6 +302,12 @@ class OrderController extends Controller
             return response()->json([
                 'error' => 'The Selected Customer Account Has Been Deactivated'
             ], 403);
+        } else {
+            if (!$account->status) {
+                return response()->json([
+                    'error' => 'The Selected Customer Account Hasn\'t Been Activated'
+                ], 403);
+            }
         }
         $product_price = 0;
         DB::beginTransaction();
@@ -2561,6 +2567,15 @@ class OrderController extends Controller
         }
         return $orderCode;
     }
+    // public function generateSecurityCode()
+    // {
+    //     $securityCode = intval(substr(strval(microtime(true) * 10000), -6));
+    //     $account = DB::table('account')->where('security_code', $securityCode)->get();
+    //     if ($account->count() > 0) {
+    //         $this->generateSecurityCode();
+    //     }
+    //     return $securityCode;
+    // }
     public function create_payment_link(Request $request)
     {
         $input = json_decode($request->input('order_information'), true);
@@ -3066,5 +3081,188 @@ class OrderController extends Controller
         return response()->json([
             'success' => 'Refund Complete'
         ]);
+    }
+    // function generateRandomString($length)
+    // {
+    //     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    //     $charactersLength = strlen($characters);
+    //     $randomString = '';
+
+    //     // Generate random bytes and convert to string
+    //     $bytes = random_bytes($length);
+    //     for ($i = 0; $i < $length; $i++) {
+    //         $randomString .= $characters[ord($bytes[$i]) % $charactersLength];
+    //     }
+
+    //     return $randomString;
+    // }
+    public function get_dashboard()
+    {
+        $year = Carbon::now()->year;
+        $month = Carbon::now()->month;
+        $months = collect();
+        for ($i = 1; $i <= Carbon::now()->month; $i++) {
+            $monthName = Carbon::createFromDate(null, $i, 1)->format('F');
+            $months = $months->push($monthName);
+        }
+        $user = new \stdClass();
+        $user->user_year = $this->formatNumber(DB::table('account')->where('status',1)->whereYear('created', $year)->count());
+        $user->this_month = $this->formatNumber(DB::table('account')->where('status',1)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $user_month = collect();
+        for ($i = 1; $i <= Carbon::now()->month; $i++) {
+            // if($i = 1){
+            //     $account_count = DB::table('account')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
+            // } else {
+            $account_count = DB::table('account')->where('status',1)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            // }
+            $user_month->push($account_count);
+        }
+        $user->user_month = $user_month->values()->all();
+
+        $profit = new \stdClass();
+        $temp = 0;
+        $orders2 = DB::table('orders')->whereYear('created', $year)->get();
+        foreach ($orders2 as $order) {
+            $product_price = $order->product_price;
+            $production_price = $order->production_price;
+            $profit_rate = $order->profit_rate;
+            $temp += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+        }
+        $profit->profit_year = $this->formatNumber($temp);
+
+        $temp1 = 0;
+        $orders3 = DB::table('orders')->whereMonth('created', $month)->whereYear('created', $year)->get();
+        foreach ($orders3 as $order) {
+            $product_price = $order->product_price;
+            $production_price = $order->production_price;
+            $profit_rate = $order->profit_rate;
+            $temp1 += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+        }
+        $profit->this_month = $this->formatNumber($temp1);
+        $profit_month = collect();
+        for ($i = 1; $i <= Carbon::now()->month; $i++) {
+            $profits = 0;
+            // if($i = 1){
+            //     $orders = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->get();
+            //     foreach($orders as $order){
+            //         $product_price = $order->product_price;
+            //         $production_price = $order->production_price;
+            //         $profit_rate = $order->profit_rate;
+            //         $profit += $production_price + ($product_price)*(($profit_rate * 100)/100);
+            //     }
+            // } else {
+            $orders = DB::table('orders')->whereMonth('created', $i)->whereYear('created', $year)->get();
+            foreach ($orders as $order) {
+                $product_price = $order->product_price;
+                $production_price = $order->production_price;
+                $profit_rate = $order->profit_rate;
+                $profits += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+            }
+            // }
+            $profit_month->push($profits);
+        }
+        $profit->profit_month = $profit_month->values()->all();
+
+        $order = new \stdClass();
+        $order->order_year = $this->formatNumber(DB::table('orders')->whereYear('created', $year)->count());
+        $order->this_month = $this->formatNumber(DB::table('orders')->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $order_month = collect();
+        for ($i = 1; $i <= Carbon::now()->month; $i++) {
+            // if($i = 1){
+            //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
+            // } else {
+            $order_count = DB::table('orders')->whereMonth('created', $i)->whereYear('created', $year)->count();
+            // }
+            $order_month->push($order_count);
+        }
+        $order->order_month = $order_month->values()->all();
+
+        $total_order = DB::table('orders')->where('order_status_id', '<', 6)->count();
+
+        $order_deposit = new \stdClass();
+        $order_deposit_count = DB::table('orders')->where('order_status_id', 1)->count();
+        $order_deposit->deposit_percentage = round($order_deposit_count / $total_order * 100, 0);
+        $order_deposit->deposit_count = $order_deposit_count;
+
+        $order_design = new \stdClass();
+        $order_design_count = DB::table('orders')->where('order_status_id', 2)->count();
+        $order_design->design_percentage = round($order_design_count / $total_order * 100, 0);
+        $order_design->design_count = $order_design_count;
+
+        $order_production = new \stdClass();
+        $order_production_count = DB::table('orders')->where('order_status_id', 3)->count();
+        $order_production->production_percentage = round($order_production_count / $total_order * 100, 0);
+        $order_production->production_count = $order_production_count;
+
+        $order_payment = new \stdClass();
+        $order_payment_count = DB::table('orders')->where('order_status_id', 4)->count();
+        $order_payment->payment_percentage = round($order_payment_count / $total_order * 100, 0);
+        $order_payment->payment_count = $order_payment_count;
+
+        $order_delivery = new \stdClass();
+        $order_delivery_count = DB::table('orders')->where('order_status_id', 5)->count();
+        $order_delivery->delivery_percentage = round($order_delivery_count / $total_order * 100, 0);
+        $order_delivery->delivery_count = $order_delivery_count;
+
+        $order_template = new \stdClass();
+        $order_template->order_template_year = $this->formatNumber(DB::table('orders')->where('order_type_id',1)->whereYear('created', $year)->count());
+        $order_template->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id',1)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $order_template_month = collect();
+        for ($i = 1; $i <= Carbon::now()->month; $i++) {
+            // if($i = 1){
+            //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
+            // } else {
+            $order_count = DB::table('orders')->where('order_type_id',1)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            // }
+            $order_template_month->push($order_count);
+        }
+        $order_template->order_template_month = $order_template_month->values()->all();
+
+        $order_customize = new \stdClass();
+        $order_customize->order_customize_year = $this->formatNumber(DB::table('orders')->where('order_type_id',2)->whereYear('created', $year)->count());
+        $order_customize->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id',2)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $order_customize_month = collect();
+        for ($i = 1; $i <= Carbon::now()->month; $i++) {
+            // if($i = 1){
+            //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
+            // } else {
+            $order_count = DB::table('orders')->where('order_type_id',2)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            // }
+            $order_customize_month->push($order_count);
+        }
+        $order_customize->order_customize_month = $order_customize_month->values()->all();
+
+        return response()->json([
+            'months' => $months,
+            'user' => $user,
+            'profit' => $profit,
+            'order' => $order,
+            'order_deposit' => $order_deposit,
+            'order_design' => $order_design,
+            'order_production' => $order_production,
+            'order_payment' => $order_payment,
+            'order_delivery' => $order_delivery,
+            'order_template' => $order_template,
+            'order_customize' => $order_customize
+        ]);
+    }
+    function formatNumber($number) {
+        $suffix = '';
+        if ($number >= 1000 && $number < 1000000) {
+            $number = $number / 1000;
+            $suffix = 'k';
+        } elseif ($number >= 1000000 && $number < 1000000000) {
+            $number = $number / 1000000;
+            $suffix = 'M';
+        } elseif ($number >= 1000000000) {
+            $number = $number / 1000000000;
+            $suffix = 'B';
+        }
+    
+        // Round to 1 decimal place
+        $number = round($number, 1);
+    
+        // Format the number with suffix
+        return $number . $suffix;
     }
 }

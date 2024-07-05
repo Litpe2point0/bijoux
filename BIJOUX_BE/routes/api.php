@@ -11,8 +11,12 @@ use App\Http\Controllers\orders\OrderController;
 use App\Http\Middleware\checkDeactivate;
 
 Route::middleware('checkCors')->group(function () {
+    Route::post('/activate_account', [AccountController::class, 'activate_account']);
     Route::group(['prefix' => 'admin'], function () {
         Route::middleware('checkAdminLogin')->group(function () {
+
+            Route::post('/get_dashboard ', [OrderController::class, 'get_dashboard'])->middleware('checkManager');
+
             Route::group(['prefix' => 'account'], function () {
                 Route::post('/update', [AccountController::class, 'update']);
                 Route::post('/get_staff_role_list', [AccountController::class, 'get_staff_role_list']);
