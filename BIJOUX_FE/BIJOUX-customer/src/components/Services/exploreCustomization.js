@@ -186,7 +186,7 @@ export default function ExploreCustomization() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 1: Contact</h1>
-                            <p className="mt-2 ml-4"> Nhập thông tin của bạn và chúng tôi sẽ liên hệ sớm nhất có thể</p>
+                            <p className="mt-2 ml-4"> Enter your information and we will contact you as soon as possible.</p>
 
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
@@ -196,7 +196,7 @@ export default function ExploreCustomization() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 2: Planning</h1>
-                            <p className="mt-2 ml-4">Chúng tôi cung cấp đội ngũ tư vấn viên chuyên nghiệp, giúp bạn lên ý tưởng về trang sức của mình</p>
+                            <p className="mt-2 ml-4">We provide a team of professional consultants to help you brainstorm ideas for your jewelry.</p>
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
@@ -205,7 +205,7 @@ export default function ExploreCustomization() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 3: Designing</h1>
-                            <p className="mt-2 ml-4">Từ những ý tưởng, chúng tôi sẽ thiết kế trên file 3D để cho bạn có cái nhìn tổng quát và có thể thay đổi.</p>
+                            <p className="mt-2 ml-4">From those ideas, we will design a 3D file to give you a comprehensive view and allow for modifications.</p>
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
@@ -214,7 +214,7 @@ export default function ExploreCustomization() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4  nnn">Step 4: Compliting</h1>
-                            <p className="mt-2 m-4">  Sản phẩm của bạn sẽ được hoàn thiện trong thời gian sớm nhất và giao tới tận tay để bạn tận hưởng tác phẩm nghệ thuật của riêng mình</p>
+                            <p className="mt-2 m-4">Your product will be completed as soon as possible and delivered to your doorstep so you can enjoy your own piece of art.</p>
                         </div>
                     </div>
 

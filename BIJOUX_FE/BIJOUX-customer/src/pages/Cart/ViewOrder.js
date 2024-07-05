@@ -138,7 +138,7 @@ export default function ViewOrder() {
                 <>
                     {customizationOrderList.length === 0 && templateOrderList.length === 0 && deliveryOrderList.length === 0 && (
                         <div className="w-full flex items-center justify-center">
-                            <p className="text-2xl">CHỈNH CHỮ Ở ĐÂY NÈ LỘC (điều kiện đung r)</p>
+                            <p className="text-2xl font-titleFont font-semibold text-green-800">Your order list currently has no orders. Please wait for future updates</p>
                         </div>
                     )
                     }
