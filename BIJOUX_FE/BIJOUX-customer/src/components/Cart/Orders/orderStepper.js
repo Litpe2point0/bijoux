@@ -28,7 +28,8 @@ export default function OrderStepper({ order }) {
     useEffect(() => {
         const fetchOrderStatusList = async () => {
             const orderStatusList_data = await get_order_status_list(null, 'Get order status list', true);
-            setOrderStatusList(orderStatusList_data.data);
+            setOrderStatusList(order.order_type.id == 2 ? orderStatusList_data.data : orderStatusList_data.data.filter(item => item.id !== 2));
+           
             setLoading(false);
         };
 
