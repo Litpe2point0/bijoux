@@ -56,7 +56,7 @@ class AccountController extends Controller
                     'imageUrl' => $account->imageUrl
                 ];
             }
-            
+
 
             //create jwt token
             $jwt = JWTAuth::claims($customClaims)->fromUser($user);
@@ -84,66 +84,73 @@ class AccountController extends Controller
 
         $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
         $payload = $client->verifyIdToken($token);
+        DB::beginTransaction();
+        try {
+            if ($payload) {
+                $googleId = $payload['sub'];
+                $email = $payload['email'];
+                $name = $payload['name'];
+                $image = $payload['picture'];
 
-        if ($payload) {
-            $googleId = $payload['sub'];
-            $email = $payload['email'];
-            $name = $payload['name'];
-            $image = $payload['picture'];
+                // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
+                $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
 
-            // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
-            $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
+                if (!$account) {
+                    // Tạo người dùng mới nếu chưa tồn tại
+                    $account = DB::table('account')->insert([
+                        'fullname' => $name,
+                        'email' => $email,
+                        'google_id' => $googleId,
+                        'role_id'  => 5,
+                        'imageUrl' => $image,
+                        'deactivated' => 0,
+                        'status' => 1,
+                        'created' => Carbon::now()->format('Y-m-d H:i:s')
+                    ]);
+                } else {
+                    $updateData = ['status' => 1, 'imageUrl' => $image];
+                    if (!$account->google_id) {
+                        $updateData['google_id'] = $googleId;
+                    }
+                    DB::table('account')->where('id', $account->id)->update($updateData);
 
-            if (!$account) {
-                // Tạo người dùng mới nếu chưa tồn tại
-                $account = Account::create([
-                    'fullname' => $name,
-                    'email' => $email,
-                    'google_id' => $googleId,
-                    'role_id'  => 5,
-                    'imageUrl' => $image,
-                    'deactivated' => 0,
-                    'status' => 1,
-                    'created' => Carbon::now()->format('Y-m-d H:i:s'),
-                ]);
-            } else if (!$account->google_id) {
-                // Cập nhật google_id cho người dùng nếu đã tồn tại email này nhưng chưa có google_id
-                $account->update(['google_id' => $googleId, 'photo' => $image]);
-                $account->update(['status' => 1]);
+                    if ((bool) $account->deactivated) {
+                        DB::rollBack();
+                        return response()->json(['error' => 'Your account has been deactivated'], 401);
+                    }
+                }
+
+                // Tạo JWT token
+                // $payload = [
+                //     'iss' => "your-issuer", // Issuer of the token
+                //     'sub' => $account->id, // Subject of the token
+                //     'iat' => time(), // Time when JWT was issued.
+                //     'exp' => time() + 60*60, // Expiration time
+                //     'imageUrl' => $image,
+                // ];
+
+                $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
+                $payload = [
+                    'id' => $account->id, // Subject of the token
+                    'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
+                    'email' => $account->email,
+                    'fullname' => $account->fullname,
+                    'role_id' => $account->role_id,
+                    'imageUrl' => $account->imageUrl,
+                    'phone' => $account->phone,
+                    'address' => $account->address
+                    // Thêm các claims khác nếu cần
+                ];
+
+                $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
+                DB::commit();
+                return response()->json(['success' => 'Login successfully', 'token' => $jwt], 200);
+            } else {
+                return response()->json(['error' => 'Invalid token'], 401);
             }
-            if ((bool) $account->deactivated) {
-                return response()->json(['error' => 'Your account has been deactivated'], 401);
-            }
-            $account->update(['imageUrl' => $image]);
-            $account->update(['status' => 1]);
-
-            // Tạo JWT token
-            // $payload = [
-            //     'iss' => "your-issuer", // Issuer of the token
-            //     'sub' => $account->id, // Subject of the token
-            //     'iat' => time(), // Time when JWT was issued.
-            //     'exp' => time() + 60*60, // Expiration time
-            //     'imageUrl' => $image,
-            // ];
-
-            $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
-            $payload = [
-                'id' => $account->id, // Subject of the token
-                'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
-                'email' => $account->email,
-                'fullname' => $account->fullname,
-                'role_id' => $account->role_id,
-                'imageUrl' => $account->imageUrl,
-                'phone' => $account->phone,
-                'address' => $account->address
-                // Thêm các claims khác nếu cần
-            ];
-
-            $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
-
-            return response()->json(['success' => 'Login successfully', 'token' => $jwt]);
-        } else {
-            return response()->json(['error' => 'Invalid token'], 401);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     public function get_account_list()
