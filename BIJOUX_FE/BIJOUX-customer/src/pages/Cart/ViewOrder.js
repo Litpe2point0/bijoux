@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import OrderCard from "../../components/Cart/Orders/orderCard";
 import Swal from 'sweetalert2';
-import { cancel_order, get_order_list_customer } from "../../api/main/orders/Order_api";
+import { cancel_order, cancel_payment, get_order_list_customer } from "../../api/main/orders/Order_api";
 import { instantAlertMaker, paymentAlertMaker } from "../../api/instance/axiosInstance";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material";
@@ -42,10 +42,20 @@ export default function ViewOrder() {
         setLoading(false);
     }
 
+    const handleCancelPayment=async (payment_id)=>{
+        const formData = new FormData();
+        formData.append("payment_id", payment_id);
+        const response = await cancel_payment(formData, 'Get order detail', true);
+    }
+
     useEffect(() => {
         if (query.get("payment_status") == "success") {
             paymentAlertMaker(navigate, 'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
         } else if (query.get("payment_status") == "cancel") {
+            if(query.get("status")==="CANCELLED"){
+                const payment_id=query.get("orderCode");
+                handleCancelPayment(payment_id);
+            }
             paymentAlertMaker(navigate, 'error', 'Payment failed', 'Your payment has failed. Please try again!')
         }
     }, [query])

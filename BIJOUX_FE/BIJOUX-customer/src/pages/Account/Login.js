@@ -93,6 +93,7 @@ const Login = () => {
       //alert('ngu')
       dispatch(clearAuthToken());
       localStorage.removeItem("persist:root");
+      navigate('/login')
     }
   }, [query]);
   return (

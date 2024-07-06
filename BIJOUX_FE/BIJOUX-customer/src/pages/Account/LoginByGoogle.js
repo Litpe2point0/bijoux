@@ -17,14 +17,14 @@ function LoginByGoogle() {
     const [loading, setLoading] = useState(false);
     const handleLoginSuccess = async (response) => {
         setLoading(true);
-        //console.log('Login Successsss:', response);
+        console.log('Login Successsss:', response);
 
         const { credential } = response;
         const token = credential;
 
         
             const user = jwtDecode(token);
-            //console.log("User from tokennnnn", user)
+            console.log("User from tokennnnn", user)
 
 
             const formData = new FormData();
@@ -55,7 +55,7 @@ function LoginByGoogle() {
     };
 
     const handleLoginFailure = (response) => {
-        console.error('Login Failed:', response);
+        instantAlertMaker('error', 'Login failed', response);
     };
 
     return (
