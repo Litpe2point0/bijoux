@@ -146,6 +146,7 @@ Route::middleware('checkCors')->group(function () {
                 Route::post('/get_production_process_list', [OrderController::class, 'get_production_process_list']);
                 Route::post('/get_product_detail', [OrderController::class, 'get_product_detail']);
                 Route::post('/confirm_delivery', [OrderController::class, 'confirm_delivery']);
+                Route::post('/cancel_payment', [OrderController::class, 'cancel_payment']);
             });
         });
     });

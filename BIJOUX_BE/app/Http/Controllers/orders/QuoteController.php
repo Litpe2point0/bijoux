@@ -303,7 +303,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('assigned_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -402,7 +402,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('priced_quote'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -547,7 +547,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('approval'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -617,7 +617,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -736,7 +736,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('quote_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $quote = DB::table('quote')->where('id', $input)->first();

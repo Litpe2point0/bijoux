@@ -6,7 +6,7 @@ import { gold, silver } from "../../assets/images";
 import OrderInformations from "../../components/Cart/Orders/orderInformations";
 import ManufactureProgress from "../../components/Cart/Orders/manufactureProgress";
 import DesignProcess from "../../components/Cart/Orders/designProcess";
-import { get_order_detail, get_order_detail_customer } from "../../api/main/orders/Order_api";
+import { cancel_payment, get_order_detail, get_order_detail_customer } from "../../api/main/orders/Order_api";
 import { instantAlertMaker, paymentAlertMaker } from "../../api/instance/axiosInstance";
 import { Box, CircularProgress } from "@mui/material";
 import numeral from "numeral";
@@ -31,10 +31,20 @@ export default function OrderDetails() {
     const [updateProductionPrice, setUpdateProductionPrice] = useState(0);
     const [refundPrice, setRefundPrice] = useState(0);
 
+    const handleCancelPayment=async (payment_id)=>{
+        const formData = new FormData();
+        formData.append("payment_id", payment_id);
+        const response = await cancel_payment(formData, 'Get order detail', true);
+    }
     useEffect(() => {
+        
         if (query.get("payment_status") == "success") {
             paymentAlertMaker(navigate, 'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
         } else if (query.get("payment_status") == "cancel") {
+            if(query.get("status")==="CANCELLED"){
+                const payment_id=query.get("orderCode");
+                handleCancelPayment(payment_id);
+            }
             paymentAlertMaker(navigate, 'error', 'Payment failed', 'Your payment has failed. Please try again!')
         }
     }, [query])
@@ -149,11 +159,7 @@ export default function OrderDetails() {
                 </Box>
                 :
                 <div className="w-1/2 flex flex-col">
-                    <div className="flex w-full">
-                        <p className="font-titleFont text-xl font-bold">Deposit Has Paid:</p>
-                        <div className="flex-1"></div>
-                        <p><CurrencyFormatter value={orderDetail.deposit_has_paid} /></p>
-                    </div>
+
                     <div className="flex w-full">
                         <p className="font-titleFont text-xl font-bold">Product Price:</p>
                         <div className="flex-1"></div>
@@ -164,16 +170,27 @@ export default function OrderDetails() {
                         <div className="flex-1"></div>
                         <p><CurrencyFormatter value={updateProductionPrice} /></p>
                     </div>
-                    <div className="flex w-full">
-                        <p className="font-titleFont text-xl font-bold">Change:</p>
-                        <div className="flex-1"></div>
-                        <p><CurrencyFormatter value={refundPrice < 0 ? 0 : refundPrice} /></p>
-                    </div>
+                    {orderDetail.deposit_has_paid > 0 &&
+                        <div className="flex w-full">
+                            <p className="font-titleFont text-xl font-bold">Deposit Has Paid:</p>
+                            <div className="flex-1"></div>
+                            <p><CurrencyFormatter value={orderDetail.deposit_has_paid} /></p>
+                        </div>
+                    }
+                    {refundPrice > 0 &&
+                        <div className="flex w-full">
+                            <p className="font-titleFont text-xl italic">Change</p><p className="font-titleFont text-xl ">&nbsp;:</p>
+                            <div className="flex-1"></div>
+                            <p><CurrencyFormatter value={refundPrice < 0 ? 0 : refundPrice} /></p>
+                        </div>
+                    }
+
                     <div className="flex w-full">
                         <p className="font-titleFont text-2xl text-red-500 font-bold">Total:</p>
                         <div className="flex-1"></div>
                         <p><CurrencyFormatter value={orderDetail.total_price} /></p>
                     </div>
+                    
 
                 </div>}
         </div>

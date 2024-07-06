@@ -299,7 +299,7 @@ const Register = () => {
       if (result.isConfirmed && icon === 'info') {
         await securityAlertMaker();
       }else{
-        empty_input();
+        //empty_input();
         setLoading(false);
       }
     })

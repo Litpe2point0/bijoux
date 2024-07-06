@@ -274,7 +274,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('new_order'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -506,7 +506,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('assigned_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -605,7 +605,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -681,7 +681,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $OGurl = env('ORIGIN_URL');
@@ -844,7 +844,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $OGurl = env('ORIGIN_URL');
@@ -1009,7 +1009,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $order = DB::table('orders')->where('id', $input)->first();
@@ -1568,7 +1568,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('new_design_process'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -1718,7 +1718,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('priced_design_process'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $validator = Validator::make($input, [
@@ -1803,7 +1803,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('approval'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -1967,7 +1967,7 @@ class OrderController extends Controller
     //     $input = json_decode($request->input('design_process_id'), true);
     //     if (!isset($input) || $input == null) {
     //         return response()->json([
-    //             'error' => 'No Input Received'
+    //             'error' => 'No input received'
     //         ], 403);
     //     }
     //     $design_process = DB::table('design_process')->where('id', $input)->first();
@@ -2070,7 +2070,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('design_process_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $design_process = DB::table('design_process')->where('id', $input)->first();
@@ -2259,7 +2259,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('new_design_updating'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -2322,7 +2322,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $list = DB::table('design_updating')->where('order_id', $input)->get();
@@ -2345,7 +2345,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('new_production_process'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -2450,7 +2450,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $production_process_list = DB::table('production_process')->where('order_id', $input)->orderBy('created', 'asc')->get();
@@ -2474,7 +2474,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $order = DB::table('orders')->where('id', $input)->first();
@@ -2581,7 +2581,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $order = DB::table('orders')->where('id', $input['order_id'])->first();
@@ -2600,7 +2600,7 @@ class OrderController extends Controller
             $description = "Pay The Rest For ORDER " . $order->id;
         } else {
             return response()->json([
-                'error' => 'The Selected Order Isn\'t Ready For Deposit/Payment'
+                'error' => 'The selected order isn\'t ready for deposit/payment'
             ], 403);
         }
         $client_id = env('CLIENT_ID');
@@ -2664,13 +2664,9 @@ class OrderController extends Controller
         $input = $request->input();
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
-        DB::table('payment')->where('id', $input['data']['orderCode'])->update([
-            'isSuccess' => 1,
-            'note' => $input['data']
-        ]);
         DB::beginTransaction();
         try {
             if ($this->isValidData($input['data'], $input['signature'], $checksum_key)) {
@@ -2678,9 +2674,10 @@ class OrderController extends Controller
                 $order = DB::table('orders')->where('id', $payment->order_id)->first();
                 if (!isset($payment) || !isset($order)) {
                     return response()->json([
-                        'error' => 'Invalid Order Code'
+                        'error' => 'Invalid order code'
                     ], 403);
                 }
+                //m chưa save
                 if ($order->order_status_id == 1) {
                     if ($order->order_type_id == 1) {
                         DB::table('orders')->where('id', $order->id)->update([
@@ -2718,17 +2715,17 @@ class OrderController extends Controller
                     ]);
                 }
                 DB::table('payment')->where('id', $input['data']['orderCode'])->update([
-                    'isSuccess' => 1,
+                    'isSuccess' => 1
                 ]);
                 DB::commit();
             } else {
                 return response()->json([
-                    'error' => 'Invalid Signature'
+                    'error' => 'Invalid signature'
                 ], 403);
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json($e->getMessage(), 500);
         }
         return response()->json([
             'success' => 'Transaction Complete'
@@ -2930,7 +2927,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -3053,7 +3050,7 @@ class OrderController extends Controller
         $input = json_decode($request->input('order_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $order = DB::table('orders')->where('id', $input)->first();
@@ -3106,14 +3103,14 @@ class OrderController extends Controller
             $months = $months->push($monthName);
         }
         $user = new \stdClass();
-        $user->user_year = $this->formatNumber(DB::table('account')->where('status',1)->whereYear('created', $year)->count());
-        $user->this_month = $this->formatNumber(DB::table('account')->where('status',1)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $user->user_year = $this->formatNumber(DB::table('account')->where('status', 1)->whereYear('created', $year)->count());
+        $user->this_month = $this->formatNumber(DB::table('account')->where('status', 1)->whereMonth('created', $month)->whereYear('created', $year)->count());
         $user_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $account_count = DB::table('account')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $account_count = DB::table('account')->where('status',1)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            $account_count = DB::table('account')->where('status', 1)->whereMonth('created', $i)->whereYear('created', $year)->count();
             // }
             $user_month->push($account_count);
         }
@@ -3205,28 +3202,28 @@ class OrderController extends Controller
         $order_delivery->delivery_count = $order_delivery_count;
 
         $order_template = new \stdClass();
-        $order_template->order_template_year = $this->formatNumber(DB::table('orders')->where('order_type_id',1)->whereYear('created', $year)->count());
-        $order_template->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id',1)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $order_template->order_template_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereYear('created', $year)->count());
+        $order_template->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereMonth('created', $month)->whereYear('created', $year)->count());
         $order_template_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $order_count = DB::table('orders')->where('order_type_id',1)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            $order_count = DB::table('orders')->where('order_type_id', 1)->whereMonth('created', $i)->whereYear('created', $year)->count();
             // }
             $order_template_month->push($order_count);
         }
         $order_template->order_template_month = $order_template_month->values()->all();
 
         $order_customize = new \stdClass();
-        $order_customize->order_customize_year = $this->formatNumber(DB::table('orders')->where('order_type_id',2)->whereYear('created', $year)->count());
-        $order_customize->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id',2)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $order_customize->order_customize_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereYear('created', $year)->count());
+        $order_customize->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereMonth('created', $month)->whereYear('created', $year)->count());
         $order_customize_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $order_count = DB::table('orders')->where('order_type_id',2)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            $order_count = DB::table('orders')->where('order_type_id', 2)->whereMonth('created', $i)->whereYear('created', $year)->count();
             // }
             $order_customize_month->push($order_count);
         }
@@ -3246,7 +3243,8 @@ class OrderController extends Controller
             'order_customize' => $order_customize
         ]);
     }
-    function formatNumber($number) {
+    function formatNumber($number)
+    {
         $suffix = '';
         if ($number >= 1000 && $number < 1000000) {
             $number = $number / 1000;
@@ -3258,11 +3256,38 @@ class OrderController extends Controller
             $number = $number / 1000000000;
             $suffix = 'B';
         }
-    
+
         // Round to 1 decimal place
         $number = round($number, 1);
-    
+
         // Format the number with suffix
         return $number . $suffix;
+    }
+    public function cancel_payment(Request $request){
+        $input = json_decode($request->input('payment_id'), true);
+        if(!isset($input) || $input == null){
+            return response()->json([
+                'error' => 'No input received'
+            ], 403);
+        }
+        $payment = DB::table('payment')->where('id', $input)->first();
+        if($payment->isSuccess != 0){
+            return response()->json([
+                'error' => 'The selected payment can\'t be cancelled'
+            ], 403);
+        }
+        DB::beginTransaction();
+        try{
+            DB::table('payment')->where('id', $input)->update([
+                'isSuccess' => 2
+            ]);
+            DB::commit();
+            return response()->json([
+                'success' => 'Payment Cancelled Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }
