@@ -19,6 +19,11 @@ import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import { CircularProgress, TextField } from "@mui/material";
+import { getUserFromPersist, instantAlertMaker, loginRequiredAlert } from "../../../api/instance/axiosInstance";
+import { save_login } from "../../Account/Login";
+import { getUserFromToken } from "../../../api/main/accounts/Login";
+import { update_self } from "../../../api/main/accounts/Account_api";
+import { useDispatch } from "react-redux";
 
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = numeral(value).format('0,0') + " VND";
@@ -26,13 +31,14 @@ const CurrencyFormatter = ({ value }) => {
 };
 
 export default function CompleteRing() {
-
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [finalProduct, setFinalProduct] = useState(null);
     const [checkoutProduct, setCheckoutProduct] = useState(null);
 
 
     const [loading, setLoading] = useState(1);
+    const [loadingUpdateSelf, setLoadingUpdateSelf] = useState(false);
     const [loadingComplete, setLoadingComplete] = useState(false);
 
     const [showImage, setShowImage] = useState(null);
@@ -41,8 +47,10 @@ export default function CompleteRing() {
     //note đây
     const [note, setNote] = useState('');
 
-    const [checkPhoneAndAddress, setCheckPhoneAndAddress] = useState(false);
+
     const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
+    const [checkPhoneAndAddress, setCheckPhoneAndAddress] = useState(false);
     const [errPhone, setErrPhone] = useState();
     const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(true);
     const handlePhone = (value) => {
@@ -61,7 +69,7 @@ export default function CompleteRing() {
         }
     };
 
-    const [address, setAddress] = useState('');
+
     const handleAddress = (event) => {
         setAddress(event.target.value);
     };
@@ -139,8 +147,47 @@ export default function CompleteRing() {
         localStorage.removeItem('finalProduct');
     }
 
+    const handleUpdateSelf = async () => {
+        setLoadingUpdateSelf(true);
+        if (!phone || !address) {
+            setLoadingUpdateSelf(false)
+            return instantAlertMaker('error', 'New Phone Number And Address Required', 'Your Account Need To Be Update To Use Our Features');
+
+        }
+        const new_account = {
+            phone: phone,
+            address: address,
+        }
+        const formData = new FormData();
+        formData.append('new_account', JSON.stringify(new_account));
+        const response = await update_self(formData, 'New Account', true);
+        if (!response.success) {
+            setLoadingUpdateSelf(false)
+            return instantAlertMaker('error', 'Error', 'Your account has not been updated');
+        } else {
+            const token = response.data.token;
+            if (token) {
+                const user = getUserFromToken(token);
+                save_login(dispatch, token, user)
+                setLoadingUpdateSelf(false)
+                setCheckPhoneAndAddress(false);
+                return instantAlertMaker('success', 'Success', 'Your Account Has Been Updated');
+            } else {
+                setLoadingUpdateSelf(false)
+                return instantAlertMaker('error', 'Error', 'Token Error');
+            }
+        }
+    }
     const handleOrderAdding = async () => {
         setLoadingComplete(true);
+        const account = getUserFromPersist();
+        if (!account) {
+            return loginRequiredAlert();
+        } else if (account && (!account.phone || !account.email)) {
+            setLoadingComplete(false)
+            return setCheckPhoneAndAddress(true);
+        }
+
         const finalProduct = JSON.parse(localStorage.getItem('finalProduct'));
         if (!finalProduct) {
             setLoadingComplete(false);
@@ -411,7 +458,18 @@ export default function CompleteRing() {
                         />
                     </div>
                     <div className="flex flex-col items-center justify-center mt-2">
-                        <button className="w-[150px] h-[40px] text-white font-semibold font-gantariFont bg-sky-800 hover:bg-sky-500 rounded-sm">Submit</button>
+                        
+                            <button disabled={loadingUpdateSelf} onClick={() => handleUpdateSelf()} className="w-[150px] h-[40px] text-white font-semibold font-gantariFont bg-sky-800 hover:bg-sky-500 rounded-sm">
+                            {loadingUpdateSelf ?
+                            <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center'}}>
+                                <CircularProgress color="inherit" />
+                            </Box>
+                            :
+                            'Submit'
+                            }
+                            </button>
+
+                        
                         <p className="text-xs text-center text-gray-500 font-gantariFont mt-4">Please make sure that you submit correct informations.</p>
                     </div>
                 </Box>
