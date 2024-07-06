@@ -22,7 +22,7 @@ class MetalController extends Controller
     //     $input = json_decode($request->input('new_metal'), true);
     //     if (!isset($input) || $input == null) {
     //         return response()->json([
-    //             'error' => 'No Input Received'
+    //             'error' => 'No input received'
     //         ], 403);
     //     }
     //     DB::beginTransaction();
@@ -69,7 +69,7 @@ class MetalController extends Controller
         $input = json_decode($request->input('update_price'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -77,7 +77,7 @@ class MetalController extends Controller
             $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
             if ($metal->deactivated) {
                 return response()->json([
-                    'error' => 'The Selected Metal Has Been Deactivated'
+                    'error' => 'The selected metal has been deactivated'
                 ], 403);
             }
             //find all product that contain the selected metal
@@ -244,7 +244,7 @@ class MetalController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Price Update Successfully'
+            'success' => 'Price update successfully'
         ], 201);
     }
     public function set_deactivate(Request $request)
@@ -253,7 +253,7 @@ class MetalController extends Controller
         $input = json_decode($request->input('deactivate'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -263,7 +263,7 @@ class MetalController extends Controller
             //check metal
             if ($metal == null) {
                 return response()->json([
-                    'error' => 'The Selected Metal Doesn\'t Exist'
+                    'error' => 'The selected metal doesn\'t exist'
                 ], 403);
             }
             //check input deactivate
@@ -285,11 +285,11 @@ class MetalController extends Controller
         }
         if ($tf) {
             return response()->json([
-                'success' => 'Deactivate Metal Successfully'
+                'success' => 'Deactivate metal successfully'
             ], 201);
         } else {
             return response()->json([
-                'success' => 'Activate Metal Successfully'
+                'success' => 'Activate metal successfully'
             ], 201);
         }
     }
@@ -354,7 +354,7 @@ class MetalController extends Controller
         $input = json_decode($request->input('metal_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $metal = DB::table('metal')->where('id', $input)->first();
@@ -372,13 +372,13 @@ class MetalController extends Controller
         $input = json_decode($request->input('metal_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
         if ($metal->deactivated) {
             return response()->json([
-                'error' => 'The Selected Metal Is Deactivated'
+                'error' => 'The selected metal has been deactivated'
             ], 403);
         }
         $weight = $metal->specific_weight * $input['volume'];
@@ -395,7 +395,7 @@ class MetalController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $metal_list = DB::table('model_metal')->where('model_id', $input)->where('is_main', true)->pluck('metal_id');
@@ -415,13 +415,13 @@ class MetalController extends Controller
         $input = json_decode($request->input('metal_compatibility'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $metal = DB::table('metal')->where('id', $input['metal_id'])->first();
         if ($metal->deactivated) {
             return response()->json([
-                'error' => 'The Selected Metal Has Been Deactivated'
+                'error' => 'The selected metal has been deactivated'
             ], 403);
         }
         $OGurl = env('ORIGIN_URL');

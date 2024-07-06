@@ -26,7 +26,7 @@ class AccountController extends Controller
         $input = json_decode($request->input('login_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -45,29 +45,37 @@ class AccountController extends Controller
             } else {
                 $expiration = Carbon::now()->addHours(5)->timestamp;
             }
-            $customClaims = [
-                'exp' => $expiration,
-                'imageUrl' => $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl
-            ];
+            if (!$account->google_id) {
+                $customClaims = [
+                    'exp' => $expiration,
+                    'imageUrl' => $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl
+                ];
+            } else {
+                $customClaims = [
+                    'exp' => $expiration,
+                    'imageUrl' => $account->imageUrl
+                ];
+            }
+            
 
             //create jwt token
             $jwt = JWTAuth::claims($customClaims)->fromUser($user);
         } else {
-            return response()->json(['error' => 'Unauthorized'], 500);
+            return response()->json(['error' => 'Wrong username or password'], 401);
         }
 
         //check account deactivate
         $deactivated = (bool) $account->deactivated;
         $status = (bool) $account->status;
         if ($deactivated) {
-            return response()->json(['error' => 'Your Account Has Been Deactivated'], 401);
+            return response()->json(['error' => 'Your account has been deactivated'], 401);
         } else if (!$status) {
-            return response()->json(['error' => 'Your Account Hasn\'t Been Activated'], 401);
+            return response()->json(['error' => 'Wrong username or password'], 401);
         }
 
         return response()->json([
             'access_token' => $jwt,
-            'success' => 'Login Successfully',
+            'success' => 'Login successfully',
         ]);
     }
     public function login_with_google(Request $request)
@@ -104,7 +112,7 @@ class AccountController extends Controller
                 $account->update(['status' => 1]);
             }
             if ((bool) $account->deactivated) {
-                return response()->json(['error' => 'Your Account Has Been Deactivated'], 401);
+                return response()->json(['error' => 'Your account has been deactivated'], 401);
             }
             $account->update(['imageUrl' => $image]);
             $account->update(['status' => 1]);
@@ -133,7 +141,7 @@ class AccountController extends Controller
 
             $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
 
-            return response()->json(['success' => 'User logged in', 'token' => $jwt]);
+            return response()->json(['success' => 'Login successfully', 'token' => $jwt]);
         } else {
             return response()->json(['error' => 'Invalid token'], 401);
         }
@@ -250,7 +258,7 @@ class AccountController extends Controller
         $input = json_decode($request->input('account_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         //find account
@@ -290,12 +298,12 @@ class AccountController extends Controller
         $input = json_decode($request->input('new_account'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
         if (!isset($input['id']) || $input['id'] == null) {
-            return response()->json(['error' => 'No Account id Received'], 400);
+            return response()->json(['error' => 'No account id received'], 400);
         }
 
         $id = $input['id'];
@@ -405,7 +413,7 @@ class AccountController extends Controller
         $input = json_decode($request->input('new_account'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         //check token
@@ -495,7 +503,7 @@ class AccountController extends Controller
             DB::commit();
             return response()->json([
                 'token' => $jwt,
-                'success' => "Update Successfully",
+                'success' => "Update successfully",
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -508,25 +516,25 @@ class AccountController extends Controller
         $input = json_decode($request->input('new_account'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
-        // $validatedData = validator($input, [
-        //     'username' => 'required|string|max:255|unique:account,username',
-        //     'email' => 'required|string|email|max:255|unique:account,email',
-        //     'phone' => 'nullable|string|max:20|unique:account,phone',
-        // ]);
-        // if ($validatedData->fails()) {
-        //     $errors = $validatedData->errors();
-        //     $errorString = '';
+        $validatedData = validator($input, [
+            'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'phone' => 'nullable|string|max:20',
+        ]);
+        if ($validatedData->fails()) {
+            $errors = $validatedData->errors();
+            $errorString = '';
 
-        //     foreach ($errors->all() as $message) {
-        //         $errorString .= $message . "\n";
-        //     }
+            foreach ($errors->all() as $message) {
+                $errorString .= $message . "\n";
+            }
 
-        //     return response()->json(['error' => $errorString], 400);
-        // }
+            return response()->json(['error' => $errorString], 400);
+        }
         $account1 = DB::table('account')->whereRaw('BINARY username = ?', $input['username'])->orderBy('created', 'desc')->first();
         $account2 = DB::table('account')->whereRaw('BINARY email = ?', $input['email'])->orderBy('created', 'desc')->first();
         $account3 = DB::table('account')->whereRaw('BINARY phone = ?', $input['phone'])->orderBy('created', 'desc')->first();
@@ -602,7 +610,7 @@ class AccountController extends Controller
         }
 
         return response()->json([
-            'success' => "Register Successfully",
+            'success' => "Register successfully",
         ], 201);
     }
     public function get_staff_role_list()
@@ -627,7 +635,7 @@ class AccountController extends Controller
     //     $input = $request->imageUrl;
     //     if (!isset($input) || $input == null) {
     //         return response()->json([
-    //             'error' => 'No Input Received'
+    //             'error' => 'No input received'
     //         ], 403);
     //     }
     //     $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input));
@@ -648,7 +656,7 @@ class AccountController extends Controller
         $input = json_decode($request->input('deactivate'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -675,11 +683,11 @@ class AccountController extends Controller
         }
         if ($tf) {
             return response()->json([
-                'success' => 'Deactivate Account Successfully'
+                'success' => 'Deactivate account successfully'
             ], 200);
         } else {
             return response()->json([
-                'success' => 'Activate Account Successfully'
+                'success' => 'Activate account successfully'
             ], 200);
         }
     }
@@ -711,20 +719,20 @@ class AccountController extends Controller
         $input = json_decode($request->input('security'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $account = DB::table('account')->where('username', $input['username'])->orderBy('created', 'desc')->first();
         if ($account->security_code != $input['security_code']) {
             return response()->json([
-                'error' => 'The Give Security Code Is Invalid'
+                'error' => 'Wrong security code'
             ], 403);
         } else {
             DB::table('account')->where('id', $account->id)->update([
                 'status' => 1
             ]);
             return response()->json([
-                'success' => 'Your Account Has Been Activated'
+                'success' => 'Your account has been activated'
             ]);
         }
     }

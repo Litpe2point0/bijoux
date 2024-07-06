@@ -25,7 +25,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('new_model'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -128,7 +128,7 @@ class ModelController extends Controller
                         foreach ($notmain_metal_ids as $metal2) {
                             if ($compatibility2->Metal_id_2 != $metal2) {
                                 return response()->json([
-                                    'error' => 'Metal Compatibility Error'
+                                    'error' => 'Metal compatibility error'
                                 ], 403);
                             }
                         }
@@ -207,7 +207,7 @@ class ModelController extends Controller
         }
 
         return response()->json([
-            'success' => "Model Successfully Added",
+            'success' => "Model successfully added",
         ], 201);
     }
     public function get_model_list(Request $request)
@@ -226,7 +226,7 @@ class ModelController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -409,13 +409,13 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $model = DB::table('model')->where('id', $input)->first();
         if ($model == null) {
             return response()->json([
-                'error' => 'The Selected Model Doesn\'t Exist'
+                'error' => 'The selected model doesn\'t exist'
             ], 403);
         }
         $OGurl = env('ORIGIN_URL');
@@ -474,7 +474,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('deactivate'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -483,7 +483,7 @@ class ModelController extends Controller
             $model = DB::table('model')->where('id', $input['model_id'])->first();
             if ($model == null) {
                 return response()->json([
-                    'error' => 'The Selected Model Doesn\'t Exist'
+                    'error' => 'The selected model doesn\'t exist'
                 ], 403);
             }
             if ($input['deactivate']) {
@@ -504,11 +504,11 @@ class ModelController extends Controller
         }
         if ($tf) {
             return response()->json([
-                'success' => 'Deactivate Model Successfully'
+                'success' => 'Deactivate model successfully'
             ], 200);
         } else {
             return response()->json([
-                'success' => 'Activate Model Successfully'
+                'success' => 'Activate model successfully'
             ], 200);
         }
     }
@@ -517,7 +517,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('new_model'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -711,7 +711,7 @@ class ModelController extends Controller
                             foreach ($notmain_metal_ids as $metal2) {
                                 if ($compatibility2->Metal_id_2 != $metal2) {
                                     return response()->json([
-                                        'error' => 'Metal Compatibility Error'
+                                        'error' => 'Metal compatibility error'
                                     ], 403);
                                 }
                             }
@@ -804,7 +804,7 @@ class ModelController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Model Update Successfully'
+            'success' => 'Model update successfully'
         ], 201);
     }
     public function set_available(Request $request)
@@ -814,7 +814,7 @@ class ModelController extends Controller
         $image_list = $input['image_list'];
         if (!isset($model_id) || $model_id == null || !isset($image_list) || $image_list == null) {
             return response()->json([
-                'error' => 'Not Enough Input Received'
+                'error' => 'Not enough enput received'
             ], 403);
         }
 
@@ -892,7 +892,7 @@ class ModelController extends Controller
                                     File::cleanDirectory($destinationPath);
                                 }
                                 return response()->json([
-                                    'error' => 'There Are Still Missing Image To This Model'
+                                    'error' => 'There are still missing image to this model'
                                 ], 403);
                             } else {
                                 $files = File::allFiles($destinationPath);
@@ -908,7 +908,7 @@ class ModelController extends Controller
                                         File::cleanDirectory($destinationPath);
                                     }
                                     return response()->json([
-                                        'error' => 'There Are Still Missing Image To This Model'
+                                        'error' => 'There are still missing image to this model'
                                     ], 403);
                                 }
                             }
@@ -926,7 +926,7 @@ class ModelController extends Controller
         }
 
         return response()->json([
-            'success' => 'Succesfully Set Available'
+            'success' => 'Succesfully set available'
         ], 200);
     }
     public function get_missing_image(Request $request)
@@ -939,7 +939,7 @@ class ModelController extends Controller
 
         $model = DB::table('model')->where('id', $input)->first();
         if ($model == null) {
-            return response()->json(['error' => 'The Selected Model Doesn\'t Exist'], 403);
+            return response()->json(['error' => 'The selected model doesn\'t exist'], 403);
         }
         $OGurl = env('ORIGIN_URL');
         $Murl = env('MODEL_URL');
@@ -1041,7 +1041,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -1063,7 +1063,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -1085,7 +1085,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -1127,7 +1127,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('template_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $validatedData = validator($input, [
@@ -1143,7 +1143,7 @@ class ModelController extends Controller
         ]);
         if ($validatedData->fails()) {
             return response()->json([
-                'error' => "Something Went Wrong"
+                'error' => "Something went wrong"
             ], 403);
         }
         $model_id = $input['model_id'];
@@ -1166,12 +1166,12 @@ class ModelController extends Controller
             $metal = DB::table('metal')->where('id', $input['metal_1_id'])->first();
             if ($metal == null) {
                 return response()->json([
-                    'error' => 'The Template Must Contain 1 Main Metal'
+                    'error' => 'The template must contain 1 main metal'
                 ], 403);
             }
             if ($metal->deactivated) {
                 return response()->json([
-                    'error' => 'The Template Contain a Metal That Has Been Deactivated'
+                    'error' => 'The template contain a metal that has been deactivated'
                 ], 403);
             };
         }
@@ -1181,7 +1181,7 @@ class ModelController extends Controller
             if ($metal != null) {
                 if ($metal->deactivated) {
                     return response()->json([
-                        'error' => 'The Template Contain a Metal That Has Been Deactivated'
+                        'error' => 'The template contain a metal that has been deactivated'
                     ], 403);
                 };
             }
@@ -1190,7 +1190,7 @@ class ModelController extends Controller
         $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
         if (!file_exists($destinationPath)) {
             return response()->json([
-                'error' => 'The Selected Template Doesn\'t Exist'
+                'error' => 'The selected template doesn\'t exist'
             ], 403);
         }
         $OGurl = env('ORIGIN_URL');
@@ -1198,7 +1198,7 @@ class ModelController extends Controller
         $files = File::allFiles($destinationPath);
         if ($files == null) {
             return response()->json([
-                'error' => 'The Selected Template Isn\'t Available'
+                'error' => 'The selected template isn\'t available'
             ], 403);
         }
         $imageCount = count($files) - 1;
@@ -1248,7 +1248,7 @@ class ModelController extends Controller
                 if ($diamond != null) {
                     if ($diamond->deactivated) {
                         return response()->json([
-                            'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
+                            'error' => 'The selected template contain a diamond that has been deactivated'
                         ], 403);
                     }
                     $diamond->name = $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . "Cut Diamond";
@@ -1271,7 +1271,7 @@ class ModelController extends Controller
                     $diamond_list->push($diamond);
                 } else {
                     return response()->json([
-                        'error' => 'The Selected Template Contain a Diamond That Doesn\'t Exist'
+                        'error' => 'The selected template contain a diamond that doesn\'t exist'
                     ], 403);
                 }
             } else {
@@ -1279,7 +1279,7 @@ class ModelController extends Controller
                 if ($diamond != null) {
                     if ($diamond->deactivated) {
                         return response()->json([
-                            'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
+                            'error' => 'The selected template contain a diamond that has been deactivated'
                         ], 403);
                     }
                     $diamond_shape2 = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
@@ -1303,7 +1303,7 @@ class ModelController extends Controller
                     $diamond_list->push($diamond);
                 } else {
                     return response()->json([
-                        'error' => 'The Selected Template Contain a Diamond That Doesn\'t Exist'
+                        'error' => 'The selected template contain a diamond that doesn\'t exist'
                     ], 403);
                 }
             }
