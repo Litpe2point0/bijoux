@@ -288,10 +288,29 @@ class ModelController extends Controller
 
         $temp1 = collect();
         $modelIds = $query_available->pluck('model_id');
-        foreach ($modelIds as $model_id) {
-            $filtered_models = DB::table('model')->where('id', $model_id)->where('isAvailable', true)->first();
-            if ($filtered_models) {
-                $temp1->push($filtered_models);
+        $models = DB::table('model')->whereIn('id', $modelIds)->where('isAvailable', true)->get();
+        if (in_array($role_id, [2, 3, 4, 5])) {
+            foreach ($models as $model) {
+                $isValid = false; {
+                    $modelMetals = DB::table('model_metal')->where('model_id', $model->id)->get();
+                    foreach ($modelMetals as $modelMetal) {
+                        $metal = DB::table('metal')->where('id', $modelMetal->metal_id)->first();
+                        if ($metal && $metal->deactivated == 0) {
+                            $isValid = true;
+                            break;
+                        }
+                    }
+                }
+                if ($isValid) {
+                    $temp1->push($model);
+                }
+            }
+        } else {
+            foreach ($modelIds as $model_id) {
+                $filtered_models = DB::table('model')->where('id', $model_id)->where('isAvailable', true)->first();
+                if ($filtered_models) {
+                    $temp1->push($filtered_models);
+                }
             }
         }
         $model_available = $temp1->unique('id')->sortBy('deactivated')->values();
@@ -344,10 +363,28 @@ class ModelController extends Controller
 
             $temp2 = collect();
             $modelIds2 = $query_unavailable->pluck('model_id');
-            foreach ($modelIds2 as $model_id) {
-                $filtered_models2 = DB::table('model')->where('id', $model_id)->where('isAvailable', false)->first();
-                if ($filtered_models2) {
-                    $temp2->push($filtered_models2);
+            $models2 = DB::table('model')->whereIn('id', $modelIds2)->where('isAvailable', true)->get();
+            if (in_array($role_id, [2, 3, 4, 5])) {
+                foreach ($models2 as $model) {
+                    $isValid = false;
+                    $modelMetals = DB::table('model_metal')->where('model_id', $model->id)->get();
+                    foreach ($modelMetals as $modelMetal) {
+                        $metal = DB::table('metal')->where('id', $modelMetal->metal_id)->first();
+                        if ($metal && $metal->deactivated == 0) {
+                            $isValid = true;
+                            break;
+                        }
+                    }
+                    if ($isValid) {
+                        $temp2->push($model);
+                    }
+                }
+            } else {
+                foreach ($modelIds2 as $model_id) {
+                    $filtered_models2 = DB::table('model')->where('id', $model_id)->where('isAvailable', false)->first();
+                    if ($filtered_models2) {
+                        $temp2->push($filtered_models2);
+                    }
                 }
             }
             $model_unavailable = $temp2->unique('id')->sortBy('deactivated')->values();
@@ -412,10 +449,44 @@ class ModelController extends Controller
                 'error' => 'No input received'
             ], 403);
         }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid token'], 401);
+                }
+            }
+        }
+        if ($token == null) {
+            $role_id = 5;
+        } else {
+            try {
+                $role_id = $decodedToken['role_id'];
+            } catch (Throwable $e) {
+                $role_id = $decodedToken->role_id;
+            }
+        }
         $model = DB::table('model')->where('id', $input)->first();
         if ($model == null) {
             return response()->json([
                 'error' => 'The selected model doesn\'t exist'
+            ], 403);
+        }
+        if ((bool)$model->deactivated == true && $role_id != 1) {
+            return response()->json([
+                'error' => 'The selected model is deactivated'
+            ], 403);
+        }
+        if ($model->isAvailable == false && $role_id != 1) {
+            return response()->json([
+                'error' => 'The selected model is unavailable'
             ], 403);
         }
         $OGurl = env('ORIGIN_URL');
@@ -446,23 +517,33 @@ class ModelController extends Controller
         });
         $model->model_diamond = $model_diamond;
 
+        $temp = collect();
         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-        $model_metal->map(function ($model_metal) {
-            $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-            if ($metal->deactivated == 1) {
-                $model_metal->isAvailable = false;
-            } else {
-                $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-                $OGurl = env('ORIGIN_URL');
-                $url = env('METAL_URL');
-                $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
-                $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
-                unset($model_metal->model_id);
-                unset($model_metal->metal_id);
+        foreach ($model_metal as $metal1) {
+            $metal = DB::table('metal')->where('id', $metal1->metal_id)->first();
+            if ($role_id == 5) {
+                if ($metal->deactivated == 1) {
+                    continue;
+                }
             }
+            $temp->push($metal1);
+        }
+        $temp->map(function ($model_metal) {
+            // $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+            // if ($metal->deactivated == 1) {
+            //     $model_metal->isAvailable = false;
+            // } else {
+            $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('METAL_URL');
+            $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
+            $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
+            unset($model_metal->model_id);
+            unset($model_metal->metal_id);
+            // }
             return $model_metal;
         });
-        $model->model_metal = $model_metal;
+        $model->model_metal = $temp;
         $model->imageUrl = $OGurl . $Murl . $model->id . '/' . $model->imageUrl;
 
         return response()->json([
@@ -1216,22 +1297,22 @@ class ModelController extends Controller
             if ($metal_2_id != null || $metal_2_id != 0) {
                 $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
                 $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
-                $metal_2->price = $volume * ($model_metal_2->percentage/100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $metal_2->price = $volume * ($model_metal_2->percentage / 100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
                 $iprice = $metal_2->price;
             } else {
                 $iprice = 0;
             }
-            $metal_1->price = $volume * ($model_metal_1->percentage/100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+            $metal_1->price = $volume * ($model_metal_1->percentage / 100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
         } else {
             if ($metal_2_id != null || $metal_2_id != 0) {
                 $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
                 $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
-                $metal_2->price = $model->volume * ($model_metal_2->percentage/100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $metal_2->price = $model->volume * ($model_metal_2->percentage / 100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
                 $iprice = $metal_2->price;
             } else {
                 $iprice = 0;
             }
-            $metal_1->price = $model->volume * ($model_metal_1->percentage/100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+            $metal_1->price = $model->volume * ($model_metal_1->percentage / 100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
         }
 
         $mprice = $metal_1->price + $iprice;

@@ -11,11 +11,10 @@ use App\Http\Controllers\orders\OrderController;
 use App\Http\Middleware\checkDeactivate;
 
 Route::middleware('checkCors')->group(function () {
-    Route::post('/activate_account', [AccountController::class, 'activate_account']);
+    //Admin--------------------------------------------------------------
     Route::group(['prefix' => 'admin'], function () {
         Route::middleware('checkAdminLogin')->group(function () {
-
-            Route::post('/get_dashboard ', [OrderController::class, 'get_dashboard'])->middleware('checkManager');
+            Route::post('/get_dashboard ', [OrderController::class, 'get_dashboard']);
 
             Route::group(['prefix' => 'account'], function () {
                 Route::post('/update', [AccountController::class, 'update']);
@@ -57,8 +56,9 @@ Route::middleware('checkCors')->group(function () {
             });
         });
     });
+    //--------------------------------------------------------------------------------
 
-
+    //Sài Chung------------------------------------------------------------------------------
     Route::group(['prefix' => 'items'], function () {
         Route::group(['prefix' => 'model'], function () {
             Route::post('/get_list', [ModelController::class, 'get_model_list']);
@@ -110,13 +110,17 @@ Route::middleware('checkCors')->group(function () {
             });
         });
     });
+    Route::post('/activate_account', [AccountController::class, 'activate_account']);
+    Route::post('/create_payment_link', [OrderController::class, 'create_payment_link']);
+    //--------------------------------------------------------------------------------
 
-
+    //Đa số Customer------------------------------------------------------------------------
     Route::group([], function () {
         Route::post('/login', [AccountController::class, 'login']);
         Route::post('/login_with_google', [AccountController::class, 'login_with_google']);
         Route::post('/logout', [AccountController::class, 'logout']);
         Route::post('/register', [AccountController::class, 'register']);
+        Route::post('/get_update_account_detail', [AccountController::class, 'get_account_detail']);
 
         Route::middleware('checkUserLogin')->group(function () {
             Route::group(['prefix' => 'account'], function () {
@@ -150,14 +154,13 @@ Route::middleware('checkCors')->group(function () {
             });
         });
     });
-
-    Route::post('/create_payment_link', [OrderController::class, 'create_payment_link']);
 });
 
-// "DMMM"
+//Webhook------------------------------------------------------------------------
 Route::post('/confirm_payment', [OrderController::class, 'confirm_payment']);
-Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);
-Route::get('/sendMail', [OrderController::class, 'sendMail']);
 
+//test------------------------------------------------------------------------
+// Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);
+// Route::get('/sendMail', [OrderController::class, 'sendMail']);
 // Route::post('/decode', [AccountController::class, 'decode']);
 // Route::get('/get_image', [AccountController::class, 'get_image']);

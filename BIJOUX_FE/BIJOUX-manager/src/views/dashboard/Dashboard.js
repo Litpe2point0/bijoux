@@ -190,7 +190,8 @@ const Dashboard = () => {
   const [order_payment, setOrderPayment] = useState(null);
   const [order_delivery, setOrderDelivery] = useState(null);
 
- 
+  const [order_template, setOrderTemplate] = useState(null);
+  const [order_customize, setOrderCustomize] = useState(null);
 
   useEffect(() => {
 
@@ -207,6 +208,8 @@ const Dashboard = () => {
       setOrderProduction(data.order_production);
       setOrderPayment(data.order_payment);
       setOrderDelivery(data.order_delivery);
+      setOrderTemplate(data.order_template);
+      setOrderCustomize(data.order_customize);
       setLoading(false);
     }
     setAttribute()
@@ -239,7 +242,7 @@ const Dashboard = () => {
               <div className="fw-semibold text-truncate">
                 {order_deposit.deposit_count} ({order_deposit.deposit_percentage}%)
               </div>
-              <CProgress thin className="mt-2" color="success" value={order_deposit.deposit_percentage} />
+              <CProgress thin className="mt-2" color="secondary" value={order_deposit.deposit_percentage} />
             </CCol>
             <CCol
               className={'d-none d-xl-block'}
@@ -249,7 +252,7 @@ const Dashboard = () => {
               <div className="fw-semibold text-truncate">
                 {order_design.design_count} ({order_design.design_percentage}%)
               </div>
-              <CProgress thin className="mt-2" color="success" value={order_design.design_percentage} />
+              <CProgress thin className="mt-2" color="info" value={order_design.design_percentage} />
             </CCol>
             <CCol
               className={'d-none d-xl-block'}
@@ -259,7 +262,7 @@ const Dashboard = () => {
               <div className="fw-semibold text-truncate">
                 {order_production.production_count} ({order_production.production_percentage}%)
               </div>
-              <CProgress thin className="mt-2" color="success" value={order_production.production_percentage} />
+              <CProgress thin className="mt-2" color="warning" value={order_production.production_percentage} />
             </CCol>
             <CCol
               className={'d-none d-xl-block'}
@@ -279,7 +282,7 @@ const Dashboard = () => {
               <div className="fw-semibold text-truncate">
                 {order_delivery.delivery_count} ({order_delivery.delivery_percentage}%)
               </div>
-              <CProgress thin className="mt-2" color="success" value={order_delivery.delivery_percentage} />
+              <CProgress thin className="mt-2" color="primary" value={order_delivery.delivery_percentage} />
             </CCol>
             
 
@@ -289,21 +292,21 @@ const Dashboard = () => {
               <CRow>
                 <CCol sm={5}>
                   <h4 id="traffic" className="card-title mb-0">
-                    Traffic
+                    Services
                   </h4>
-                  <div className="small text-body-secondary">January - July 2023</div>
+                  <div className="small text-body-secondary">{months[0]} - {months[months.length-1]} {new Date().getFullYear()}</div>
                 </CCol>
                 <CCol sm={7} className="d-none d-md-block">
-                  <CButton color="primary" className="float-end">
+                  {/* <CButton color="primary" className="float-end">
                     <CIcon icon={cilCloudDownload} />
-                  </CButton>
+                  </CButton> */}
                   <CButtonGroup className="float-end me-3">
-                    {['Day', 'Month', 'Year'].map((value) => (
+                    {['Year'].map((value) => (
                       <CButton
                         color="outline-secondary"
                         key={value}
                         className="mx-0"
-                        active={value === 'Month'}
+                        active={value === 'Year'}
                       >
                         {value}
                       </CButton>
@@ -311,7 +314,7 @@ const Dashboard = () => {
                   </CButtonGroup>
                 </CCol>
               </CRow>
-              <MainChart />
+              <MainChart templateOrders={order_template} customizeOrders={order_customize} />
             </CCardBody>
             <CCardFooter>
               <CRow
@@ -338,7 +341,7 @@ const Dashboard = () => {
               </CRow>
             </CCardFooter>
           </CCard>
-          <WidgetsBrand className="mb-4" withCharts />
+          {/* <WidgetsBrand className="mb-4" withCharts />
           <CRow>
             <CCol xs>
               <CCard className="mb-4">
@@ -484,7 +487,7 @@ const Dashboard = () => {
                 </CCardBody>
               </CCard>
             </CCol>
-          </CRow>
+          </CRow> */}
         </>
       }
 

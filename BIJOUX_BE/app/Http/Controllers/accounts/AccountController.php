@@ -270,12 +270,18 @@ class AccountController extends Controller
         }
         //find account
         $account = Account::where('id', $input)->first();
+        if(!isset($account)){
+            return response()->json([
+                'error' => 'Account not found'
+            ], 403);
+        }
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();
         //modify account imageUrl
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
+        //https://fast-scorpion-strictly.ngrok-free.app/image/account/{$account->id}/{$account->imageUrl}
         if (!$account->google_id) {
             $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
         }
@@ -571,7 +577,7 @@ class AccountController extends Controller
             } else {
                 $account->dob = null;
             }
-            if (!empty($input['phone'])) {
+            if (!isset($input['phone'])) {
                 $account->phone = $input['phone'];
             }
             //save new account

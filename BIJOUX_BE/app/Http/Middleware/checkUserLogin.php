@@ -33,7 +33,7 @@ class checkUserLogin
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -55,7 +55,7 @@ class checkUserLogin
                         return $next($request);
                     }
                 } else {
-                    return response()->json(['error' => 'Your Account Hasn\'t Been Activated'], 500);
+                    return response()->json(['error' => 'Wrong username or password'], 500);
                 }
             } else {
                 return $next($request);
