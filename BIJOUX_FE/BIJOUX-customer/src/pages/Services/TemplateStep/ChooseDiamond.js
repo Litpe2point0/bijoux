@@ -13,6 +13,7 @@ import { get_clarity_list, get_color_list, get_cut_list, get_diamond_list, get_o
 import { get_model_detail } from "../../../api/main/items/Model_api";
 import numeral from 'numeral';
 import { Box, CircularProgress } from "@mui/material";
+import { instantAlertMaker } from "../../../api/instance/axiosInstance";
 
 
 const CurrencyFormatter = ({ value }) => {
@@ -190,6 +191,7 @@ export default function ChooseDiamond() {
         } else {
             setSearchedDiamond(null)
             setDiamondImage(null);
+            instantAlertMaker('info', 'Opps !','The diamond with these attributes are currently not available. Please try again with different attributes!');
             setIsSearch(false);
         }
 
@@ -237,8 +239,8 @@ export default function ChooseDiamond() {
         <div className="flex flex-col items-center" >
             {/* <h1 className="md:text-3xl xs:text-xl mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Diamond Details</h1>
             <p className="text-light mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Choose detailed informations for your diamond</p> */}
-            <p className="text-2xl text-[#151542] font-loraFont font-medium">Choose A Diamond</p>
-            <p className="text-xs md:w-1/3 xs:h-1/5 text-center text-[#151542] font-gantariFont font-medium">Search hundreds of settings to find the perfect ring. Styles range from solitaire to vintage-inspired to everything in between, now including settings designed for Men’s Engagement. Start designing your own custom  with handcrafted  settings built to last a lifetime.</p>
+            <p className="text-3xl text-[#151542] font-loraFont font-medium">Diamond Selection</p>
+            <p className="text-sm md:w-1/3 xs:h-1/5 text-center text-[#151542] font-gantariFont font-medium">Discover a wide array of diamonds to find the perfect gem for your jewelry. Our collection spans from classic round cuts to unique princess cuts and everything in between, including diamonds ideal for Men's Jewelry. Start creating your own custom piece with meticulously selected diamonds that promise brilliance and durability for a lifetime.</p>
             {loading ?
                 <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
                     <CircularProgress color="inherit" />

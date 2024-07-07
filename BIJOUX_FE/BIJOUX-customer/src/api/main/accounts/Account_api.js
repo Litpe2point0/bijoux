@@ -176,6 +176,17 @@ export async function activate_account(formData, title, loginRequired, { signal 
     }
 }
 
-
+export async function get_update_account_detail(formData, title, loginRequired, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const apiInstance = loginRequired ? login_required_api : api;
+        const response = await apiInstance.post('/get_update_account_detail', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("get_update_account_detail" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
 
 

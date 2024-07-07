@@ -134,11 +134,12 @@ export default function MountingDetail() {
                     const formData = new FormData();
                     formData.append('metal_compatibility', JSON.stringify(metal_compatibility));
                     const compatibility_data = await get_metal_compatibility(formData);
-                    // *****************
+                  
                     if (finalProduct.metal_2 && !compatibility_data.success) {
+                        alert()
                         return systemUpdateAlertMaker();
                     }
-                    setSideMetalArray(compatibility_data.data)
+                    setSideMetalArray(compatibility_data.success ? compatibility_data.data : [])
                     setSideMetal(finalProduct.metal_2); //SET KIM LOẠI SIDE
                     //THÊM ĐIỀU KIỆN
                     if ( finalProduct.metal_2 && compatibility_data.data.find(metal => metal.metal.id === finalProduct.metal_2.id) == null) {
@@ -180,7 +181,7 @@ export default function MountingDetail() {
                 // *****************
                 setSideMetalListVisible(true)
 
-                setSideMetalArray(compatibility_data.data)
+                setSideMetalArray(compatibility_data.success ? compatibility_data.data : [])
                 setSideMetal(compatibility_data.data[0].metal);
                 //THÊM ĐIỀU KIỆN
                 if (compatibility_data.data.find(metal => metal.metal.id === compatibility_data.data[0].metal.id) == null) {
@@ -222,6 +223,10 @@ export default function MountingDetail() {
     const handleSelectModel = () => {
         console.log('metal_1', mainMetal)
         console.log('metal_2', sideMetal)
+        if (mainMetal == null) {
+            console.log('k tim thay main')
+            return showAlert();
+        }
         if (mainMetalArray.find(metal => metal.metal.id === mainMetal.id) == null) {
             console.log('k tim thay main')
             return showAlert();

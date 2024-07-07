@@ -69,9 +69,9 @@ export default function PaymentHistory() {
                         height: "75%",
                         width: "75%"
                     }}
-                    className="ag-theme-quartz">
+                    className="ag-theme-quartz mb-5">
 
-                    (
+                    
                     <AgGridReact
                         enableColResize={true}
                         columnDefs={state.columnDefs}
@@ -84,7 +84,7 @@ export default function PaymentHistory() {
                         domLayout='autoHeight'
                     // onGridReady={onGridReady('customize')}
                     />
-                    )
+                    
                 </div>
             }
         </div>

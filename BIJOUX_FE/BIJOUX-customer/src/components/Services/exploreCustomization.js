@@ -6,7 +6,7 @@ import { get_mounting_type_list } from "../../api/main/items/Model_api";
 import { getUserFromPersist, loginRequiredAlert } from "../../api/instance/axiosInstance";
 import { CForm, CSpinner } from "@coreui/react";
 import { add_quote } from "../../api/main/orders/Order_api";
-import { update_self } from "../../api/main/accounts/Account_api";
+import { get_update_account_detail, update_self } from "../../api/main/accounts/Account_api";
 import Swal from "sweetalert2";
 import './alert.css';
 import { useDispatch } from "react-redux";
@@ -77,13 +77,31 @@ export default function ExploreCustomization() {
         setAddress(null);
     }
 
-    const handleOpen = () => {
-        const account = getUserFromPersist();
+    const handleOpen = async () => {
+
+        let account =  getUserFromPersist();
         if (!account) {
             return loginRequiredAlert();
-        } else if (account && (!account.phone || !account.email)) {
-            setAdditionalInfoShow(true);
         }
+        const formData_update_account_detail = new FormData();
+        formData_update_account_detail.append('account_id', account.id);
+
+        const response_update_account_detail = await get_update_account_detail(formData_update_account_detail, "Get Account Detail", true);
+        if (response_update_account_detail.success) {
+            const user = response_update_account_detail.data.account_detail;
+            account= user;
+        } else {
+            return loginRequiredAlert();
+        }
+        if (!account) {
+            return loginRequiredAlert();
+        } else if (account && (!account.phone || !account.address)) {
+            setAdditionalInfoShow(true);
+        } else{
+            setAdditionalInfoShow(false)
+        }
+
+        
         setOpen(true);
     };
 
@@ -161,7 +179,7 @@ export default function ExploreCustomization() {
             if (result.isConfirmed && additionalInfoShow == true && phoneNumber && address) {
                 Swal.fire({
                     title: 'Success',
-                    text: "Your Account Infomation Has Been Update \n*Phone Number: " + phoneNumber + '\n*Address: ' + address,
+                    html: "Your Account Infomation Has Been Update <br>*Phone Number: " + phoneNumber + '<br>*Address: ' + address,
                     icon: "success",
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
