@@ -53,8 +53,6 @@ export default function MountingDetail() {
     const [sideMetalArray, setSideMetalArray] = useState([]); //lấy mảng model_metal Side
     const [sizeRange, setSizeRange] = useState([]); //lấy mảng Size
 
-    const [sideMetalArrayAfter, setSideMetalArrayAfter] = useState([]); //mảng kim loại Side sau khi lọc
-    const [finalModel, setFinalModel] = useState({}); //biến state lưu thông tin mẫu khung cuối cùng
 
     useEffect(() => {
         const finalProduct = JSON.parse(localStorage.getItem('finalProduct')); //LẤY THÔNG TIN MẪU KHUNG TỪ LOCAL STORAGE
@@ -62,7 +60,6 @@ export default function MountingDetail() {
             const model_id = index.id;
             if (finalProduct.model.id != model_id) {
                 console.log('model_id trong param không kớp với model_id trong finalProduct local storage')
-                alert('ok')
                 window.location.href = '/services';
             }
 
@@ -83,7 +80,6 @@ export default function MountingDetail() {
                 const model_id = index.id;
                 if (!model_id) {
                     console.log('không có model_id')
-                    alert('ok')
                     window.location.href = '/services';
                 }
 
@@ -92,6 +88,9 @@ export default function MountingDetail() {
 
                 //gọi model_detail
                 const model_data = await get_model_detail(formData);
+                if (!model_data.success) {
+                    return systemUpdateAlertMaker();
+                }
                 const model_detail = model_data.data.model;
                 setModel(model_detail);
                 setCheckMountingType(model_detail.mounting_type.id === 3 ? false : true)
@@ -105,9 +104,16 @@ export default function MountingDetail() {
                 const sizeRangeGenerate = generateRange(model_detail.mounting_type.min_size, model_detail.mounting_type.max_size)
                 setSizeRange(sizeRangeGenerate)
                 if (!finalProduct) {
+                    // *****************
                     setSideMetalArray(sideMetalList)
 
                     setMainMetal(sideMetalList.length > 0 ? null : mainMetalList[0].metal); //SET KIM LOẠI MAIN
+                    // THÊM ĐIỀU KIỆN
+                    if (sideMetalList.length <= 0) {
+                        if (mainMetalList.find(metal => metal.metal.id === mainMetalList[0].metal.id) == null) {
+                            return systemUpdateAlertMaker();
+                        }
+                    }
 
                     setSideMetal(null);
 
@@ -115,6 +121,10 @@ export default function MountingDetail() {
 
                 } else {
                     setMainMetal(finalProduct.metal_1); //SET KIM LOẠI MAIN
+                    //THÊM ĐIỀU KIỆN
+                    if (mainMetalList.find(metal => metal.metal.id === finalProduct.metal_1.id) == null) {
+                        return systemUpdateAlertMaker();
+                    }
 
                     const metal_compatibility = {
                         model_id: model_detail.id,
@@ -124,8 +134,16 @@ export default function MountingDetail() {
                     const formData = new FormData();
                     formData.append('metal_compatibility', JSON.stringify(metal_compatibility));
                     const compatibility_data = await get_metal_compatibility(formData);
+                    // *****************
+                    if (finalProduct.metal_2 && !compatibility_data.success) {
+                        return systemUpdateAlertMaker();
+                    }
                     setSideMetalArray(compatibility_data.data)
                     setSideMetal(finalProduct.metal_2); //SET KIM LOẠI SIDE
+                    //THÊM ĐIỀU KIỆN
+                    if ( finalProduct.metal_2 && compatibility_data.data.find(metal => metal.metal.id === finalProduct.metal_2.id) == null) {
+                        return systemUpdateAlertMaker();
+                    }
                 }
 
 
@@ -156,12 +174,18 @@ export default function MountingDetail() {
                 const formData = new FormData();
                 formData.append('metal_compatibility', JSON.stringify(metal_compatibility));
                 const compatibility_data = await get_metal_compatibility(formData);
-
-
+                if (!compatibility_data.success) {
+                    return systemUpdateAlertMaker();
+                }
+                // *****************
                 setSideMetalListVisible(true)
 
                 setSideMetalArray(compatibility_data.data)
                 setSideMetal(compatibility_data.data[0].metal);
+                //THÊM ĐIỀU KIỆN
+                if (compatibility_data.data.find(metal => metal.metal.id === compatibility_data.data[0].metal.id) == null) {
+                    return systemUpdateAlertMaker();
+                }
             }
             setLoading(false)
         }
@@ -171,22 +195,12 @@ export default function MountingDetail() {
 
     const showAlert = () => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
+            title: 'Unable To Proceed',
+            text: "Please fill all metal options!",
+            icon: 'info',
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-
-            if (result.isConfirmed) {
-                Swal.fire(
-                    'Deleted!',
-                    'Your file has been deleted.',
-                    'success'
-                )
-            }
+            confirmButtonText: 'OK'
         })
     };
 
@@ -197,8 +211,6 @@ export default function MountingDetail() {
         console.log("main", mainMetal)
         setSideMetal(JSON.parse((newSideMetal)));
 
-
-
     }
 
     //Hàm cập nhật Finger Size
@@ -208,7 +220,19 @@ export default function MountingDetail() {
 
 
     const handleSelectModel = () => {
-
+        console.log('metal_1', mainMetal)
+        console.log('metal_2', sideMetal)
+        if (mainMetalArray.find(metal => metal.metal.id === mainMetal.id) == null) {
+            console.log('k tim thay main')
+            return showAlert();
+        }
+        if (sideMetalListVisible) {
+            if (sideMetalArray.find(metal => metal.metal.id === sideMetal.id) == null) {
+                console.log('k tim thay side')
+                return showAlert();
+            }
+        }
+        //alert('ngu')
         let finalModel = JSON.parse(localStorage.getItem('finalProduct'))
         if (finalModel !== null) {
             finalModel.model = model;
@@ -233,7 +257,20 @@ export default function MountingDetail() {
         window.location.href = '/template?step=2&mountingType=' + model.mounting_type.id + '&model_id=' + model.id; //CHUYỂN HƯỚNG SANG TRANG CHỌN KIM CƯƠNG
     }
 
-
+    const systemUpdateAlertMaker = () => {
+        Swal.fire({
+            title: "Our System Has Been Updated",
+            text: "Please re-customize your product to get the latest category. Sorry about the inconvenience!",
+            icon: 'info',
+            allowOutsideClick: false,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Got It',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/services';
+            }
+        })
+    };
 
 
     return (
