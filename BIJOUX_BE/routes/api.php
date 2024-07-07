@@ -14,8 +14,7 @@ Route::middleware('checkCors')->group(function () {
     //Admin--------------------------------------------------------------
     Route::group(['prefix' => 'admin'], function () {
         Route::middleware('checkAdminLogin')->group(function () {
-
-            Route::post('/get_dashboard ', [OrderController::class, 'get_dashboard'])->middleware('checkManager');
+            Route::post('/get_dashboard ', [OrderController::class, 'get_dashboard']);
 
             Route::group(['prefix' => 'account'], function () {
                 Route::post('/update', [AccountController::class, 'update']);
@@ -121,6 +120,7 @@ Route::middleware('checkCors')->group(function () {
         Route::post('/login_with_google', [AccountController::class, 'login_with_google']);
         Route::post('/logout', [AccountController::class, 'logout']);
         Route::post('/register', [AccountController::class, 'register']);
+        Route::post('/get_update_account_detail', [AccountController::class, 'get_account_detail']);
 
         Route::middleware('checkUserLogin')->group(function () {
             Route::group(['prefix' => 'account'], function () {

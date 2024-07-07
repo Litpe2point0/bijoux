@@ -270,6 +270,11 @@ class AccountController extends Controller
         }
         //find account
         $account = Account::where('id', $input)->first();
+        if(!isset($account)){
+            return response()->json([
+                'error' => 'Account not found'
+            ], 403);
+        }
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();

@@ -3093,8 +3093,33 @@ class OrderController extends Controller
 
     //     return $randomString;
     // }
-    public function get_dashboard()
+    public function get_dashboard(Request $request)
     {
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid token'], 401);
+                }
+            }
+        }
+        try {
+            $input = $decodedToken['role_id'];
+        } catch (Throwable $e) {
+            $input = $decodedToken->role_id;
+        }
+        if($input != 1 && $input != 2){
+            return response()->json([
+                'error' => 'You don\'t have permission to access this page'
+            ], 403);
+        }
         $year = Carbon::now()->year;
         $month = Carbon::now()->month;
         $months = collect();
