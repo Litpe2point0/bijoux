@@ -42,7 +42,7 @@ export default function ViewOrder() {
         setLoading(false);
     }
 
-    const handleCancelPayment=async (payment_id)=>{
+    const handleCancelPayment = async (payment_id) => {
         const formData = new FormData();
         formData.append("payment_id", payment_id);
         const response = await cancel_payment(formData, 'Get order detail', true);
@@ -52,8 +52,8 @@ export default function ViewOrder() {
         if (query.get("payment_status") == "success") {
             paymentAlertMaker(navigate, 'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
         } else if (query.get("payment_status") == "cancel") {
-            if(query.get("status")==="CANCELLED"){
-                const payment_id=query.get("orderCode");
+            if (query.get("status") === "CANCELLED") {
+                const payment_id = query.get("orderCode");
                 handleCancelPayment(payment_id);
             }
             paymentAlertMaker(navigate, 'error', 'Payment failed', 'Your payment has failed. Please try again!')
@@ -107,13 +107,18 @@ export default function ViewOrder() {
 
     return (
         <div className="w-full flex flex-col items-center text-[#151542]">
-            <h1 className="font-loraFont text-4xl font-semibold">Your Order List</h1>
+            <h1 className="font-loraFont text-4xl font-semibold">
+                Your Order List
+            </h1>
             <div className="w-11/12 grid grid-cols-3">
                 <div className="flex flex-col w-full items-center justify-center">
                     <button onClick={() => setType('Customization')}
                         className={`${type === 'Customization' ? 'text-indigo-500 font-semibold' : 'font-semibold'
-                            }`}>
-                        Customization
+                            } flex items-center`}>
+
+                        <span>Customization</span>&nbsp;
+
+                        <span className="inline-flex items-center rounded-full bg-gray-500 px-2 py-1 mb-1 text-xs font-medium text-white ring-1 ring-inset ring-gray-500/10">{!loading && customizationOrderList.length}</span>
                     </button>
                     <div className={`h-1 w-full bg-gray-400 ${type === 'Customization' ? 'bg-indigo-500' : 'bg-gray-400'
                         }`}>
@@ -122,8 +127,11 @@ export default function ViewOrder() {
                 <div className="flex flex-col w-full items-center justify-center">
                     <button onClick={() => setType('Template')}
                         className={`${type === 'Template' ? 'text-indigo-500 font-semibold' : 'font-semibold'
-                            }`}>
-                        Template
+                            } flex items-center`}>
+
+                        <span>Template</span>&nbsp;
+
+                        <span className="inline-flex items-center rounded-full bg-gray-500 px-2 py-1 mb-1 text-xs font-medium text-white ring-1 ring-inset ring-gray-500/10">{!loading && templateOrderList.length}</span>
                     </button>
                     <div className={`h-1 w-full bg-gray-400 ${type === 'Template' ? 'bg-indigo-500' : 'bg-gray-400'
                         }`}>
@@ -132,8 +140,11 @@ export default function ViewOrder() {
                 <div className="flex flex-col w-full items-center justify-center">
                     <button onClick={() => setType('Delivery')}
                         className={`${type === 'Delivery' ? 'text-indigo-500 font-semibold' : 'font-semibold'
-                            }`}>
-                        Delivery
+                            } flex items-center`}>
+                        
+                        <span>Delivery</span>&nbsp;
+
+                        <span className="inline-flex items-center rounded-full bg-gray-500 px-2 py-1 mb-1 text-xs font-medium text-white ring-1 ring-inset ring-gray-500/10">{!loading && deliveryOrderList.length}</span>
                     </button>
                     <div className={`h-1 w-full bg-gray-400 ${type === 'Delivery' ? 'bg-indigo-500' : 'bg-gray-400'
                         }`}>
@@ -147,8 +158,26 @@ export default function ViewOrder() {
                 :
                 <>
                     {customizationOrderList.length === 0 && templateOrderList.length === 0 && deliveryOrderList.length === 0 && (
-                        <div className="w-full flex items-center justify-center">
+                        <div className="w-full flex items-center justify-center mt-2">
                             <p className="text-2xl font-titleFont font-semibold text-green-800">Your order list currently has no orders. Please wait for future updates</p>
+                        </div>
+                    )
+                    }
+                    {customizationOrderList.length === 0 && type === 'Customization' && (
+                        <div className="w-full flex items-center justify-center mt-2">
+                            <p className="text-2xl font-titleFont font-semibold text-green-800">Your customize order list currently has no orders.</p>
+                        </div>
+                    )
+                    }
+                    {templateOrderList.length === 0 && type === 'Template' && (
+                        <div className="w-full flex items-center justify-center mt-2">
+                            <p className="text-2xl font-titleFont font-semibold text-green-800">Your template order list currently has no orders. </p>
+                        </div>
+                    )
+                    }
+                    {deliveryOrderList.length === 0 && type === 'Delivery' && (
+                        <div className="w-full flex items-center justify-center mt-2">
+                            <p className="text-2xl font-titleFont font-semibold text-green-800">Your delivery order list currently has no orders.</p>
                         </div>
                     )
                     }

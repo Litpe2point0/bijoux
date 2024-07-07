@@ -6,7 +6,6 @@ import { cancel_quote, get_quote_list_customer } from "../../api/main/orders/Quo
 import { get_staff_list } from "../../api/main/accounts/Account_api";
 import { Box, CircularProgress } from "@mui/material";
 
-
 export default function ViewQuote() {
 
     const [quoteList, setQuoteList] = useState([]);
@@ -68,7 +67,11 @@ export default function ViewQuote() {
     return (
         <div className="w-full flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center justify-center mb-2 mt-2">
-                <h1 className="font-loraFont text-4xl font-semibold text-[#1151542] mb-2">Your Quote List</h1>
+                <h1 className="font-loraFont text-4xl font-semibold text-[#1151542] mb-2 flex items-center"> 
+                <span>Your Quote List</span>&nbsp;
+                
+                <span className="inline-flex items-center rounded-full bg-gray-500 px-2 py-1 text-xs font-medium text-white ring-1 ring-inset ring-gray-500/10">{!loading && quoteList.length}</span>
+                </h1>
                 <div className="w-10/12 h-0.5 bg-[#151542]"></div>
             </div>
             {/* <div className="w-10/12 flex items-center justify-end mb-5">
