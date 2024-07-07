@@ -105,7 +105,6 @@ export default function ChooseMounting() {
 
             } else {
                 console.log('không có mountingType trong query')
-                alert('ok')
                 window.location.href = "/services";
             }
             const mounting_style_list = await get_mounting_style_list();
@@ -148,7 +147,7 @@ export default function ChooseMounting() {
                 </Box>
                 :
                 <>
-                    <p className="text-2xl text-[#151542] font-loraFont font-medium">Choose {mounting_type.name} Settings</p>
+                    <p className="text-2xl text-[#151542] font-loraFont font-medium">Choose {mounting_type.name} Model Settings</p>
                     <p className="text-xs md:w-1/3 xs:h-1/5 text-center text-[#151542] font-gantariFont font-medium">Search hundreds of {toLowerCase_String(mounting_type.name)} settings to find the perfect ring. Styles range from solitaire to vintage-inspired to everything in between, now including settings designed for Men’s Engagement. Start designing your own custom {toLowerCase_String(mounting_type.name)} with handcrafted {toLowerCase_String(mounting_type.name)} settings built to last a lifetime.</p>
                     <div className="w-full flex md:items-start xs:items-center m-5">
                         <FilterToggleButton

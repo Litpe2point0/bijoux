@@ -22,7 +22,7 @@ export default function ProgressBar({ progressState }) {
                             className="font-gantariFont xs:text-md text-lg font-semibold ml-5"
                             style={{ color: progressState === 1 ? activeColor : defaultColor }}
                         >
-                            Choose a Settings
+                            Choose A Model Settings
                         </p>
                     </div>
                     <div className="absolute right-5" style={{ color: progressState === 1 ? activeColor : defaultColor }}>
