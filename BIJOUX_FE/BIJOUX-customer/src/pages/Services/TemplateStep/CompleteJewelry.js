@@ -92,7 +92,6 @@ export default function CompleteRing() {
 
             if (!finalProduct || !finalProduct.model || !finalProduct.model.id) {
                 console.log('không tồn tại finalProduct hoặc finalProduct.model == null ')
-                alert('ok')
                 window.location.href = "/services";
             }
             setFinalProduct(finalProduct);

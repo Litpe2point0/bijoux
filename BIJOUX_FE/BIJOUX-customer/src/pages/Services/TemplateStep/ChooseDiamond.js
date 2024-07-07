@@ -74,11 +74,9 @@ export default function ChooseDiamond() {
                         navigate(`/mounting-detail/${finalProduct.model.id}`);
                     } else if (!finalProduct.model && !model_id && !mountingType && !mountingTypeQuery && mountingTypeQuery !== mountingType.id) {
                         console.log('không có finalProduct.model và không có model_id trong query và không có mountingType trong localStorage và không có mountingTypeQuery trong query')
-                        alert('ok')
                         window.location.href = '/services'
                     } else if (finalProduct.model.id != model_id) {
                         console.log('model của finalProduct không bằng model_id trong query')
-                        alert('ok')
                         window.location.href = '/services'
                     }
                 const formData = new FormData();
@@ -126,7 +124,6 @@ export default function ChooseDiamond() {
                 setLoading(false)
             } else {
                 console.log('không có finalProduct trong local storage')
-                alert('ok')
                 window.location.href = '/services'
             }
         }
@@ -184,17 +181,25 @@ export default function ChooseDiamond() {
         //goi api lay diamond
 
         const diamond_data = await get_diamond_list(formData);
-        const newDiamond = diamond_data.data[0];
-        setSearchedDiamond(newDiamond)
-        setDiamondImage(newDiamond.imageUrl);
-        setIsSearch(true);
+        if (diamond_data.success) {
+            const newDiamond = diamond_data.data[0];
+
+            setSearchedDiamond(newDiamond)
+            setDiamondImage(newDiamond.imageUrl);
+            setIsSearch(true);
+        } else {
+            setSearchedDiamond(null)
+            setDiamondImage(null);
+            setIsSearch(false);
+        }
+
         setLoadingDiamond(false);
     }
     const showAlert = () => {
         Swal.fire({
-            title: 'Cảnh Cáo 1 Lần Thôi',
-            text: "Chọn Đủ Thông Tin Để Đi Tiếp Bro ơi",
-            icon: 'error',
+            title: 'Unable To Proceed',
+            text: "Please search for a specific diamond!",
+            icon: 'info',
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'OK'
@@ -208,7 +213,6 @@ export default function ChooseDiamond() {
         let finalProduct = JSON.parse(localStorage.getItem('finalProduct'));
         if (!finalProduct || !searchedDiamond) {
             console.log('không có finalProduct trong local storage hoặc có finalProduct mà không có diamond_search ở bước submit diamond')
-            alert('ok')
             window.location.href = '/services'
         }
         finalProduct.diamond_shape = selectedShape;
@@ -231,8 +235,10 @@ export default function ChooseDiamond() {
 
     return (
         <div className="flex flex-col items-center" >
-            <h1 className="md:text-3xl xs:text-xl mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Diamond Details</h1>
-            <p className="text-light mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Choose detailed informations for your diamond</p>
+            {/* <h1 className="md:text-3xl xs:text-xl mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Diamond Details</h1>
+            <p className="text-light mt-5 mb-5 font-semibold font-loraFont text-[#151542]">Choose detailed informations for your diamond</p> */}
+            <p className="text-2xl text-[#151542] font-loraFont font-medium">Choose A Diamond</p>
+            <p className="text-xs md:w-1/3 xs:h-1/5 text-center text-[#151542] font-gantariFont font-medium">Search hundreds of settings to find the perfect ring. Styles range from solitaire to vintage-inspired to everything in between, now including settings designed for Men’s Engagement. Start designing your own custom  with handcrafted  settings built to last a lifetime.</p>
             {loading ?
                 <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
                     <CircularProgress color="inherit" />
