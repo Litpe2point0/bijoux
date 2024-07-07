@@ -101,7 +101,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -288,7 +288,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -300,12 +300,12 @@ class OrderController extends Controller
         $account = DB::table('account')->where('id', $account_id)->first();
         if ($account->deactivated) {
             return response()->json([
-                'error' => 'The Selected Customer Account Has Been Deactivated'
+                'error' => 'The selected customer account has been deactivated'
             ], 403);
         } else {
             if (!$account->status) {
                 return response()->json([
-                    'error' => 'The Selected Customer Account Hasn\'t Been Activated'
+                    'error' => 'The selected customer account hasn\'t been activated'
                 ], 403);
             }
         }
@@ -315,12 +315,12 @@ class OrderController extends Controller
             $model = DB::table('model')->where('id', $input['model_id'])->first();
             if ($model == null) {
                 return response()->json([
-                    'error' => 'The Selected Model Doesn\'t Exist'
+                    'error' => 'The selected model doesn\'t exist'
                 ], 403);
             }
             if ($model->deactivated == 1) {
                 return response()->json([
-                    'error' => 'The Selected Model Has Been Deactivate'
+                    'error' => 'The selected model has been deactivate'
                 ], 403);
             }
             $model_diamond = DB::table('model_diamond')->where('model_id', $model->id)->get();
@@ -328,12 +328,12 @@ class OrderController extends Controller
             if ($metal_1 == null) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'Unsuccessful (No Main Metal Found)'
+                    'error' => 'Unsuccessful (no main metal found)'
                 ], 403);
             } else if ($metal_1->deactivated == true) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'An Items That Is Include In This Model Is Currently Deactivated'
+                    'error' => 'An items that is include in this model is currently deactivated'
                 ], 403);
             } else {
                 $metal_1_id = $metal_1->id;
@@ -344,7 +344,7 @@ class OrderController extends Controller
             } else if ($metal_2->deactivated == true) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'An Items That Is Include In This Model Is Currently Deactivated'
+                    'error' => 'An items that is include in this model is currently deactivated'
                 ], 403);
             } else {
                 $metal_2_id = $metal_2->id;
@@ -352,7 +352,7 @@ class OrderController extends Controller
             $destinationPath = public_path('image/Final_Template/' . $input['model_id'] . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $input['diamond_shape_id']);
             if (!file_exists($destinationPath)) {
                 return response()->json([
-                    'error' => 'Product Is Not Available'
+                    'error' => 'Product is not available'
                 ], 403);
             }
             $imageUrl = 'main.jpg';
@@ -382,14 +382,14 @@ class OrderController extends Controller
             $model_metal1 = DB::table('model_metal')->where('metal_id', $metal_1->id)->where('model_id', $input['model_id'])->where('is_main', 1)->first();
             if ($model_metal1 == null) {
                 return response()->json([
-                    'error' => 'The Selected Template Doesn\'t Contain The Selected Main Metal'
+                    'error' => 'The selected template doesn\'t contain the selected main metal'
                 ], 403);
             }
             if ($metal_2 != null) {
                 $model_metal2 = DB::table('model_metal')->where('metal_id', $metal_2->id)->where('model_id', $input['model_id'])->where('is_main', 0)->first();
                 if ($model_metal2 == null) {
                     return response()->json([
-                        'error' => 'The Selected Template Doesn\'t Contain The Selected Secondary Metal'
+                        'error' => 'The selected template doesn\'t contain the selected secondary metal'
                     ], 403);
                 }
             }
@@ -436,13 +436,13 @@ class OrderController extends Controller
                     if ($diamond == null) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'The Selected Diamond Doesn\'t Exist'
+                            'error' => 'The selected diamond doesn\'t exist'
                         ], 403);
                     }
                     if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'An Items That Is Include In This Model Is Currently Deactivated'
+                            'error' => 'An items that is include in this model is currently deactivated'
                         ], 403);
                     }
                     $product_diamond->product_id = $product->id;
@@ -458,13 +458,13 @@ class OrderController extends Controller
                     if ($diamond == null) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'The Selected Diamond Doesn\'t Exist'
+                            'error' => 'The selected diamond doesn\'t exist'
                         ], 403);
                     }
                     if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'An Items That Is Include In This Model Is Currently Deactivated'
+                            'error' => 'An items that is include in this model is currently deactivated'
                         ], 403);
                     }
                     $product_diamond->product_id = $product->id;
@@ -498,7 +498,7 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
-            'success' => 'Order Succesfully Created',
+            'success' => 'Order succesfully created',
         ]);
     }
     public function reassign_order(Request $request) //
@@ -515,19 +515,19 @@ class OrderController extends Controller
             if ($order->order_status_id >= 4 && $order->order_status_id < 6) {
                 DB::rollback();
                 return response()->json([
-                    'error' => 'The Selected Order Can No Longer Be Reassigned'
+                    'error' => 'The selected order can no longer be reassigned'
                 ], 403);
             }
             if ($order->order_status_id == 6) {
                 DB::rollback();
                 return response()->json([
-                    'error' => 'The Selected Order Has Already Been Completed'
+                    'error' => 'The selected order has already been completed'
                 ], 403);
             }
             if ($order->order_status_id == 7) {
                 DB::rollback();
                 return response()->json([
-                    'error' => 'The Selected Order Has Already Been Cancelled'
+                    'error' => 'The selected order has already been cancelled'
                 ], 403);
             }
             $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : $order->saleStaff_id;
@@ -548,33 +548,33 @@ class OrderController extends Controller
             if ($sale_staff != null) {
                 if ($sale_staff->role_id != '2') {
                     return response()->json([
-                        'error' => 'The Selected Sale Staff Account Is Not a Sale Staff'
+                        'error' => 'The selected sale staff account is not a sale staff'
                     ], 403);
                 } else if ($sale_staff->deactivated) {
                     return response()->json([
-                        'error' => 'The Selected Sale Staff Account Has Been Deactivated'
+                        'error' => 'The selected sale staff account has been deactivated'
                     ], 403);
                 }
             }
             if ($design_staff != null) {
                 if ($design_staff->role_id != '3') {
                     return response()->json([
-                        'error' => 'The Selected Design Staff Account Is Not a Design Staff'
+                        'error' => 'The selected design staff account is not a design staff'
                     ], 403);
                 } else if ($design_staff->deactivated) {
                     return response()->json([
-                        'error' => 'The Selected Design Staff Account Has Been Deactivated'
+                        'error' => 'The selected design staff account has been deactivated'
                     ], 403);
                 }
             }
             if ($production_staff != null) {
                 if ($production_staff->role_id != '4') {
                     return response()->json([
-                        'error' => 'The Selected Production Staff Account Is Not a Production Staff'
+                        'error' => 'The selected production staff account is not a production staff'
                     ], 403);
                 } else if ($production_staff->deactivated) {
                     return response()->json([
-                        'error' => 'The Selected Production Staff Account Has Been Deactivated'
+                        'error' => 'The selected production staff account has been deactivated'
                     ], 403);
                 }
             }
@@ -597,7 +597,7 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
-            'success' => 'Successfully Reassign'
+            'success' => 'Successfully reassign'
         ], 201);
     }
     public function cancel_order(Request $request)
@@ -620,7 +620,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -632,7 +632,7 @@ class OrderController extends Controller
         $account = Account::find($id);
         if ($account->role_id != 1 && $account->role_id != 5) {
             return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
+                'error' => 'Invalid user (User is unauthorized)'
             ], 500);
         }
         DB::beginTransaction();
@@ -640,12 +640,12 @@ class OrderController extends Controller
             $order = DB::table('orders')->where('id', $input['order_id'])->first();
             if ($order->order_status_id == 6) {
                 return response()->json([
-                    'error' => 'Order Has Already Been Completed, Action Can\'t Be Performed'
+                    'error' => 'Order has already been completed, action can\'t be performed'
                 ], 403);
             }
             if ($order->order_status_id == 7) {
                 return response()->json([
-                    'error' => 'Order Has Already Been Cancelled, Action Can\'t Be Performed'
+                    'error' => 'Order has already been cancelled, action can\'t be performed'
                 ], 403);
             }
             DB::table('orders')->where('id', $input['order_id'])->update([
@@ -661,7 +661,7 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
-            'success' => 'Cancel Successfully'
+            'success' => 'Cancel successfully'
         ], 201);
     }
     public function get_order_status_list()
@@ -690,7 +690,7 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order == null) {
             return response()->json([
-                'error' => 'The Selected Doesn\'t Exist'
+                'error' => 'The selected doesn\'t exist'
             ], 403);
         }
         $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
@@ -854,7 +854,7 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order == null) {
             return response()->json([
-                'error' => 'The Selected Doesn\'t Exist'
+                'error' => 'The selected doesn\'t exist'
             ], 403);
         }
         $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
@@ -1133,7 +1133,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -1146,7 +1146,7 @@ class OrderController extends Controller
         $account = Account::find($input);
         if ($account->role_id != 2) {
             return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
+                'error' => 'Invalid user (User is unauthorized)'
             ], 500);
         }
         $template_order_list = DB::table('orders')->where('order_type_id', 1)->orderby('order_status_id', 'asc')->get();
@@ -1237,7 +1237,7 @@ class OrderController extends Controller
         $account = Account::find($input);
         if ($account->role_id != 3) {
             return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
+                'error' => 'Invalid user (User is unauthorized)'
             ], 500);
         }
         $order_list = DB::table('orders')->whereNotNull('designStaff_id')->where('designStaff_id', $input)->get();
@@ -1300,7 +1300,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -1313,7 +1313,7 @@ class OrderController extends Controller
         $account = Account::find($input);
         if ($account->role_id != 4) {
             return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
+                'error' => 'Invalid user (User is unauthorized)'
             ], 500);
         }
         $template_order_list = DB::table('orders')->whereNotNull('productionStaff_id')->where('productionStaff_id', $input)->where('order_status_id', 3)->where('order_type_id', 1)->get();
@@ -1426,7 +1426,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -1439,7 +1439,7 @@ class OrderController extends Controller
         $account = Account::find($input);
         if ($account->role_id != 4) {
             return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
+                'error' => 'Invalid user (User is unauthorized)'
             ], 500);
         }
         $data1 = collect();
@@ -1582,7 +1582,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -1594,7 +1594,7 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input['order_id'])->first();
         if ($order->designStaff_id != $id) {
             return response()->json([
-                'error' => 'Your Account Isn\'t Assigned To The Selected Order'
+                'error' => 'Your account isn\'t assigned to the selected order'
             ], 403);
         }
 
@@ -1606,7 +1606,7 @@ class OrderController extends Controller
                 if ($diamond->status == 0) {
                     DB::rollBack();
                     return response()->json([
-                        'error' => 'There Are Already a Design Process In The Middle Of checking'
+                        'error' => 'There are already a design process in the middle of checking'
                     ], 403);
                 }
             }
@@ -1614,7 +1614,7 @@ class OrderController extends Controller
                 if ($metal->status == 0) {
                     DB::rollBack();
                     return response()->json([
-                        'error' => 'There Are Already a Design Process In The Middle Of checking'
+                        'error' => 'There are already a design process in the middle of checking'
                     ], 403);
                 }
             }
@@ -1625,7 +1625,7 @@ class OrderController extends Controller
                     if ($diamond->deactivated) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'One Of The Selected Diamond Is Currently Deactivated'
+                            'error' => 'One of the selected diamond is currently deactivated'
                         ], 403);
                     }
                     $diamond = DB::table('diamond')->where('id', $diamond1['diamond']['id'])->first();
@@ -1647,7 +1647,7 @@ class OrderController extends Controller
                     if ($metal->deactivated) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'One Of The Selected Metal Is Currently Deactivated'
+                            'error' => 'One of the selected metal is currently deactivated'
                         ], 403);
                     }
                     $metal = DB::table('metal')->where('id', $metal1['metal']['id'])->first();
@@ -1710,7 +1710,7 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
-            'success' => 'Request Design Process Successfully'
+            'success' => 'Request design process successfully'
         ], 201);
     }
     public function pricing_design_process(Request $request)
@@ -1733,22 +1733,22 @@ class OrderController extends Controller
         $design_process = DB::table('design_process')->where('id', $input['design_process_id'])->first();
         if ($design_process == null) {
             return response()->json([
-                'error' => 'The Selected Design Process Doesn\'t Exist'
+                'error' => 'The selected design process doesn\'t exist'
             ], 403);
         }
         if ($design_process->design_process_status_id == 2) {
             return response()->json([
-                'error' => 'The Selected Design Process Has Already Been Priced'
+                'error' => 'The selected design process has already been priced'
             ], 403);
         }
         if ($design_process->design_process_status_id == 3) {
             return response()->json([
-                'error' => 'The Selected Design Process Has Already Been Completed'
+                'error' => 'The selected design process has already been completed'
             ], 403);
         }
         if ($design_process->design_process_status_id >= 4) {
             return response()->json([
-                'error' => 'The Selected Design Process Has Already Been Cancelled'
+                'error' => 'The selected design process has already been cancelled'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -1762,7 +1762,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -1774,7 +1774,7 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $design_process->order_id)->first();
         if ($order->saleStaff_id != $id) {
             return response()->json([
-                'error' => 'Your Account Isn\'t Assigned To The Selected Order'
+                'error' => 'Your account isn\'t assigned to the selected order'
             ], 403);
         }
         DB::beginTransaction();
@@ -1795,7 +1795,7 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
-            'success' => 'Successfully Price Design Process'
+            'success' => 'Successfully price design process'
         ], 201);
     }
     public function approve_design_process(Request $request)
@@ -1811,22 +1811,22 @@ class OrderController extends Controller
             $design_process = DB::table('design_process')->where('id', $input['design_process_id'])->first();
             if ($design_process == null) {
                 return response()->json([
-                    'error' => 'The Selected Design Process Doesn\'t Exist'
+                    'error' => 'The selected design process doesn\'t exist'
                 ], 403);
             }
             if ($design_process->design_process_status_id < 2) {
                 return response()->json([
-                    'error' => 'The Selected Design Process Hasn\'t Been Priced'
+                    'error' => 'The selected design process hasn\'t been priced'
                 ], 403);
             }
             if ($design_process->design_process_status_id == 3) {
                 return response()->json([
-                    'error' => 'The Selected Design Process Has Already Been Approved'
+                    'error' => 'The selected design process has already been approved'
                 ], 403);
             }
             if ($design_process->design_process_status_id == 4) {
                 return response()->json([
-                    'error' => 'The Selected Design Process Has Already Been Cancelled'
+                    'error' => 'The selected design process has already been cancelled'
                 ], 403);
             }
             $order = DB::table('orders')->where('id', $design_process->order_id)->first();
@@ -1950,7 +1950,7 @@ class OrderController extends Controller
                 ]);
                 DB::commit();
                 return response()->json([
-                    'success' => 'Decline Design Process Successfully'
+                    'success' => 'Decline design process successfully'
                 ], 200);
             }
             DB::commit();
@@ -1959,7 +1959,7 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
-            'success' => 'Design Process Approve Successfully'
+            'success' => 'Design process approve successfully'
         ], 200);
     }
     // public function cancel_design_process(Request $request)
@@ -2001,7 +2001,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -2030,7 +2030,7 @@ class OrderController extends Controller
             }
         } else {
             return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
+                'error' => 'Invalid user (User is unauthorized)'
             ], 500);
         }
 
@@ -2076,7 +2076,7 @@ class OrderController extends Controller
         $design_process = DB::table('design_process')->where('id', $input)->first();
         if ($design_process == null) {
             return response()->json([
-                'error' => 'The selected Design Process doesn\'t exist'
+                'error' => 'The selected design process doesn\'t exist'
             ], 403);
         }
         $design_process->created = Carbon::parse($design_process->created)->format('H:i:s d/m/Y');
@@ -2254,86 +2254,86 @@ class OrderController extends Controller
             'design_process' => $design_process
         ]);
     }
-    public function add_design_updating(Request $request)
-    {
-        $input = json_decode($request->input('new_design_updating'), true);
-        if (!isset($input) || $input == null) {
-            return response()->json([
-                'error' => 'No input received'
-            ], 403);
-        }
-        $authorizationHeader = $request->header('Authorization');
-        $token = null;
+    // public function add_design_updating(Request $request)
+    // {
+    //     $input = json_decode($request->input('new_design_updating'), true);
+    //     if (!isset($input) || $input == null) {
+    //         return response()->json([
+    //             'error' => 'No input received'
+    //         ], 403);
+    //     }
+    //     $authorizationHeader = $request->header('Authorization');
+    //     $token = null;
 
-        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
-            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
-            try {
-                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-            } catch (JWTException $e) {
-                try {
-                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
-                } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
-                }
-            }
-        }
-        try {
-            $id = $decodedToken['id'];
-        } catch (Throwable $e) {
-            $id = $decodedToken->id;
-        }
-        $order = DB::table('orders')->where('id', $input['order_id'])->first();
-        if ($order->designStaff_id != $id) {
-            return response()->json([
-                'error' => 'Your Account Isn\'t Assigned To The Selected Order'
-            ], 403);
-        }
+    //     if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+    //         $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+    //         try {
+    //             $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+    //         } catch (JWTException $e) {
+    //             try {
+    //                 $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+    //             } catch (\Exception $e) {
+    //                 return response()->json(['error' => 'Invalid token'], 401);
+    //             }
+    //         }
+    //     }
+    //     try {
+    //         $id = $decodedToken['id'];
+    //     } catch (Throwable $e) {
+    //         $id = $decodedToken->id;
+    //     }
+    //     $order = DB::table('orders')->where('id', $input['order_id'])->first();
+    //     if ($order->designStaff_id != $id) {
+    //         return response()->json([
+    //             'error' => 'Your account isn\'t assigned to the selected order'
+    //         ], 403);
+    //     }
 
-        DB::beginTransaction();
-        try {
-            $id = DB::table('design_updating')->insertGetId([
-                'order_id' => $input['order_id'],
-                'imageUrl' => "",
-                'created' => Carbon::now()->format('Y-m-d H:i:s')
-            ]);
-            if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
-                $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                $destinationPath = public_path('image/Job/design_updating/' . $input['order_id']);
-                if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0755, true);
-                }
-                $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
-                file_put_contents($destinationPath . '/' . $fileName, $fileData);
-                DB::table('design_updating')->where('id', $id)->update([
-                    'imageUrl' => $fileName
-                ]);
-            }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-        return response()->json([
-            'success' => 'Successfully Added'
-        ]);
-    }
-    public function get_design_updating_list(Request $request)
-    {
-        $input = json_decode($request->input('order_id'), true);
-        if (!isset($input) || $input == null) {
-            return response()->json([
-                'error' => 'No input received'
-            ], 403);
-        }
-        $list = DB::table('design_updating')->where('order_id', $input)->get();
-        $list->map(function ($list) {
-            $list->created = Carbon::parse($list->created)->format('H:i:s d/m/Y');
-            return $list;
-        });
-        return response()->json(
-            $list
-        );
-    }
+    //     DB::beginTransaction();
+    //     try {
+    //         $id = DB::table('design_updating')->insertGetId([
+    //             'order_id' => $input['order_id'],
+    //             'imageUrl' => "",
+    //             'created' => Carbon::now()->format('Y-m-d H:i:s')
+    //         ]);
+    //         if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
+    //             $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
+    //             $destinationPath = public_path('image/Job/design_updating/' . $input['order_id']);
+    //             if (!file_exists($destinationPath)) {
+    //                 mkdir($destinationPath, 0755, true);
+    //             }
+    //             $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
+    //             file_put_contents($destinationPath . '/' . $fileName, $fileData);
+    //             DB::table('design_updating')->where('id', $id)->update([
+    //                 'imageUrl' => $fileName
+    //             ]);
+    //         }
+    //         DB::commit();
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    //     return response()->json([
+    //         'success' => 'Successfully added'
+    //     ]);
+    // }
+    // public function get_design_updating_list(Request $request)
+    // {
+    //     $input = json_decode($request->input('order_id'), true);
+    //     if (!isset($input) || $input == null) {
+    //         return response()->json([
+    //             'error' => 'No input received'
+    //         ], 403);
+    //     }
+    //     $list = DB::table('design_updating')->where('order_id', $input)->get();
+    //     $list->map(function ($list) {
+    //         $list->created = Carbon::parse($list->created)->format('H:i:s d/m/Y');
+    //         return $list;
+    //     });
+    //     return response()->json(
+    //         $list
+    //     );
+    // }
     public function get_production_status_list()
     {
         return response()->json(
@@ -2354,22 +2354,22 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input['order_id'])->first();
         if ($order == null) {
             return response()->json([
-                'error' => 'The Selected Order Doesn\'t Exist'
+                'error' => 'The selected order doesn\'t exist'
             ], 403);
         }
         if ($order->order_status_id < 3) {
             return response()->json([
-                'error' => 'The Selected Order Isn\'t Ready For Production'
+                'error' => 'The selected order isn\'t ready for production'
             ], 403);
         }
         if ($order->order_status_id > 3 && $order->order_status_id < 7) {
             return response()->json([
-                'error' => 'The Selected Order Has Already Been Produce'
+                'error' => 'The selected order has already been produce'
             ], 403);
         }
         if ($order->order_status_id == 7) {
             return response()->json([
-                'error' => 'The Selected Order Has Already Been Cancelled'
+                'error' => 'The selected order has already been cancelled'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -2383,7 +2383,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -2394,7 +2394,7 @@ class OrderController extends Controller
         }
         if ($order->productionStaff_id != $id) {
             return response()->json([
-                'error' => 'Your Account Isn\'t Assigned To The Selected Order'
+                'error' => 'Your account isn\'t assigned to the selected order'
             ], 403);
         }
         DB::beginTransaction();
@@ -2406,7 +2406,7 @@ class OrderController extends Controller
                 if ($input['production_status_id'] == 6) {
                     if (empty($input['imageUrl'])) {
                         return response()->json([
-                            'error' => 'An Image Is Needed For The Final Status'
+                            'error' => 'An image is needed for the final status'
                         ], 403);
                     }
                 }
@@ -2433,7 +2433,7 @@ class OrderController extends Controller
                 ]);
             } else {
                 return response()->json([
-                    'error' => 'Production Status Can\'t Be 2 Status Higher Than The Previous Status'
+                    'error' => 'You can\'t skip a production status'
                 ], 403);
             }
             DB::commit();
@@ -2442,7 +2442,7 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
-            'success' => 'Production Process Successfully Added'
+            'success' => 'Production process successfully added'
         ], 201);
     }
     public function get_production_process_list(Request $request)
@@ -2480,7 +2480,7 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order == null) {
             return response()->json([
-                'error' => 'The Selected Order Doesn\'t Exist'
+                'error' => 'The selected order doesn\'t exist'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -2494,7 +2494,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -2505,7 +2505,7 @@ class OrderController extends Controller
         }
         if ($order->productionStaff_id != $id) {
             return response()->json([
-                'error' => 'Your Account Isn\'t Assigned To The Selected Order'
+                'error' => 'Your account isn\'t assigned to the selected order'
             ], 403);
         }
         DB::beginTransaction();
@@ -2546,11 +2546,11 @@ class OrderController extends Controller
 
                 DB::commit();
                 return response()->json([
-                    'success' => 'Production Complete'
+                    'success' => 'Production complete'
                 ]);
             } else {
                 return response()->json([
-                    'error' => 'The Condition To Complete The Order Hasn\'t Met'
+                    'error' => 'The condition to complete the order hasn\'t met'
                 ], 403);
             }
         } catch (\Exception $e) {
@@ -2587,7 +2587,7 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input['order_id'])->first();
         if ($order == null) {
             return response()->json([
-                'error' => 'The Selected Order Doesn\'t Exist'
+                'error' => 'The selected order doesn\'t exist'
             ], 403);
         }
         if ($order->order_status_id == 1) {
@@ -2728,7 +2728,7 @@ class OrderController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Transaction Complete'
+            'success' => 'Transaction complete'
         ], 200);
     }
     public function generatePDF($orderCode)
@@ -2861,7 +2861,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -2915,7 +2915,7 @@ class OrderController extends Controller
             });
         } else {
             return response()->json([
-                'error' => 'You Don\'t Have Permission To Access This Page'
+                'error' => 'You don\'t have permission to access this page'
             ], 403);
         }
         return response()->json(
@@ -2941,7 +2941,7 @@ class OrderController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -2953,12 +2953,12 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order->account_id != $id) {
             return response()->json([
-                'error' => 'The Selected Order Isn\'t Your Order'
+                'error' => 'The selected order isn\'t your order'
             ], 403);
         }
         if ($order->order_status_id != 5) {
             return response()->json([
-                'error' => 'The Selected Order Isn\'t Being Deliver'
+                'error' => 'The selected order isn\'t being deliver'
             ], 403);
         }
         DB::beginTransaction();
@@ -3056,12 +3056,12 @@ class OrderController extends Controller
         $order = DB::table('orders')->where('id', $input)->first();
         if ($order == null) {
             return response()->json([
-                'error' => 'The Selected Order Doesn\'t Exist'
+                'error' => 'The selected order doesn\'t exist'
             ], 403);
         }
         if ($order->order_status_id != 4) {
             return response()->json([
-                'error' => 'The Selected Order Isn\'t Ready For Refund'
+                'error' => 'The selected order isn\'t ready for refund'
             ], 403);
         }
         DB::beginTransaction();
@@ -3076,7 +3076,7 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
         return response()->json([
-            'success' => 'Refund Complete'
+            'success' => 'Refund complete'
         ]);
     }
     // function generateRandomString($length)
@@ -3118,7 +3118,7 @@ class OrderController extends Controller
 
         $profit = new \stdClass();
         $temp = 0;
-        $orders2 = DB::table('orders')->whereYear('created', $year)->get();
+        $orders2 = DB::table('orders')->where('order_status_id', 6)->whereYear('created', $year)->get();
         foreach ($orders2 as $order) {
             $product_price = $order->product_price;
             $production_price = $order->production_price;
@@ -3128,7 +3128,7 @@ class OrderController extends Controller
         $profit->profit_year = $this->formatNumber($temp);
 
         $temp1 = 0;
-        $orders3 = DB::table('orders')->whereMonth('created', $month)->whereYear('created', $year)->get();
+        $orders3 = DB::table('orders')->where('order_status_id', 6)->whereMonth('created', $month)->whereYear('created', $year)->get();
         foreach ($orders3 as $order) {
             $product_price = $order->product_price;
             $production_price = $order->production_price;
@@ -3148,7 +3148,7 @@ class OrderController extends Controller
             //         $profit += $production_price + ($product_price)*(($profit_rate * 100)/100);
             //     }
             // } else {
-            $orders = DB::table('orders')->whereMonth('created', $i)->whereYear('created', $year)->get();
+            $orders = DB::table('orders')->where('order_status_id', 6)->whereMonth('created', $i)->whereYear('created', $year)->get();
             foreach ($orders as $order) {
                 $product_price = $order->product_price;
                 $production_price = $order->production_price;
@@ -3161,14 +3161,14 @@ class OrderController extends Controller
         $profit->profit_month = $profit_month->values()->all();
 
         $order = new \stdClass();
-        $order->order_year = $this->formatNumber(DB::table('orders')->whereYear('created', $year)->count());
-        $order->this_month = $this->formatNumber(DB::table('orders')->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $order->order_year = $this->formatNumber(DB::table('orders')->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
+        $order->this_month = $this->formatNumber(DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
         $order_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $order_count = DB::table('orders')->whereMonth('created', $i)->whereYear('created', $year)->count();
+            $order_count = DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
             // }
             $order_month->push($order_count);
         }
@@ -3202,28 +3202,28 @@ class OrderController extends Controller
         $order_delivery->delivery_count = $order_delivery_count;
 
         $order_template = new \stdClass();
-        $order_template->order_template_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereYear('created', $year)->count());
-        $order_template->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $order_template->order_template_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
+        $order_template->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
         $order_template_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $order_count = DB::table('orders')->where('order_type_id', 1)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            $order_count = DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
             // }
             $order_template_month->push($order_count);
         }
         $order_template->order_template_month = $order_template_month->values()->all();
 
         $order_customize = new \stdClass();
-        $order_customize->order_customize_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereYear('created', $year)->count());
-        $order_customize->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        $order_customize->order_customize_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
+        $order_customize->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
         $order_customize_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $order_count = DB::table('orders')->where('order_type_id', 2)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            $order_count = DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
             // }
             $order_customize_month->push($order_count);
         }
@@ -3259,31 +3259,33 @@ class OrderController extends Controller
 
         // Round to 1 decimal place
         $number = round($number, 1);
+        $formatted_order_count = (floor($number) == $number) ? number_format($number, 0) : $number;
 
         // Format the number with suffix
-        return $number . $suffix;
+        return $formatted_order_count . $suffix;
     }
-    public function cancel_payment(Request $request){
+    public function cancel_payment(Request $request)
+    {
         $input = json_decode($request->input('payment_id'), true);
-        if(!isset($input) || $input == null){
+        if (!isset($input) || $input == null) {
             return response()->json([
                 'error' => 'No input received'
             ], 403);
         }
         $payment = DB::table('payment')->where('id', $input)->first();
-        if($payment->isSuccess != 0){
+        if ($payment->isSuccess != 0) {
             return response()->json([
                 'error' => 'The selected payment can\'t be cancelled'
             ], 403);
         }
         DB::beginTransaction();
-        try{
+        try {
             DB::table('payment')->where('id', $input)->update([
                 'isSuccess' => 2
             ]);
             DB::commit();
             return response()->json([
-                'success' => 'Payment Cancelled Successfully'
+                'success' => 'Payment cancelled successfully'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

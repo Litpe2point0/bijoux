@@ -276,6 +276,7 @@ class AccountController extends Controller
         //modify account imageUrl
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
+        //https://fast-scorpion-strictly.ngrok-free.app/image/account/{$account->id}/{$account->imageUrl}
         if (!$account->google_id) {
             $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
         }
@@ -571,7 +572,7 @@ class AccountController extends Controller
             } else {
                 $account->dob = null;
             }
-            if (!empty($input['phone'])) {
+            if (!isset($input['phone'])) {
                 $account->phone = $input['phone'];
             }
             //save new account
