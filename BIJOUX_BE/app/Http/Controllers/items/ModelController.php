@@ -10,10 +10,12 @@ use App\Models\items\Model_Diamond;
 use App\Models\items\Model_DiamondShape;
 use App\Models\items\Model_Metal;
 use Illuminate\Support\Facades\File;
+use PHPUnit\Framework\Constraint\IsTrue;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use PhpParser\Node\Stmt\If_;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Throwable;
 
@@ -123,15 +125,19 @@ class ModelController extends Controller
                     }
                 }
                 foreach ($main_metal_ids as $metal) {
+                    $check3 = false;
                     $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
                     foreach ($metalCompatibilities1 as $compatibility2) {
                         foreach ($notmain_metal_ids as $metal2) {
-                            if ($compatibility2->Metal_id_2 != $metal2) {
-                                return response()->json([
-                                    'error' => 'Metal compatibility error'
-                                ], 403);
+                            if ($compatibility2->Metal_id_2 == $metal2) {
+                                $check3 = true;
                             }
                         }
+                    }
+                    if (!$check3) {
+                        return response()->json([
+                            'error' => 'Metal compatibility error'
+                        ], 403);
                     }
                 }
             }
@@ -291,13 +297,58 @@ class ModelController extends Controller
         $models = DB::table('model')->whereIn('id', $modelIds)->where('isAvailable', true)->get();
         if (in_array($role_id, [2, 3, 4, 5])) {
             foreach ($models as $model) {
-                $isValid = false; {
-                    $modelMetals = DB::table('model_metal')->where('model_id', $model->id)->get();
-                    foreach ($modelMetals as $modelMetal) {
-                        $metal = DB::table('metal')->where('id', $modelMetal->metal_id)->first();
-                        if ($metal && $metal->deactivated == 0) {
+                $check = false;
+                $mm = collect();
+                $isValid = false;
+                $modelMetals = DB::table('model_metal')->where('model_id', $model->id)->get();
+                foreach ($modelMetals as $modelMetal) {
+                    $metal = DB::table('metal')->where('id', $modelMetal->metal_id)->first();
+                    if ($metal && $metal->deactivated == 0) {
+                        $mm->push($modelMetal);
+                        $isValid = true;
+                    }
+                    if ($modelMetal->is_main == 0) {
+                        $check = true;
+                    }
+                }
+                if (!$mm->isEmpty()) {
+                    $notmain_metal_ids = [];
+                    $main_metal_ids = [];
+                    foreach ($mm as $metal) {
+                        if ($metal->is_main == 0) {
+                            $notmain_metal_ids[] = $metal->metal_id;
+                        } else {
+                            $main_metal_ids[] = $metal->metal_id;
+                        }
+                    }
+                    if($main_metal_ids == null){
+                        $isValid = false;
+                        continue;
+                    }
+                    if ($check) {
+                        if($notmain_metal_ids == null){
+                            $isValid = false;
+                            continue;
+                        }
+                        $check2 = true;
+                        foreach ($main_metal_ids as $metal) {
+                            $check3 = false;
+                            $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                            foreach ($metalCompatibilities1 as $compatibility2) {
+                                foreach ($notmain_metal_ids as $metal2) {
+                                    if ($compatibility2->Metal_id_2 == $metal2) {
+                                        $check3 = true;
+                                    }
+                                }
+                            }
+                            if (!$check3) {
+                                $check2 = false;
+                            }
+                        }
+                        if($check2){
                             $isValid = true;
-                            break;
+                        } else {
+                            $isValid = false;
                         }
                     }
                 }
@@ -519,14 +570,77 @@ class ModelController extends Controller
 
         $temp = collect();
         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-        foreach ($model_metal as $metal1) {
-            $metal = DB::table('metal')->where('id', $metal1->metal_id)->first();
-            if ($role_id == 5) {
-                if ($metal->deactivated == 1) {
-                    continue;
+        if ($role_id == 5) {
+            $check = false;
+            foreach ($model_metal as $metal2) {
+                if ($metal2->is_main == 0) {
+                    $check = true;
                 }
             }
-            $temp->push($metal1);
+            if ($check) {
+                $temp3 = collect();
+                foreach ($model_metal as $metal1) {
+                    $metal = DB::table('metal')->where('id', $metal1->metal_id)->first();
+                    if ($metal->deactivated == 1) {
+                        continue;
+                    }
+                    $temp3->push($metal1);
+                }
+                $notmain_metal_ids = [];
+                $main_metal_ids = [];
+                foreach ($temp3 as $metal) {
+                    if ($metal->is_main == 0) {
+                        $notmain_metal_ids[] = $metal->metal_id;
+                    } else {
+                        $main_metal_ids[] = $metal->metal_id;
+                    }
+                }
+                if ($notmain_metal_ids == null || $main_metal_ids == null) {
+                    return response()->json([
+                        'error' => 'The selected model isn\'t available'
+                    ], 403);
+                }
+                foreach ($main_metal_ids as $metal) {
+                    $check3 = false;
+                    $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                    foreach ($metalCompatibilities1 as $compatibility2) {
+                        foreach ($notmain_metal_ids as $metal2) {
+                            if ($compatibility2->Metal_id_2 == $metal2) {
+                                $mm2 = DB::table('model_metal')->where('model_id', $model->id)->where('metal_id', $metal2)->where('is_main', 0)->first();
+                                $temp->push($mm2);
+                                $check3 = true;
+                            }
+                        }
+                    }
+                    if (!$check3) {
+                        return response()->json([
+                            'error' => 'Metal compatibility error'
+                        ], 403);
+                    } else {
+                        $mm1 = DB::table('model_metal')->where('model_id', $model->id)->where('metal_id', $metal)->where('is_main', 1)->first();
+                        $temp->push($mm1);
+                    }
+                }
+            } else {
+                foreach ($model_metal as $metal1) {
+                    $metal = DB::table('metal')->where('id', $metal1->metal_id)->first();
+                    if ($metal->deactivated == 1) {
+                        continue;
+                    }
+                    $temp->push($metal1);
+                }
+            }
+            // foreach ($model_metal as $metal1) {
+            //     $metal = DB::table('metal')->where('id', $metal1->metal_id)->first();
+            //     if ($metal->deactivated == 1) {
+            //         continue;
+            //     }
+            //     $temp->push($metal1);
+            // }
+        } else {
+            foreach ($model_metal as $metal1) {
+                $temp->push($metal1);
+            }
         }
         $temp->map(function ($model_metal) {
             // $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
@@ -543,7 +657,12 @@ class ModelController extends Controller
             // }
             return $model_metal;
         });
-        $model->model_metal = $temp;
+        if ($temp->isEmpty() && $role_id == 5) {
+            return response()->json([
+                'error' => 'The selected model isn\'t available'
+            ], 403);
+        }
+        $model->model_metal = $temp->values()->all();
         $model->imageUrl = $OGurl . $Murl . $model->id . '/' . $model->imageUrl;
 
         return response()->json([
@@ -787,15 +906,19 @@ class ModelController extends Controller
                         }
                     }
                     foreach ($main_metal_ids as $metal) {
+                        $check3 = false;
                         $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
                         foreach ($metalCompatibilities1 as $compatibility2) {
                             foreach ($notmain_metal_ids as $metal2) {
-                                if ($compatibility2->Metal_id_2 != $metal2) {
-                                    return response()->json([
-                                        'error' => 'Metal compatibility error'
-                                    ], 403);
+                                if ($compatibility2->Metal_id_2 == $metal2) {
+                                    $check3 = true;
                                 }
                             }
+                        }
+                        if (!$check3) {
+                            return response()->json([
+                                'error' => 'Metal compatibility error'
+                            ], 403);
                         }
                     }
                 }

@@ -454,6 +454,11 @@ class MetalController extends Controller
                 }
             }
         }
+        if($data->isEmpty()){
+            return response()->json([
+                'error' => 'No compatibility metal found'
+            ], 403);
+        }
         return response()->json(
             $data
         );
