@@ -1,0 +1,11 @@
+.instagram-icon-gradient {
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(255, 255, 255, 0));
+  background-image: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  /* For smoother gradient */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

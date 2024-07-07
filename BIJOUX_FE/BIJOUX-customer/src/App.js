@@ -70,6 +70,7 @@ const router = createBrowserRouter(
         {/* ==================== Header Navlink Start here =================== */}
         <Route index element={<Home />}></Route>
         <Route path="/shop" element={<Shop />}></Route>
+        <Route path="/about" element={<About />}></Route>
         <Route path="/services" element={<Services />}></Route>
         <Route path="/template" element={<Template />}></Route>
         <Route path="/mounting-detail/:id" element={<MountingDetail />}></Route>
