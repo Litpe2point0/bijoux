@@ -19,11 +19,12 @@ import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import { CircularProgress, TextField } from "@mui/material";
-import { getUserFromPersist, instantAlertMaker, loginRequiredAlert } from "../../../api/instance/axiosInstance";
+import { getTokenFromPersist, getUserFromPersist, instantAlertMaker, loginRequiredAlert } from "../../../api/instance/axiosInstance";
 import { save_login } from "../../Account/Login";
 import { getUserFromToken } from "../../../api/main/accounts/Login";
-import { update_self } from "../../../api/main/accounts/Account_api";
+import { get_update_account_detail, update_self } from "../../../api/main/accounts/Account_api";
 import { useDispatch } from "react-redux";
+import Swal from "sweetalert2";
 
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = numeral(value).format('0,0') + " VND";
@@ -140,6 +141,8 @@ export default function CompleteRing() {
         window.location.href = '/template?step=2&mountingType=' + checkoutProduct.mounting_type.id + '&model_id=' + checkoutProduct.model_id;
     }
 
+
+
     const handleRestart = () => {
         const mounting_type = JSON.parse(localStorage.getItem('mountingType'));
         window.location.href = `/template?step=1&mountingType=${mounting_type.id}`;
@@ -170,7 +173,19 @@ export default function CompleteRing() {
                 save_login(dispatch, token, user)
                 setLoadingUpdateSelf(false)
                 setCheckPhoneAndAddress(false);
-                return instantAlertMaker('success', 'Success', 'Your Account Has Been Updated');
+                return (
+                    Swal.fire({
+                        title: 'Success',
+                        html: "Your Account Infomation Has Been Update <br>*Phone Number: " + phone + '<br>*Address: ' + address,
+                        icon: "success",
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Got It',
+                        customClass: {
+                            popup: 'swal2-custom-zindex'
+                        }
+                    })
+                );
             } else {
                 setLoadingUpdateSelf(false)
                 return instantAlertMaker('error', 'Error', 'Token Error');
@@ -179,12 +194,27 @@ export default function CompleteRing() {
     }
     const handleOrderAdding = async () => {
         setLoadingComplete(true);
-        const account = getUserFromPersist();
+        let account =  getUserFromPersist();
+        if (!account) {
+            return loginRequiredAlert();
+        }
+        const formData_update_account_detail = new FormData();
+        formData_update_account_detail.append('account_id', account.id);
+
+        const response_update_account_detail = await get_update_account_detail(formData_update_account_detail, "Get Account Detail", true);
+        if (response_update_account_detail.success) {
+            const user = response_update_account_detail.data.account_detail;
+            account= user;
+        } else {
+            return loginRequiredAlert();
+        }
         if (!account) {
             return loginRequiredAlert();
         } else if (account && (!account.phone || !account.email)) {
             setLoadingComplete(false)
             return setCheckPhoneAndAddress(true);
+        } else {
+            setCheckPhoneAndAddress(false);
         }
 
         const finalProduct = JSON.parse(localStorage.getItem('finalProduct'));
@@ -213,10 +243,13 @@ export default function CompleteRing() {
             localStorage.removeItem('finalProduct');
             setLoading(2);
             // navigate('/services');
+        }else{
+            setLoading(3)
         }
         setLoadingComplete(false);
     }
 
+    
     return (
         <div className="flex flex-col items-center text-[#151542] mb-20">
             <p className="text-[#151542] text-4xl font-loraFont font-semibold">Your Final Jewelry Has Been Complete !</p>

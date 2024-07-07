@@ -12,20 +12,7 @@ import { get_mounting_type_list } from "../../api/main/items/Model_api";
 function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
-// const mountingTypes = [
-//     {
-//         id: 1,
-//         name: "Ring",
-//     },
-//     {
-//         id: 2,
-//         name: "Band",
-//     },
-//     {
-//         id: 3,
-//         name: "Pendant",
-//     },
-// ];
+
 export default function Template() {
 
     const query = useQuery();
