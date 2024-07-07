@@ -46,7 +46,7 @@ const ItemsManage = React.lazy(() => import('./views/test/ItemsManage/index'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard, role_id: [1,2,3,4] },
+  { path: '/dashboard', name: 'Dashboard', element: Dashboard, role_id: [1] },
   { path: '/customers/table', name: 'Customers', element: Customer_Page, role_id: [1,2] },
 
   //manager
