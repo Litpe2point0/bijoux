@@ -416,7 +416,7 @@ export default function ChooseDiamond() {
 
                                     </div>
                                     <div className="w-full flex justify-center mt-10">
-                                        <button onClick={handleGenerateDiamond} className="bg-[#151542] hover:bg-cyan-900 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Generate Diamond Image</button>
+                                        <button onClick={handleGenerateDiamond} className="bg-[#151542] hover:bg-cyan-900 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Select by these attributes</button>
                                     </div>
                                 </div>
                                 <div className="flex justify-center flex-col rounded-lg border-2 w-[562px] py-5">
@@ -438,9 +438,9 @@ export default function ChooseDiamond() {
                                     </div>
                                     <div className="w-full flex justify-around">
                                         {isSearch ?
-                                            <button onClick={handleSelectDiamond} className="bg-[#151542] hover:bg-cyan-900 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Select Diamonds</button>
+                                            <button onClick={handleSelectDiamond} className="bg-[#151542] hover:bg-cyan-900 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Select The Diamond</button>
                                             :
-                                            <button onClick={showAlert} className="bg-white text-[#151542] border-solid border-2 border-[#151542] pl-5 pr-5 pt-2 pb-2 rounded-sm">Select Diamonds</button>
+                                            <button onClick={showAlert} className="bg-white text-[#151542] border-solid border-2 border-[#151542] pl-5 pr-5 pt-2 pb-2 rounded-sm">Select The Diamond</button>
                                         }
                                     </div>
 
