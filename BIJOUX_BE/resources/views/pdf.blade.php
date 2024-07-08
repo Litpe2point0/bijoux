@@ -100,25 +100,29 @@
             font-weight: bold;
             font-size: larger;
         }
+
         .invoice-box table tr.total td:nth-child(2) {
             border-top: 1px solid #eee;
             font-weight: bold;
             font-size: larger;
             color: green;
         }
-        
+
         .invoice-box table tr.price td:nth-child(1) {
             border-top: 1px solid #eee;
             font-weight: bold;
         }
+
         .invoice-box table tr.change td:nth-child(1) {
             border-top: 1px solid #eee;
             font-weight: bold;
         }
+
         .invoice-box table tr.change td:nth-child(2) {
             border-top: 1px solid #eee;
             color: red;
         }
+
         .invoice-box table .fixed-width td:nth-child(1) {
             width: 25%;
         }
@@ -280,21 +284,25 @@
                 <td>Production Price</td>
                 <td>{{ $production_price }} VND</td>
             </tr>
-            
+
             <tr class="change" align="right">
                 <td>Change </td>
                 @if($extra == 0)
-                <td class="change" >No Change</td>
+                <td class="change">No Change</td>
                 @else
                 <td class="change">{{ $extra }} VND</td>
                 @endif
             </tr>
-            
+
             <tr class="total" align="right">
                 <td>Total </td>
                 <td>{{ $total_price }} VND</td>
             </tr>
-            
+            <!------------------------------>
+            <!------------------------------>
+            <!--<td>{{ $guarantee_expired_date }}</td>-->
+            <!------------------------------>
+            <!------------------------------>
         </table>
         <div class="text-center mt-4" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: larger; padding-top: 50px;">
             <p>Thank you for your business!</p>
