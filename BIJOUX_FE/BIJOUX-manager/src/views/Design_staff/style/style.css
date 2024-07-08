@@ -1,0 +1,32 @@
+.quote-table .ag-header-cell-text {
+    font-size: 10px !important;
+
+}
+
+.quote-table .ag-header-cell {
+    font-size: 10px !important;
+}
+
+.quote-table .ag-icon-menu {
+    font-size: 10px !important;
+    width: 10px;
+}
+
+.divider {
+    width: 1px;
+    background-color: #000; 
+    height: auto; 
+    margin: auto 0; 
+}
+.quote-detail-card{
+    background-color: rgb(71, 73, 0)  ;
+    font-weight: bold;
+    font-size: x-small;
+}
+.note .card-header{
+    font-size: 17px;
+    color: plum  ;
+}
+.metal-card{
+    box-shadow:0px 0px 10px 5px rgb(71, 73, 0);
+}

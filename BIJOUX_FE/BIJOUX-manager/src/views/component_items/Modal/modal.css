@@ -1,0 +1,4 @@
+.base-Popper-root {
+    z-index: 99999 !important; /* Giá trị này phải cao hơn tất cả các thành phần khác */
+    
+}
