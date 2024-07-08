@@ -12,10 +12,9 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
-
+import 'animate.css';
 import { logo } from 'src/assets/brand/logo'
 import { sygnet } from 'src/assets/brand/sygnet'
-
 // sidebar nav config
 import normalNavigation from '../_nav_sample'
 import roleNavigation from '../_roleNav'
@@ -27,7 +26,7 @@ const AppSidebar = () => {
   const dispatch = useDispatch()
   const navigate= useNavigate();
   //let navigation = normalNavigation;
-  const [navigation, setNavigation] = useState(normalNavigation);
+  const [navigation, setNavigation] = useState([]);
 
 
   const sidebarShow = useSelector((state) => state.ui.sidebarShow)
@@ -65,9 +64,15 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarHeader className="border-bottom py-0" >
-        <CSidebarBrand to="/">
+        <CSidebarBrand to="/" className='text-decoration-none animate__animated animate__pulse animate__infinite'>
           {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={20} />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
+          <span className='font-monospace fs-4' >
+          {auth.user && auth.user.role_id == 1 && 'Manager'}
+          {auth.user && auth.user.role_id == 2 && 'Sale Staff'}
+          {auth.user && auth.user.role_id == 3 && 'Design Staff'}
+          {auth.user && auth.user.role_id == 4 && 'Production Staff'}
+          </span>
         </CSidebarBrand>
         <CCloseButton 
           size={10}

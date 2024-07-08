@@ -180,7 +180,11 @@ const CustomForm = ({ designInfo, onClose }) => {
             </CButton> :
                 <>
 
-
+                    {order.delivery_date &&
+                        <CCol xs={12}>
+                            <span className="text-success fw-normal fst-italic">*The order has been delivered to the customer's address - (delivered date: {order.delivery_date})</span>
+                        </CCol>
+                    }
 
                     <CCol lg={6} className="d-flex flex-column">
                         <CAccordion >
@@ -686,8 +690,8 @@ const CustomForm = ({ designInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center justify-content-center text-nowrap">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.total_price} />
-                                            {/* {order.total_price} vnd */}
+                                                <CurrencyFormatterLowercase value={order.total_price} />
+                                                {/* {order.total_price} vnd */}
                                             </span>
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex  align-items-center justify-content-center">
@@ -695,8 +699,8 @@ const CustomForm = ({ designInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center justify-content-center text-nowrap">
                                             <span className="text-success fs-6">
-                                            <CurrencyFormatterLowercase value={totalPrice} />
-                                            {/* {totalPrice} vnd */}
+                                                <CurrencyFormatterLowercase value={totalPrice} />
+                                                {/* {totalPrice} vnd */}
                                             </span>
                                         </CCol>
                                     </CRow>

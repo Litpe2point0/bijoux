@@ -65,7 +65,7 @@ const state_creator = (table) => {
           const assign_props = {
             assignForm: <OrderDetail order={params.data} />,
             title: 'Order Detail [ID: #' + params.data.id + ']',
-            button: <Eye size={30} color={params.data.order_status.id > 4 ? 'gray' : "purple"} weight="duotone" />,
+            button: <Eye size={30} color={params.data.order_status.id > 3 ? 'gray' : "purple"} weight="duotone" />,
             update_button_color: 'white',
             status: params.data.order_status.id,
           }

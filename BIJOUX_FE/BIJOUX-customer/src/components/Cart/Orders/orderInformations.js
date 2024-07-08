@@ -118,7 +118,7 @@ export default function OrderInformations({ order }) {
                             <p className="font-gantariFont text-[#151542] font-bold text-base mr-2">Order Type:</p>
                             <div className="flex-1"></div>
                             <div className="w-[210px] flex items-center justify-start h-9 bg-slate-200 rounded-lg">
-                                <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">Customization</p>
+                                <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">{order.order_type.name}</p>
                             </div>
                         </div>
                     </div>

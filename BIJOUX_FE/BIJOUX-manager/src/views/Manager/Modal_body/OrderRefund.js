@@ -144,7 +144,11 @@ const CustomForm = ({ orderInfo, onClose }) => {
                 Loading...
             </CButton> :
                 <>
-
+                    {order.delivery_date &&
+                        <CCol xs={12}>
+                            <span className="text-success fw-normal fst-italic">*The order has been delivered to the customer's address - (delivered date: {order.delivery_date})</span>
+                        </CCol>
+                    }
                     <CCol lg={6} className="d-flex flex-column">
                         <AccountCard account={order.account} avatarSize={100} cardHeight={'120px'} />
                         <div className='flex-grow-1'>

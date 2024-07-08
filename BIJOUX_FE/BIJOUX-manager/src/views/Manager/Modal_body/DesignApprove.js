@@ -77,7 +77,7 @@ const CustomForm = ({ designInfo, onClose }) => {
     useEffect(() => {
         const setAttribute = async () => {
 
-            
+
             //console.log("quote", quoteInfo)
             // gọi api lấy design process detail từ designInfo.id
 
@@ -140,7 +140,7 @@ const CustomForm = ({ designInfo, onClose }) => {
             onClose();
         }
         dispatch(setToast(response.mess))
-        
+
 
 
 
@@ -158,7 +158,11 @@ const CustomForm = ({ designInfo, onClose }) => {
             </CButton> :
                 <>
 
-
+                    {order.delivery_date &&
+                        <CCol xs={12}>
+                            <span className="text-success fw-normal fst-italic">*The order has been delivered to the customer's address - (delivered date: {order.delivery_date})</span>
+                        </CCol>
+                    }
 
                     <CCol lg={6} className="d-flex flex-column">
                         <CAccordion >
@@ -202,7 +206,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                         <span style={{ fontSize: '15px' }}>Mounting Type: </span>
                                                     </CCol>
                                                     <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                                        <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={designProcess.mounting_type? designProcess.mounting_type.name : 'No Specific Type' } />
+                                                        <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={designProcess.mounting_type ? designProcess.mounting_type.name : 'No Specific Type'} />
                                                     </CCol>
                                                 </CRow>
                                                 <CRow>
@@ -295,7 +299,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                     <CCol md={12}>
                         <div className="my-4">
                             <CCard className="bg-light metal-card" >
-                                
+
                                 <CCardBody>
                                     <CRow>
                                         <CCol md={6}>
@@ -334,7 +338,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                             <ListItemText
                                                                 className="text-dark w-25"
                                                                 primary='Caculated Price'
-                                                                secondary={<span className="text-secondary"><CurrencyFormatterLowercase value={item.price}/></span>} />
+                                                                secondary={<span className="text-secondary"><CurrencyFormatterLowercase value={item.price} /></span>} />
 
                                                         </ListItem>
                                                     )
@@ -376,7 +380,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                             <ListItemText
                                                                 className="text-dark w-25"
                                                                 primary='Carculated Price'
-                                                                secondary={<span className="text-success"><CurrencyFormatterLowercase value={item.price}/></span>} />
+                                                                secondary={<span className="text-success"><CurrencyFormatterLowercase value={item.price} /></span>} />
 
                                                         </ListItem>
                                                     )
@@ -393,8 +397,8 @@ const CustomForm = ({ designInfo, onClose }) => {
 
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center justify-content-center  text-nowrap">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={previousMetalList.reduce((total, item) => total + item.price, 0)}/>
-                                            {/* {previousMetalList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                <CurrencyFormatterLowercase value={previousMetalList.reduce((total, item) => total + item.price, 0)} />
+                                                {/* {previousMetalList.reduce((total, item) => total + item.price, 0)} vnd */}
                                             </span>
 
                                         </CCol>
@@ -404,8 +408,8 @@ const CustomForm = ({ designInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center justify-content-center  text-nowrap">
                                             <span className="text-success fs-6">
-                                            <CurrencyFormatterLowercase value={updatingMetalList.reduce((total, item) => total + item.price, 0)}/>
-                                            {/* {updatingMetalList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                <CurrencyFormatterLowercase value={updatingMetalList.reduce((total, item) => total + item.price, 0)} />
+                                                {/* {updatingMetalList.reduce((total, item) => total + item.price, 0)} vnd */}
                                             </span>
 
                                         </CCol>
@@ -456,7 +460,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                             <ListItemText
                                                                 className="text-dark w-25"
                                                                 primary='Total Price'
-                                                                secondary={<span className="text-secondary"><CurrencyFormatterLowercase value={item.price}/></span>} />
+                                                                secondary={<span className="text-secondary"><CurrencyFormatterLowercase value={item.price} /></span>} />
 
                                                         </ListItem>
                                                     )
@@ -498,7 +502,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                             <ListItemText
                                                                 className="text-dark w-25"
                                                                 primary='Total Price'
-                                                                secondary={<span className="text-success"><CurrencyFormatterLowercase value={item.price}/></span>} />
+                                                                secondary={<span className="text-success"><CurrencyFormatterLowercase value={item.price} /></span>} />
 
                                                         </ListItem>
                                                     )
@@ -513,8 +517,8 @@ const CustomForm = ({ designInfo, onClose }) => {
 
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center justify-content-center  text-nowrap">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={previousDiamondList.reduce((total, item) => total + item.price, 0)}/>
-                                            {/* {previousDiamondList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                <CurrencyFormatterLowercase value={previousDiamondList.reduce((total, item) => total + item.price, 0)} />
+                                                {/* {previousDiamondList.reduce((total, item) => total + item.price, 0)} vnd */}
                                             </span>
 
                                         </CCol>
@@ -524,8 +528,8 @@ const CustomForm = ({ designInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center justify-content-center  text-nowrap">
                                             <span className="text-success fs-6">
-                                            <CurrencyFormatterLowercase value={updatingDiamondList.reduce((total, item) => total + item.price, 0)}/>
-                                            {/* {updatingDiamondList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                <CurrencyFormatterLowercase value={updatingDiamondList.reduce((total, item) => total + item.price, 0)} />
+                                                {/* {updatingDiamondList.reduce((total, item) => total + item.price, 0)} vnd */}
                                             </span>
 
                                         </CCol>
@@ -551,9 +555,9 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className="p-0 m-0 d-flex align-items-center  text-nowrap">
                                                     <span className="text-secondary fs-6">
-                                                    <CurrencyFormatterLowercase value={order.product_price}/>
+                                                        <CurrencyFormatterLowercase value={order.product_price} />
 
-                                                    {/* {order.product_price} vnd */}
+                                                        {/* {order.product_price} vnd */}
                                                     </span>
 
                                                 </CCol>
@@ -564,10 +568,10 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className="p-0 m-0 d-flex align-items-center  text-nowrap">
                                                     <span className="text-secondary fs-6">
-                                                    <CurrencyFormatterLowercase value={order.product_price * (designProcess.profit_rate / 100)}/>
+                                                        <CurrencyFormatterLowercase value={order.product_price * (designProcess.profit_rate / 100)} />
 
-                                                    &nbsp;({order.profit_rate}%)
-                                                     </span>
+                                                        &nbsp;({order.profit_rate}%)
+                                                    </span>
 
                                                 </CCol>
                                             </CRow>
@@ -577,8 +581,8 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className=" p-0 m-0 d-flex align-items-center text-nowrap">
                                                     <span className="text-secondary fs-6">
-                                                    <CurrencyFormatterLowercase value={order.production_price}/>
-                                                    {/* {order.production_price} vnd */}
+                                                        <CurrencyFormatterLowercase value={order.production_price} />
+                                                        {/* {order.production_price} vnd */}
                                                     </span>
 
                                                 </CCol>
@@ -596,8 +600,8 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className="p-0 m-0 d-flex align-items-center text-nowrap">
                                                     <span className="text-success fs-6">
-                                                    <CurrencyFormatterLowercase value={designProcess.product_price}/>
-                                                    {/* {designProcess.product_price} vnd */}
+                                                        <CurrencyFormatterLowercase value={designProcess.product_price} />
+                                                        {/* {designProcess.product_price} vnd */}
                                                     </span>
 
                                                 </CCol>
@@ -608,9 +612,9 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className="p-0 m-0 d-flex align-items-center  text-nowrap">
                                                     <span className="text-success fs-6">
-                                                    <CurrencyFormatterLowercase value={designProcess.product_price * (designProcess.profit_rate / 100)}/>
+                                                        <CurrencyFormatterLowercase value={designProcess.product_price * (designProcess.profit_rate / 100)} />
 
-                                                    &nbsp;({designProcess.profit_rate}%)</span>
+                                                        &nbsp;({designProcess.profit_rate}%)</span>
 
                                                 </CCol>
                                             </CRow>
@@ -620,9 +624,9 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className=" p-0 m-0 d-flex align-items-center  text-nowrap">
                                                     <span className="text-success fs-6">
-                                                    <CurrencyFormatterLowercase value={designProcess.production_price}/>
+                                                        <CurrencyFormatterLowercase value={designProcess.production_price} />
 
-                                                    {/* {designProcess.production_price} vnd */}
+                                                        {/* {designProcess.production_price} vnd */}
                                                     </span>
 
                                                 </CCol>
@@ -635,9 +639,9 @@ const CustomForm = ({ designInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center justify-content-center  text-nowrap">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.total_price}/>
+                                                <CurrencyFormatterLowercase value={order.total_price} />
 
-                                            {/* {order.total_price} vnd */}
+                                                {/* {order.total_price} vnd */}
                                             </span>
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex  align-items-center justify-content-center">
@@ -645,9 +649,9 @@ const CustomForm = ({ designInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center justify-content-center  text-nowrap">
                                             <span className="text-success fs-6">
-                                            <CurrencyFormatterLowercase value={designProcess.total_price}/>
+                                                <CurrencyFormatterLowercase value={designProcess.total_price} />
 
-                                            {/* {designProcess.total_price} vnd */}
+                                                {/* {designProcess.total_price} vnd */}
                                             </span>
                                         </CCol>
                                     </CRow>
