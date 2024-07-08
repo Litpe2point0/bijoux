@@ -39,23 +39,6 @@ const state_creator = (table) => {
       { headerName: "ID", field: "id", flex: 0.5 },
       { headerName: "Product ID", field: "product.id", flex: 0.6 },
       { headerName: "Customer ID", field: "account.id" },
-      // {
-      //   headerName: "Materials Cost", field: "product_price", cellClass: 'd-flex align-items-center fw-bold text-primary'
-      //   , cellRenderer: (params) => {
-      //     return (
-      //       <CurrencyFormatter value={params.data.product_price} />
-      //     )
-      //   }
-      // },
-      // { headerName: "Profit Rate %", field: "profit_rate", cellClass: 'd-flex align-items-center fw-bold text-primary' },
-      // {
-      //   headerName: "Production Cost", field: "production_price", cellClass: 'd-flex align-items-center fw-bold text-primary'
-      //   , cellRenderer: (params) => {
-      //     return (
-      //       <CurrencyFormatter value={params.data.production_price} />
-      //     )
-      //   }
-      // },
       {
         headerName: "Total Cost", field: "total_price", cellClass: 'd-flex align-items-center fw-bold text-primary'
         , cellRenderer: (params) => {

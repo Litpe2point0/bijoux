@@ -48,11 +48,13 @@ export default function ManufactureProgress({ order }) {
             const formData = new FormData();
             formData.append("order_id", order.id);
             const production_process_list = await get_production_process_list(formData, "Get production process list", true);
-            const filter_process = filterArray(production_process_list.data);
-            setProductionProcessList(filter_process);
+            //alert(production_process_list.data.length)
+            if (production_process_list.success && production_process_list.data.length > 0) {
+                const filter_process = filterArray(production_process_list.data);
+                setProductionProcessList(filter_process);
 
-            setActiveStep(filter_process.length);
-
+                setActiveStep(filter_process.length);
+            }
             setLoading(false);
         }
 
@@ -82,38 +84,50 @@ export default function ManufactureProgress({ order }) {
 
     return (
         <div className='w-full flex flex-col items-start'>
+
             {loading ? (
-                <Box sx={{ display: 'flex', height: '100%', width:'100%', alignItems: 'center', justifyContent:'center', paddingY:'100px' }}>
-                <CircularProgress color="inherit" />
+                <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
+                    <CircularProgress color="inherit" />
                 </Box>
             )
                 :
                 (
-                    <Box sx={{ maxWidth: 400 }}>
-                        <Stepper activeStep={activeStep} orientation="vertical">
-                            {productionStatusList.map((status, index) => {
-                                const process = productionProcessList.find(pp => pp.production_status.id === status.id);
-                                console.log(process);
-                                return (
-                                    <Step key={status.id}>
-                                        <StepLabel>{status.name}</StepLabel>
+                    productionProcessList.length <= 0
+                        ?
+                        <div className="flex justify-center">
+                            <p className="font-loraFont font-light text-xl text-[#151542]">Your order is in Manufacture Step. Please wait for our soon updating process.</p>
+                        </div>
+                        :
+                        (
+                            <Box sx={{ maxWidth: 400 }}>
+                                <Stepper activeStep={activeStep} orientation="vertical">
+                                    {productionStatusList.map((status, index) => {
+                                        const process = productionProcessList.find(pp => pp.production_status.id === status.id);
+                                        console.log("hhh"+process);
+                                        return (
+                                            <Step key={status.id}>
+                                                <StepLabel>{status.name}</StepLabel>
 
-                                        {process ? (
-                                            <div>
-                                                <p>Complete on: {process.created}</p>
-                                                <button disabled={process.imageUrl == null} onClick={() => handleOpen(process.imageUrl)} className={'font-semibold ' + (process.imageUrl ? 'text-sky-500 hover:text-sky-900' : 'text-grey-900')}>View Image</button>
-                                            </div>
-                                        ) : (
-                                            <div>
-                                                <p>Not yet ...</p>
-                                            </div>
-                                        )}
+                                                {process ? (
+                                                    <div>
+                                                        <p>Complete on: {process.created}</p>
+                                                        <button disabled={process.imageUrl == null} onClick={() => handleOpen(process.imageUrl)} className={'font-semibold ' + (process.imageUrl ? 'text-sky-500 hover:text-sky-900' : 'text-grey-900')}>View Image</button>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        <p>Not yet ...</p>
+                                                    </div>
+                                                )}
 
-                                    </Step>
-                                );
-                            })}
-                        </Stepper>
-                    </Box>
+                                            </Step>
+                                        );
+                                    })}
+                                </Stepper>
+                            </Box>
+
+                        )
+
+
                 )
 
             }
@@ -125,6 +139,6 @@ export default function ManufactureProgress({ order }) {
                     <img src={imageUrl} alt="Step Image" className='w-full h-full object-cover' />
                 </div>
             </Modal>
-        </div>
+        </div >
     );
 }

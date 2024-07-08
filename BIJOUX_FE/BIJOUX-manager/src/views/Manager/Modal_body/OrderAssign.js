@@ -88,7 +88,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
             setProduct(order_detail.product)
 
 
-            const staffList =  await get_staff_list();
+            const staffList = await get_staff_list();
 
             setSaleStaffs(staffList.data.sale_staff_list);
             setDesignStaffs(staffList.data.design_staff_list);
@@ -140,20 +140,13 @@ const CustomForm = ({ orderInfo, onClose }) => {
         const formData = new FormData();
         formData.append('assigned_information', JSON.stringify(assigned_information));
 
-        const response= await reassign_order(formData, 'Order ID ' + orderInfo.id);
-        
+        const response = await reassign_order(formData, 'Order ID ' + orderInfo.id);
+
         if (response.success) {
             handleDataChange();
             onClose();
         }
         dispatch(setToast(response.mess))
-          
-        // if (orderInfo.order_status.id < 4) {
-            
-
-        // } else {
-        //     dispatch(setToast({ color: 'danger', title: 'Order id: ' + orderInfo.id, mess: "Reassign staff failed !" }))
-        // }
 
     }
     const handleNote = (new_note) => {
@@ -175,6 +168,12 @@ const CustomForm = ({ orderInfo, onClose }) => {
                 Loading...
             </CButton> :
                 <>
+
+                    {order.delivery_date &&
+                        <CCol xs={12}>
+                            <span className="text-success fw-normal fst-italic">*The order has been delivered to the customer's address - (delivered date: {order.delivery_date})</span>
+                        </CCol>
+                    }
 
                     <CCol lg={6} className="d-flex flex-column">
                         <AccountCard account={order.account} avatarSize={100} cardHeight={'120px'} />
@@ -295,7 +294,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                                     <ListItemText className="text-dark w-25" primary='Type' secondary={item.metal.name} />
                                                     <ListItemText className="text-dark w-25" primary='Volume' secondary={item.volume} />
                                                     <ListItemText className="text-dark w-25" primary='Weight' secondary={item.weight} />
-                                                    <ListItemText className="text-dark w-25" primary='Caculated Price' secondary={<CurrencyFormatterLowercase value={item.price}/>} />
+                                                    <ListItemText className="text-dark w-25" primary='Caculated Price' secondary={<CurrencyFormatterLowercase value={item.price} />} />
 
                                                 </ListItem>
                                             )
@@ -307,8 +306,8 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={metalList.reduce((total, item) => total + item.price, 0)}/>
-                                            {/* {metalList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                <CurrencyFormatterLowercase value={metalList.reduce((total, item) => total + item.price, 0)} />
+                                                {/* {metalList.reduce((total, item) => total + item.price, 0)} vnd */}
                                             </span>
 
                                         </CCol>
@@ -342,7 +341,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                                     <ListItemText className="text-dark w-25" primary='Clarity' secondary={item.diamond.diamond_clarity.name} />
                                                     <ListItemText className="text-dark w-25" primary='Cut' secondary={item.diamond.diamond_cut.name} />
                                                     <ListItemText className="text-dark w-25" primary='Count' secondary={item.count} />
-                                                    <ListItemText className="text-dark w-25" primary='Total Price' secondary={<CurrencyFormatterLowercase value={item.price}/>} />
+                                                    <ListItemText className="text-dark w-25" primary='Total Price' secondary={<CurrencyFormatterLowercase value={item.price} />} />
                                                     {diamondList.length == 0 &&
                                                         <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
                                                             <XCircle size={30} color="crimson" weight="duotone" />
@@ -358,8 +357,8 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={diamondList.reduce((total, item) => total + item.price, 0)}/>
-                                            {/* {diamondList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                <CurrencyFormatterLowercase value={diamondList.reduce((total, item) => total + item.price, 0)} />
+                                                {/* {diamondList.reduce((total, item) => total + item.price, 0)} vnd */}
                                             </span>
 
                                         </CCol>
@@ -384,8 +383,8 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.deposit_has_paid}/>
-                                            {/* {order.deposit_has_paid} vnd */}
+                                                <CurrencyFormatterLowercase value={order.deposit_has_paid} />
+                                                {/* {order.deposit_has_paid} vnd */}
                                             </span>
 
                                         </CCol>
@@ -396,19 +395,19 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.product_price}/>
+                                                <CurrencyFormatterLowercase value={order.product_price} />
                                             </span>
                                         </CCol>
                                     </CRow>
-                                    
+
                                     <CRow className="w-100  text-end d-flex justify-content-center">
                                         <CCol lg={3} className="text-center px-0 m-0 d-flex  align-items-center">
                                             <span className="text-dark fw-bold fs-5">Profit Price: </span>
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.product_price * (order.profit_rate / 100)}/>
-                                            &nbsp;({order.profit_rate}%)</span>
+                                                <CurrencyFormatterLowercase value={order.product_price * (order.profit_rate / 100)} />
+                                                &nbsp;({order.profit_rate}%)</span>
 
                                         </CCol>
                                     </CRow>
@@ -418,7 +417,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol lg={3} className=" p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.production_price}/>
+                                                <CurrencyFormatterLowercase value={order.production_price} />
                                             </span>
                                         </CCol>
                                     </CRow>
@@ -428,7 +427,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol lg={3} className=" p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={(order.deposit_has_paid - order.total_price) > 0 ? (order.deposit_has_paid - order.total_price) : 0 }/>
+                                                <CurrencyFormatterLowercase value={(order.deposit_has_paid - order.total_price) > 0 ? (order.deposit_has_paid - order.total_price) : 0} />
                                             </span>
                                         </CCol>
                                     </CRow>
@@ -439,7 +438,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                            <CurrencyFormatterLowercase value={order.total_price}/>
+                                                <CurrencyFormatterLowercase value={order.total_price} />
                                             </span>
                                         </CCol>
                                     </CRow>
