@@ -40,6 +40,7 @@ export default function OrderStepper({ order }) {
     useEffect(() => {
         if (orderStatusList.length > 0) {
             setActiveStep(getOrderStepIndex(order.order_status.id).id);
+            //alert(getOrderStepIndex(order.order_status.id).id)
         }
     }, [orderStatusList, order.order_status.id]);
 
@@ -81,8 +82,11 @@ export default function OrderStepper({ order }) {
 
     return (
         <Box sx={{ width: '100%' }}>
+        {/* {order.order_type.id}
+        <br/>
+        {(order.order_type.id == 2 && activeStep >= 3) ?  (activeStep - 3) : (activeStep - 1) } */}
             {!loading && (
-                <Stepper activeStep={activeStep - 1} alternativeLabel>
+                <Stepper activeStep={(order.order_type.id == 1 && activeStep >= 3) ?  (activeStep - 2) : (activeStep - 1) } alternativeLabel>
                     {orderStatusList.filter(step => step.id !== 7).map((step, index) => (
                         <Step key={step.id}>
                             <StepLabel icon={step.id === 6 && activeStep === 6 && <Package color='limegreen' size={'1.5rem'} weight="duotone" />}>

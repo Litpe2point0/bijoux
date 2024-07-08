@@ -54,6 +54,12 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
             return $order;
         });
         $template_order_list = DB::table('orders')->where('order_type_id', 1)->orderBy('order_status_id', 'asc')->get();
@@ -81,6 +87,12 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
             return $order;
         });
         return response()->json([
@@ -136,6 +148,12 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
 
             $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
             if ($sale_staff != null) {
@@ -213,6 +231,12 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
 
             $sale_staff = DB::table('account')->where('id', $order->saleStaff_id)->first();
             if ($sale_staff != null) {
@@ -694,6 +718,12 @@ class OrderController extends Controller
             ], 403);
         }
         $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+        if ($order->delivery_date != null) {
+            $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+        }
+        if ($order->guarantee_expired_date != null) {
+            $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+        }
         $product = DB::table('product')->where('id', $order->product_id)->first();
         $model = DB::table('model')->where('id', $product->model_id)->first();
         if ($model != null) {
@@ -858,6 +888,12 @@ class OrderController extends Controller
             ], 403);
         }
         $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+        if ($order->delivery_date != null) {
+            $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+        }
+        if ($order->guarantee_expired_date != null) {
+            $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+        }
         $product = DB::table('product')->where('id', $order->product_id)->first();
         $model = DB::table('model')->where('id', $product->model_id)->first();
         if ($model != null) {
@@ -1157,6 +1193,12 @@ class OrderController extends Controller
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $order->product = $product;
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
             $account = DB::table('account')->where('id', $order->account_id)->first();
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
@@ -1185,7 +1227,12 @@ class OrderController extends Controller
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $order->product = $product;
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
-
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
             $account = DB::table('account')->where('id', $order->account_id)->first();
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
@@ -1248,6 +1295,12 @@ class OrderController extends Controller
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $order->product = $product;
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
 
             $account = DB::table('account')->where('id', $order->account_id)->first();
             if (!$account->google_id) {
@@ -1324,6 +1377,12 @@ class OrderController extends Controller
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $order->product = $product;
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
 
             $account = DB::table('account')->where('id', $order->account_id)->first();
             if (!$account->google_id) {
@@ -1370,6 +1429,13 @@ class OrderController extends Controller
             $url = env('ORDER_URL');
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $order->product = $product;
+            $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
 
             $account = DB::table('account')->where('id', $order->account_id)->first();
             if (!$account->google_id) {
@@ -1459,6 +1525,12 @@ class OrderController extends Controller
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $order->product = $product;
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
 
             $account = DB::table('account')->where('id', $order->account_id)->first();
             if (!$account->google_id) {
@@ -1505,8 +1577,10 @@ class OrderController extends Controller
         $customize_order_list = DB::table('orders')->where('productionStaff_id', $input)->whereIn('order_status_id', [3, 4, 5, 6, 7])->where('order_type_id', 2)->get();
         foreach ($customize_order_list as $order) {
             $production_process = DB::table('production_process')->where('order_id', $order->id)->orderby('created', 'desc')->first();
-            if ($production_process->production_status_id == 6) {
-                $data2->push($order);
+            if ($production_process != null) {
+                if ($production_process->production_status_id == 6) {
+                    $data2->push($order);
+                }
             }
         }
         $data2->map(function ($order) {
@@ -1516,6 +1590,12 @@ class OrderController extends Controller
             $product->imageUrl = $OGurl . $url . $product->id . "/" . $product->imageUrl;
             $order->product = $product;
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
 
             $account = DB::table('account')->where('id', $order->account_id)->first();
             if (!$account->google_id) {
@@ -2082,6 +2162,12 @@ class OrderController extends Controller
         $design_process->created = Carbon::parse($design_process->created)->format('H:i:s d/m/Y');
         $order = DB::table('orders')->where('id', $design_process->order_id)->first();
         $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+        if ($order->delivery_date != null) {
+            $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+        }
+        if ($order->guarantee_expired_date != null) {
+            $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+        }
         $product = DB::table('product')->where('id', $order->product_id)->first();
         $OGurl = env('ORIGIN_URL');
         $Ourl = env('ORDER_URL');
@@ -2709,10 +2795,12 @@ class OrderController extends Controller
                         }
                     }
                 } else {
-                    $this->generatePDF($payment->id);
+                    $guarantee_expired_date = Carbon::now()->addYears(10)->format('Y-m-d H:i:s');
                     DB::table('orders')->where('id', $order->id)->update([
-                        'order_status_id' => 5
+                        'order_status_id' => 5,
+                        'guarantee_expired_date' => $guarantee_expired_date
                     ]);
+                    $this->generatePDF($payment->id, $guarantee_expired_date);
                 }
                 DB::table('payment')->where('id', $input['data']['orderCode'])->update([
                     'isSuccess' => 1
@@ -2731,7 +2819,7 @@ class OrderController extends Controller
             'success' => 'Transaction complete'
         ], 200);
     }
-    public function generatePDF($orderCode)
+    public function generatePDF($orderCode, $guarantee_expired_date)
     {
         $payment = DB::table('payment')->where('id', $orderCode)->first();
         $account = DB::table('account')->where('id', $payment->account_id)->first();
@@ -2768,7 +2856,8 @@ class OrderController extends Controller
             'product_price' => $this->formatCurrency($order->product_price),
             'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
             'total_price' => $this->formatCurrency($order->total_price),
-            'extra' => ($payment->money + $order->deposit_has_paid) - $order->total_price
+            'extra' => ($payment->money + $order->deposit_has_paid) - $order->total_price,
+            'guarantee_expired_date' => Carbon::parse($guarantee_expired_date)->format('d/m/Y')
         ];
 
         $pdf = PDF::loadView('pdf', $data);
@@ -2785,7 +2874,7 @@ class OrderController extends Controller
         $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
         //$this->sendMail('bachdxse182030@fpt.edu.vn', $messageContent, 'Payment Invoice', $filePath);
     }
-    public function generatePDFextra($orderId)
+    public function generatePDFextra($orderId, $guarantee_expired_date)
     {
         $order = DB::table('orders')->where('id', $orderId)->first();
         $account = DB::table('account')->where('id', $order->account_id)->first();
@@ -2820,7 +2909,8 @@ class OrderController extends Controller
             'product_price' => $this->formatCurrency($order->product_price),
             'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
             'total_price' => $this->formatCurrency($order->total_price),
-            'extra' => $order->deposit_has_paid - $order->total_price
+            'extra' => $order->deposit_has_paid - $order->total_price,
+            'guarantee_expired_date' => Carbon::parse($guarantee_expired_date)->format('d/m/Y')
         ];
 
         $pdf = PDF::loadView('pdf', $data);
@@ -3005,6 +3095,12 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
             return $order;
         });
         $template_order_list = DB::table('orders')->where('order_type_id', 1)->where('order_status_id', '>=', 4)->orderBy('order_status_id', 'asc')->get();
@@ -3038,6 +3134,12 @@ class OrderController extends Controller
             unset($order->account_id);
             unset($order->product_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
             return $order;
         });
         return response()->json([
@@ -3066,10 +3168,12 @@ class OrderController extends Controller
         }
         DB::beginTransaction();
         try {
-            $this->generatePDFextra($order->id);
+            $guarantee_expired_date = Carbon::now()->addYears(10)->format('Y-m-d H:i:s');
             DB::table('orders')->where('id', $input)->update([
-                'order_status_id' => 5
+                'order_status_id' => 5,
+                'guarantee_expired_date' => $guarantee_expired_date
             ]);
+            $this->generatePDFextra($order->id, $guarantee_expired_date);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -3115,7 +3219,7 @@ class OrderController extends Controller
         } catch (Throwable $e) {
             $input = $decodedToken->role_id;
         }
-        if($input != 1 && $input != 2){
+        if ($input != 1 && $input != 2) {
             return response()->json([
                 'error' => 'You don\'t have permission to access this page'
             ], 403);
@@ -3316,5 +3420,64 @@ class OrderController extends Controller
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+    public function confirm_shipped(Request $request)
+    {
+        $input = json_decode($request->input('order_id'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No input received'
+            ], 403);
+        }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid token'], 401);
+                }
+            }
+        }
+        try {
+            $id = $decodedToken['id'];
+        } catch (Throwable $e) {
+            $id = $decodedToken->id;
+        }
+        $order = DB::table('orders')->where('id', $input)->first();
+        if ($order->order_status_id != 5) {
+            return response()->json([
+                'error' => 'The selected order isn\'t ready for shipping'
+            ], 403);
+        } else if ($order->delivery_date != null) {
+            return response()->json([
+                'error' => 'The selected order has been shipped'
+            ], 403);
+        }
+        if ($order->order_type_id == 2) {
+            if ($order->saleStaff_id != $id && $order->saleStaff_id != null) {
+                return response()->json([
+                    'error' => 'The selected order isn\'t assigned to you'
+                ], 403);
+            }
+        }
+        DB::beginTransaction();
+        try {
+            DB::table('orders')->where('id', $input)->update([
+                'delivery_date' => Carbon::now()->format('Y-m-d H:i:s')
+            ]);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+        return response()->json([
+            'success' => 'Confirm successfully'
+        ]);
     }
 }

@@ -53,6 +53,7 @@ Route::middleware('checkCors')->group(function () {
                 Route::post('/get_assigned_complete_orders_production ', [OrderController::class, 'get_assigned_complete_orders_production']);
                 Route::post('/get_refund_list ', [OrderController::class, 'get_refund_list'])->middleware('checkManager');
                 Route::post('/confirm_refund ', [OrderController::class, 'confirm_refund'])->middleware('checkManager');
+                Route::post('/confirm_shipped', [OrderController::class, 'confirm_shipped'])->middleware('checkSaleStaff');
             });
         });
     });
@@ -161,6 +162,6 @@ Route::post('/confirm_payment', [OrderController::class, 'confirm_payment']);
 
 //test------------------------------------------------------------------------
 // Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);
-// Route::get('/sendMail', [OrderController::class, 'sendMail']);
+// Route::get('/sendMail', [AccountController::class, 'sendMail']);
 // Route::post('/decode', [AccountController::class, 'decode']);
 // Route::get('/get_image', [AccountController::class, 'get_image']);

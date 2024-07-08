@@ -79,7 +79,28 @@ const state_creator = (table) => {
         cellClass: 'd-flex align-items-center py-1',
         cellRenderer: (params) => {
           const order_status = params.data.order_status;
-          return order_status_creator(order_status);
+          if (order_status.id == 5 && params.data.delivery_date == null) {
+            return (
+              <CCard
+                textColor="light"
+                style={{ width: '100%' }}
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-primary border border-3 border-danger`}>
+                Delivering
+              </CCard>
+            )
+          } else if (order_status.id == 5 && params.data.delivery_date != null) {
+            return (
+              <CCard
+                textColor="light"
+                style={{ width: '100%' }}
+                className={` text-center px-2 fw-bold rounded-pill px-1 bg-primary border border-3 border-success`}>
+                Shipped
+              </CCard>
+            )
+          } else {
+
+            return order_status_creator(order_status);
+          }
         }
       },
       {
@@ -89,7 +110,7 @@ const state_creator = (table) => {
           const assign_props = {
             assignForm: <OrderDetail order={params.data} />,
             title: 'Order Detail [ID: #' + params.data.id + ']',
-            button: <Eye size={30} color={params.data.order_status.id > 4 ? 'gray' : "purple"} weight="duotone" />,
+            button: <Eye size={30} color={"purple"} weight="duotone" />,
             update_button_color: 'white',
             status: params.data.order_status.id,
           }
@@ -97,7 +118,8 @@ const state_creator = (table) => {
 
             <CButtonGroup style={{ width: '100%', height: "100%" }} role="group" aria-label="Basic mixed styles example">
               <Modal_Button
-                disabled={assign_props.status > 4}
+                //disabled={assign_props.status > 4}
+                disabled={false}
                 title={assign_props.title}
                 content={assign_props.button}
                 color={assign_props.color} >

@@ -246,3 +246,16 @@ export async function get_dashboard(formData, title, { signal } = {}) {
         return response_with_mess(false, mess_title, error.response.data.error, null);
     }
 }
+
+
+export async function confirm_shipped(formData, title, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const response = await api_admin.post('/order/confirm_shipped', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("confirm_shipped" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}

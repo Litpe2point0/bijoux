@@ -147,9 +147,13 @@ export default function OrderCard({ order, onCancel, handleDataChange }) {
                             DETAILS
                         </Button>
                         {
-                            order.order_status.id === 5 ? (
+                            order.order_status.id === 5 && order.delivery_date ? (
                                 <Button onClick={() => handleConfirmReceived(order.id)} color="success" variant="contained">
                                     CONFIRM RECEIVED
+                                </Button>
+                            ) : order.order_status.id === 5 && !order.delivery_date ? (
+                                <Button disabled variant="contained">
+                                    SHIPPING TO YOU
                                 </Button>
                             ) : order.order_status.id === 6 ? (
                                 <Button disabled variant="contained">
