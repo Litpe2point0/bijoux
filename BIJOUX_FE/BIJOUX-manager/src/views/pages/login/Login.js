@@ -132,16 +132,12 @@ const Login = () => {
                       <CFormFeedback valid>Looks good!</CFormFeedback>
                     </CInputGroup>
                     <CRow>
-                      <CCol xs={6}>
+                      <CCol xs={12}>
                         <CButton type='submit' color="primary" className="px-4" disabled={disabled}>
                           Login
                         </CButton>
                       </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Forgot password?
-                        </CButton>
-                      </CCol>
+                      
                     </CRow>
                   </CForm>
                 </CCardBody>
