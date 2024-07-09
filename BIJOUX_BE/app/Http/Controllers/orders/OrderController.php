@@ -2857,22 +2857,30 @@ class OrderController extends Controller
             'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
             'total_price' => $this->formatCurrency($order->total_price),
             'extra' => ($payment->money + $order->deposit_has_paid) - $order->total_price,
+        ];
+        $data2 = [
             'guarantee_expired_date' => Carbon::parse($guarantee_expired_date)->format('d/m/Y')
         ];
 
         $pdf = PDF::loadView('pdf', $data);
+        $pdf2 = PDF::loadView('guarantee', $data2);
         $fileName = Carbon::now()->timestamp . '_' . $payment->id . '.pdf';
+        $fileName2 = 'guarantee_' . Carbon::now()->timestamp . '_' . $payment->id . '.pdf';
         // $fileName = $payment->id . '.pdf';
         $content = $pdf->download()->getOriginalContent();
+        $content2 = $pdf2->download()->getOriginalContent();
         $destinationPath = public_path('pdf/' . $order->id);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0755, true);
         }
         $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
+        $filePath2 = public_path('pdf/' . $order->id . '/' . $fileName2);
         File::put($filePath, $content);
+        File::put($filePath2, $content2);
+        $path_to_files = [$filePath, $filePath2];
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
-        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
-        //$this->sendMail('bachdxse182030@fpt.edu.vn', $messageContent, 'Payment Invoice', $filePath);
+        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $path_to_files);
+        // $this->sendMail('dxbach31102004@gmail.com', $messageContent, 'Payment Invoice', $path_to_files);
     }
     public function generatePDFextra($orderId, $guarantee_expired_date)
     {
@@ -2910,21 +2918,29 @@ class OrderController extends Controller
             'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
             'total_price' => $this->formatCurrency($order->total_price),
             'extra' => $order->deposit_has_paid - $order->total_price,
+        ];
+        $data2 = [
             'guarantee_expired_date' => Carbon::parse($guarantee_expired_date)->format('d/m/Y')
         ];
 
         $pdf = PDF::loadView('pdf', $data);
+        $pdf2 = PDF::loadView('guarantee', $data2);
         $fileName = Carbon::now()->timestamp . '_' . $order->id . '.pdf';
+        $fileName2 = 'guarantee_' . Carbon::now()->timestamp . '_' . $order->id . '.pdf';
         // $fileName = $payment->id . '.pdf';
         $content = $pdf->download()->getOriginalContent();
+        $content2 = $pdf2->download()->getOriginalContent();
         $destinationPath = public_path('pdf/' . $order->id);
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0755, true);
         }
         $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
+        $filePath2 = public_path('pdf/' . $order->id . '/' . $fileName2);
         File::put($filePath, $content);
+        File::put($filePath2, $content2);
+        $path_to_files = [$filePath, $filePath2];
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
-        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
+        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $path_to_files);
     }
     function formatCurrency($amount)
     {
