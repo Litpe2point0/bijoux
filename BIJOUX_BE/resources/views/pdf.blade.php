@@ -6,6 +6,7 @@
     <title>Invoice</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
         .change-font {
             font-family: 'Roboto', sans-serif;
@@ -166,6 +167,46 @@
         .invoice-box.rtl table tr td:nth-child(2) {
             text-align: left;
         }
+
+
+        /* Custom styles for warranty section */
+        .warranty-section {
+            border-top: 2px solid #535353;
+            font-family: 'Dancing Script', cursive;
+            font-size: 34px;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+
+        .conditions-section {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            padding-bottom: 20px;
+        }
+
+        .conditions-section h5 {
+            font-weight: bold;
+        }
+
+        .conditions-section ul {
+            padding-left: 20px;
+        }
+
+        .warranty-details {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+        }
     </style>
 </head>
 
@@ -238,12 +279,12 @@
                             <td>Amount (VND)</td>
                         </tr>
                         @foreach($product_metal as $metal)
-                        <tr>
-                            <td>{{ $metal->name }}</td>
-                            <td>{{ number_format($metal->weight, 2) }}</td>
-                            <td>{{ $metal->sale_price_per_gram }}</td>
-                            <td>{{ $metal->price }}</td>
-                        </tr>
+                            <tr>
+                                <td>{{ $metal->name }}</td>
+                                <td>{{ number_format($metal->weight, 2) }}</td>
+                                <td>{{ $metal->sale_price_per_gram }}</td>
+                                <td>{{ $metal->price }}</td>
+                            </tr>
                         @endforeach
                     </table>
                 </td>
@@ -265,12 +306,12 @@
                         </thead>
                         <tbody>
                             @foreach($product_diamond as $diamond)
-                            <tr>
-                                <td>{{ $diamond->name }}</td>
-                                <td>{{ $diamond->count }}</td>
-                                <td>{{ $diamond->unit_price }}</td>
-                                <td>{{ $diamond->price }}</td>
-                            </tr>
+                                <tr>
+                                    <td>{{ $diamond->name }}</td>
+                                    <td>{{ $diamond->count }}</td>
+                                    <td>{{ $diamond->unit_price }}</td>
+                                    <td>{{ $diamond->price }}</td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -288,26 +329,61 @@
             <tr class="change" align="right">
                 <td>Change </td>
                 @if($extra == 0)
-                <td class="change">No Change</td>
+                    <td class="change">No Change</td>
                 @else
-                <td class="change">{{ $extra }} VND</td>
+                    <td class="change">{{ $extra }} VND</td>
                 @endif
             </tr>
 
             <tr class="total" align="right">
                 <td>Total </td>
                 <td>{{ $total_price }} VND</td>
+
             </tr>
-            <!------------------------------>
-            <!------------------------------>
-            <!--<td>{{ $guarantee_expired_date }}</td>-->
-            <!------------------------------>
-            <!------------------------------>
+            \
+            <!-- Warranty Section -->
+            <tr class="warranty-section">
+                <td colspan="2" style="padding: 20px 0px">Warranty Information</td>
+            </tr>
+
+            <tr class="warranty-details">
+                <td colspan="2">Warranty Expiry Date: {{ $guarantee_expired_date }}</td>
+            </tr>
+            <!-- End Warranty Section -->
+            <tr class="conditions-section">
+                <td colspan="2">
+                    <h5>Conditions And Exclusions</h5>
+                    <p>The foregoing Manufacturer Warranty and Complimentary Services are available only to the person
+                        who purchased the covered product from Bijoux Jewelry.</p>
+                    <p>Maintenance, repair, sizing or other service performed by someone other than Bijoux will void
+                        your Manufacturer Warranty.</p>
+                    <p>Fine jewelry is not impervious to normal wear, activities or trauma. This is particularly true
+                        for rings since hands are regularly subjected to considerable abuse. We do not provide
+                        warranties for damage due to normal wear, product loss, loss of stones or theft. Damage or loss
+                        that results from failure to obtain repairs necessary to maintain the integrity of the product
+                        are also not covered.</p>
+                    <p>Some examples of common jewelry issues that would not be considered manufacturing defects
+                        include:</p>
+                    <ul>
+                        <li>Discoloration due to exposure to chemicals, make-up, swimming pools, hot tubs or bathing.
+                        </li>
+                        <li>Prongs and precious metals, in general, wear over time and may require “building up” or
+                            restoration work as normal wear.</li>
+                        <li>Bent, caught or worn out prongs(s) allowing a stone to fall out or be lost due to normal
+                            wear or other damage.</li>
+                        <li>Lost stone or a stone has fallen out due to chipping or breaking caused by normal wear or
+                            other damage.</li>
+                    </ul>
+                </td>
+            </tr>
+            </tr>
         </table>
-        <div class="text-center mt-4" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: larger; padding-top: 50px;">
+        <div class="text-center mt-4"
+            style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: larger; padding-top: 50px; border-top: 1px solid black;">
             <p>Thank you for your business!</p>
         </div>
-        <div class="footer text-center mt-4" style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
+        <div class="footer text-center mt-4"
+            style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
             <p>If you have any questions about this invoice, please contact us at:</p>
             <p>Email: bijouxjewelryoriginal@gmail.com | Phone: +1 123-456-7890</p>
             <p>Bijoux Jewelry</p>
