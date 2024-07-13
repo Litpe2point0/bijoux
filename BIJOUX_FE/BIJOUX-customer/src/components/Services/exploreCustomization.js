@@ -6,7 +6,7 @@ import { get_mounting_type_list } from "../../api/main/items/Model_api";
 import { getUserFromPersist, loginRequiredAlert } from "../../api/instance/axiosInstance";
 import { CForm, CSpinner } from "@coreui/react";
 import { add_quote } from "../../api/main/orders/Order_api";
-import { update_self } from "../../api/main/accounts/Account_api";
+import { get_update_account_detail, update_self } from "../../api/main/accounts/Account_api";
 import Swal from "sweetalert2";
 import './alert.css';
 import { useDispatch } from "react-redux";
@@ -77,13 +77,31 @@ export default function ExploreCustomization() {
         setAddress(null);
     }
 
-    const handleOpen = () => {
-        const account = getUserFromPersist();
+    const handleOpen = async () => {
+
+        let account =  getUserFromPersist();
         if (!account) {
             return loginRequiredAlert();
-        } else if (account && (!account.phone || !account.email)) {
-            setAdditionalInfoShow(true);
         }
+        const formData_update_account_detail = new FormData();
+        formData_update_account_detail.append('account_id', account.id);
+
+        const response_update_account_detail = await get_update_account_detail(formData_update_account_detail, "Get Account Detail", true);
+        if (response_update_account_detail.success) {
+            const user = response_update_account_detail.data.account_detail;
+            account= user;
+        } else {
+            return loginRequiredAlert();
+        }
+        if (!account) {
+            return loginRequiredAlert();
+        } else if (account && (!account.phone || !account.address)) {
+            setAdditionalInfoShow(true);
+        } else{
+            setAdditionalInfoShow(false)
+        }
+
+        
         setOpen(true);
     };
 
@@ -153,7 +171,7 @@ export default function ExploreCustomization() {
             icon: icon,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'OK EM HIỂU RỒI',
+            confirmButtonText: 'Got It',
             customClass: {
                 popup: 'swal2-custom-zindex'
             }
@@ -161,11 +179,11 @@ export default function ExploreCustomization() {
             if (result.isConfirmed && additionalInfoShow == true && phoneNumber && address) {
                 Swal.fire({
                     title: 'Success',
-                    text: "Your Account Infomation Has Been Update \n*Phone Number: " + phoneNumber + '\n*Address: ' + address,
+                    html: "Your Account Infomation Has Been Update <br>*Phone Number: " + phoneNumber + '<br>*Address: ' + address,
                     icon: "success",
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'OK EM HIỂU RỒI',
+                    confirmButtonText: 'Got It',
                     customClass: {
                         popup: 'swal2-custom-zindex'
                     }
@@ -186,7 +204,7 @@ export default function ExploreCustomization() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 1: Contact</h1>
-                            <p className="mt-2 ml-4"> Nhập thông tin của bạn và chúng tôi sẽ liên hệ sớm nhất có thể</p>
+                            <p className="mt-2 ml-4"> Enter your information and we will contact you as soon as possible.</p>
 
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
@@ -196,7 +214,7 @@ export default function ExploreCustomization() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 2: Planning</h1>
-                            <p className="mt-2 ml-4">Chúng tôi cung cấp đội ngũ tư vấn viên chuyên nghiệp, giúp bạn lên ý tưởng về trang sức của mình</p>
+                            <p className="mt-2 ml-4">We provide a team of professional consultants to help you brainstorm ideas for your jewelry.</p>
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
@@ -205,7 +223,7 @@ export default function ExploreCustomization() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 3: Designing</h1>
-                            <p className="mt-2 ml-4">Từ những ý tưởng, chúng tôi sẽ thiết kế trên file 3D để cho bạn có cái nhìn tổng quát và có thể thay đổi.</p>
+                            <p className="mt-2 ml-4">From those ideas, we will design a 3D file to give you a comprehensive view and allow for modifications.</p>
                         </div>
                         <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
@@ -214,7 +232,7 @@ export default function ExploreCustomization() {
                                 className="w-full h-44"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4  nnn">Step 4: Compliting</h1>
-                            <p className="mt-2 m-4">  Sản phẩm của bạn sẽ được hoàn thiện trong thời gian sớm nhất và giao tới tận tay để bạn tận hưởng tác phẩm nghệ thuật của riêng mình</p>
+                            <p className="mt-2 m-4">Your product will be completed as soon as possible and delivered to your doorstep so you can enjoy your own piece of art.</p>
                         </div>
                     </div>
 

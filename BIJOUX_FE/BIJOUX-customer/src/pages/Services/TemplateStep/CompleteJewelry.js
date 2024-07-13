@@ -18,146 +18,28 @@ import ThanksPage from "../../../components/home/ThanksPage/ThanksPage";
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber } from 'react-phone-number-input';
-import { TextField } from "@mui/material";
+import { CircularProgress, TextField } from "@mui/material";
+import { getTokenFromPersist, getUserFromPersist, instantAlertMaker, loginRequiredAlert } from "../../../api/instance/axiosInstance";
+import { save_login } from "../../Account/Login";
+import { getUserFromToken } from "../../../api/main/accounts/Login";
+import { get_update_account_detail, update_self } from "../../../api/main/accounts/Account_api";
+import { useDispatch } from "react-redux";
+import Swal from "sweetalert2";
 
 const CurrencyFormatter = ({ value }) => {
     const formattedValue = numeral(value).format('0,0') + " VND";
     return <span>{formattedValue}</span>;
 };
 
-// const finalCheckout = {
-//     model_id: 2,
-//     mounting_type: { id: 1, name: "Ring" },
-//     main_image: demoFinalMain,
-//     related_image: [
-//         demoFinalRelated1,
-//         demoFinalRelated2,
-//     ],
-//     metalList: [
-//         { id: 1, name: "Gold", image_Url: gold, price: 2000000 },
-//         { id: 2, name: "Gold", image_Url: gold, price: 1000000 },
-//     ],
-//     diamondList: [
-//         {
-//             id: 1,
-//             image_Url: "https://ion.bluenile.com/sgmdirect/photoID/32025442/Diamond/19751585/nl/Diamond-heart-1.01-Carat_3_first_.jpg",
-//             diamond_origin: { id: 1, name: "Natural-created" },
-//             diamond_clarity: { id: 1, name: "IF" },
-//             diamond_cut: { id: 1, name: "Excellent" },
-//             diamond_color: { id: 1, name: "D" },
-//             diamond_shape: { id: 4, name: "Heart" },
-//             diamond_size: 6,
-//             price: 20000000,
-//             count: 1
-//         },
-//         {
-//             id: 2,
-//             image_Url: "https://ion.bluenile.com/sgmdirect/photoID/34296365/Diamond/21001361/nl/Diamond-round-1-Carat_3_first_.jpg",
-//             diamond_origin: { id: 1, name: "Natural-created" },
-//             diamond_clarity: { id: 1, name: "IF" },
-//             diamond_cut: { id: 1, name: "Excellent" },
-//             diamond_color: { id: 1, name: "D" },
-//             diamond_shape: { id: 1, name: "Round" },
-//             diamond_size: 3.6,
-//             price: 28000000,
-//             count: 6
-//         }
-//     ],
-//     production_Price: 2000000,
-//     total_Price: 500000000
-// }
-const finalCheckout = {
-    "model_id": 1,
-    "mounting_type": {
-        "id": 2,
-        "name": "Solitaire",
-        "min_size": 4.5,
-        "max_size": 8.5
-    },
-    main_image: demoFinalMain,
-    related_image: [
-        demoFinalRelated1,
-        demoFinalRelated2,
-    ],
-    "metal": {
-        "name": "24k Gold - 1k Silver Two Stone Engagement Ring with East-West",
-        "price": 120000000
-    },
-    "diamond_list": [
-        {
-            "id": 201,
-            "name": "3.6 (mm) D-IF1 Round Shape Excellent Cut Diamond",
-            "imageUrl": "http://localhost:8000/image/Diamond/D1_VVS1.jpg",
-            "diamond_size": 0.5,
-            "diamond_color": {
-                "id": 301,
-                "name": "D"
-            },
-            "diamond_origin": {
-                "id": 401,
-                "name": "Natural"
-            },
-            "diamond_clarity": {
-                "id": 501,
-                "name": "VVS1"
-            },
-            "diamond_cut": {
-                "id": 601,
-                "name": "Excellent"
-            },
-            "price": 5000000,
-            "diamond_shape": {
-                "id": 701,
-                "name": "Round",
-                "drawing_path": "http://localhost:8000/image/shapes/round.jpg"
-            },
-            "count": 2,
-            "is_editable": 1
-        },
-        {
-            "id": 202,
-            "name": "6 (mm) D-IF1 Heart Shape Excellent Cut Diamond",
-            "imageUrl": "http://localhost:8000/image/Diamond/D2_VVS2.jpg",
-            "diamond_size": 0.75,
-            "diamond_color": {
-                "id": 302,
-                "name": "E"
-            },
-            "diamond_origin": {
-                "id": 402,
-                "name": "Lab-Created"
-            },
-            "diamond_clarity": {
-                "id": 502,
-                "name": "VVS2"
-            },
-            "diamond_cut": {
-                "id": 602,
-                "name": "Very Good"
-            },
-            "price": 7500000,
-            "diamond_shape": {
-                "id": 702,
-                "name": "Princess",
-                "drawing_path": "http://localhost:8000/image/shapes/princess.jpg"
-            },
-            "count": 1,
-            "is_editable": 0
-        }
-    ],
-    total_price: 20000000000,
-    production_price: 323232323
-
-}
-
 export default function CompleteRing() {
-
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [finalProduct, setFinalProduct] = useState(null);
     const [checkoutProduct, setCheckoutProduct] = useState(null);
 
 
     const [loading, setLoading] = useState(1);
+    const [loadingUpdateSelf, setLoadingUpdateSelf] = useState(false);
     const [loadingComplete, setLoadingComplete] = useState(false);
 
     const [showImage, setShowImage] = useState(null);
@@ -166,8 +48,10 @@ export default function CompleteRing() {
     //note đây
     const [note, setNote] = useState('');
 
-    const [checkPhoneAndAddress, setCheckPhoneAndAddress] = useState(false);
+
     const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
+    const [checkPhoneAndAddress, setCheckPhoneAndAddress] = useState(false);
     const [errPhone, setErrPhone] = useState();
     const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(true);
     const handlePhone = (value) => {
@@ -186,7 +70,7 @@ export default function CompleteRing() {
         }
     };
 
-    const [address, setAddress] = useState('');
+
     const handleAddress = (event) => {
         setAddress(event.target.value);
     };
@@ -209,7 +93,6 @@ export default function CompleteRing() {
 
             if (!finalProduct || !finalProduct.model || !finalProduct.model.id) {
                 console.log('không tồn tại finalProduct hoặc finalProduct.model == null ')
-                alert('ok')
                 window.location.href = "/services";
             }
             setFinalProduct(finalProduct);
@@ -258,14 +141,82 @@ export default function CompleteRing() {
         window.location.href = '/template?step=2&mountingType=' + checkoutProduct.mounting_type.id + '&model_id=' + checkoutProduct.model_id;
     }
 
+
+
     const handleRestart = () => {
         const mounting_type = JSON.parse(localStorage.getItem('mountingType'));
         window.location.href = `/template?step=1&mountingType=${mounting_type.id}`;
         localStorage.removeItem('finalProduct');
     }
 
+    const handleUpdateSelf = async () => {
+        setLoadingUpdateSelf(true);
+        if (!phone || !address) {
+            setLoadingUpdateSelf(false)
+            return instantAlertMaker('error', 'New Phone Number And Address Required', 'Your Account Need To Be Update To Use Our Features');
+
+        }
+        const new_account = {
+            phone: phone,
+            address: address,
+        }
+        const formData = new FormData();
+        formData.append('new_account', JSON.stringify(new_account));
+        const response = await update_self(formData, 'New Account', true);
+        if (!response.success) {
+            setLoadingUpdateSelf(false)
+            return instantAlertMaker('error', 'Error', 'Your account has not been updated');
+        } else {
+            const token = response.data.token;
+            if (token) {
+                const user = getUserFromToken(token);
+                save_login(dispatch, token, user)
+                setLoadingUpdateSelf(false)
+                setCheckPhoneAndAddress(false);
+                return (
+                    Swal.fire({
+                        title: 'Success',
+                        html: "Your Account Infomation Has Been Update <br>*Phone Number: " + phone + '<br>*Address: ' + address,
+                        icon: "success",
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Got It',
+                        customClass: {
+                            popup: 'swal2-custom-zindex'
+                        }
+                    })
+                );
+            } else {
+                setLoadingUpdateSelf(false)
+                return instantAlertMaker('error', 'Error', 'Token Error');
+            }
+        }
+    }
     const handleOrderAdding = async () => {
         setLoadingComplete(true);
+        let account =  getUserFromPersist();
+        if (!account) {
+            return loginRequiredAlert();
+        }
+        const formData_update_account_detail = new FormData();
+        formData_update_account_detail.append('account_id', account.id);
+
+        const response_update_account_detail = await get_update_account_detail(formData_update_account_detail, "Get Account Detail", true);
+        if (response_update_account_detail.success) {
+            const user = response_update_account_detail.data.account_detail;
+            account= user;
+        } else {
+            return loginRequiredAlert();
+        }
+        if (!account) {
+            return loginRequiredAlert();
+        } else if (account && (!account.phone || !account.email)) {
+            setLoadingComplete(false)
+            return setCheckPhoneAndAddress(true);
+        } else {
+            setCheckPhoneAndAddress(false);
+        }
+
         const finalProduct = JSON.parse(localStorage.getItem('finalProduct'));
         if (!finalProduct) {
             setLoadingComplete(false);
@@ -292,15 +243,22 @@ export default function CompleteRing() {
             localStorage.removeItem('finalProduct');
             setLoading(2);
             // navigate('/services');
+        }else{
+            setLoading(3)
         }
         setLoadingComplete(false);
     }
 
+    
     return (
         <div className="flex flex-col items-center text-[#151542] mb-20">
             <p className="text-[#151542] text-4xl font-loraFont font-semibold">Your Final Jewelry Has Been Complete !</p>
             <div className="w-3/4 h-0.5 bg-slate-500 mb-20 mt-5"></div>
-            {loading == 1 && <CSpinner color="primary" />}
+            {loading == 1 &&
+                <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
+                    <CircularProgress color="inherit" />
+                </Box>
+            }
             {loading == 2 && <ThanksPage />}
             {loading == 3 &&
 
@@ -430,7 +388,9 @@ export default function CompleteRing() {
 
                         <div onClick={() => handleOrderAdding()} className="w-full h-[48px] flex items-center justify-center text-xl text-white bg-[#151542] hover:cursor-pointer hover:bg-[#29296b] mb-6">
                             {loadingComplete ?
-                                <CSpinner color="primary" />
+                                <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
+                                    <CircularProgress color="inherit" />
+                                </Box>
                                 :
                                 <p>CONFIRM ORDER</p>
                             }
@@ -459,7 +419,7 @@ export default function CompleteRing() {
                             <div className="ml-3 flex flex-col">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Free Shipping</p>
                                 <div className="w-[550px]">
-                                    <p className="font-gantariFont text-sm">Trang sức của bạn sẽ được vận chuyển miễn phí toàn quốc với thời gian nhất. Chúng tôi cam kết đảm bảo tính bảo mật và nguyên vẹn của sản phẩm trong quá trình vận chuyển.</p>
+                                    <p className="font-gantariFont text-sm">Your jewelry will be shipped nationwide free of charge with the utmost expediency. We are committed to ensuring the security and integrity of your product throughout the shipping process.</p>
                                 </div>
                             </div>
                         </div>
@@ -473,7 +433,7 @@ export default function CompleteRing() {
                             <div className="ml-3 flex flex-col">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Material's Price Changing</p>
                                 <div className="w-[550px]">
-                                    <p className="font-gantariFont text-sm">Giá của trang sức có thể sẽ thay đổi do sự thay đổi giá của các nguyên vật liệu trước khi bạn đặt cọc. Vì vậy hãy đặt cọc sớm nhất để có mức giá tốt nhất.</p>
+                                    <p className="font-gantariFont text-sm">Jewelry prices may vary due to changes in the prices of raw materials before you place a deposit. Therefore, place your deposit early to lock in the best price.</p>
                                 </div>
                             </div>
                         </div>
@@ -487,7 +447,7 @@ export default function CompleteRing() {
                             <div className="ml-3 flex flex-col">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Lifetime warranty</p>
                                 <div className="w-[550px]">
-                                    <p className="font-gantariFont text-sm">Trang sức của bạn được bảo hành trọn đời từ Bijoux, mọi vấn đề liên quan đến vật liệu làm nên trang sức sẽ được chúng tôi khắc phục cho bạn.</p>
+                                    <p className="font-gantariFont text-sm">Your jewelry is covered by a lifetime warranty from Bijoux. Any issues related to the materials used in the jewelry will be resolved by us.</p>
                                 </div>
                             </div>
                         </div>
@@ -530,7 +490,18 @@ export default function CompleteRing() {
                         />
                     </div>
                     <div className="flex flex-col items-center justify-center mt-2">
-                        <button className="w-[150px] h-[40px] text-white font-semibold font-gantariFont bg-sky-800 hover:bg-sky-500 rounded-sm">Submit</button>
+                        
+                            <button disabled={loadingUpdateSelf} onClick={() => handleUpdateSelf()} className="w-[150px] h-[40px] text-white font-semibold font-gantariFont bg-sky-800 hover:bg-sky-500 rounded-sm">
+                            {loadingUpdateSelf ?
+                            <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center'}}>
+                                <CircularProgress color="inherit" />
+                            </Box>
+                            :
+                            'Submit'
+                            }
+                            </button>
+
+                        
                         <p className="text-xs text-center text-gray-500 font-gantariFont mt-4">Please make sure that you submit correct informations.</p>
                     </div>
                 </Box>

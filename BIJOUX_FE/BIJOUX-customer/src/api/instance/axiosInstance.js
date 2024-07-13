@@ -1,12 +1,13 @@
 import axios from 'axios';
-import {backend_url} from '../Back_End_Url';
+import { backend_url } from '../Back_End_Url';
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
+import { Navigate } from 'react-router-dom';
 
 // Tạo axios instance
 const api_admin = axios.create({
-  baseURL: backend_url+'/admin',
+  baseURL: backend_url + '/admin',
 });
 
 const api = axios.create({
@@ -22,7 +23,7 @@ const login_required_api = axios.create({
 export const getTokenFromPersist = () => {
   try {
     const persistedState = JSON.parse(localStorage.getItem('persist:root'));
-    if (persistedState && persistedState.auth ) {
+    if (persistedState && persistedState.auth) {
       const authState = JSON.parse(persistedState.auth);
       return authState.token;
     }
@@ -33,82 +34,111 @@ export const getTokenFromPersist = () => {
 };
 
 export const loginRequiredAlert = () => {
-  
+
   Swal.fire({
-      title: 'Bạn Chưa Đăng Nhập',
-      text: "Đăng nhập để tiếp tục!",
-      icon: 'warning',
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Đông Ý',
+    title: `You haven't login yet`,
+    text: "Please login to continue!",
+    icon: 'warning',
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Login',
   }).then((result) => {
-      if (result.isConfirmed) {
-          const redirectUrl = window.location.href;
-          localStorage.setItem('redirectUrl', redirectUrl);
-          
-          window.location.href = '/login';
-      }
+    if (result.isConfirmed) {
+      const redirectUrl = window.location.href;
+      localStorage.setItem('redirectUrl', redirectUrl);
+
+      window.location.href = '/login';
+    }
   })
 
 };
 export const instantAlertMaker = (icon, title, text) => {
   Swal.fire({
     title: title,
-    text:  text,
-    icon:  icon,
+    text: text,
+    icon: icon,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: 'Đông Ý',
-})
+    confirmButtonText: 'OK',
+  })
+};
+export const paymentAlertMaker = (navigate, icon, title, text) => {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: icon,
+    allowOutsideClick: false,
+    confirmButtonColor: '#3085d6',
+    confirmButtonText: 'OK',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      navigate(window.location.pathname)
+    }
+  })
+};
+export const deactivatedAlertMaker = (navigate, icon, title, text) => {
+  Swal.fire({
+    title: 'Your Account Has Been Deactivated',
+    text: 'Please contact the admin for more information!',
+    icon: 'error',
+    allowOutsideClick: false,
+    confirmButtonColor: '#3085d6',
+    confirmButtonText: 'OK',
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      window.location.href = '/login?clear=true';
+    }
+  })
 };
 
 // Lấy token từ Redux Persist
 export const getUserFromPersist = () => {
-    try {
-      const persistedState = JSON.parse(localStorage.getItem('persist:root'));
-      if (persistedState && persistedState.auth) {
-        const authState = JSON.parse(persistedState.auth);
-        return authState.user;
-      }
-    } catch (error) {
-      console.error('Error getting user from persisted state:', error);
+  try {
+    const persistedState = JSON.parse(localStorage.getItem('persist:root'));
+    if (persistedState && persistedState.auth) {
+      const authState = JSON.parse(persistedState.auth);
+      return authState.user;
     }
-    return null;
-  };
-  
+  } catch (error) {
+    console.error('Error getting user from persisted state:', error);
+  }
+  return null;
+};
+
 login_required_api.interceptors.request.use(
-    (config ) => {
-      const token = getTokenFromPersist();
-  
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        const now = Date.now() / 1000; 
-  
-        if (decodedToken.exp < now) {
-          
-          //window.location.href = '/#/login'; 
-          alert('ngu2')
-          loginRequiredAlert();
-          return Promise.reject(new Error('Token expired'));
-        }
-  
-        //console.log(token)
-        config.headers.Authorization = `Bearer ${token}`;
-      } else {
-        
+  (config) => {
+    const token = getTokenFromPersist();
+
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const now = Date.now() / 1000;
+
+      if (decodedToken.exp < now) {
+
         //window.location.href = '/#/login'; 
+        // alert('ngu2')
         loginRequiredAlert();
-        return Promise.reject(new Error('No token found'));
+        return Promise.reject(new Error('Token expired'));
       }
-  
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
+
+      //console.log(token)
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+
+      //window.location.href = '/#/login'; 
+      loginRequiredAlert();
+      return Promise.reject(new Error('No token found'));
     }
-  );
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 api.interceptors.request.use(
-  (config ) => {
+  (config) => {
     // const token = getTokenFromPersist();
     // config.headers.Authorization = `Bearer ${token}`;
 
@@ -118,16 +148,16 @@ api.interceptors.request.use(
     //   const now = Date.now() / 1000; 
 
     //   if (decodedToken.exp < now) {
-        
+
     //     //window.location.href = '/#/login'; 
     //     loginRequiredAlert();
     //     return Promise.reject(new Error('Token expired'));
     //   }
 
-      
+
     //   config.headers.Authorization = `Bearer ${token}`;
     // } else {
-      
+
     //   //window.location.href = '/#/login'; 
     //   loginRequiredAlert();
     //   return Promise.reject(new Error('No token found'));
@@ -141,28 +171,28 @@ api.interceptors.request.use(
 );
 
 api_admin.interceptors.request.use(
-  (config ) => {
+  (config) => {
     // const token = getTokenFromPersist();
     // config.headers.Authorization = `Bearer ${token}`;
 
     const token = getTokenFromPersist();
     if (token) {
       const decodedToken = jwtDecode(token);
-      const now = Date.now() / 1000; 
+      const now = Date.now() / 1000;
 
       if (decodedToken.exp < now) {
-        
+
         //window.location.href = '/#/login'; 
         loginRequiredAlert();
         return Promise.reject(new Error('Token expired'));
       }
 
-      
+
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      
+
       //window.location.href = '/#/login';
-      loginRequiredAlert(); 
+      loginRequiredAlert();
       return Promise.reject(new Error('No token found'));
     }
 
@@ -173,4 +203,4 @@ api_admin.interceptors.request.use(
   }
 );
 
-export  {api_admin, api, login_required_api};
+export { api_admin, api, login_required_api };

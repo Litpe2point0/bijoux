@@ -10,10 +10,12 @@ use App\Models\items\Model_Diamond;
 use App\Models\items\Model_DiamondShape;
 use App\Models\items\Model_Metal;
 use Illuminate\Support\Facades\File;
+use PHPUnit\Framework\Constraint\IsTrue;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use PhpParser\Node\Stmt\If_;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Throwable;
 
@@ -25,7 +27,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('new_model'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -123,15 +125,19 @@ class ModelController extends Controller
                     }
                 }
                 foreach ($main_metal_ids as $metal) {
+                    $check3 = false;
                     $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
                     foreach ($metalCompatibilities1 as $compatibility2) {
                         foreach ($notmain_metal_ids as $metal2) {
-                            if ($compatibility2->Metal_id_2 != $metal2) {
-                                return response()->json([
-                                    'error' => 'Metal Compatibility Error'
-                                ], 403);
+                            if ($compatibility2->Metal_id_2 == $metal2) {
+                                $check3 = true;
                             }
                         }
+                    }
+                    if (!$check3) {
+                        return response()->json([
+                            'error' => 'Metal compatibility error'
+                        ], 403);
                     }
                 }
             }
@@ -207,7 +213,7 @@ class ModelController extends Controller
         }
 
         return response()->json([
-            'success' => "Model Successfully Added",
+            'success' => "Model successfully added",
         ], 201);
     }
     public function get_model_list(Request $request)
@@ -226,7 +232,7 @@ class ModelController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -288,10 +294,74 @@ class ModelController extends Controller
 
         $temp1 = collect();
         $modelIds = $query_available->pluck('model_id');
-        foreach ($modelIds as $model_id) {
-            $filtered_models = DB::table('model')->where('id', $model_id)->where('isAvailable', true)->first();
-            if ($filtered_models) {
-                $temp1->push($filtered_models);
+        $models = DB::table('model')->whereIn('id', $modelIds)->where('isAvailable', true)->get();
+        if (in_array($role_id, [2, 3, 4, 5])) {
+            foreach ($models as $model) {
+                $check = false;
+                $mm = collect();
+                $isValid = false;
+                $modelMetals = DB::table('model_metal')->where('model_id', $model->id)->get();
+                foreach ($modelMetals as $modelMetal) {
+                    $metal = DB::table('metal')->where('id', $modelMetal->metal_id)->first();
+                    if ($metal && $metal->deactivated == 0) {
+                        $mm->push($modelMetal);
+                        $isValid = true;
+                    }
+                    if ($modelMetal->is_main == 0) {
+                        $check = true;
+                    }
+                }
+                if (!$mm->isEmpty()) {
+                    $notmain_metal_ids = [];
+                    $main_metal_ids = [];
+                    foreach ($mm as $metal) {
+                        if ($metal->is_main == 0) {
+                            $notmain_metal_ids[] = $metal->metal_id;
+                        } else {
+                            $main_metal_ids[] = $metal->metal_id;
+                        }
+                    }
+                    if($main_metal_ids == null){
+                        $isValid = false;
+                        continue;
+                    }
+                    if ($check) {
+                        if($notmain_metal_ids == null){
+                            $isValid = false;
+                            continue;
+                        }
+                        $check2 = true;
+                        foreach ($main_metal_ids as $metal) {
+                            $check3 = false;
+                            $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                            foreach ($metalCompatibilities1 as $compatibility2) {
+                                foreach ($notmain_metal_ids as $metal2) {
+                                    if ($compatibility2->Metal_id_2 == $metal2) {
+                                        $check3 = true;
+                                    }
+                                }
+                            }
+                            if (!$check3) {
+                                $check2 = false;
+                            }
+                        }
+                        if($check2){
+                            $isValid = true;
+                        } else {
+                            $isValid = false;
+                        }
+                    }
+                }
+                if ($isValid) {
+                    $temp1->push($model);
+                }
+            }
+        } else {
+            foreach ($modelIds as $model_id) {
+                $filtered_models = DB::table('model')->where('id', $model_id)->where('isAvailable', true)->first();
+                if ($filtered_models) {
+                    $temp1->push($filtered_models);
+                }
             }
         }
         $model_available = $temp1->unique('id')->sortBy('deactivated')->values();
@@ -344,10 +414,28 @@ class ModelController extends Controller
 
             $temp2 = collect();
             $modelIds2 = $query_unavailable->pluck('model_id');
-            foreach ($modelIds2 as $model_id) {
-                $filtered_models2 = DB::table('model')->where('id', $model_id)->where('isAvailable', false)->first();
-                if ($filtered_models2) {
-                    $temp2->push($filtered_models2);
+            $models2 = DB::table('model')->whereIn('id', $modelIds2)->where('isAvailable', true)->get();
+            if (in_array($role_id, [2, 3, 4, 5])) {
+                foreach ($models2 as $model) {
+                    $isValid = false;
+                    $modelMetals = DB::table('model_metal')->where('model_id', $model->id)->get();
+                    foreach ($modelMetals as $modelMetal) {
+                        $metal = DB::table('metal')->where('id', $modelMetal->metal_id)->first();
+                        if ($metal && $metal->deactivated == 0) {
+                            $isValid = true;
+                            break;
+                        }
+                    }
+                    if ($isValid) {
+                        $temp2->push($model);
+                    }
+                }
+            } else {
+                foreach ($modelIds2 as $model_id) {
+                    $filtered_models2 = DB::table('model')->where('id', $model_id)->where('isAvailable', false)->first();
+                    if ($filtered_models2) {
+                        $temp2->push($filtered_models2);
+                    }
                 }
             }
             $model_unavailable = $temp2->unique('id')->sortBy('deactivated')->values();
@@ -409,13 +497,47 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
+        }
+        $authorizationHeader = $request->header('Authorization');
+        $token = null;
+
+        if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
+            $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
+            try {
+                $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
+            } catch (JWTException $e) {
+                try {
+                    $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid token'], 401);
+                }
+            }
+        }
+        if ($token == null) {
+            $role_id = 5;
+        } else {
+            try {
+                $role_id = $decodedToken['role_id'];
+            } catch (Throwable $e) {
+                $role_id = $decodedToken->role_id;
+            }
         }
         $model = DB::table('model')->where('id', $input)->first();
         if ($model == null) {
             return response()->json([
-                'error' => 'The Selected Model Doesn\'t Exist'
+                'error' => 'The selected model doesn\'t exist'
+            ], 403);
+        }
+        if ((bool)$model->deactivated == true && $role_id != 1) {
+            return response()->json([
+                'error' => 'The selected model is deactivated'
+            ], 403);
+        }
+        if ($model->isAvailable == false && $role_id != 1) {
+            return response()->json([
+                'error' => 'The selected model is unavailable'
             ], 403);
         }
         $OGurl = env('ORIGIN_URL');
@@ -446,23 +568,101 @@ class ModelController extends Controller
         });
         $model->model_diamond = $model_diamond;
 
+        $temp = collect();
         $model_metal = DB::table('model_metal')->where('model_id', $model->id)->get();
-        $model_metal->map(function ($model_metal) {
-            $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-            if ($metal->deactivated == 1) {
-                $model_metal->isAvailable = false;
-            } else {
-                $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
-                $OGurl = env('ORIGIN_URL');
-                $url = env('METAL_URL');
-                $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
-                $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
-                unset($model_metal->model_id);
-                unset($model_metal->metal_id);
+        if ($role_id == 5) {
+            $check = false;
+            foreach ($model_metal as $metal2) {
+                if ($metal2->is_main == 0) {
+                    $check = true;
+                }
             }
+            if ($check) {
+                $temp3 = collect();
+                foreach ($model_metal as $metal1) {
+                    $metal = DB::table('metal')->where('id', $metal1->metal_id)->first();
+                    if ($metal->deactivated == 1) {
+                        continue;
+                    }
+                    $temp3->push($metal1);
+                }
+                $notmain_metal_ids = [];
+                $main_metal_ids = [];
+                foreach ($temp3 as $metal) {
+                    if ($metal->is_main == 0) {
+                        $notmain_metal_ids[] = $metal->metal_id;
+                    } else {
+                        $main_metal_ids[] = $metal->metal_id;
+                    }
+                }
+                if ($notmain_metal_ids == null || $main_metal_ids == null) {
+                    return response()->json([
+                        'error' => 'The selected model isn\'t available'
+                    ], 403);
+                }
+                foreach ($main_metal_ids as $metal) {
+                    $check3 = false;
+                    $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
+                    foreach ($metalCompatibilities1 as $compatibility2) {
+                        foreach ($notmain_metal_ids as $metal2) {
+                            if ($compatibility2->Metal_id_2 == $metal2) {
+                                $mm2 = DB::table('model_metal')->where('model_id', $model->id)->where('metal_id', $metal2)->where('is_main', 0)->first();
+                                $temp->push($mm2);
+                                $check3 = true;
+                            }
+                        }
+                    }
+                    if (!$check3) {
+                        return response()->json([
+                            'error' => 'Metal compatibility error'
+                        ], 403);
+                    } else {
+                        $mm1 = DB::table('model_metal')->where('model_id', $model->id)->where('metal_id', $metal)->where('is_main', 1)->first();
+                        $temp->push($mm1);
+                    }
+                }
+            } else {
+                foreach ($model_metal as $metal1) {
+                    $metal = DB::table('metal')->where('id', $metal1->metal_id)->first();
+                    if ($metal->deactivated == 1) {
+                        continue;
+                    }
+                    $temp->push($metal1);
+                }
+            }
+            // foreach ($model_metal as $metal1) {
+            //     $metal = DB::table('metal')->where('id', $metal1->metal_id)->first();
+            //     if ($metal->deactivated == 1) {
+            //         continue;
+            //     }
+            //     $temp->push($metal1);
+            // }
+        } else {
+            foreach ($model_metal as $metal1) {
+                $temp->push($metal1);
+            }
+        }
+        $temp->map(function ($model_metal) {
+            // $metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+            // if ($metal->deactivated == 1) {
+            //     $model_metal->isAvailable = false;
+            // } else {
+            $model_metal->metal = DB::table('metal')->where('id', $model_metal->metal_id)->first();
+            $OGurl = env('ORIGIN_URL');
+            $url = env('METAL_URL');
+            $model_metal->metal->imageUrl = $OGurl . $url . $model_metal->metal->id . '/' . $model_metal->metal->imageUrl;
+            $model_metal->metal->created = Carbon::parse($model_metal->metal->created)->format('H:i:s d/m/Y');
+            unset($model_metal->model_id);
+            unset($model_metal->metal_id);
+            // }
             return $model_metal;
         });
-        $model->model_metal = $model_metal;
+        if ($temp->isEmpty() && $role_id == 5) {
+            return response()->json([
+                'error' => 'The selected model isn\'t available'
+            ], 403);
+        }
+        $model->model_metal = $temp->values()->all();
         $model->imageUrl = $OGurl . $Murl . $model->id . '/' . $model->imageUrl;
 
         return response()->json([
@@ -474,7 +674,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('deactivate'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -483,7 +683,7 @@ class ModelController extends Controller
             $model = DB::table('model')->where('id', $input['model_id'])->first();
             if ($model == null) {
                 return response()->json([
-                    'error' => 'The Selected Model Doesn\'t Exist'
+                    'error' => 'The selected model doesn\'t exist'
                 ], 403);
             }
             if ($input['deactivate']) {
@@ -504,11 +704,11 @@ class ModelController extends Controller
         }
         if ($tf) {
             return response()->json([
-                'success' => 'Deactivate Model Successfully'
+                'success' => 'Deactivate model successfully'
             ], 200);
         } else {
             return response()->json([
-                'success' => 'Activate Model Successfully'
+                'success' => 'Activate model successfully'
             ], 200);
         }
     }
@@ -517,7 +717,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('new_model'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -706,15 +906,19 @@ class ModelController extends Controller
                         }
                     }
                     foreach ($main_metal_ids as $metal) {
+                        $check3 = false;
                         $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
                         foreach ($metalCompatibilities1 as $compatibility2) {
                             foreach ($notmain_metal_ids as $metal2) {
-                                if ($compatibility2->Metal_id_2 != $metal2) {
-                                    return response()->json([
-                                        'error' => 'Metal Compatibility Error'
-                                    ], 403);
+                                if ($compatibility2->Metal_id_2 == $metal2) {
+                                    $check3 = true;
                                 }
                             }
+                        }
+                        if (!$check3) {
+                            return response()->json([
+                                'error' => 'Metal compatibility error'
+                            ], 403);
                         }
                     }
                 }
@@ -804,7 +1008,7 @@ class ModelController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Model Update Successfully'
+            'success' => 'Model update successfully'
         ], 201);
     }
     public function set_available(Request $request)
@@ -814,7 +1018,7 @@ class ModelController extends Controller
         $image_list = $input['image_list'];
         if (!isset($model_id) || $model_id == null || !isset($image_list) || $image_list == null) {
             return response()->json([
-                'error' => 'Not Enough Input Received'
+                'error' => 'Not enough enput received'
             ], 403);
         }
 
@@ -892,7 +1096,7 @@ class ModelController extends Controller
                                     File::cleanDirectory($destinationPath);
                                 }
                                 return response()->json([
-                                    'error' => 'There Are Still Missing Image To This Model'
+                                    'error' => 'There are still missing image to this model'
                                 ], 403);
                             } else {
                                 $files = File::allFiles($destinationPath);
@@ -908,7 +1112,7 @@ class ModelController extends Controller
                                         File::cleanDirectory($destinationPath);
                                     }
                                     return response()->json([
-                                        'error' => 'There Are Still Missing Image To This Model'
+                                        'error' => 'There are still missing image to this model'
                                     ], 403);
                                 }
                             }
@@ -926,7 +1130,7 @@ class ModelController extends Controller
         }
 
         return response()->json([
-            'success' => 'Succesfully Set Available'
+            'success' => 'Succesfully set available'
         ], 200);
     }
     public function get_missing_image(Request $request)
@@ -939,7 +1143,7 @@ class ModelController extends Controller
 
         $model = DB::table('model')->where('id', $input)->first();
         if ($model == null) {
-            return response()->json(['error' => 'The Selected Model Doesn\'t Exist'], 403);
+            return response()->json(['error' => 'The selected model doesn\'t exist'], 403);
         }
         $OGurl = env('ORIGIN_URL');
         $Murl = env('MODEL_URL');
@@ -1041,7 +1245,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -1063,7 +1267,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -1085,7 +1289,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('model_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -1127,7 +1331,7 @@ class ModelController extends Controller
         $input = json_decode($request->input('template_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $validatedData = validator($input, [
@@ -1143,7 +1347,7 @@ class ModelController extends Controller
         ]);
         if ($validatedData->fails()) {
             return response()->json([
-                'error' => "Something Went Wrong"
+                'error' => "Something went wrong"
             ], 403);
         }
         $model_id = $input['model_id'];
@@ -1166,12 +1370,12 @@ class ModelController extends Controller
             $metal = DB::table('metal')->where('id', $input['metal_1_id'])->first();
             if ($metal == null) {
                 return response()->json([
-                    'error' => 'The Template Must Contain 1 Main Metal'
+                    'error' => 'The template must contain 1 main metal'
                 ], 403);
             }
             if ($metal->deactivated) {
                 return response()->json([
-                    'error' => 'The Template Contain a Metal That Has Been Deactivated'
+                    'error' => 'The template contain a metal that has been deactivated'
                 ], 403);
             };
         }
@@ -1181,7 +1385,7 @@ class ModelController extends Controller
             if ($metal != null) {
                 if ($metal->deactivated) {
                     return response()->json([
-                        'error' => 'The Template Contain a Metal That Has Been Deactivated'
+                        'error' => 'The template contain a metal that has been deactivated'
                     ], 403);
                 };
             }
@@ -1190,7 +1394,7 @@ class ModelController extends Controller
         $destinationPath = public_path('image/Final_Template/' . $model_id . '_' . $metal_1_id . '_' . $metal_2_id . '_' . $shape_id);
         if (!file_exists($destinationPath)) {
             return response()->json([
-                'error' => 'The Selected Template Doesn\'t Exist'
+                'error' => 'The selected template doesn\'t exist'
             ], 403);
         }
         $OGurl = env('ORIGIN_URL');
@@ -1198,7 +1402,7 @@ class ModelController extends Controller
         $files = File::allFiles($destinationPath);
         if ($files == null) {
             return response()->json([
-                'error' => 'The Selected Template Isn\'t Available'
+                'error' => 'The selected template isn\'t available'
             ], 403);
         }
         $imageCount = count($files) - 1;
@@ -1216,22 +1420,22 @@ class ModelController extends Controller
             if ($metal_2_id != null || $metal_2_id != 0) {
                 $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
                 $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
-                $metal_2->price = $volume * ($model_metal_2->percentage/100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $metal_2->price = $volume * ($model_metal_2->percentage / 100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
                 $iprice = $metal_2->price;
             } else {
                 $iprice = 0;
             }
-            $metal_1->price = $volume * ($model_metal_1->percentage/100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+            $metal_1->price = $volume * ($model_metal_1->percentage / 100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
         } else {
             if ($metal_2_id != null || $metal_2_id != 0) {
                 $metal_2 = DB::table('metal')->where('id', $metal_2_id)->first();
                 $model_metal_2 = DB::table('model_metal')->where('model_id', $model_id)->where('metal_id', $metal_2_id)->where('is_main', false)->first();
-                $metal_2->price = $model->volume * ($model_metal_2->percentage/100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
+                $metal_2->price = $model->volume * ($model_metal_2->percentage / 100) * $metal_2->specific_weight * $metal_2->sale_price_per_gram;
                 $iprice = $metal_2->price;
             } else {
                 $iprice = 0;
             }
-            $metal_1->price = $model->volume * ($model_metal_1->percentage/100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
+            $metal_1->price = $model->volume * ($model_metal_1->percentage / 100) * $metal_1->specific_weight * $metal_1->sale_price_per_gram;
         }
 
         $mprice = $metal_1->price + $iprice;
@@ -1248,7 +1452,7 @@ class ModelController extends Controller
                 if ($diamond != null) {
                     if ($diamond->deactivated) {
                         return response()->json([
-                            'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
+                            'error' => 'The selected template contain a diamond that has been deactivated'
                         ], 403);
                     }
                     $diamond->name = $input['diamond_size'] . " (mm) " . $diamond_color->name . "-" . $diamond_clarity->name . " " . $diamond_shape->name . " Shape " . $diamond_cut->name . "Cut Diamond";
@@ -1271,7 +1475,7 @@ class ModelController extends Controller
                     $diamond_list->push($diamond);
                 } else {
                     return response()->json([
-                        'error' => 'The Selected Template Contain a Diamond That Doesn\'t Exist'
+                        'error' => 'The selected template contain a diamond that doesn\'t exist'
                     ], 403);
                 }
             } else {
@@ -1279,7 +1483,7 @@ class ModelController extends Controller
                 if ($diamond != null) {
                     if ($diamond->deactivated) {
                         return response()->json([
-                            'error' => 'The Selected Template Contain a Diamond That Has Been Deactivated'
+                            'error' => 'The selected template contain a diamond that has been deactivated'
                         ], 403);
                     }
                     $diamond_shape2 = DB::table('diamond_shape')->where('id', $diamonds->diamond_shape_id)->first();
@@ -1303,13 +1507,13 @@ class ModelController extends Controller
                     $diamond_list->push($diamond);
                 } else {
                     return response()->json([
-                        'error' => 'The Selected Template Contain a Diamond That Doesn\'t Exist'
+                        'error' => 'The selected template contain a diamond that doesn\'t exist'
                     ], 403);
                 }
             }
         }
-        $production_price = $model->production_price + (($product_price + $model->production_price) * $model->profit_rate / 100);
-        $total_price = ($product_price + $model->production_price) * ($model->profit_rate + 100) / 100;
+        $production_price = $model->production_price + ($product_price  * $model->profit_rate / 100);
+        $total_price = ($product_price) * ($model->profit_rate + 100) / 100 + $model->production_price;
         return response()->json([
             'name' => $name,
             'model_id' => $model_id,

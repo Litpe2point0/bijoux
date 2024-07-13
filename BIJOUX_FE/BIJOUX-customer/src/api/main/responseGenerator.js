@@ -1,8 +1,12 @@
+import { deactivatedAlertMaker } from "../instance/axiosInstance";
 
 
 
 export function response_with_mess(isSuccess, title, mess, data) {
-
+    //alert(mess)
+    if(mess === 'isDeactivated') {
+        return deactivatedAlertMaker()
+    }
     const response = {
         success: isSuccess,
         mess: {

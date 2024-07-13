@@ -14,7 +14,7 @@ import HeaderBottom from "./components/home/Header/HeaderBottom";
 import SpecialCase from "./components/SpecialCase/SpecialCase";
 import About from "./pages/About/About";
 import SignIn from "./pages/Account/SignIn";
-import SignUp from "./pages/Account/SignUp";
+import Register from "./pages/Account/Register";
 import Cart from "./pages/Cart/Cart";
 //import ViewDesignProcess from "./pages/Cart/ViewDesignProcess";
 import ViewOrder from "./pages/Cart/ViewOrder";
@@ -70,6 +70,7 @@ const router = createBrowserRouter(
         {/* ==================== Header Navlink Start here =================== */}
         <Route index element={<Home />}></Route>
         <Route path="/shop" element={<Shop />}></Route>
+        <Route path="/about" element={<About />}></Route>
         <Route path="/services" element={<Services />}></Route>
         <Route path="/template" element={<Template />}></Route>
         <Route path="/mounting-detail/:id" element={<MountingDetail />}></Route>
@@ -87,10 +88,10 @@ const router = createBrowserRouter(
         </Route>
         <Route path="/paymentgateway" element={<Payment />}></Route>
       </Route>
-      <Route path="/signup" element={<SignUp />}></Route>
-      <Route path="/signin" element={<SignIn />}></Route>
+      {/* <Route path="/signup" element={<SignUp />}></Route>
+      <Route path="/signin" element={<SignIn />}></Route> */}
       <Route path="/login" element={<Login />}></Route>
-      <Route path="/register" element={<SignUp />}></Route>
+      <Route path="/register" element={<Register />}></Route>
 
     </Route>
   )

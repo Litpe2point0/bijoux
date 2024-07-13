@@ -150,7 +150,43 @@ export async function get_account_detail(formData, title, loginRequired, { signa
 
     }
 }
+export async function get_payment_history(formData, title, loginRequired, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const apiInstance = loginRequired ? login_required_api : api;
+        const response = await apiInstance.post('/account/get_payment_history', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("get_payment_history" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
 
+export async function activate_account(formData, title, loginRequired, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const apiInstance = loginRequired ? login_required_api : api;
+        const response = await apiInstance.post('/activate_account', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("activate_account" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
 
+export async function get_update_account_detail(formData, title, loginRequired, { signal } = {}) {
+    const mess_title = title ? title : null;
+    const request_body = formData ? formData : null;
+    try {
+        const apiInstance = loginRequired ? login_required_api : api;
+        const response = await apiInstance.post('/get_update_account_detail', request_body, { signal });
+        return response_with_mess(true, mess_title, response.data.success, response.data);
+    } catch (error) {
+        console.log("get_update_account_detail" + " BIG ERROR", error)
+        return response_with_mess(false, mess_title, error.response.data.error, null);
+    }
+}
 
 

@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginLogo2 } from "../../assets/images";
 import LoginByGoogle from "./LoginByGoogle";
-import { setAuthToken } from "../../redux/auth/authSlice";
+import { clearAuthToken, setAuthToken } from "../../redux/auth/authSlice";
+import { getUserFromToken, login } from "../../api/main/accounts/Login";
+import { useDispatch } from "react-redux";
+import { instantAlertMaker } from "../../api/instance/axiosInstance";
+import { Box, CircularProgress } from "@mui/material";
 
 
 export const save_login = (dispatch, token, user) => {
@@ -16,9 +20,15 @@ export const save_login = (dispatch, token, user) => {
   dispatch(setAuthToken(saveInfo))
 }
 
+const useQuery = () => {
+  return new URLSearchParams(useLocation().search);
+};
+
 const Login = () => {
+  const [disabled, setDisabled] = useState(false);
+  const query = useQuery();
   // ============= Initial State Start here =============
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   // ============= Initial State End here ===============
   // ============= Error Msg Start here =================
@@ -29,39 +39,63 @@ const Login = () => {
   const [successMsg, setSuccessMsg] = useState("");
   // ============= Event Handler Start here =============
   const handleEmail = (e) => {
-    setEmail(e.target.value);
+    setUsername(e.target.value);
     setErrEmail("");
   };
   const handlePassword = (e) => {
     setPassword(e.target.value);
     setErrPassword("");
   };
-  // ============= Event Handler End here ===============
-  // const handleSignUp = (e) => {
-  //   e.preventDefault();
 
-  //   if (!email) {
-  //     setErrEmail("Enter your email");
-  //   }
-
-  //   if (!password) {
-  //     setErrPassword("Create a password");
-  //   }
-  //   // ============== Getting the value ==============
-  //   if (email && password) {
-  //     setSuccessMsg(
-  //       `Hello dear, Thank you for your attempt. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
-  //     );
-  //     setEmail("");
-  //     setPassword("");
-  //   }
-  // };
   const navigate = useNavigate();
-  const handleSignUp = (e) => {
+  const dispatch = useDispatch();
+  const handleLogin = async (e) => {
+    setDisabled(true);
     e.preventDefault();
+    const login_information = {
+      username: username,
+      password: password,
+    }
+    const formData = new FormData();
+    formData.append('login_information', JSON.stringify(login_information));
+    let response = await login(formData);
+    if (response.success) {
 
-    navigate('/shop')
+      const token = response.access_token
+      const user = getUserFromToken(token)
+      console.log("User From JWT", user)
+      const redirectUrl = localStorage.getItem('redirectUrl');
+      if (redirectUrl) {
+        localStorage.removeItem('redirectUrl');
+        window.location.href = redirectUrl;
+      } else {
+        window.location.href = '/';
+      }
+      save_login(dispatch, token, user)
+      instantAlertMaker('success', 'Login Successfully !', 'Welcome ' + user.fullname)
+      return;
+    } else if (response.error) {
+      instantAlertMaker('error', 'Login Failed !', response.error)
+      console.log(response.error)
+
+    } else {
+      instantAlertMaker('error', 'Login Failed !', response.error)
+      console.log(response.error)
+
+    }
+    setDisabled(false);
+
   };
+
+  
+  useEffect(() => {
+    if (query.get("clear")) {
+      //alert('ngu')
+      dispatch(clearAuthToken());
+      localStorage.removeItem("persist:root");
+      navigate('/login')
+    }
+  }, [query]);
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
@@ -135,12 +169,12 @@ const Login = () => {
             <p className="w-full px-4 py-10 text-green-500 font-medium font-titleFont">
               {successMsg}
             </p>
-            <Link to="/signup">
+            <Link to="/register">
               <button
                 className="w-full h-10 bg-primeColor text-gray-200 rounded-md text-base font-titleFont font-semibold 
             tracking-wide hover:bg-black hover:text-white duration-300"
               >
-                Sign Up
+                Register
               </button>
             </Link>
           </div>
@@ -148,20 +182,21 @@ const Login = () => {
           <form className="w-full lgl:w-[450px] h-screen flex items-center justify-center">
             <div className="px-6 py-4 w-full h-[90%] flex flex-col justify-center overflow-y-scroll scrollbar-thin scrollbar-thumb-primeColor">
               <h1 className="font-titleFont underline underline-offset-4 decoration-[1px] font-semibold text-3xl mdl:text-4xl mb-4">
-                Sign in
+                Log In
               </h1>
               <div className="flex flex-col gap-3">
                 {/* Email */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Email
+                    Username
                   </p>
                   <input
+                    disabled={disabled}
                     onChange={handleEmail}
-                    value={email}
+                    value={username}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="email"
-                    placeholder="john@workemail.com"
+                    placeholder="@yourusername"
                   />
                   {errEmail && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
@@ -177,11 +212,12 @@ const Login = () => {
                     Password
                   </p>
                   <input
+                    disabled={disabled}
                     onChange={handlePassword}
                     value={password}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="password"
-                    placeholder="Create password"
+                    placeholder="Enter password"
                   />
                   {errPassword && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
@@ -192,19 +228,25 @@ const Login = () => {
                 </div>
 
                 <button
-                  onClick={handleSignUp}
+                  disabled={disabled}
+                  onClick={handleLogin}
                   className="bg-primeColor hover:bg-black text-gray-200 hover:text-white cursor-pointer w-full text-base font-medium h-10 rounded-md  duration-300"
                 >
-                  Sign In
+                {disabled? 
+                <Box display={'flex'} alignItems={'center'} justifyContent={'center'} >
+                <CircularProgress color="inherit" size={20} /> Logging...
+                </Box>
+                 : 'Log In'}
+                 
                 </button>
-                <LoginByGoogle />
+                <LoginByGoogle  />
 
 
                 <p className="text-sm text-center font-titleFont font-medium">
                   Don't have an Account?{" "}
-                  <Link to="/signup">
+                  <Link to="/register">
                     <span className="hover:text-blue-600 duration-300">
-                      Sign up
+                      Register
                     </span>
                   </Link>
                 </p>

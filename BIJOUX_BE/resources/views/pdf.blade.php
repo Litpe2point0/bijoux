@@ -11,6 +11,7 @@
             font-family: 'Roboto', sans-serif;
             font-size: 14px;
         }
+
         .invoice-box {
             max-width: 800px;
             margin: auto;
@@ -94,9 +95,32 @@
             border-bottom: none;
         }
 
+        .invoice-box table tr.total td:nth-child(1) {
+            border-top: 1px solid #eee;
+            font-weight: bold;
+            font-size: larger;
+        }
+
         .invoice-box table tr.total td:nth-child(2) {
             border-top: 1px solid #eee;
             font-weight: bold;
+            font-size: larger;
+            color: green;
+        }
+
+        .invoice-box table tr.price td:nth-child(1) {
+            border-top: 1px solid #eee;
+            font-weight: bold;
+        }
+
+        .invoice-box table tr.change td:nth-child(1) {
+            border-top: 1px solid #eee;
+            font-weight: bold;
+        }
+
+        .invoice-box table tr.change td:nth-child(2) {
+            border-top: 1px solid #eee;
+            color: red;
         }
 
         .invoice-box table .fixed-width td:nth-child(1) {
@@ -156,7 +180,7 @@
                                 BIJOUX JEWELRY <!-- replace with logo link -->
                             </td>
                             <td>
-                                Invoice NO.: {{ $payment->id }}<br />
+                                Invoice No.{{ $order->id }}<br />
                                 Issue Date: {{ $date }}<br />
                             </td>
                         </tr>
@@ -192,12 +216,12 @@
 
             <tr class="headingOrder">
                 <td>Your Order:</td>
-                <td>Order#</td>
+                <td></td>
             </tr>
 
             <tr class="details">
                 <td>Order</td>
-                <td>{{ $order->id }}#</td>
+                <td>#{{ $order->id }}</td>
             </tr>
 
             <tr class="headingDescription">
@@ -216,7 +240,7 @@
                         @foreach($product_metal as $metal)
                         <tr>
                             <td>{{ $metal->name }}</td>
-                            <td>{{ number_format($metal->weight, 2) }} g</td>
+                            <td>{{ number_format($metal->weight, 2) }}</td>
                             <td>{{ $metal->sale_price_per_gram }}</td>
                             <td>{{ $metal->price }}</td>
                         </tr>
@@ -252,18 +276,33 @@
                     </table>
                 </td>
             </tr>
-            <tr class="total" align="right">
+            <tr class="price" align="right">
                 <td>Product Price</td>
-                <td>{{ $product_price }}</td>
+                <td>{{ $product_price }} VND</td>
             </tr>
-            <tr class="total" align="right">
+            <tr class="price" align="right">
                 <td>Production Price</td>
-                <td>{{ $production_price }}</td>
+                <td>{{ $production_price }} VND</td>
             </tr>
+
+            <tr class="change" align="right">
+                <td>Change </td>
+                @if($extra == 0)
+                <td class="change">No Change</td>
+                @else
+                <td class="change">{{ $extra }} VND</td>
+                @endif
+            </tr>
+
             <tr class="total" align="right">
-                <td>Total (VND)</td>
-                <td>{{ $total_price }}</td>
+                <td>Total </td>
+                <td>{{ $total_price }} VND</td>
             </tr>
+            <!------------------------------>
+            <!------------------------------>
+            <!--<td>{{ $guarantee_expired_date }}</td>-->
+            <!------------------------------>
+            <!------------------------------>
         </table>
         <div class="text-center mt-4" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: larger; padding-top: 50px;">
             <p>Thank you for your business!</p>
