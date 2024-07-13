@@ -2042,26 +2042,6 @@ class OrderController extends Controller
             'success' => 'Design process approve successfully'
         ], 200);
     }
-    // public function cancel_design_process(Request $request)
-    // {
-    //     $input = json_decode($request->input('design_process_id'), true);
-    //     if (!isset($input) || $input == null) {
-    //         return response()->json([
-    //             'error' => 'No input received'
-    //         ], 403);
-    //     }
-    //     $design_process = DB::table('design_process')->where('id', $input)->first();
-    //     $order = DB::table('orders')->where('id', $design_process->order_id)->first();
-    //     DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->delete();
-    //     DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->delete();
-    //     DB::table('design_process')->where('id', $input)->update([
-    //         'design_process_status_id' => 4
-    //     ]);
-    //     return response()->json([
-    //         'success' => 'Cancel Successfully'
-    //     ], 201);
-    // }
-
     public function get_design_process_status_list(Request $request)
     {
         return response()->json(
@@ -2340,86 +2320,7 @@ class OrderController extends Controller
             'design_process' => $design_process
         ]);
     }
-    // public function add_design_updating(Request $request)
-    // {
-    //     $input = json_decode($request->input('new_design_updating'), true);
-    //     if (!isset($input) || $input == null) {
-    //         return response()->json([
-    //             'error' => 'No input received'
-    //         ], 403);
-    //     }
-    //     $authorizationHeader = $request->header('Authorization');
-    //     $token = null;
 
-    //     if ($authorizationHeader && strpos($authorizationHeader, 'Bearer ') === 0) {
-    //         $token = substr($authorizationHeader, 7); // Extract the token part after 'Bearer '
-    //         try {
-    //             $decodedToken = JWTAuth::decode(new \Tymon\JWTAuth\Token($token));
-    //         } catch (JWTException $e) {
-    //             try {
-    //                 $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
-    //             } catch (\Exception $e) {
-    //                 return response()->json(['error' => 'Invalid token'], 401);
-    //             }
-    //         }
-    //     }
-    //     try {
-    //         $id = $decodedToken['id'];
-    //     } catch (Throwable $e) {
-    //         $id = $decodedToken->id;
-    //     }
-    //     $order = DB::table('orders')->where('id', $input['order_id'])->first();
-    //     if ($order->designStaff_id != $id) {
-    //         return response()->json([
-    //             'error' => 'Your account isn\'t assigned to the selected order'
-    //         ], 403);
-    //     }
-
-    //     DB::beginTransaction();
-    //     try {
-    //         $id = DB::table('design_updating')->insertGetId([
-    //             'order_id' => $input['order_id'],
-    //             'imageUrl' => "",
-    //             'created' => Carbon::now()->format('Y-m-d H:i:s')
-    //         ]);
-    //         if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
-    //             $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-    //             $destinationPath = public_path('image/Job/design_updating/' . $input['order_id']);
-    //             if (!file_exists($destinationPath)) {
-    //                 mkdir($destinationPath, 0755, true);
-    //             }
-    //             $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
-    //             file_put_contents($destinationPath . '/' . $fileName, $fileData);
-    //             DB::table('design_updating')->where('id', $id)->update([
-    //                 'imageUrl' => $fileName
-    //             ]);
-    //         }
-    //         DB::commit();
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    //     return response()->json([
-    //         'success' => 'Successfully added'
-    //     ]);
-    // }
-    // public function get_design_updating_list(Request $request)
-    // {
-    //     $input = json_decode($request->input('order_id'), true);
-    //     if (!isset($input) || $input == null) {
-    //         return response()->json([
-    //             'error' => 'No input received'
-    //         ], 403);
-    //     }
-    //     $list = DB::table('design_updating')->where('order_id', $input)->get();
-    //     $list->map(function ($list) {
-    //         $list->created = Carbon::parse($list->created)->format('H:i:s d/m/Y');
-    //         return $list;
-    //     });
-    //     return response()->json(
-    //         $list
-    //     );
-    // }
     public function get_production_status_list()
     {
         return response()->json(
@@ -2653,15 +2554,7 @@ class OrderController extends Controller
         }
         return $orderCode;
     }
-    // public function generateSecurityCode()
-    // {
-    //     $securityCode = intval(substr(strval(microtime(true) * 10000), -6));
-    //     $account = DB::table('account')->where('security_code', $securityCode)->get();
-    //     if ($account->count() > 0) {
-    //         $this->generateSecurityCode();
-    //     }
-    //     return $securityCode;
-    // }
+
     public function create_payment_link(Request $request)
     {
         $input = json_decode($request->input('order_information'), true);
@@ -3183,20 +3076,7 @@ class OrderController extends Controller
             'success' => 'Refund complete'
         ]);
     }
-    // function generateRandomString($length)
-    // {
-    //     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    //     $charactersLength = strlen($characters);
-    //     $randomString = '';
 
-    //     // Generate random bytes and convert to string
-    //     $bytes = random_bytes($length);
-    //     for ($i = 0; $i < $length; $i++) {
-    //         $randomString .= $characters[ord($bytes[$i]) % $charactersLength];
-    //     }
-
-    //     return $randomString;
-    // }
     public function get_dashboard(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');

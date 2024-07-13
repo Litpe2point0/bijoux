@@ -16,53 +16,31 @@ use Throwable;
 
 class MetalController extends Controller
 {
-    // public function add(Request $request)
-    // {
-    //     //input
-    //     $input = json_decode($request->input('new_metal'), true);
-    //     if (!isset($input) || $input == null) {
-    //         return response()->json([
-    //             'error' => 'No input received'
-    //         ], 403);
-    //     }
-    //     DB::beginTransaction();
-    //     try {
-    //         //create new metal
-    //         $metal = new Metal();
-    //         $metal->name = $input['name'];
-    //         $metal->imageUrl = "";
-    //         $metal->buy_price_per_gram = $input["buy_price_per_gram"];
-    //         $metal->sale_price_per_gram = $input["sale_price_per_gram"];
-    //         $metal->specific_weight = $input["specific_weight"];
-    //         $metal->deactivated = false;
-    //         $metal->created = Carbon::createFromTimestamp(time())->format('Y-m-d H:i:s');
-    //         $metal->save();
-
-    //         //get metal id
-    //         $metalId = (int)$metal->id;
-    //         $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-    //         $destinationPath = public_path('image/Metal/' . $metalId);
-    //         //check destination path if not create one
-    //         if (!file_exists($destinationPath)) {
-    //             mkdir($destinationPath, 0755, true);
-    //         }
-    //         $fileName = time() . '_' . $metalId . '.jpg';
-    //         //input filedata through destination path with fileName 
-    //         file_put_contents($destinationPath . '/' . $fileName, $fileData);
-
-    //         $metal->imageUrl = $fileName;
-    //         $metal->save();
-
-    //         DB::commit();
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return response()->json($e->getMessage(), 500);
-    //     }
-    //     return response()->json([
-    //         'success' => 'Metal Successfully Add'
-    //     ], 201);
-    // }
-
+/**
+ * @OA\Post(
+ *     path="/api/update_price",
+ *     summary="Update metal prices and recalculate product prices",
+ *     tags={"Metal"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"update_price"},
+ *             @OA\Property(property="update_price", type="object",
+ *                 @OA\Property(property="metal_id", type="integer", example=1),
+ *                 @OA\Property(property="buy_price_per_gram", type="number", format="float", example=30.5),
+ *                 @OA\Property(property="sale_price_per_gram", type="number", format="float", example=50.0),
+ *             ),
+ *         ),
+ *     ),
+ *     @OA\Response(response="201", description="Price updated successfully"),
+ *     @OA\Response(response="403", description="No input received or selected metal is deactivated", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="No input received or selected metal is deactivated"),
+ *     )),
+ *     @OA\Response(response="500", description="Server error", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="Server error message"),
+ *     )),
+ * )
+ */
     public function update_price(Request $request)
     {
         //input
@@ -91,8 +69,8 @@ class MetalController extends Controller
             $data = [];
             foreach ($product_metal as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
-                if($temp1 != null){
-                    if($temp1->order_status_id >= 3){
+                if ($temp1 != null) {
+                    if ($temp1->order_status_id >= 3) {
                         continue;
                     }
                 }
@@ -152,12 +130,12 @@ class MetalController extends Controller
             //loop to update metal price in order and quote
             foreach ($product_metal as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
-                if($temp1 != null){
-                    if($temp1->order_status_id >= 3){
+                if ($temp1 != null) {
+                    if ($temp1->order_status_id >= 3) {
                         continue;
                     }
                 }
-                $order =  DB::table('orders')->where('product_id', $product->product_id)->first();
+                $order = DB::table('orders')->where('product_id', $product->product_id)->first();
                 //check if order exist
                 if ($order != null) {
                     $profit_rate = $order->profit_rate;
@@ -182,7 +160,7 @@ class MetalController extends Controller
                     ]);
                 }
 
-                $quote =  DB::table('quote')->where('product_id', $product->product_id)->first();
+                $quote = DB::table('quote')->where('product_id', $product->product_id)->first();
                 //check if quote exist
                 if ($quote != null) {
                     $profit_rate = $quote->profit_rate;
@@ -207,7 +185,7 @@ class MetalController extends Controller
                     ]);
                 }
                 if ($order != null) {
-                    $design_process =  DB::table('design_process')->where('order_id', $order->id)->first();
+                    $design_process = DB::table('design_process')->where('order_id', $order->id)->first();
                     //check if quote exist
                     if ($design_process != null && $design_process->design_process_status_id < 4) {
                         $profit_rate = $design_process->profit_rate;
@@ -216,7 +194,7 @@ class MetalController extends Controller
                         if ($design_process->design_process_status_id < 3) {
                             $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->get();
                             $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->get();
-                        } else if($design_process->design_process_status_id = 3){
+                        } else if ($design_process->design_process_status_id = 3) {
                             $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 2)->get();
                             $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 2)->get();
                         }
@@ -247,6 +225,28 @@ class MetalController extends Controller
             'success' => 'Price update successfully'
         ], 201);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/set_deactivate",
+     *     summary="Activate or deactivate a metal",
+     *     tags={"Metal"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"deactivate"},
+     *             @OA\Property(property="deactivate", type="boolean", example=true),
+     *             @OA\Property(property="metal_id", type="integer", example=1),
+     *         ),
+     *     ),
+     *     @OA\Response(response="201", description="Metal activated or deactivated successfully"),
+     *     @OA\Response(response="403", description="No input received or selected metal doesn't exist", @OA\JsonContent(
+     *         @OA\Property(property="error", type="string", example="No input received or selected metal doesn't exist"),
+     *     )),
+     *     @OA\Response(response="500", description="Server error", @OA\JsonContent(
+     *         @OA\Property(property="error", type="string", example="Server error message"),
+     *     )),
+     * )
+     */
     public function set_deactivate(Request $request)
     {
         //input
@@ -293,6 +293,20 @@ class MetalController extends Controller
             ], 201);
         }
     }
+    /**
+     * @OA\Post(
+     *     path="/api/items/metal/get_list",
+     *     summary="Get list of metals based on user role",
+     *     tags={"Metal"},
+     *     @OA\RequestBody(
+     *         required=false,
+     *     ),
+     *     @OA\Response(response="200", description="List of metals"),
+     *     @OA\Response(response="401", description="Invalid Token", @OA\JsonContent(
+     *         @OA\Property(property="error", type="string", example="Invalid Token"),
+     *     )),
+     * )
+     */
     public function get_list(Request $request)
     {
         //check token
@@ -348,6 +362,32 @@ class MetalController extends Controller
             $metal
         );
     }
+    /**
+ * @OA\Post(
+ *     path="/api/items/metal/get_detail",
+ *     summary="Get details of a metal by ID",
+ *     tags={"Metal"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"metal_id"},
+ *             @OA\Property(property="metal_id", type="integer", example=1),
+ *         ),
+ *     ),
+ *     @OA\Response(response="200", description="Details of the metal", @OA\JsonContent(
+ *         @OA\Property(property="metal", type="object", ref="#/components/schemas/Metal"),
+ *     )),
+ *     @OA\Response(response="403", description="No input received", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="No input received"),
+ *     )),
+ *     @OA\Response(response="404", description="Metal not found", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="Metal not found"),
+ *     )),
+ *     @OA\Response(response="500", description="Server error", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="Server error message"),
+ *     )),
+ * )
+ */
     public function get_detail(Request $request)
     {
         //input
@@ -366,6 +406,39 @@ class MetalController extends Controller
             'metal' => $metal
         ]);
     }
+
+    /**
+ * @OA\Post(
+ *     path="/api/items/metal/get_weight_price",
+ *     summary="Calculate weight and price based on metal information",
+ *     tags={"Metal"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"metal_information"},
+ *             @OA\Property(property="metal_information", type="object",
+ *                 @OA\Property(property="metal_id", type="integer", example=1),
+ *                 @OA\Property(property="volume", type="number", format="float", example=10.5),
+ *             ),
+ *         ),
+ *     ),
+ *     @OA\Response(response="200", description="Weight and price calculated successfully", @OA\JsonContent(
+ *         @OA\Property(property="weight_price", type="object",
+ *             @OA\Property(property="weight", type="number", format="float", example=105.0),
+ *             @OA\Property(property="price", type="number", format="float", example=5250.0),
+ *         ),
+ *     )),
+ *     @OA\Response(response="403", description="No input received", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="No input received"),
+ *     )),
+ *     @OA\Response(response="404", description="Metal has been deactivated", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="The selected metal has been deactivated"),
+ *     )),
+ *     @OA\Response(response="500", description="Server error", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="Server error message"),
+ *     )),
+ * )
+ */
     public function get_weight_price(Request $request)
     {
         //input
@@ -389,6 +462,30 @@ class MetalController extends Controller
             'weight_price' => $temp
         ]);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/items/metal/get_metal_is_main",
+ *     summary="Get main metals associated with a model",
+ *     tags={"Metal"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"model_id"},
+ *             @OA\Property(property="model_id", type="integer", example=1),
+ *         ),
+ *     ),
+ *     @OA\Response(response="200", description="List of main metals", @OA\JsonContent(
+ *         type="array",
+ *         @OA\Items(ref="#/components/schemas/Metal"),
+ *     )),
+ *     @OA\Response(response="403", description="No input received", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="No input received"),
+ *     )),
+ *     @OA\Response(response="500", description="Server error", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="Server error message"),
+ *     )),
+ * )
+ */
     public function get_metal_is_main(Request $request)
     {
         //input
@@ -409,6 +506,36 @@ class MetalController extends Controller
             $data
         );
     }
+    /**
+ * @OA\Post(
+ *     path="/api/items/metal/get_metal_compatibility",
+ *     summary="Get compatible metals for a model",
+ *     tags={"Metal"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"metal_compatibility"},
+ *             @OA\Property(property="metal_compatibility", type="object",
+ *                 @OA\Property(property="metal_id", type="integer", example=1),
+ *                 @OA\Property(property="model_id", type="integer", example=1),
+ *             ),
+ *         ),
+ *     ),
+ *     @OA\Response(response="200", description="List of compatible metals", @OA\JsonContent(
+ *         type="array",
+ *         @OA\Items(ref="#/components/schemas/Metal"),
+ *     )),
+ *     @OA\Response(response="403", description="No input received", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="No input received"),
+ *     )),
+ *     @OA\Response(response="404", description="No compatibility metal found", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="No compatibility metal found"),
+ *     )),
+ *     @OA\Response(response="500", description="Server error", @OA\JsonContent(
+ *         @OA\Property(property="error", type="string", example="Server error message"),
+ *     )),
+ * )
+ */
     public function get_metal_compatibility(Request $request)
     {
         //input
@@ -454,7 +581,7 @@ class MetalController extends Controller
                 }
             }
         }
-        if($data->isEmpty()){
+        if ($data->isEmpty()) {
             return response()->json([
                 'error' => 'No compatibility metal found'
             ], 403);

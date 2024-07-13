@@ -112,7 +112,7 @@ Route::middleware('checkCors')->group(function () {
         });
     });
     Route::post('/activate_account', [AccountController::class, 'activate_account']);
-    Route::post('/create_payment_link', [OrderController::class, 'create_payment_link']);
+    Route::post('/create_payment_link', [OrderController::class, 'create_payment_link']);//* ** */
     //--------------------------------------------------------------------------------
 
     //Đa số Customer------------------------------------------------------------------------

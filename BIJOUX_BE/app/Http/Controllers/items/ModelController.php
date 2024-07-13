@@ -21,6 +21,79 @@ use Throwable;
 
 class ModelController extends Controller
 {
+/**
+ * @OA\Post(
+ *     path="/api/items/model/add",
+ *     summary="Add a new model",
+ *     description="This endpoint allows you to add a new model with metals and diamonds.",
+ *     operationId="addModel",
+ *     tags={"Model"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="new_model", type="object",
+ *                 @OA\Property(property="name", type="string", example="Model Name"),
+ *                 @OA\Property(property="mounting_type_id", type="integer", example=1),
+ *                 @OA\Property(property="mounting_style_id", type="integer", example=1),
+ *                 @OA\Property(property="base_width", type="number", format="float", example=5.0),
+ *                 @OA\Property(property="base_height", type="number", format="float", example=5.0),
+ *                 @OA\Property(property="volume", type="number", format="float", example=10.0),
+ *                 @OA\Property(property="production_price", type="number", format="float", example=100.0),
+ *                 @OA\Property(property="profit_rate", type="number", format="float", example=15.0),
+ *                 @OA\Property(property="imageUrl", type="string", example="data:image/jpeg;base64,..."),
+ *                 @OA\Property(
+ *                     property="model_diamond_shape", 
+ *                     type="array", 
+ *                     @OA\Items(type="integer", example=1)
+ *                 ),
+ *                 @OA\Property(
+ *                     property="model_diamond", 
+ *                     type="array", 
+ *                     @OA\Items(
+ *                         type="object",
+ *                         @OA\Property(property="diamond_size_min", type="number", format="float", example=1.0),
+ *                         @OA\Property(property="diamond_size_max", type="number", format="float", example=2.0),
+ *                         @OA\Property(property="count", type="integer", example=5),
+ *                         @OA\Property(property="diamond_shape", type="object", @OA\Property(property="id", type="integer", example=1)),
+ *                         @OA\Property(property="is_editable", type="integer", example=1)
+ *                     )
+ *                 ),
+ *                 @OA\Property(
+ *                     property="model_metal", 
+ *                     type="array", 
+ *                     @OA\Items( ref="#/components/schemas/Metal"
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Model successfully added",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="string", example="Model successfully added")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Input validation error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="No input received")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             type="string",
+ *             example="Internal server error"
+ *         )
+ *     )
+ * )
+ */
     public function add(Request $request)
     {
         //input
@@ -216,6 +289,52 @@ class ModelController extends Controller
             'success' => "Model successfully added",
         ], 201);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/items/model/get_list",
+ *     summary="Get model list",
+ *     description="Retrieve available and unavailable models based on search criteria.",
+ *     operationId="getModelList",
+ *     tags={"Model"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="model_search_information", type="object",
+ *                 @OA\Property(property="mounting_style", type="array", @OA\Items(type="integer", example=1)),
+ *                 @OA\Property(property="mounting_type_id", type="integer", example=1),
+ *                 @OA\Property(property="diamond_shape", type="array", @OA\Items(type="integer", example=1)),
+ *                 @OA\Property(property="metal", type="array", @OA\Items(type="integer", example=1))
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successfully retrieved models",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="model_available", type="array", @OA\Items(type="object")),
+ *             @OA\Property(property="model_unavailable", type="array", @OA\Items(type="object"))
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid token",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             type="string",
+ *             example="Internal server error"
+ *         )
+ *     )
+ * )
+ */
     public function get_model_list(Request $request)
     {
         //input
@@ -492,6 +611,58 @@ class ModelController extends Controller
             'model_unavailable' => $model_unavailable
         ]);
     }
+/**
+ * @OA\Post(
+ *     path="/api/items/model/get_detail",
+ *     tags={"Model"},
+ *     summary="Get details of a model",
+ *     description="Returns detailed information about a model including its metals, diamonds, and related styles.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="model_id",
+ *                 type="integer",
+ *                 example=1,
+ *                 description="ID of the model to fetch details for"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Details of the model",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="model",
+ *                 type="object",
+ *                 ref="#/components/schemas/Model"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized: Invalid or missing authentication token",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="error",
+ *                 type="string",
+ *                 example="Invalid token"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Forbidden: No input received, model not found, deactivated, unavailable, or metal compatibility error",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="error",
+ *                 type="string",
+ *                 example="The selected model isn't available"
+ *             )
+ *         )
+ *     )
+ * )
+ */
     public function get_model_detail(Request $request)
     {
         $input = json_decode($request->input('model_id'), true);
@@ -669,6 +840,76 @@ class ModelController extends Controller
             'model' => $model
         ]);
     }
+
+/**
+ * @OA\Post(
+ *     path="/api/items/model/set_deactivate",
+ *     tags={"Model"},
+ *     summary="Deactivate or activate a model",
+ *     description="Deactivates or activates a model based on input.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="model_id",
+ *                 type="integer",
+ *                 example=1,
+ *                 description="ID of the model to deactivate or activate"
+ *             ),
+ *             @OA\Property(
+ *                 property="deactivate",
+ *                 type="boolean",
+ *                 example=true,
+ *                 description="True to deactivate, false to activate"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Success message",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="success",
+ *                 type="string",
+ *                 example="Deactivate model successfully"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized: Invalid or missing authentication token",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="error",
+ *                 type="string",
+ *                 example="Invalid token"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Forbidden: No input received or model not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="error",
+ *                 type="string",
+ *                 example="The selected model doesn't exist"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="error",
+ *                 type="string",
+ *                 example="Database error occurred"
+ *             )
+ *         )
+ *     )
+ * )
+ */
     public function set_deactivate(Request $request)
     {
         $input = json_decode($request->input('deactivate'), true);
@@ -712,6 +953,68 @@ class ModelController extends Controller
             ], 200);
         }
     }
+    /**
+ * Update model details.
+ *
+ * @OA\Post(
+ *      path="/api/items/model/update",
+ *      operationId="updateModel",
+ *      tags={"Model"},
+ *      summary="Update model details",
+ *      @OA\RequestBody(
+ *          required=true,
+ *          description="Updated model object",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="new_model", type="object",
+ *                  @OA\Property(property="id", type="integer", example="1"),
+ *                  @OA\Property(property="name", type="string", example="Updated Model"),
+ *                  @OA\Property(property="mounting_type_id", type="integer", example="2"),
+ *                  @OA\Property(property="mounting_style_id", type="integer", example="3"),
+ *                  @OA\Property(property="base_width", type="float", example="10.5"),
+ *                  @OA\Property(property="base_height", type="float", example="15.2"),
+ *                  @OA\Property(property="volume", type="float", example="200.5"),
+ *                  @OA\Property(property="production_price", type="float", example="1500.0"),
+ *                  @OA\Property(property="profit_rate", type="float", example="0.25"),
+ *                  @OA\Property(property="imageUrl", type="string", example="data:image/jpeg;base64,/9j/4AAQSk..."),
+ *                  @OA\Property(property="model_metal", type="array",
+ *                      @OA\Items(
+ *                          @OA\Property(property="metal", type="object",
+ *                              @OA\Property(property="id", type="integer", example="1")
+ *                          ),
+ *                          @OA\Property(property="is_main", type="integer", example="1"),
+ *                          @OA\Property(property="percentage", type="float", example="50.0")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="model_diamond", type="array",
+ *                      @OA\Items(
+ *                          @OA\Property(property="diamond_size_min", type="float", example="0.5"),
+ *                          @OA\Property(property="diamond_size_max", type="float", example="1.0"),
+ *                          @OA\Property(property="count", type="integer", example="1"),
+ *                          @OA\Property(property="diamond_shape", type="object",
+ *                              @OA\Property(property="id", type="integer", example="1")
+ *                          ),
+ *                          @OA\Property(property="is_editable", type="integer", example="1")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="model_diamond_shape", type="array",
+ *                      @OA\Items(type="integer", example="1")
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=201,
+ *          description="Model updated successfully"
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Error updating model",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="error", type="string", example="Error updating model")
+ *          )
+ *      )
+ * )
+ */
     public function update(Request $request)
     {
         $input = json_decode($request->input('new_model'), true);
@@ -1011,6 +1314,47 @@ class ModelController extends Controller
             'success' => 'Model update successfully'
         ], 201);
     }
+    /**
+ * Set model available with images.
+ *
+ * @OA\Post(
+ *      path="/api/items/model/set_available",
+ *      operationId="setAvailableModel",
+ *      tags={"Model"},
+ *      summary="Set model available with images",
+ *      @OA\RequestBody(
+ *          required=true,
+ *          description="Model ID and image list",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="set_available", type="object",
+ *                  @OA\Property(property="model_id", type="integer", example="1"),
+ *                  @OA\Property(property="image_list", type="array",
+ *                      @OA\Items(
+ *                          @OA\Property(property="main_image", type="string", example="data:image/jpeg;base64,/9j/4AAQSk..."),
+ *                          @OA\Property(property="metal_1_id", type="integer", example="1"),
+ *                          @OA\Property(property="metal_2_id", type="integer", example="2"),
+ *                          @OA\Property(property="diamond_shape_id", type="integer", example="1"),
+ *                          @OA\Property(property="related_image", type="array",
+ *                              @OA\Items(type="string", example="data:image/jpeg;base64,/9j/4AAQSk...")
+ *                          )
+ *                      )
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Model set available successfully"
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Error setting model available",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="error", type="string", example="Error setting model available")
+ *          )
+ *      )
+ * )
+ */
     public function set_available(Request $request)
     {
         $input = json_decode($request->input('set_available'), true);
@@ -1133,6 +1477,63 @@ class ModelController extends Controller
             'success' => 'Succesfully set available'
         ], 200);
     }
+    /**
+ * @OA\Post(
+ *      path="/api/items/model/get_missing_image",
+ *      operationId="getMissingImage",
+ *      tags={"Model"},
+ *      summary="Get model details with missing images",
+ *      description="Returns model details along with information about missing images for metal combinations and diamond shapes.",
+ *      @OA\RequestBody(
+ *          required=true,
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="model_id",
+ *                  type="integer",
+ *                  description="ID of the model to retrieve images for"
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="model",
+ *                  ref="#/components/schemas/Model"
+ *              ),
+ *              @OA\Property(
+ *                  property="missing_image",
+ *                  type="array",
+ *                  @OA\Items(
+ *                      @OA\Property(
+ *                          property="metal_1",
+ *                          ref="#/components/schemas/Metal"
+ *                      ),
+ *                      @OA\Property(
+ *                          property="metal_2",
+ *                          ref="#/components/schemas/Metal"
+ *                      ),
+ *                      @OA\Property(
+ *                          property="diamond_shape",
+ *                          ref="#/components/schemas/ModelDiamondShape"
+ *                      )
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="No Model Id Received or The selected model doesn't exist",
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="error",
+ *                  type="string", example="No Model Id Received or The selected model doesn't exist"
+ *              )
+ *          )
+ *      )
+ * )
+ */
     public function get_missing_image(Request $request)
     {
         $input = json_decode($request->input('model_id'), true);
@@ -1240,6 +1641,57 @@ class ModelController extends Controller
             'missing_image' => $missing_image
         ]);
     }
+    /**
+ * @OA\Post(
+ *      path="/api/items/model/get_model_diamond",
+ *      operationId="getModelDiamond",
+ *      tags={"Model"},
+ *      summary="Get model diamonds",
+ *      description="Returns diamonds associated with a specified model.",
+ *      @OA\RequestBody(
+ *          required=true,
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="model_id",
+ *                  type="integer",
+ *                  description="ID of the model to retrieve diamonds for"
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="returned_model_diamond",
+ *                  type="object",
+ *                  @OA\Property(
+ *                      property="model_id",
+ *                      type="integer",
+ *                      description="ID of the model"
+ *                  ),
+ *                  @OA\Property(
+ *                      property="model_diamond",
+ *                      type="array",
+ *                      @OA\Items(
+ *                          ref="#/components/schemas/ModelDiamond"
+ *                      )
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="No input received",
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="error",
+ *                  type="string", example="No input received"
+ *              )
+ *          )
+ *      )
+ * )
+ */
     public function get_model_diamond(Request $request)
     {
         $input = json_decode($request->input('model_id'), true);
@@ -1262,6 +1714,57 @@ class ModelController extends Controller
             'returned_model_diamond' => $returned_model_diamond
         ]);
     }
+    /**
+ * @OA\Post(
+ *      path="/api/items/model/get_model_shape",
+ *      operationId="getModelShape",
+ *      tags={"Model"},
+ *      summary="Get model diamond shapes",
+ *      description="Returns diamond shapes associated with a specified model.",
+ *      @OA\RequestBody(
+ *          required=true,
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="model_id",
+ *                  type="integer",
+ *                  description="ID of the model to retrieve diamond shapes for"
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="returned_model_shape",
+ *                  type="object",
+ *                  @OA\Property(
+ *                      property="model_id",
+ *                      type="integer",
+ *                      description="ID of the model"
+ *                  ),
+ *                  @OA\Property(
+ *                      property="model_shape",
+ *                      type="array",
+ *                      @OA\Items(
+ *                          ref="#/components/schemas/ModelDiamondShape"
+ *                      )
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="No input received",
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="error",
+ *                  type="string", example="No input received"
+ *              )
+ *          )
+ *      )
+ * )
+ */
     public function get_model_shape(Request $request)
     {
         $input = json_decode($request->input('model_id'), true);
@@ -1284,6 +1787,58 @@ class ModelController extends Controller
             'returned_model_shape' => $returned_model_shape
         ]);
     }
+
+/**
+ * @OA\Post(
+ *      path="/api/items/model/get_model_metal",
+ *      operationId="getModelMetal",
+ *      tags={"Model"},
+ *      summary="Get model metals",
+ *      description="Returns metals associated with a specified model.",
+ *      @OA\RequestBody(
+ *          required=true,
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="model_id",
+ *                  type="integer",
+ *                  description="ID of the model to retrieve metals for"
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="returned_model_metal",
+ *                  type="object",
+ *                  @OA\Property(
+ *                      property="model_id",
+ *                      type="integer",
+ *                      description="ID of the model"
+ *                  ),
+ *                  @OA\Property(
+ *                      property="model_metal",
+ *                      type="array",
+ *                      @OA\Items(
+ *                          ref="#/components/schemas/Metal"
+ *                      )
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="No input received",
+ *          @OA\JsonContent(
+ *              @OA\Property(
+ *                  property="error",
+ *                  type="string", example="No input received"
+ *              )
+ *          )
+ *      )
+ * )
+ */
     public function get_model_metal(Request $request)
     {
         $input = json_decode($request->input('model_id'), true);
@@ -1307,12 +1862,55 @@ class ModelController extends Controller
             'returned_model_metal' => $returned_model_metal
         ]);
     }
+    /**
+ * @OA\Post(
+ *      path="/api/items/model/get_mounting_type_list",
+ *      operationId="postMountingTypeList",
+ *      tags={"Model"},
+ *      summary="Get mounting type list",
+ *      description="Returns a list of all mounting types.",
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              type="array",
+ *              @OA\Items(
+ *                  @OA\Property(property="id", type="integer", example=1),
+ *                  @OA\Property(property="name", type="string", example="Type A"),
+ *                  @OA\Property(property="min_size", type="integer", example=10),
+ *                  @OA\Property(property="max_size", type="integer", example=50),
+ *              )
+ *          )
+ *      )
+ * )
+ */
     public function get_mounting_type_list()
     {
         return response()->json(
             DB::table('mounting_type')->get()
         );
     }
+    /**
+ * @OA\Post(
+ *      path="/api/items/model/get_mounting_style_list",
+ *      operationId="postMountingStyleList",
+ *      tags={"Model"},
+ *      summary="Get mounting style list",
+ *      description="Returns a list of all mounting styles.",
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              type="array",
+ *              @OA\Items(
+ *                  @OA\Property(property="id", type="integer", example=1),
+ *                  @OA\Property(property="name", type="string", example="Style A"),
+ *                  @OA\Property(property="imageUrl", type="string", example="http://example.com/style.jpg"),
+ *              )
+ *          )
+ *      )
+ * )
+ */
     public function get_mounting_style_list()
     {
         $mounting_style_list = DB::table('mounting_style')->get();
@@ -1326,7 +1924,112 @@ class ModelController extends Controller
             $mounting_style_list
         );
     }
-    public function get_final_checkout(Request $request)
+/**
+ * @OA\Post(
+ *      path="/api/items/model/get_final_checkout",
+ *      operationId="getFinalCheckout",
+ *      tags={"Model"},
+ *      summary="Get final checkout details",
+ *      description="Returns details for final checkout based on provided template information.",
+ *      @OA\RequestBody(
+ *          required=true,
+ *          @OA\JsonContent(
+ *              required={"template_information", "template_information.model_id", "template_information.diamond_shape_id", "template_information.metal_1_id", "template_information.mounting_size", "template_information.diamond_origin_id", "template_information.diamond_clarity_id", "template_information.diamond_color_id", "template_information.diamond_cut_id", "template_information.diamond_size"},
+ *                  example={
+ *                  "template_information": {
+ *                      "model_id": 1,
+ *                      "diamond_shape_id": 2,
+ *                      "metal_1_id": 3,
+ *                      "metal_2_id": null,
+ *                      "mounting_size": "1.5",
+ *                      "diamond_origin_id": 4,
+ *                      "diamond_clarity_id": 5,
+ *                      "diamond_color_id": 6,
+ *                      "diamond_cut_id": 7,
+ *                      "diamond_size": 1.5
+ *                  }
+ *              }
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="name", type="string"),
+ *              @OA\Property(property="model_id", type="integer"),
+ *              @OA\Property(
+ *                  property="mounting_type",
+ *                  type="object",
+ *                  @OA\Property(property="id", type="integer"),
+ *                  @OA\Property(property="name", type="string"),
+ *                  @OA\Property(property="min_size", type="number", format="float"),
+ *                  @OA\Property(property="max_size", type="number", format="float")
+ *              ),
+ *              @OA\Property(property="main_image", type="string"),
+ *              @OA\Property(property="related_image", type="array", @OA\Items(type="string")),
+ *              @OA\Property(
+ *                  property="metal",
+ *                  type="object",
+ *                  @OA\Property(property="name", type="string"),
+ *                  @OA\Property(property="price", type="number", format="float")
+ *              ),
+ *              @OA\Property(
+ *                  property="diamond_list",
+ *                  type="array",
+ *                  @OA\Items(
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="name", type="string"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="diamond_size", type="number", format="float"),
+ *                      @OA\Property(
+ *                          property="diamond_color",
+ *                          type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      ),
+ *                      @OA\Property(
+ *                          property="diamond_origin",
+ *                          type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      ),
+ *                      @OA\Property(
+ *                          property="diamond_clarity",
+ *                          type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      ),
+ *                      @OA\Property(
+ *                          property="diamond_cut",
+ *                          type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      ),
+ *                      @OA\Property(property="price", type="number", format="float"),
+ *                      @OA\Property(
+ *                          property="diamond_shape",
+ *                          type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      ),
+ *                      @OA\Property(property="count", type="integer"),
+ *                      @OA\Property(property="is_editable", type="boolean")
+ *                  )
+ *              ),
+ *              @OA\Property(property="production_price", type="number", format="float"),
+ *              @OA\Property(property="total_price", type="number", format="float")
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Error occurred",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="error", type="string",example="Error occurred")
+ *          )
+ *      )
+ * )
+ */
+        public function get_final_checkout(Request $request)
     {
         $input = json_decode($request->input('template_information'), true);
         if (!isset($input) || $input == null) {

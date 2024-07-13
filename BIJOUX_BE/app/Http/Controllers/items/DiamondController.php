@@ -15,6 +15,45 @@ use Throwable;
 
 class DiamondController extends Controller
 {
+    /**
+     * @OA\Post(
+     *     path="/api/items/diamond/get_diamond_list",
+     *     summary="Create a new diamond",
+     *     tags={"Diamond"},
+     *     description="Creates a new diamond entry in the database. Requires token for authorization.",
+     *     operationId="createDiamond",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Pass diamond details",
+     *         @OA\JsonContent(
+     *             required={"name","color","cut","carat","clarity"},
+     *             @OA\Property(property="name", type="string", example="Brilliant Round"),
+     *             @OA\Property(property="color", type="string", example="D"),
+     *             @OA\Property(property="cut", type="string", example="Excellent"),
+     *             @OA\Property(property="carat", type="number", format="float", example=1.5),
+     *             @OA\Property(property="clarity", type="string", example="VVS1")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Diamond created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Diamond created successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid input"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     ),
+     *     security={
+     *         {"bearerAuth": {}}
+     *     }
+     * )
+     */
     public function get_diamond_list(Request $request)
     {
         //input
@@ -93,6 +132,40 @@ class DiamondController extends Controller
             $diamond_list
         );
     }
+    /**
+     * @OA\Post(
+     *     path="/api/items/diamond/set_deactivate",
+     *     summary="Set diamond activation status",
+     *     tags={"Diamond"},
+     *     description="Activate or deactivate a diamond by ID",
+     *     operationId="setDeactivate",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Pass diamond ID and deactivate status",
+     *         @OA\JsonContent(
+     *             required={"diamond_id", "deactivate"},
+     *             @OA\Property(property="diamond_id", type="integer", example=1),
+     *             @OA\Property(property="deactivate", type="boolean", example=true)
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="string", example="Deactivate diamond successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     ),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */
     public function set_deactivate(Request $request)
     {
         //input
@@ -139,6 +212,44 @@ class DiamondController extends Controller
             ], 201);
         }
     }
+    /**
+     * @OA\Post(
+     *     path="/api/items/diamond/update_price",
+     *     summary="Update diamond price and recalculate related entities",
+     *     tags={"Diamond"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"update_price"},
+     *             @OA\Property(property="update_price", type="object",
+     *                 @OA\Property(property="diamond_id", type="integer", example=1),
+     *                 @OA\Property(property="price", type="number", format="float", example=1500.50)
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Success: Price update successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="string", example="Price update successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Error: No input received or diamond deactivated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No input received or diamond deactivated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Internal Server Error")
+     *         )
+     *     )
+     * )
+     */
     public function update_price(Request $request)
     {
         //input
@@ -157,7 +268,7 @@ class DiamondController extends Controller
                 ], 403);
             }
             //find all product that contain the selected diamond
-            $product_diamond  = DB::table('product_diamond')->select('product_id')->where('diamond_id', $input['diamond_id'])->groupby('product_id')->get();
+            $product_diamond = DB::table('product_diamond')->select('product_id')->where('diamond_id', $input['diamond_id'])->groupby('product_id')->get();
             //update the diamond price
             DB::table('diamond')->where('id', $input['diamond_id'])->update([
                 'price' => $input['price'],
@@ -166,8 +277,8 @@ class DiamondController extends Controller
             $data = [];
             foreach ($product_diamond as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
-                if($temp1 != null){
-                    if($temp1->order_status_id >= 3){
+                if ($temp1 != null) {
+                    if ($temp1->order_status_id >= 3) {
                         continue;
                     }
                 }
@@ -227,12 +338,12 @@ class DiamondController extends Controller
             //loop to update diamond price in order and quote
             foreach ($product_diamond as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
-                if($temp1 != null){
-                    if($temp1->order_status_id >= 3){
+                if ($temp1 != null) {
+                    if ($temp1->order_status_id >= 3) {
                         continue;
                     }
                 }
-                $order =  DB::table('orders')->where('product_id', $product->product_id)->first();
+                $order = DB::table('orders')->where('product_id', $product->product_id)->first();
                 //check if order exist
                 if ($order != null) {
                     $profit_rate = $order->profit_rate;
@@ -257,7 +368,7 @@ class DiamondController extends Controller
                     ]);
                 }
 
-                $quote =  DB::table('quote')->where('product_id', $product->product_id)->first();
+                $quote = DB::table('quote')->where('product_id', $product->product_id)->first();
                 //check if quote exist
                 if ($quote != null) {
                     $profit_rate = $quote->profit_rate;
@@ -282,7 +393,7 @@ class DiamondController extends Controller
                     ]);
                 }
                 if ($order != null) {
-                    $design_process =  DB::table('design_process')->where('order_id', $order->id)->first();
+                    $design_process = DB::table('design_process')->where('order_id', $order->id)->first();
                     //check if quote exist
                     if ($design_process != null && $design_process->design_process_status_id < 4) {
                         $profit_rate = $design_process->profit_rate;
@@ -322,6 +433,31 @@ class DiamondController extends Controller
             'success' => 'Price update successfully'
         ], 201);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/items/diamond/get_diamond_detail",
+     *     tags={"Diamond"},
+     *     summary="Get diamond detail",
+     *     description="Retrieves details of a specified diamond",
+     *     operationId="getDiamondDetail",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Diamond ID",
+     *         @OA\JsonContent(
+     *             required={"diamond_id"},
+     *             @OA\Property(property="diamond_id", type="string", example="1")
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="No input received",
+     *     )
+     * )
+     */
     public function get_diamond_detail(Request $request)
     {
         $input = json_decode($request->input('diamond_id'), true);
@@ -349,24 +485,71 @@ class DiamondController extends Controller
             'diamond' => $diamond
         ]);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/items/diamond/get_shape_list",
+ *     summary="Get list of diamond shapes",
+ *     tags={"Diamond"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Success: Return list of diamond shapes",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(ref="#/components/schemas/ModelDiamondShape")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server Error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Internal Server Error")
+ *         )
+ *     )
+ * )
+ */
     public function get_shape_list()
     {
         return response()->json(
             DB::table('diamond_shape')->get()
         );
     }
+    /**
+ * @OA\Post(
+ *     path="/api/get_diamond_origin_list",
+ *     summary="Get list of diamond origins",
+ *     tags={"Diamond"},
+ *     @OA\Response(response="200", description="List of diamond origins"),
+ * )
+ */
     public function get_diamond_origin_list()
     {
         return response()->json(
             DB::table('diamond_origin')->get()
         );
     }
+
+/**
+ * @OA\Post(
+ *     path="/api/get_color_list",
+ *     summary="Get list of diamond colors",
+ *     tags={"Diamond"},
+ *     @OA\Response(response="200", description="List of diamond colors"),
+ * )
+ */
     public function get_color_list()
     {
         return response()->json(
             DB::table('diamond_color')->get()
         );
     }
+    /**
+ * @OA\Post(
+ *     path="/api/get_size_list",
+ *     summary="Get list of diamond sizes",
+ *     tags={"Diamond"},
+ *     @OA\Response(response="200", description="List of diamond sizes"),
+ * )
+ */
     public function get_size_list()
     {
         $size = DB::table('diamond')->select('size')->groupBy('size')->get();
@@ -378,12 +561,28 @@ class DiamondController extends Controller
             $size_list
         );
     }
+    /**
+ * @OA\Post(
+ *     path="/api/get_cut_list",
+ *     summary="Get list of diamond cuts",
+ *     tags={"Diamond"},
+ *     @OA\Response(response="200", description="List of diamond cuts"),
+ * )
+ */
     public function get_cut_list()
     {
         return response()->json(
             DB::table('diamond_cut')->get()
         );
     }
+/**
+ * @OA\Post(
+ *     path="/api/get_clarity_list",
+ *     summary="Get list of diamond clarities",
+ *     tags={"Diamond"},
+ *     @OA\Response(response="200", description="List of diamond clarities"),
+ * )
+ */
     public function get_clarity_list()
     {
         return response()->json(

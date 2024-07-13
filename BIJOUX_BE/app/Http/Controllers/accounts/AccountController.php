@@ -18,8 +18,50 @@ use Throwable;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MarkDownMail;
 
+
 class AccountController extends Controller
 {
+    /**
+     * @OA\Post(
+     *     path="/api/login",
+     *     tags={"Account"},
+     *     summary="Logs in a user",
+     *     description="Authenticates a user by username and password.",
+     *     operationId="loginUser",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Login information",
+     *         @OA\JsonContent(
+     *             required={"username","password"},
+     *             @OA\Property(property="username", type="string", example="user1"),
+     *             @OA\Property(property="password", type="string", format="password", example="pass1234"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful login",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="access_token", type="string", example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."),
+     *             @OA\Property(property="success", type="string", example="Login successfully"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Wrong username or password"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No input received"),
+     *         )
+     *     ),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */
     public function login(Request $request)
     {
         //input
@@ -78,6 +120,43 @@ class AccountController extends Controller
             'success' => 'Login successfully',
         ]);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/login_with_google",
+     *     summary="Login with Google",
+     *     description="Authenticate user using Google OAuth",
+     *     tags={"Account"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"token_id"},
+     *             @OA\Property(property="token_id", type="string", example="your-google-token-id"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="string", example="Login successfully"),
+     *             @OA\Property(property="token", type="string", example="your-jwt-token"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid token or account deactivated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid token"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Error message"),
+     *         ),
+     *     )
+     * )
+     */
     public function login_with_google(Request $request)
     {
         $token = $request->input('token_id');
@@ -101,7 +180,7 @@ class AccountController extends Controller
                         'fullname' => $name,
                         'email' => $email,
                         'google_id' => $googleId,
-                        'role_id'  => 5,
+                        'role_id' => 5,
                         'imageUrl' => $image,
                         'deactivated' => 0,
                         'status' => 1,
@@ -153,6 +232,27 @@ class AccountController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+/**
+ * @OA\Post(
+ *     path="/api/admin/account/get_account_list",
+ *     summary="Get account list",
+ *     description="Retrieve list of customer and staff accounts",
+ *     tags={"Account"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of customer and staff accounts",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="customer_list", type="array",
+ *                 @OA\Items(ref="#/components/schemas/Account")
+ *             ),
+ *             @OA\Property(property="staff_list", type="array",
+ *                 @OA\Items(ref="#/components/schemas/Account")
+ *             ),
+ *         ),
+ *     ),
+ *     security={{"bearerAuth":{}}}
+ * )
+ */
     public function get_account_list()
     {
         $customer_list = Account::where('role_id', 5)->where('status', 1)->orderBy('deactivated', 'asc')->get();
@@ -166,7 +266,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
@@ -200,6 +300,31 @@ class AccountController extends Controller
             'staff_list' => $staff_list
         ]);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/admin/account/get_staff_list",
+ *     summary="Get staff list",
+ *     description="Retrieve list of staff accounts",
+ *     tags={"Account"},
+ *     operationId="getStaffList",
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of staff accounts",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="sale_staff_list", type="array",
+ *                 @OA\Items(ref="#/components/schemas/Account")
+ *             ),
+ *             @OA\Property(property="design_staff_list", type="array",
+ *                 @OA\Items(ref="#/components/schemas/Account")
+ *             ),
+ *             @OA\Property(property="production_staff_list", type="array",
+ *                 @OA\Items(ref="#/components/schemas/Account")
+ *             ),
+ *         ),
+ *     ),
+ *     security={{"bearerAuth": {}}}
+ * )
+ */
     public function get_staff_list()
     {
         $sale_staff_list = Account::where('role_id', 2)->orderBy('deactivated', 'asc')->get();
@@ -213,7 +338,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
@@ -230,7 +355,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
@@ -247,7 +372,7 @@ class AccountController extends Controller
             if (!$account->google_id) {
                 $OGurl = env('ORIGIN_URL');
                 $url = env('ACCOUNT_URL');
-                $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
+                $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
             }
             $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
             $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
@@ -259,6 +384,34 @@ class AccountController extends Controller
             'production_staff_list' => $production_staff_list
         ]);
     }
+/**
+ * @OA\Post(
+ *     path="/api/get_account_detail",
+ *     summary="Get account details",
+ *     tags={"Account"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"account_id"},
+ *             @OA\Property(property="account_id", type="integer", example="1")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="account", ref="#/components/schemas/Account")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Invalid input or Account not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     )
+ * )
+ */
     public function get_account_detail(Request $request)
     {
         //input
@@ -270,7 +423,7 @@ class AccountController extends Controller
         }
         //find account
         $account = Account::where('id', $input)->first();
-        if(!isset($account)){
+        if (!isset($account)) {
             return response()->json([
                 'error' => 'Account not found'
             ], 403);
@@ -283,7 +436,7 @@ class AccountController extends Controller
         $url = env('ACCOUNT_URL');
         //https://fast-scorpion-strictly.ngrok-free.app/image/account/{$account->id}/{$account->imageUrl}
         if (!$account->google_id) {
-            $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
+            $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl;
         }
         $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
         $account->deactivated_date = Carbon::parse($account->deactivated_date)->format('d/m/Y');
@@ -297,10 +450,10 @@ class AccountController extends Controller
             unset($order->order_status_id);
             unset($order->order_type_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
-            if($order->delivery_date != null){
+            if ($order->delivery_date != null) {
                 $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
             }
-            if($order->guarantee_expired_date != null){
+            if ($order->guarantee_expired_date != null) {
                 $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
             }
             return $order;
@@ -311,6 +464,48 @@ class AccountController extends Controller
             'account_detail' => $account
         ]);
     }
+/**
+ * Update account details.
+ *
+ * @OA\Post(
+ *     path="/api/admin/account/update",
+ *     summary="Update account details",
+ *     tags={"Account"},
+ *     security={{"bearerAuth": {}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(ref="#/components/schemas/Account")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid input or No account id received",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Account not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server Error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     )
+ * )
+ */
     public function update(Request $request)
     {
         //input
@@ -378,7 +573,7 @@ class AccountController extends Controller
             $updateData = [];
 
             if (!empty($input['password'])) {
-                $updateData['password'] =  Hash::make($input['password']);
+                $updateData['password'] = Hash::make($input['password']);
             }
             if (!empty($input['fullname'])) {
                 $updateData['fullname'] = $input['fullname'];
@@ -426,6 +621,47 @@ class AccountController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    /**
+ * @OA\Post(
+ *     path="/api/admin/account/update_self",
+ *     summary="Update account details",
+ *     tags={"Account"},
+ *     security={{"bearerAuth": {}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(ref="#/components/schemas/Account")
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Update successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="token", type="string"),
+ *             @OA\Property(property="success", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid input or No account id received",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized - Invalid Token",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server Error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     )
+ * )
+ */
     public function update_self(Request $request)
     {
         //input
@@ -529,6 +765,40 @@ class AccountController extends Controller
             return response()->json($e->getMessage(), 500);
         }
     }
+    /**
+ * Register a new account.
+ *
+ * @OA\Post(
+ *     path="/api/register",
+ *     summary="Register a new account",
+ *     tags={"Account"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(ref="#/components/schemas/Account")
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Successful registration",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid input or Username, Email, or Phone Number already used",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server Error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string")
+ *         )
+ *     )
+ * )
+ */
     public function register(Request $request)
     {
         //input
@@ -632,6 +902,30 @@ class AccountController extends Controller
             'success' => "Register successfully",
         ], 201);
     }
+    /**
+ * Get staff role list.
+ *
+ * @OA\Post(
+ *     path="/api/admin/account/get_staff_role_list",
+ *     summary="Get staff role list",
+ *     tags={"Account"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(ref="#/components/schemas/Account")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Server error message")
+ *         )
+ *     )
+ * )
+ */
     public function get_staff_role_list()
     {
         return response()->json([
@@ -640,35 +934,44 @@ class AccountController extends Controller
             DB::table('role')->where('id', 4)->first(),
         ]);
     }
-    // public function get_image(Request $request)
-    // {
-    //     $fileData = file_get_contents('php://input');
-    //     $base64Data = base64_encode($fileData);
-    //     return response()->json([
-    //         $base64Data
-    //     ]);
-    // }
-
-    // public function decode(Request $request)
-    // {
-    //     $input = $request->imageUrl;
-    //     if (!isset($input) || $input == null) {
-    //         return response()->json([
-    //             'error' => 'No input received'
-    //         ], 403);
-    //     }
-    //     $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input));
-    //     $destinationPath = public_path('image/');
-    //     if (!file_exists($destinationPath)) {
-    //         mkdir($destinationPath, 0755, true);
-    //     }
-    //     $fileName = 'cc.jpg';
-    //     file_put_contents($destinationPath . '/' . $fileName, $fileData);
-    //     return response()->json([
-    //         'success'
-    //     ]);
-    // }
-
+    /**
+ * Deactivate or activate an account.
+ *
+ * @OA\Post(
+ *     path="/api/admin/account/set_deactivate",
+ *     summary="Deactivate or activate an account",
+ *     tags={"Account"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"deactivate", "account_id"},
+ *             @OA\Property(property="deactivate", type="boolean", example=true, description="Set to true to deactivate, false to activate"),
+ *             @OA\Property(property="account_id", type="integer", example=123, description="ID of the account to deactivate/activate")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string", example="Deactivate account successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="No input received",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="No input received")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Server error message")
+ *         )
+ *     )
+ * )
+ */
     public function set_deactivate(Request $request)
     {
         //input
@@ -710,9 +1013,42 @@ class AccountController extends Controller
             ], 200);
         }
     }
-    public function sendMail($toEmail,$subject,$messageContent, $security_code)
+    /**
+ * Send an email.
+ *
+ * @OA\Post(
+ *     path="/api/admin/account/sendMail",
+ *     summary="Send an email",
+ *     tags={"Account"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"toEmail", "subject", "messageContent", "security_code"},
+ *             @OA\Property(property="toEmail", type="string", example="recipient@example.com"),
+ *             @OA\Property(property="subject", type="string", example="Email subject"),
+ *             @OA\Property(property="messageContent", type="string", example="Email content"),
+ *             @OA\Property(property="security_code", type="string", example="ABC123", description="Security code for verification")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Email sent successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string", example="Email sent successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Failed to send email",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Failed to send email: Error message")
+ *         )
+ *     )
+ * )
+ */
+    public function sendMail($toEmail, $subject, $messageContent, $security_code)
     {
-        $data=[
+        $data = [
             'subject' => $subject,
             'messageContent' => $messageContent,
             'security_code' => $security_code
@@ -723,6 +1059,29 @@ class AccountController extends Controller
             return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
         }
     }
+    /**
+ * Generate a security code.
+ *
+ * @OA\Post(
+ *     path="/api/admin/account/generateSecurityCode",
+ *     summary="Generate a security code",
+ *     tags={"Account"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="securityCode", type="integer", example=123456, description="Generated security code")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Server error message")
+ *         )
+ *     )
+ * )
+ */
     public function generateSecurityCode()
     {
         // Generate a random 6-digit number
@@ -738,6 +1097,44 @@ class AccountController extends Controller
 
         return $securityCode;
     }
+    /**
+ * Activate an account using security code.
+ *
+ * @OA\Post(
+ *     path="/api/activate_account",
+ *     summary="Activate an account",
+ *     tags={"Account"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"username", "security_code"},
+ *             @OA\Property(property="username", type="string", example="john_doe"),
+ *             @OA\Property(property="security_code", type="string", example="ABC123", description="Security code received by the user")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Account activated successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string", example="Your account has been activated")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Invalid input or security code",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="No input received or wrong security code")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Server error message")
+ *         )
+ *     )
+ * )
+ */
     public function activate_account(Request $request)
     {
         $input = json_decode($request->input('security'), true);

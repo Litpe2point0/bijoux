@@ -1,0 +1,3734 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "APIs For Bijoux Jewelry",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Logs in a user",
+                "description": "Authenticates a user by username and password.",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "description": "Login information",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "user1"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "pass1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                        },
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Login successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Wrong username or password"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/login_with_google": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Login with Google",
+                "description": "Authenticate user using Google OAuth",
+                "operationId": "df6061238cf832cdc318f92aac7cdce0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token_id"
+                                ],
+                                "properties": {
+                                    "token_id": {
+                                        "type": "string",
+                                        "example": "your-google-token-id"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Login successfully"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "your-jwt-token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token or account deactivated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/account/get_account_list": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get account list",
+                "description": "Retrieve list of customer and staff accounts",
+                "operationId": "373acd87a03b1f5589abd6fa1e3b71d9",
+                "responses": {
+                    "200": {
+                        "description": "List of customer and staff accounts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "customer_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        },
+                                        "staff_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/account/get_staff_list": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get staff list",
+                "description": "Retrieve list of staff accounts",
+                "operationId": "getStaffList",
+                "responses": {
+                    "200": {
+                        "description": "List of staff accounts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "sale_staff_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        },
+                                        "design_staff_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        },
+                                        "production_staff_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/get_account_detail": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get account details",
+                "operationId": "2392708c71b66421ffa95f1a974e37fd",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "account_id"
+                                ],
+                                "properties": {
+                                    "account_id": {
+                                        "type": "integer",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "account": {
+                                            "$ref": "#/components/schemas/Account"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or Account not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/account/update": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Update account details",
+                "description": "Update account details.",
+                "operationId": "b97197060502249c95b36941b92293e7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Account"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or No account id received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Account not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/account/update_self": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Update account details",
+                "operationId": "ce038d3f5efd4dc8f7a169271fcd37f7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Account"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Update successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string"
+                                        },
+                                        "success": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or No account id received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid Token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Register a new account",
+                "description": "Register a new account.",
+                "operationId": "ecae098d91b5c9e325e91af79be404c1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Account"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful registration",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or Username, Email, or Phone Number already used",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/account/get_staff_role_list": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get staff role list",
+                "description": "Get staff role list.",
+                "operationId": "5fa6a4e71d6d0cfeb223619717e5a18e",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Account"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/account/set_deactivate": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Deactivate or activate an account",
+                "description": "Deactivate or activate an account.",
+                "operationId": "62b84b9526c8712d3eaa740351ad3404",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "deactivate",
+                                    "account_id"
+                                ],
+                                "properties": {
+                                    "deactivate": {
+                                        "description": "Set to true to deactivate, false to activate",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "account_id": {
+                                        "description": "ID of the account to deactivate/activate",
+                                        "type": "integer",
+                                        "example": 123
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Deactivate account successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/account/sendMail": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Send an email",
+                "description": "Send an email.",
+                "operationId": "54c4974d9bdd0e385e59369e0e2bbb7c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "toEmail",
+                                    "subject",
+                                    "messageContent",
+                                    "security_code"
+                                ],
+                                "properties": {
+                                    "toEmail": {
+                                        "type": "string",
+                                        "example": "recipient@example.com"
+                                    },
+                                    "subject": {
+                                        "type": "string",
+                                        "example": "Email subject"
+                                    },
+                                    "messageContent": {
+                                        "type": "string",
+                                        "example": "Email content"
+                                    },
+                                    "security_code": {
+                                        "description": "Security code for verification",
+                                        "type": "string",
+                                        "example": "ABC123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Email sent successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to send email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Failed to send email: Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/account/generateSecurityCode": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Generate a security code",
+                "description": "Generate a security code.",
+                "operationId": "b8644b9a3345a78bc220c81b44012ec7",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "securityCode": {
+                                            "description": "Generated security code",
+                                            "type": "integer",
+                                            "example": 123456
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/activate_account": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Activate an account",
+                "description": "Activate an account using security code.",
+                "operationId": "fec752e4f040ead3e84d5d6453c4da86",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "security_code"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "john_doe"
+                                    },
+                                    "security_code": {
+                                        "description": "Security code received by the user",
+                                        "type": "string",
+                                        "example": "ABC123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Account activated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Your account has been activated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or security code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received or wrong security code"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/diamond/get_diamond_list": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Create a new diamond",
+                "description": "Creates a new diamond entry in the database. Requires token for authorization.",
+                "operationId": "createDiamond",
+                "requestBody": {
+                    "description": "Pass diamond details",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "color",
+                                    "cut",
+                                    "carat",
+                                    "clarity"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Brilliant Round"
+                                    },
+                                    "color": {
+                                        "type": "string",
+                                        "example": "D"
+                                    },
+                                    "cut": {
+                                        "type": "string",
+                                        "example": "Excellent"
+                                    },
+                                    "carat": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1.5
+                                    },
+                                    "clarity": {
+                                        "type": "string",
+                                        "example": "VVS1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Diamond created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Diamond created successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/items/diamond/set_deactivate": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Set diamond activation status",
+                "description": "Activate or deactivate a diamond by ID",
+                "operationId": "setDeactivate",
+                "requestBody": {
+                    "description": "Pass diamond ID and deactivate status",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "diamond_id",
+                                    "deactivate"
+                                ],
+                                "properties": {
+                                    "diamond_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deactivate": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Deactivate diamond successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/items/diamond/update_price": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Update diamond price and recalculate related entities",
+                "operationId": "ea1991ff9f1397d1b8bf7c7da55ab95e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "update_price"
+                                ],
+                                "properties": {
+                                    "update_price": {
+                                        "properties": {
+                                            "diamond_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "price": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 1500.5
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success: Price update successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Price update successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Error: No input received or diamond deactivated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received or diamond deactivated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/diamond/get_diamond_detail": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Get diamond detail",
+                "description": "Retrieves details of a specified diamond",
+                "operationId": "getDiamondDetail",
+                "requestBody": {
+                    "description": "Diamond ID",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "diamond_id"
+                                ],
+                                "properties": {
+                                    "diamond_id": {
+                                        "type": "string",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "403": {
+                        "description": "No input received"
+                    }
+                }
+            }
+        },
+        "/api/items/diamond/get_shape_list": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Get list of diamond shapes",
+                "operationId": "e369936e11971828baeb8a3134454627",
+                "responses": {
+                    "200": {
+                        "description": "Success: Return list of diamond shapes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ModelDiamondShape"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get_diamond_origin_list": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Get list of diamond origins",
+                "operationId": "30ac67abd735621f9867f114ef8e77e8",
+                "responses": {
+                    "200": {
+                        "description": "List of diamond origins"
+                    }
+                }
+            }
+        },
+        "/api/get_color_list": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Get list of diamond colors",
+                "operationId": "8322e9be493c9f0f0aab4b002d4c010d",
+                "responses": {
+                    "200": {
+                        "description": "List of diamond colors"
+                    }
+                }
+            }
+        },
+        "/api/get_size_list": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Get list of diamond sizes",
+                "operationId": "38821485ec1966b3d3373809656c37f7",
+                "responses": {
+                    "200": {
+                        "description": "List of diamond sizes"
+                    }
+                }
+            }
+        },
+        "/api/get_cut_list": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Get list of diamond cuts",
+                "operationId": "d498d641af24a28e19b2790c93a172c3",
+                "responses": {
+                    "200": {
+                        "description": "List of diamond cuts"
+                    }
+                }
+            }
+        },
+        "/api/get_clarity_list": {
+            "post": {
+                "tags": [
+                    "Diamond"
+                ],
+                "summary": "Get list of diamond clarities",
+                "operationId": "aba6979f24dd6174614101c9b8c88e5c",
+                "responses": {
+                    "200": {
+                        "description": "List of diamond clarities"
+                    }
+                }
+            }
+        },
+        "/api/update_price": {
+            "post": {
+                "tags": [
+                    "Metal"
+                ],
+                "summary": "Update metal prices and recalculate product prices",
+                "operationId": "756efc3a62b7b24f0c8d084a7dad0c6a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "update_price"
+                                ],
+                                "properties": {
+                                    "update_price": {
+                                        "properties": {
+                                            "metal_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "buy_price_per_gram": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 30.5
+                                            },
+                                            "sale_price_per_gram": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 50
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Price updated successfully"
+                    },
+                    "403": {
+                        "description": "No input received or selected metal is deactivated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received or selected metal is deactivated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/set_deactivate": {
+            "post": {
+                "tags": [
+                    "Metal"
+                ],
+                "summary": "Activate or deactivate a metal",
+                "operationId": "2b1d569b4a46db373209dd84f4dd763f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "deactivate"
+                                ],
+                                "properties": {
+                                    "deactivate": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "metal_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Metal activated or deactivated successfully"
+                    },
+                    "403": {
+                        "description": "No input received or selected metal doesn't exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received or selected metal doesn't exist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/metal/get_list": {
+            "post": {
+                "tags": [
+                    "Metal"
+                ],
+                "summary": "Get list of metals based on user role",
+                "operationId": "33a9426aef90dc08ca23cc3af7bc1e42",
+                "requestBody": {
+                    "required": false
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of metals"
+                    },
+                    "401": {
+                        "description": "Invalid Token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid Token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/metal/get_detail": {
+            "post": {
+                "tags": [
+                    "Metal"
+                ],
+                "summary": "Get details of a metal by ID",
+                "operationId": "2b513c97637d19b763165cc5e7cefb26",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "metal_id"
+                                ],
+                                "properties": {
+                                    "metal_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Details of the metal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "metal": {
+                                            "$ref": "#/components/schemas/Metal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Metal not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Metal not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/metal/get_weight_price": {
+            "post": {
+                "tags": [
+                    "Metal"
+                ],
+                "summary": "Calculate weight and price based on metal information",
+                "operationId": "d865e61a57faf79d541d183adfe428a9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "metal_information"
+                                ],
+                                "properties": {
+                                    "metal_information": {
+                                        "properties": {
+                                            "metal_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "volume": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 10.5
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Weight and price calculated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "weight_price": {
+                                            "properties": {
+                                                "weight": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 105
+                                                },
+                                                "price": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 5250
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Metal has been deactivated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "The selected metal has been deactivated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/metal/get_metal_is_main": {
+            "post": {
+                "tags": [
+                    "Metal"
+                ],
+                "summary": "Get main metals associated with a model",
+                "operationId": "b75f73301a37fcc0af9c8a6e5c662a06",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "model_id"
+                                ],
+                                "properties": {
+                                    "model_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of main metals",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Metal"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/metal/get_metal_compatibility": {
+            "post": {
+                "tags": [
+                    "Metal"
+                ],
+                "summary": "Get compatible metals for a model",
+                "operationId": "2a5513ea473522da10113ae9b32ce44c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "metal_compatibility"
+                                ],
+                                "properties": {
+                                    "metal_compatibility": {
+                                        "properties": {
+                                            "metal_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "model_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of compatible metals",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Metal"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No compatibility metal found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No compatibility metal found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/add": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Add a new model",
+                "description": "This endpoint allows you to add a new model with metals and diamonds.",
+                "operationId": "addModel",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "new_model": {
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Model Name"
+                                            },
+                                            "mounting_type_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "mounting_style_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "base_width": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 5
+                                            },
+                                            "base_height": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 5
+                                            },
+                                            "volume": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 10
+                                            },
+                                            "production_price": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 100
+                                            },
+                                            "profit_rate": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": 15
+                                            },
+                                            "imageUrl": {
+                                                "type": "string",
+                                                "example": "data:image/jpeg;base64,..."
+                                            },
+                                            "model_diamond_shape": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "model_diamond": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "diamond_size_min": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 1
+                                                        },
+                                                        "diamond_size_max": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 2
+                                                        },
+                                                        "count": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "diamond_shape": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "is_editable": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "model_metal": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/Metal"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Model successfully added",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Model successfully added"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Input validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "Internal server error"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_list": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get model list",
+                "description": "Retrieve available and unavailable models based on search criteria.",
+                "operationId": "getModelList",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "model_search_information": {
+                                        "properties": {
+                                            "mounting_style": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "mounting_type_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "diamond_shape": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "metal": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved models",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "model_available": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "model_unavailable": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "Internal server error"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_detail": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get details of a model",
+                "description": "Returns detailed information about a model including its metals, diamonds, and related styles.",
+                "operationId": "d739cd4f91eb757e978d7e419efaf723",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "model_id": {
+                                        "description": "ID of the model to fetch details for",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Details of the model",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "model": {
+                                            "$ref": "#/components/schemas/Model"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized: Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden: No input received, model not found, deactivated, unavailable, or metal compatibility error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "The selected model isn't available"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/set_deactivate": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Deactivate or activate a model",
+                "description": "Deactivates or activates a model based on input.",
+                "operationId": "2725c352c2e90b0a83d324fa2d641a6d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "model_id": {
+                                        "description": "ID of the model to deactivate or activate",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deactivate": {
+                                        "description": "True to deactivate, false to activate",
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Deactivate model successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized: Invalid or missing authentication token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden: No input received or model not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "The selected model doesn't exist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Database error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/update": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Update model details",
+                "description": "Update model details.",
+                "operationId": "updateModel",
+                "requestBody": {
+                    "description": "Updated model object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "new_model": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": "1"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Updated Model"
+                                            },
+                                            "mounting_type_id": {
+                                                "type": "integer",
+                                                "example": "2"
+                                            },
+                                            "mounting_style_id": {
+                                                "type": "integer",
+                                                "example": "3"
+                                            },
+                                            "base_width": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": "10.5"
+                                            },
+                                            "base_height": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": "15.2"
+                                            },
+                                            "volume": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": "200.5"
+                                            },
+                                            "production_price": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": "1500.0"
+                                            },
+                                            "profit_rate": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "example": "0.25"
+                                            },
+                                            "imageUrl": {
+                                                "type": "string",
+                                                "example": "data:image/jpeg;base64,/9j/4AAQSk..."
+                                            },
+                                            "model_metal": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "metal": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": "1"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "is_main": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "percentage": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": "50.0"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "model_diamond": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "diamond_size_min": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": "0.5"
+                                                        },
+                                                        "diamond_size_max": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": "1.0"
+                                                        },
+                                                        "count": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "diamond_shape": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": "1"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "is_editable": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "model_diamond_shape": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Model updated successfully"
+                    },
+                    "403": {
+                        "description": "Error updating model",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error updating model"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/set_available": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Set model available with images",
+                "description": "Set model available with images.",
+                "operationId": "setAvailableModel",
+                "requestBody": {
+                    "description": "Model ID and image list",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "set_available": {
+                                        "properties": {
+                                            "model_id": {
+                                                "type": "integer",
+                                                "example": "1"
+                                            },
+                                            "image_list": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "main_image": {
+                                                            "type": "string",
+                                                            "example": "data:image/jpeg;base64,/9j/4AAQSk..."
+                                                        },
+                                                        "metal_1_id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "metal_2_id": {
+                                                            "type": "integer",
+                                                            "example": "2"
+                                                        },
+                                                        "diamond_shape_id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "related_image": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "example": "data:image/jpeg;base64,/9j/4AAQSk..."
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Model set available successfully"
+                    },
+                    "403": {
+                        "description": "Error setting model available",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error setting model available"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_missing_image": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get model details with missing images",
+                "description": "Returns model details along with information about missing images for metal combinations and diamond shapes.",
+                "operationId": "getMissingImage",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "model_id": {
+                                        "description": "ID of the model to retrieve images for",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "model": {
+                                            "$ref": "#/components/schemas/Model"
+                                        },
+                                        "missing_image": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "metal_1": {
+                                                        "$ref": "#/components/schemas/Metal"
+                                                    },
+                                                    "metal_2": {
+                                                        "$ref": "#/components/schemas/Metal"
+                                                    },
+                                                    "diamond_shape": {
+                                                        "$ref": "#/components/schemas/ModelDiamondShape"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No Model Id Received or The selected model doesn't exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No Model Id Received or The selected model doesn't exist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_model_diamond": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get model diamonds",
+                "description": "Returns diamonds associated with a specified model.",
+                "operationId": "getModelDiamond",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "model_id": {
+                                        "description": "ID of the model to retrieve diamonds for",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "returned_model_diamond": {
+                                            "properties": {
+                                                "model_id": {
+                                                    "description": "ID of the model",
+                                                    "type": "integer"
+                                                },
+                                                "model_diamond": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/ModelDiamond"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_model_shape": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get model diamond shapes",
+                "description": "Returns diamond shapes associated with a specified model.",
+                "operationId": "getModelShape",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "model_id": {
+                                        "description": "ID of the model to retrieve diamond shapes for",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "returned_model_shape": {
+                                            "properties": {
+                                                "model_id": {
+                                                    "description": "ID of the model",
+                                                    "type": "integer"
+                                                },
+                                                "model_shape": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/ModelDiamondShape"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_model_metal": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get model metals",
+                "description": "Returns metals associated with a specified model.",
+                "operationId": "getModelMetal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "model_id": {
+                                        "description": "ID of the model to retrieve metals for",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "returned_model_metal": {
+                                            "properties": {
+                                                "model_id": {
+                                                    "description": "ID of the model",
+                                                    "type": "integer"
+                                                },
+                                                "model_metal": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Metal"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_mounting_type_list": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get mounting type list",
+                "description": "Returns a list of all mounting types.",
+                "operationId": "postMountingTypeList",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Type A"
+                                            },
+                                            "min_size": {
+                                                "type": "integer",
+                                                "example": 10
+                                            },
+                                            "max_size": {
+                                                "type": "integer",
+                                                "example": 50
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_mounting_style_list": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get mounting style list",
+                "description": "Returns a list of all mounting styles.",
+                "operationId": "postMountingStyleList",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Style A"
+                                            },
+                                            "imageUrl": {
+                                                "type": "string",
+                                                "example": "http://example.com/style.jpg"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/model/get_final_checkout": {
+            "post": {
+                "tags": [
+                    "Model"
+                ],
+                "summary": "Get final checkout details",
+                "description": "Returns details for final checkout based on provided template information.",
+                "operationId": "getFinalCheckout",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "template_information",
+                                    "template_information.model_id",
+                                    "template_information.diamond_shape_id",
+                                    "template_information.metal_1_id",
+                                    "template_information.mounting_size",
+                                    "template_information.diamond_origin_id",
+                                    "template_information.diamond_clarity_id",
+                                    "template_information.diamond_color_id",
+                                    "template_information.diamond_cut_id",
+                                    "template_information.diamond_size"
+                                ]
+                            },
+                            "example": {
+                                "template_information": {
+                                    "model_id": 1,
+                                    "diamond_shape_id": 2,
+                                    "metal_1_id": 3,
+                                    "metal_2_id": null,
+                                    "mounting_size": "1.5",
+                                    "diamond_origin_id": 4,
+                                    "diamond_clarity_id": 5,
+                                    "diamond_color_id": 6,
+                                    "diamond_cut_id": 7,
+                                    "diamond_size": 1.5
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "model_id": {
+                                            "type": "integer"
+                                        },
+                                        "mounting_type": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "min_size": {
+                                                    "type": "number",
+                                                    "format": "float"
+                                                },
+                                                "max_size": {
+                                                    "type": "number",
+                                                    "format": "float"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "main_image": {
+                                            "type": "string"
+                                        },
+                                        "related_image": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "metal": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "price": {
+                                                    "type": "number",
+                                                    "format": "float"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "diamond_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "diamond_size": {
+                                                        "type": "number",
+                                                        "format": "float"
+                                                    },
+                                                    "diamond_color": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "diamond_origin": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "diamond_clarity": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "diamond_cut": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "price": {
+                                                        "type": "number",
+                                                        "format": "float"
+                                                    },
+                                                    "diamond_shape": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "count": {
+                                                        "type": "integer"
+                                                    },
+                                                    "is_editable": {
+                                                        "type": "boolean"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "production_price": {
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "total_price": {
+                                            "type": "number",
+                                            "format": "float"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Error occurred",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "User": {
+                "title": "User",
+                "description": "User model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "Account": {
+                "title": "Account",
+                "description": "Account model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "fullname": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "imageUrl": {
+                        "type": "string",
+                        "example": "http://example.com/image.jpg"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john.doe@example.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "123-456-7890"
+                    },
+                    "dob": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1990-01-01"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "123 Main St"
+                    },
+                    "deactivated": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "deactivated_date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000Z"
+                    },
+                    "google_id": {
+                        "type": "string",
+                        "example": "1234567890"
+                    },
+                    "role_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000Z"
+                    },
+                    "security_code": {
+                        "type": "string",
+                        "example": "123456"
+                    }
+                },
+                "type": "object"
+            },
+            "Diamond": {
+                "title": "Diamond",
+                "description": "Diamond model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "size": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1.5
+                    },
+                    "imageUrl": {
+                        "type": "string",
+                        "example": "http://example.com/image.jpg"
+                    },
+                    "diamond_color_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "diamond_clarity_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "diamond_cut_id": {
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "diamond_origin_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000
+                    },
+                    "deactivated": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "Metal": {
+                "title": "Metal",
+                "description": "Metal model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Gold"
+                    },
+                    "buy_price_per_gram": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50
+                    },
+                    "sale_price_per_gram": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 80
+                    },
+                    "imageUrl": {
+                        "type": "string",
+                        "example": "http://example.com/image.jpg"
+                    },
+                    "specific_weight": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 19.32
+                    },
+                    "deactivated": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-01-01T00:00:00.000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ModelDiamond": {
+                "title": "Model Diamond",
+                "description": "Model Diamond model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "model_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "diamond_size_min": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1
+                    },
+                    "diamond_size_max": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 2
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "diamond_shape_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "is_editable": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "ModelDiamondShape": {
+                "title": "Model Diamond Shape",
+                "description": "Model Diamond Shape model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "model_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "diamond_shape_id": {
+                        "type": "integer",
+                        "example": 3
+                    }
+                },
+                "type": "object"
+            },
+            "ModelMetal": {
+                "title": "Model Metal",
+                "description": "Model Metal model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "model_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "metal_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "is_main": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "percentage": {
+                        "type": "integer",
+                        "example": 50
+                    }
+                },
+                "type": "object"
+            },
+            "Product": {
+                "title": "Product",
+                "description": "Product model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "imageUrl": {
+                        "type": "string",
+                        "example": "https://example.com/image.jpg"
+                    },
+                    "mounting_type_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "model_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "mounting_size": {
+                        "type": "string",
+                        "example": "small"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductDiamond": {
+                "title": "Product Diamond",
+                "description": "Product Diamond model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "product_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "diamond_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "diamond_shape_id": {
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100.5
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "ProductMetal": {
+                "title": "Product Metal",
+                "description": "Product Metal model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "product_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "metal_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "volume": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 10.5
+                    },
+                    "weight": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5.2
+                    },
+                    "status": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 500.75
+                    }
+                },
+                "type": "object"
+            },
+            "Model": {
+                "title": "Model",
+                "description": "Item Model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Ring"
+                    },
+                    "imageUrl": {
+                        "type": "string",
+                        "example": "http://example.com/image.jpg"
+                    },
+                    "mounting_type_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "mounting_style_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "base_width": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1.5
+                    },
+                    "base_height": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1
+                    },
+                    "volume": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5
+                    },
+                    "production_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 500
+                    },
+                    "profit_rate": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.2
+                    },
+                    "isAvailable": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "deactivated": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "Order": {
+                "title": "Order",
+                "description": "Order model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "product_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "account_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "deposit_has_paid": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "product_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000
+                    },
+                    "profit_rate": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.2
+                    },
+                    "production_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 800
+                    },
+                    "total_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1200
+                    },
+                    "order_type_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "order_status_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "Special instructions for the order"
+                    },
+                    "saleStaff_id": {
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "designStaff_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "productionStaff_id": {
+                        "type": "integer",
+                        "example": 6
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-07-14T10:30:00Z"
+                    },
+                    "delivery_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-07-20"
+                    },
+                    "guarantee_expired_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-07-20"
+                    }
+                },
+                "type": "object"
+            },
+            "Quote": {
+                "title": "Quote",
+                "description": "Quote model schema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "product_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "account_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "product_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1000
+                    },
+                    "profit_rate": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.2
+                    },
+                    "production_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 800
+                    },
+                    "total_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1200
+                    },
+                    "quote_status_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "Special instructions for the quote"
+                    },
+                    "saleStaff_id": {
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "designStaff_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "productionStaff_id": {
+                        "type": "integer",
+                        "example": 6
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-07-14T10:30:00Z"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "name": "bearerAuth",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Account",
+            "description": "Account"
+        },
+        {
+            "name": "Diamond",
+            "description": "Diamond"
+        },
+        {
+            "name": "Metal",
+            "description": "Metal"
+        },
+        {
+            "name": "Model",
+            "description": "Model"
+        }
+    ]
+}
