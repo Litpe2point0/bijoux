@@ -1,4 +1,4 @@
-import logo from "./bijoux_logo.jpg";
+import logo from "./bijoux_logo_2.jpg";
 import logoLight from "./logoLight.png";
 import bannerImgOne from "./banner/jewelry1.png";
 import bannerImgTwo from "./banner/jewelry2.png";
@@ -15,7 +15,7 @@ import gold from "./services/Metals/Gold/main.jpg"
 import silver from "./services/Metals/Silver/main.jpg"
 import roseGold from "./services/Metals/Rose-Gold/main.jpg"
 import platinum from "./services/Metals/Platinum/main.jpg"
-import diamondImg from "./diamond_waiting_image.jpg"
+import diamondImg from "./diamond_waiting_image_2.jpg"
 import demoFinalMain from "./finalTemplate/main.jpg"
 import demoFinalRelated1 from "./finalTemplate/Related_1.jpg"
 import demoFinalRelated2 from "./finalTemplate/Related_2.jpg"
