@@ -693,13 +693,52 @@ class AccountController extends Controller
             $id = $decodedToken->id;
         }
 
+
         //find account
         $account = Account::find($id);
+        if ($account->email == $input['email'] && $account->phone == $input['phone']) {
+            // Both email and phone match, skip uniqueness validation
+            $rules = [
+                'email' => 'required|string|email|max:255',
+                'phone' => 'nullable|string|max:20',
+            ];
+        } else {
+            // Check if only email matches
+            if ($account->email == $input['email']) {
+                $rules = [
+                    'email' => 'required|string|email|max:255',
+                    'phone' => 'nullable|string|max:20|unique:account,phone',
+                ];
+            }
+            // Check if only phone matches
+            else if ($account->phone == $input['phone']) {
+                $rules = [
+                    'email' => 'required|string|email|max:255|unique:account,email',
+                    'phone' => 'nullable|string|max:20',
+                ];
+            }
+            // Neither email nor phone match, apply full uniqueness validation
+            else {
+                $rules = [
+                    'email' => 'required|string|email|max:255|unique:account,email',
+                    'phone' => 'nullable|string|max:20|unique:account,phone',
+                ];
+            }
+        }
+        $validatedData = validator($input, $rules);
+        if ($validatedData->fails()) {
+            $errors = $validatedData->errors();
+            $errorString = '';
 
+            foreach ($errors->all() as $message) {
+                $errorString .= $message . "\n";
+            }
+
+            return response()->json(['error' => $errorString], 400);
+        }
         DB::beginTransaction();
         try {
             $updateData = [];
-
             if (!empty($input['username'])) {
                 $updateData['username'] = $input['username'];
             }
@@ -1013,6 +1052,7 @@ class AccountController extends Controller
             ], 200);
         }
     }
+<<<<<<< HEAD
     /**
  * Send an email.
  *
@@ -1046,6 +1086,8 @@ class AccountController extends Controller
  *     )
  * )
  */
+=======
+>>>>>>> d3eb8d1b7c7cc395ae1603cd02683adbcdf98922
     public function sendMail($toEmail, $subject, $messageContent, $security_code)
     {
         $data = [
