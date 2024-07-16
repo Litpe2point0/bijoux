@@ -1052,7 +1052,6 @@ class AccountController extends Controller
             ], 200);
         }
     }
-<<<<<<< HEAD
     /**
  * Send an email.
  *
@@ -1086,8 +1085,6 @@ class AccountController extends Controller
  *     )
  * )
  */
-=======
->>>>>>> d3eb8d1b7c7cc395ae1603cd02683adbcdf98922
     public function sendMail($toEmail, $subject, $messageContent, $security_code)
     {
         $data = [
