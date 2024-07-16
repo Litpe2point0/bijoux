@@ -480,28 +480,28 @@ class AccountController extends Controller
  *         response=200,
  *         description="Successful operation",
  *         @OA\JsonContent(
- *             @OA\Property(property="success", type="string")
+ *             @OA\Property(property="success", type="string", example="Update Successfully")
  *         )
  *     ),
  *     @OA\Response(
  *         response=400,
  *         description="Invalid input or No account id received",
  *         @OA\JsonContent(
- *             @OA\Property(property="error", type="string")
+ *             @OA\Property(property="error", type="string", example="Invalid input or No account id received")
  *         )
  *     ),
  *     @OA\Response(
  *         response=403,
  *         description="Account not found",
  *         @OA\JsonContent(
- *             @OA\Property(property="error", type="string")
+ *             @OA\Property(property="error", type="string", example="Account not found")
  *         )
  *     ),
  *     @OA\Response(
  *         response=500,
  *         description="Server Error",
  *         @OA\JsonContent(
- *             @OA\Property(property="error", type="string")
+ *             @OA\Property(property="error", type="string", example="Server Error")
  *         )
  *     )
  * )
@@ -780,21 +780,21 @@ class AccountController extends Controller
  *         response=201,
  *         description="Successful registration",
  *         @OA\JsonContent(
- *             @OA\Property(property="success", type="string")
+ *             @OA\Property(property="success", type="string", example="Registration successful")
  *         )
  *     ),
  *     @OA\Response(
  *         response=400,
  *         description="Invalid input or Username, Email, or Phone Number already used",
  *         @OA\JsonContent(
- *             @OA\Property(property="error", type="string")
+ *             @OA\Property(property="error", type="string", exanple="Invalid input or Username, Email, or Phone Number already used")
  *         )
  *     ),
  *     @OA\Response(
  *         response=500,
  *         description="Server Error",
  *         @OA\JsonContent(
- *             @OA\Property(property="error", type="string")
+ *             @OA\Property(property="error", type="string", axample="Server Error")
  *         )
  *     )
  * )

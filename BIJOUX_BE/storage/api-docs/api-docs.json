@@ -357,7 +357,8 @@
                                 "schema": {
                                     "properties": {
                                         "success": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Update Successfully"
                                         }
                                     },
                                     "type": "object"
@@ -372,7 +373,8 @@
                                 "schema": {
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Invalid input or No account id received"
                                         }
                                     },
                                     "type": "object"
@@ -387,7 +389,8 @@
                                 "schema": {
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Account not found"
                                         }
                                     },
                                     "type": "object"
@@ -402,7 +405,8 @@
                                 "schema": {
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Server Error"
                                         }
                                     },
                                     "type": "object"
@@ -3115,7 +3119,1777 @@
                                 "schema": {
                                     "properties": {
                                         "error": {
+                                            "type": "string",
+                                            "example": "Error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/get_order_list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get order list for admin",
+                "description": "Retrieve customized and template order lists for admin users.",
+                "operationId": "getOrderListAdmin",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "customize_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        },
+                                        "template_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order/get_order_list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get order list for customer",
+                "description": "Retrieve customized and template order lists for the authenticated customer.",
+                "operationId": "getOrderListCustomer",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "customize_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        },
+                                        "template_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/quote/get_quote_list": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get list of quotes for admin",
+                "description": "Returns a list of quotes with product and account details for the admin",
+                "operationId": "getQuoteListAdmin",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "product": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "account": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "username": {
+                                                        "type": "string"
+                                                    },
+                                                    "fullname": {
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "type": "string"
+                                                    },
+                                                    "phone": {
+                                                        "type": "string"
+                                                    },
+                                                    "dob": {
+                                                        "type": "string"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "deactivated": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "deactivated_date": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "quote_status": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Forbidden"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/quote/get_priced_quote_list": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get list of priced quotes for admin",
+                "description": "Returns a list of priced quotes with product and account details for the admin",
+                "operationId": "getPricedQuoteList",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "product": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "mounting_type": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "account": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "dob": {
+                                                        "type": "string"
+                                                    },
+                                                    "deactivated_date": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "quote_status": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
                                             "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/quote/get_quote_list": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get list of quotes for customer",
+                "description": "Returns a list of quotes for the customer based on their account ID",
+                "operationId": "getQuoteListCustomer",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "Authorization": {
+                                        "description": "Bearer token",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "created": {
+                                                "type": "string"
+                                            },
+                                            "product": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "mounting_type": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "account": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "dob": {
+                                                        "type": "string"
+                                                    },
+                                                    "deactivated_date": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "quote_status": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "sale_staff": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "dob": {
+                                                        "type": "string"
+                                                    },
+                                                    "deactivated_date": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "design_staff": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "dob": {
+                                                        "type": "string"
+                                                    },
+                                                    "deactivated_date": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "production_staff": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string"
+                                                    },
+                                                    "dob": {
+                                                        "type": "string"
+                                                    },
+                                                    "deactivated_date": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/quote/get_quote_status_list": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get list of quote statuses",
+                "description": "Returns a list of all quote statuses",
+                "operationId": "getQuoteStatusList",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/quote/add_quote": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Add a new quote when customer send a customization request",
+                "description": "Create a new quote with a product and associated account details.",
+                "operationId": "addQuote",
+                "requestBody": {
+                    "description": "New quote data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "mounting_type_id": {
+                                        "description": "ID of the mounting type",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "note": {
+                                        "description": "Additional note",
+                                        "type": "string",
+                                        "example": "Sample note"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Quote created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Quote created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or account issues",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No Input Received or The selected customer account has been deactivated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "Error message"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/quote/assign_quote": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Assign staff to a quote",
+                "description": "Assign sales, design, and production staff to a quote.",
+                "operationId": "assignQuote",
+                "requestBody": {
+                    "description": "Assigned information data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "assigned_information": {
+                                        "description": "JSON object containing assigned information details",
+                                        "properties": {
+                                            "quote_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "saleStaff_id": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "designStaff_id": {
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "productionStaff_id": {
+                                                "type": "integer",
+                                                "example": 4
+                                            },
+                                            "note": {
+                                                "type": "string",
+                                                "example": "Sample note"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Assign quote successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Assign quote successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or account issues",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received or The selected sale staff account can't be null"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "Error message"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/quote/pricing_quote": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Price a quote",
+                "description": "This endpoint allows a sales staff member to price a quote.",
+                "operationId": "2c4f1d9a9928f0fe29b458ca63e4f77b",
+                "requestBody": {
+                    "description": "The pricing details of the quote",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "quote_id",
+                                    "production_price",
+                                    "profit_rate"
+                                ],
+                                "properties": {
+                                    "quote_id": {
+                                        "description": "The ID of the quote",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "mounting_type_id": {
+                                        "description": "The ID of the mounting type",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "mounting_size": {
+                                        "description": "The size of the mounting",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 5.5
+                                    },
+                                    "imageUrl": {
+                                        "description": "The image of the product in base64 format",
+                                        "type": "string",
+                                        "format": "byte"
+                                    },
+                                    "diamond_list": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "diamond": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "count": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "price": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 5000
+                                                },
+                                                "diamond_shape": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "metal_list": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "metal": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "price": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 1000
+                                                },
+                                                "volume": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 1.2
+                                                },
+                                                "weight": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 10.5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "production_price": {
+                                        "description": "The production price of the quote",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 15000
+                                    },
+                                    "profit_rate": {
+                                        "description": "The profit rate of the quote",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 20
+                                    },
+                                    "note": {
+                                        "description": "Additional notes about the quote",
+                                        "type": "string",
+                                        "example": "Please confirm the details"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successfully priced quote",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Successfully price quote"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or unauthorized action",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/quote/approve_quote": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Approve or decline a quote",
+                "description": "This endpoint allows an account to approve or decline a quote.",
+                "operationId": "f52b4b8b012269a8ce7b61c090129e7e",
+                "requestBody": {
+                    "description": "Approval details for the quote",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "quote_id",
+                                    "approve"
+                                ],
+                                "properties": {
+                                    "quote_id": {
+                                        "description": "The ID of the quote",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "approve": {
+                                        "description": "Approval status of the quote",
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "note": {
+                                        "description": "Additional notes about the approval",
+                                        "type": "string",
+                                        "example": "Approved with conditions"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successfully approved or declined quote",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Approve quote successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or unauthorized action",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/quote/cancel": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Cancel a quote",
+                "operationId": "880d16a60453ddd42c7ee1800ebef5c3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "quote_id",
+                                    "note"
+                                ],
+                                "properties": {
+                                    "quote_id": {
+                                        "description": "ID of the quote to cancel",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "note": {
+                                        "description": "Reason for cancellation",
+                                        "type": "string",
+                                        "example": "Customer requested cancellation"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Cancel successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Cancel successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or unauthorized action",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "The selected quote has already been completed"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/quote/get_assigned_quote_sale": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get quotes assigned to a sales staff",
+                "operationId": "7d6819336cb17ff1958b2cad4c7124e1",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of assigned quotes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "quote_id": {
+                                            "description": "ID of the quote",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "product": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID of the product",
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "imageUrl": {
+                                                    "description": "URL of the product image",
+                                                    "type": "string",
+                                                    "example": "http://example.com/image.jpg"
+                                                },
+                                                "mounting_type_id": {
+                                                    "description": "Mounting type ID of the product",
+                                                    "type": "integer",
+                                                    "example": 2
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "account": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID of the account",
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "description": "Name of the account owner",
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "imageUrl": {
+                                                    "description": "URL of the account image",
+                                                    "type": "string",
+                                                    "example": "http://example.com/account.jpg"
+                                                },
+                                                "dob": {
+                                                    "description": "Date of birth of the account owner",
+                                                    "type": "string",
+                                                    "example": "01/01/1990"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "quote_status": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID of the quote status",
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "status": {
+                                                    "description": "Status of the quote",
+                                                    "type": "string",
+                                                    "example": "Priced"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid user (User is unauthorized)"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/quote/get_quote_detail": {
+            "post": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get detailed information about a specific quote",
+                "operationId": "88870008a416d9a7aa8aa851b3c7a91b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "quote_id"
+                                ],
+                                "properties": {
+                                    "quote_id": {
+                                        "description": "ID of the quote",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Quote detail",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "quote_detail": {
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID of the quote",
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "created": {
+                                                    "description": "Creation timestamp of the quote",
+                                                    "type": "string",
+                                                    "example": "12:00:00 01/01/2024"
+                                                },
+                                                "product": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "description": "ID of the product",
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "imageUrl": {
+                                                            "description": "URL of the product image",
+                                                            "type": "string",
+                                                            "example": "http://example.com/product/1/image.jpg"
+                                                        },
+                                                        "mounting_type": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "description": "ID of the mounting type",
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "name": {
+                                                                    "description": "Name of the mounting type",
+                                                                    "type": "string",
+                                                                    "example": "Prong"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "product_diamond": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "properties": {
+                                                                    "diamond": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "description": "ID of the diamond",
+                                                                                "type": "integer",
+                                                                                "example": 1
+                                                                            },
+                                                                            "imageUrl": {
+                                                                                "description": "URL of the diamond image",
+                                                                                "type": "string",
+                                                                                "example": "http://example.com/diamond/1/image.jpg"
+                                                                            },
+                                                                            "created": {
+                                                                                "description": "Creation timestamp of the diamond",
+                                                                                "type": "string",
+                                                                                "example": "12:00:00 01/01/2024"
+                                                                            },
+                                                                            "diamond_color": {
+                                                                                "properties": {
+                                                                                    "id": {
+                                                                                        "description": "ID of the diamond color",
+                                                                                        "type": "integer",
+                                                                                        "example": 1
+                                                                                    },
+                                                                                    "name": {
+                                                                                        "description": "Color grade of the diamond",
+                                                                                        "type": "string",
+                                                                                        "example": "D"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "diamond_origin": {
+                                                                                "properties": {
+                                                                                    "id": {
+                                                                                        "description": "ID of the diamond origin",
+                                                                                        "type": "integer",
+                                                                                        "example": 1
+                                                                                    },
+                                                                                    "name": {
+                                                                                        "description": "Origin of the diamond",
+                                                                                        "type": "string",
+                                                                                        "example": "Russia"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "diamond_clarity": {
+                                                                                "properties": {
+                                                                                    "id": {
+                                                                                        "description": "ID of the diamond clarity",
+                                                                                        "type": "integer",
+                                                                                        "example": 1
+                                                                                    },
+                                                                                    "name": {
+                                                                                        "description": "Clarity grade of the diamond",
+                                                                                        "type": "string",
+                                                                                        "example": "VVS1"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "diamond_cut": {
+                                                                                "properties": {
+                                                                                    "id": {
+                                                                                        "description": "ID of the diamond cut",
+                                                                                        "type": "integer",
+                                                                                        "example": 1
+                                                                                    },
+                                                                                    "name": {
+                                                                                        "description": "Cut grade of the diamond",
+                                                                                        "type": "string",
+                                                                                        "example": "Excellent"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "diamond_shape": {
+                                                                                "properties": {
+                                                                                    "id": {
+                                                                                        "description": "ID of the diamond shape",
+                                                                                        "type": "integer",
+                                                                                        "example": 1
+                                                                                    },
+                                                                                    "name": {
+                                                                                        "description": "Shape of the diamond",
+                                                                                        "type": "string",
+                                                                                        "example": "Round"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "product_metal": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "properties": {
+                                                                    "metal": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "description": "ID of the metal",
+                                                                                "type": "integer",
+                                                                                "example": 1
+                                                                            },
+                                                                            "imageUrl": {
+                                                                                "description": "URL of the metal image",
+                                                                                "type": "string",
+                                                                                "example": "http://example.com/metal/1/image.jpg"
+                                                                            },
+                                                                            "created": {
+                                                                                "description": "Creation timestamp of the metal",
+                                                                                "type": "string",
+                                                                                "example": "12:00:00 01/01/2024"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "account": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "description": "ID of the account",
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "description": "Name of the account owner",
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "imageUrl": {
+                                                            "description": "URL of the account image",
+                                                            "type": "string",
+                                                            "example": "http://example.com/account/1/image.jpg"
+                                                        },
+                                                        "dob": {
+                                                            "description": "Date of birth of the account owner",
+                                                            "type": "string",
+                                                            "example": "01/01/1990"
+                                                        },
+                                                        "deactivated_date": {
+                                                            "description": "Deactivation date of the account",
+                                                            "type": "string",
+                                                            "example": "01/01/2025"
+                                                        },
+                                                        "role": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "description": "ID of the role",
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "name": {
+                                                                    "description": "Role of the account owner",
+                                                                    "type": "string",
+                                                                    "example": "Customer"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "sale_staff": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "description": "ID of the sales staff",
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "name": {
+                                                            "description": "Name of the sales staff",
+                                                            "type": "string",
+                                                            "example": "Jane Doe"
+                                                        },
+                                                        "imageUrl": {
+                                                            "description": "URL of the sales staff image",
+                                                            "type": "string",
+                                                            "example": "http://example.com/account/2/image.jpg"
+                                                        },
+                                                        "dob": {
+                                                            "description": "Date of birth of the sales staff",
+                                                            "type": "string",
+                                                            "example": "01/01/1985"
+                                                        },
+                                                        "deactivated_date": {
+                                                            "description": "Deactivation date of the sales staff",
+                                                            "type": "string",
+                                                            "example": "01/01/2025"
+                                                        },
+                                                        "role": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "description": "ID of the role",
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "name": {
+                                                                    "description": "Role of the sales staff",
+                                                                    "type": "string",
+                                                                    "example": "Sales Staff"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "order_count": {
+                                                            "description": "Number of orders managed by the sales staff",
+                                                            "type": "integer",
+                                                            "example": 10
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "design_staff": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "description": "ID of the design staff",
+                                                            "type": "integer",
+                                                            "example": 3
+                                                        },
+                                                        "name": {
+                                                            "description": "Name of the design staff",
+                                                            "type": "string",
+                                                            "example": "Alice Doe"
+                                                        },
+                                                        "imageUrl": {
+                                                            "description": "URL of the design staff image",
+                                                            "type": "string",
+                                                            "example": "http://example.com/account/3/image.jpg"
+                                                        },
+                                                        "dob": {
+                                                            "description": "Date of birth of the design staff",
+                                                            "type": "string",
+                                                            "example": "01/01/1987"
+                                                        },
+                                                        "deactivated_date": {
+                                                            "description": "Deactivation date of the design staff",
+                                                            "type": "string",
+                                                            "example": "01/01/2025"
+                                                        },
+                                                        "role": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "description": "ID of the role",
+                                                                    "type": "integer",
+                                                                    "example": 3
+                                                                },
+                                                                "name": {
+                                                                    "description": "Role of the design staff",
+                                                                    "type": "string",
+                                                                    "example": "Design Staff"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "order_count": {
+                                                            "description": "Number of orders managed by the design staff",
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "production_staff": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "description": "ID of the production staff",
+                                                            "type": "integer",
+                                                            "example": 4
+                                                        },
+                                                        "name": {
+                                                            "description": "Name of the production staff",
+                                                            "type": "string",
+                                                            "example": "Bob Doe"
+                                                        },
+                                                        "imageUrl": {
+                                                            "description": "URL of the production staff image",
+                                                            "type": "string",
+                                                            "example": "http://example.com/account/4/image.jpg"
+                                                        },
+                                                        "dob": {
+                                                            "description": "Date of birth of the production staff",
+                                                            "type": "string",
+                                                            "example": "01/01/1983"
+                                                        },
+                                                        "deactivated_date": {
+                                                            "description": "Deactivation date of the production staff",
+                                                            "type": "string",
+                                                            "example": "01/01/2025"
+                                                        },
+                                                        "role": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "description": "ID of the role",
+                                                                    "type": "integer",
+                                                                    "example": 4
+                                                                },
+                                                                "name": {
+                                                                    "description": "Role of the production staff",
+                                                                    "type": "string",
+                                                                    "example": "Production Staff"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "order_count": {
+                                                            "description": "Number of orders managed by the production staff",
+                                                            "type": "integer",
+                                                            "example": 15
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "quote_status": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "description": "ID of the quote status",
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "description": "Name of the quote status",
+                                                            "type": "string",
+                                                            "example": "Pending"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
                                         }
                                     },
                                     "type": "object"
@@ -3729,6 +5503,14 @@
         {
             "name": "Model",
             "description": "Model"
+        },
+        {
+            "name": "Order",
+            "description": "Order"
+        },
+        {
+            "name": "Quote",
+            "description": "Quote"
         }
     ]
 }

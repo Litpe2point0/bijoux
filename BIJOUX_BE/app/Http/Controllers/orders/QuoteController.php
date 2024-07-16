@@ -20,6 +20,63 @@ use Throwable;
 
 class QuoteController extends Controller
 {
+    /**
+ * @OA\Post(
+ *      path="/api/admin/quote/get_quote_list",
+ *      operationId="getQuoteListAdmin",
+ *      tags={"Quote"},
+ *      summary="Get list of quotes for admin",
+ *      description="Returns a list of quotes with product and account details for the admin",
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              type="array",
+ *              @OA\Items(
+ *                  @OA\Property(property="id", type="integer"),
+ *                  @OA\Property(property="product", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="name", type="string"),
+ *                      @OA\Property(property="imageUrl", type="string")
+ *                  ),
+ *                  @OA\Property(property="account", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="username", type="string"),
+ *                      @OA\Property(property="fullname", type="string"),
+ *                      @OA\Property(property="email", type="string"),
+ *                      @OA\Property(property="phone", type="string"),
+ *                      @OA\Property(property="dob", type="string"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="deactivated", type="boolean"),
+ *                      @OA\Property(property="deactivated_date", type="string"),
+ *                      @OA\Property(property="role", type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="quote_status", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="name", type="string")
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="error", type="string", example="Forbidden")
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=500,
+ *          description="Internal Server Error",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="error", type="string", example="Internal Server Error")
+ *          )
+ *      )
+ * )
+ */
     public function get_quote_list_admin()
     {
         $quote_list = DB::table('quote')->orderBy('quote_status_id', 'ASC')->get();
@@ -54,6 +111,56 @@ class QuoteController extends Controller
             $quote_list
         );
     }
+    /**
+ * @OA\Post(
+ *      path="/api/admin/quote/get_priced_quote_list",
+ *      operationId="getPricedQuoteList",
+ *      tags={"Quote"},
+ *      summary="Get list of priced quotes for admin",
+ *      description="Returns a list of priced quotes with product and account details for the admin",
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              type="array",
+ *              @OA\Items(
+ *                  type="object",
+ *                  @OA\Property(property="id", type="integer"),
+ *                  @OA\Property(property="product", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="mounting_type", type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="account", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="dob", type="string"),
+ *                      @OA\Property(property="deactivated_date", type="string"),
+ *                      @OA\Property(property="role", type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="quote_status", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="name", type="string")
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=500,
+ *          description="Internal Server Error",
+ *          @OA\JsonContent(
+ *              type="object",
+ *              @OA\Property(property="error", type="string")
+ *          )
+ *      )
+ * )
+ */
     public function get_priced_quote_list()
     {
         $quote_list = DB::table('quote')->where('quote_status_id', 3)->get();
@@ -88,6 +195,101 @@ class QuoteController extends Controller
             $quote_list
         );
     }
+    /**
+ * @OA\Post(
+ *      path="/api/quote/get_quote_list",
+ *      operationId="getQuoteListCustomer",
+ *      tags={"Quote"},
+ *      summary="Get list of quotes for customer",
+ *      description="Returns a list of quotes for the customer based on their account ID",
+ *      @OA\RequestBody(
+ *          required=true,
+ *          @OA\JsonContent(
+ *              @OA\Property(property="Authorization", type="string", description="Bearer token")
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              type="array",
+ *              @OA\Items(
+ *                  type="object",
+ *                  @OA\Property(property="id", type="integer"),
+ *                  @OA\Property(property="created", type="string"),
+ *                  @OA\Property(property="product", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="mounting_type", type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="account", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="dob", type="string"),
+ *                      @OA\Property(property="deactivated_date", type="string"),
+ *                      @OA\Property(property="role", type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="quote_status", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="name", type="string")
+ *                  ),
+ *                  @OA\Property(property="sale_staff", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="dob", type="string"),
+ *                      @OA\Property(property="deactivated_date", type="string"),
+ *                      @OA\Property(property="role", type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="design_staff", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="dob", type="string"),
+ *                      @OA\Property(property="deactivated_date", type="string"),
+ *                      @OA\Property(property="role", type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      )
+ *                  ),
+ *                  @OA\Property(property="production_staff", type="object",
+ *                      @OA\Property(property="id", type="integer"),
+ *                      @OA\Property(property="imageUrl", type="string"),
+ *                      @OA\Property(property="dob", type="string"),
+ *                      @OA\Property(property="deactivated_date", type="string"),
+ *                      @OA\Property(property="role", type="object",
+ *                          @OA\Property(property="id", type="integer"),
+ *                          @OA\Property(property="name", type="string")
+ *                      )
+ *                  )
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthorized",
+ *          @OA\JsonContent(
+ *              type="object",
+ *              @OA\Property(property="error", type="string")
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=500,
+ *          description="Internal Server Error",
+ *          @OA\JsonContent(
+ *              type="object",
+ *              @OA\Property(property="error", type="string")
+ *          )
+ *      )
+ * )
+ */
     public function get_quote_list_customer(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -204,12 +406,92 @@ class QuoteController extends Controller
             $quote_list,
         );
     }
+    /**
+ * @OA\Post(
+ *      path="/api/quote/get_quote_status_list",
+ *      operationId="getQuoteStatusList",
+ *      tags={"Quote"},
+ *      summary="Get list of quote statuses",
+ *      description="Returns a list of all quote statuses",
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              type="array",
+ *              @OA\Items(
+ *                  type="object",
+ *                  @OA\Property(property="id", type="integer"),
+ *                  @OA\Property(property="name", type="string")
+ *              )
+ *          )
+ *      ),
+ *      @OA\Response(
+ *          response=500,
+ *          description="Internal Server Error",
+ *          @OA\JsonContent(
+ *              type="object",
+ *              @OA\Property(property="error", type="string")
+ *          )
+ *      )
+ * )
+ */
     public function get_quote_status_list()
     {
         return response()->json(
             DB::table('quote_status')->get()
         );
     }
+/**
+ * @OA\Post(
+ *     path="/api/quote/add_quote",
+ *     summary="Add a new quote when customer send a customization request",
+ *     description="Create a new quote with a product and associated account details.",
+ *     operationId="addQuote",
+ *     tags={"Quote"},
+ *     security={{"bearerAuth": {}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="New quote data",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="mounting_type_id", type="integer", description="ID of the mounting type", example=1),
+ *             @OA\Property(property="note", type="string", description="Additional note", example="Sample note")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Quote created successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="string", example="Quote created successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Invalid input or account issues",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="No Input Received or The selected customer account has been deactivated")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid token",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             type="string",
+ *             example="Error message"
+ *         )
+ *     )
+ * )
+ */
     public function add_quote(Request $request)
     {
         $input = json_decode($request->input('new_quote'), true);
@@ -298,7 +580,54 @@ class QuoteController extends Controller
             'success' => 'Quote create successfully'
         ], 201);
     }
-    public function assign_quote(Request $request) //
+/**
+ * @OA\Post(
+ *     path="/api/admin/quote/assign_quote",
+ *     summary="Assign staff to a quote",
+ *     description="Assign sales, design, and production staff to a quote.",
+ *     operationId="assignQuote",
+ *     tags={"Quote"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="Assigned information data",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="assigned_information", type="object", description="JSON object containing assigned information details",
+ *                 @OA\Property(property="quote_id", type="integer", example=1),
+ *                 @OA\Property(property="saleStaff_id", type="integer", example=2),
+ *                 @OA\Property(property="designStaff_id", type="integer", example=3),
+ *                 @OA\Property(property="productionStaff_id", type="integer", example=4),
+ *                 @OA\Property(property="note", type="string", example="Sample note")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Assign quote successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="string", example="Assign quote successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Invalid input or account issues",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="No input received or The selected sale staff account can't be null")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             type="string",
+ *             example="Error message"
+ *         )
+ *     )
+ * )
+ */
+   public function assign_quote(Request $request) //
     {
         $input = json_decode($request->input('assigned_information'), true);
         if (!isset($input) || $input == null) {
@@ -397,6 +726,68 @@ class QuoteController extends Controller
             'success' => 'Assign quote succesfully'
         ], 201);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/admin/quote/pricing_quote",
+ *     tags={"Quote"},
+ *     summary="Price a quote",
+ *     description="This endpoint allows a sales staff member to price a quote.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="The pricing details of the quote",
+ *         @OA\JsonContent(
+ *             required={"quote_id", "production_price", "profit_rate"},
+ *             @OA\Property(property="quote_id", type="integer", example=1, description="The ID of the quote"),
+ *             @OA\Property(property="mounting_type_id", type="integer", example=2, description="The ID of the mounting type"),
+ *             @OA\Property(property="mounting_size", type="number", format="float", example=5.5, description="The size of the mounting"),
+ *             @OA\Property(property="imageUrl", type="string", format="byte", description="The image of the product in base64 format"),
+ *             @OA\Property(property="diamond_list", type="array", @OA\Items(
+ *                 @OA\Property(property="diamond", type="object", @OA\Property(property="id", type="integer", example=1)),
+ *                 @OA\Property(property="count", type="integer", example=1),
+ *                 @OA\Property(property="price", type="number", format="float", example=5000),
+ *                 @OA\Property(property="diamond_shape", type="object", @OA\Property(property="id", type="integer", example=1))
+ *             )),
+ *             @OA\Property(property="metal_list", type="array", @OA\Items(
+ *                 @OA\Property(property="metal", type="object", @OA\Property(property="id", type="integer", example=1)),
+ *                 @OA\Property(property="price", type="number", format="float", example=1000),
+ *                 @OA\Property(property="volume", type="number", format="float", example=1.2),
+ *                 @OA\Property(property="weight", type="number", format="float", example=10.5)
+ *             )),
+ *             @OA\Property(property="production_price", type="number", format="float", example=15000, description="The production price of the quote"),
+ *             @OA\Property(property="profit_rate", type="number", format="float", example=20, description="The profit rate of the quote"),
+ *             @OA\Property(property="note", type="string", example="Please confirm the details", description="Additional notes about the quote")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Successfully priced quote",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string", example="Successfully price quote")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Invalid input or unauthorized action",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="No input received")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid token",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Error message")
+ *         )
+ *     )
+ * )
+ */
     public function pricing_quote(Request $request)
     {
         $input = json_decode($request->input('priced_quote'), true);
@@ -542,6 +933,45 @@ class QuoteController extends Controller
             'success' => 'Successfully price quote'
         ], 201);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/admin/quote/approve_quote",
+ *     tags={"Quote"},
+ *     summary="Approve or decline a quote",
+ *     description="This endpoint allows an account to approve or decline a quote.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="Approval details for the quote",
+ *         @OA\JsonContent(
+ *             required={"quote_id", "approve"},
+ *             @OA\Property(property="quote_id", type="integer", example=1, description="The ID of the quote"),
+ *             @OA\Property(property="approve", type="boolean", example=true, description="Approval status of the quote"),
+ *             @OA\Property(property="note", type="string", example="Approved with conditions", description="Additional notes about the approval")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Successfully approved or declined quote",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string", example="Approve quote successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Invalid input or unauthorized action",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="No input received")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Error message")
+ *         )
+ *     )
+ * )
+ */
     public function approve_quote(Request $request)
     {
         $input = json_decode($request->input('approval'), true);
@@ -612,6 +1042,50 @@ class QuoteController extends Controller
             'success' => 'Approve quote successfully'
         ], 201);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/quote/cancel",
+ *     summary="Cancel a quote",
+ *     tags={"Quote"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"quote_id", "note"},
+ *             @OA\Property(property="quote_id", type="integer", example=1, description="ID of the quote to cancel"),
+ *             @OA\Property(property="note", type="string", example="Customer requested cancellation", description="Reason for cancellation")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Cancel successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string", example="Cancel successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Invalid input or unauthorized action",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="The selected quote has already been completed")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid token",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Internal server error")
+ *         )
+ *     ),
+ *     security={{ "apiAuth": {} }}
+ * )
+ */
     public function cancel(Request $request)
     {
         $input = json_decode($request->input('cancel'), true);
@@ -672,6 +1146,55 @@ class QuoteController extends Controller
             'success' => 'Cancel successfully'
         ], 201);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/quote/get_assigned_quote_sale",
+ *     summary="Get quotes assigned to a sales staff",
+ *     tags={"Quote"},
+ *     @OA\RequestBody(
+ *         required=false,
+ *         @OA\JsonContent(
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of assigned quotes",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="quote_id", type="integer", example=1, description="ID of the quote"),
+ *             @OA\Property(property="product", type="object", 
+ *                 @OA\Property(property="id", type="integer", example=1, description="ID of the product"),
+ *                 @OA\Property(property="imageUrl", type="string", example="http://example.com/image.jpg", description="URL of the product image"),
+ *                 @OA\Property(property="mounting_type_id", type="integer", example=2, description="Mounting type ID of the product")
+ *             ),
+ *             @OA\Property(property="account", type="object", 
+ *                 @OA\Property(property="id", type="integer", example=1, description="ID of the account"),
+ *                 @OA\Property(property="name", type="string", example="John Doe", description="Name of the account owner"),
+ *                 @OA\Property(property="imageUrl", type="string", example="http://example.com/account.jpg", description="URL of the account image"),
+ *                 @OA\Property(property="dob", type="string", example="01/01/1990", description="Date of birth of the account owner")
+ *             ),
+ *             @OA\Property(property="quote_status", type="object", 
+ *                 @OA\Property(property="id", type="integer", example=3, description="ID of the quote status"),
+ *                 @OA\Property(property="status", type="string", example="Priced", description="Status of the quote")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid token",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Invalid user (User is unauthorized)")
+ *         )
+ *     ),
+ *     security={{ "apiAuth": {} }}
+ * )
+ */
     public function get_assigned_quote_sale(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -731,6 +1254,134 @@ class QuoteController extends Controller
             $quote
         );
     }
+    /**
+ * @OA\Post(
+ *     path="/api/quote/get_quote_detail",
+ *     summary="Get detailed information about a specific quote",
+ *     tags={"Quote"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"quote_id"},
+ *             @OA\Property(property="quote_id", type="integer", example=1, description="ID of the quote")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Quote detail",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="quote_detail", type="object",
+ *                 @OA\Property(property="id", type="integer", example=1, description="ID of the quote"),
+ *                 @OA\Property(property="created", type="string", example="12:00:00 01/01/2024", description="Creation timestamp of the quote"),
+ *                 @OA\Property(property="product", type="object",
+ *                     @OA\Property(property="id", type="integer", example=1, description="ID of the product"),
+ *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/product/1/image.jpg", description="URL of the product image"),
+ *                     @OA\Property(property="mounting_type", type="object",
+ *                         @OA\Property(property="id", type="integer", example=2, description="ID of the mounting type"),
+ *                         @OA\Property(property="name", type="string", example="Prong", description="Name of the mounting type")
+ *                     ),
+ *                     @OA\Property(property="product_diamond", type="array",
+ *                         @OA\Items(
+ *                             @OA\Property(property="diamond", type="object",
+ *                                 @OA\Property(property="id", type="integer", example=1, description="ID of the diamond"),
+ *                                 @OA\Property(property="imageUrl", type="string", example="http://example.com/diamond/1/image.jpg", description="URL of the diamond image"),
+ *                                 @OA\Property(property="created", type="string", example="12:00:00 01/01/2024", description="Creation timestamp of the diamond"),
+ *                                 @OA\Property(property="diamond_color", type="object",
+ *                                     @OA\Property(property="id", type="integer", example=1, description="ID of the diamond color"),
+ *                                     @OA\Property(property="name", type="string", example="D", description="Color grade of the diamond")
+ *                                 ),
+ *                                 @OA\Property(property="diamond_origin", type="object",
+ *                                     @OA\Property(property="id", type="integer", example=1, description="ID of the diamond origin"),
+ *                                     @OA\Property(property="name", type="string", example="Russia", description="Origin of the diamond")
+ *                                 ),
+ *                                 @OA\Property(property="diamond_clarity", type="object",
+ *                                     @OA\Property(property="id", type="integer", example=1, description="ID of the diamond clarity"),
+ *                                     @OA\Property(property="name", type="string", example="VVS1", description="Clarity grade of the diamond")
+ *                                 ),
+ *                                 @OA\Property(property="diamond_cut", type="object",
+ *                                     @OA\Property(property="id", type="integer", example=1, description="ID of the diamond cut"),
+ *                                     @OA\Property(property="name", type="string", example="Excellent", description="Cut grade of the diamond")
+ *                                 ),
+ *                                 @OA\Property(property="diamond_shape", type="object",
+ *                                     @OA\Property(property="id", type="integer", example=1, description="ID of the diamond shape"),
+ *                                     @OA\Property(property="name", type="string", example="Round", description="Shape of the diamond")
+ *                                 )
+ *                             )
+ *                         )
+ *                     ),
+ *                     @OA\Property(property="product_metal", type="array",
+ *                         @OA\Items(
+ *                             @OA\Property(property="metal", type="object",
+ *                                 @OA\Property(property="id", type="integer", example=1, description="ID of the metal"),
+ *                                 @OA\Property(property="imageUrl", type="string", example="http://example.com/metal/1/image.jpg", description="URL of the metal image"),
+ *                                 @OA\Property(property="created", type="string", example="12:00:00 01/01/2024", description="Creation timestamp of the metal")
+ *                             )
+ *                         )
+ *                     )
+ *                 ),
+ *                 @OA\Property(property="account", type="object",
+ *                     @OA\Property(property="id", type="integer", example=1, description="ID of the account"),
+ *                     @OA\Property(property="name", type="string", example="John Doe", description="Name of the account owner"),
+ *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/account/1/image.jpg", description="URL of the account image"),
+ *                     @OA\Property(property="dob", type="string", example="01/01/1990", description="Date of birth of the account owner"),
+ *                     @OA\Property(property="deactivated_date", type="string", example="01/01/2025", description="Deactivation date of the account"),
+ *                     @OA\Property(property="role", type="object",
+ *                         @OA\Property(property="id", type="integer", example=1, description="ID of the role"),
+ *                         @OA\Property(property="name", type="string", example="Customer", description="Role of the account owner")
+ *                     )
+ *                 ),
+ *                 @OA\Property(property="sale_staff", type="object",
+ *                     @OA\Property(property="id", type="integer", example=2, description="ID of the sales staff"),
+ *                     @OA\Property(property="name", type="string", example="Jane Doe", description="Name of the sales staff"),
+ *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/account/2/image.jpg", description="URL of the sales staff image"),
+ *                     @OA\Property(property="dob", type="string", example="01/01/1985", description="Date of birth of the sales staff"),
+ *                     @OA\Property(property="deactivated_date", type="string", example="01/01/2025", description="Deactivation date of the sales staff"),
+ *                     @OA\Property(property="role", type="object",
+ *                         @OA\Property(property="id", type="integer", example=2, description="ID of the role"),
+ *                         @OA\Property(property="name", type="string", example="Sales Staff", description="Role of the sales staff")
+ *                     ),
+ *                     @OA\Property(property="order_count", type="integer", example=10, description="Number of orders managed by the sales staff")
+ *                 ),
+ *                 @OA\Property(property="design_staff", type="object",
+ *                     @OA\Property(property="id", type="integer", example=3, description="ID of the design staff"),
+ *                     @OA\Property(property="name", type="string", example="Alice Doe", description="Name of the design staff"),
+ *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/account/3/image.jpg", description="URL of the design staff image"),
+ *                     @OA\Property(property="dob", type="string", example="01/01/1987", description="Date of birth of the design staff"),
+ *                     @OA\Property(property="deactivated_date", type="string", example="01/01/2025", description="Deactivation date of the design staff"),
+ *                     @OA\Property(property="role", type="object",
+ *                         @OA\Property(property="id", type="integer", example=3, description="ID of the role"),
+ *                         @OA\Property(property="name", type="string", example="Design Staff", description="Role of the design staff")
+ *                     ),
+ *                     @OA\Property(property="order_count", type="integer", example=5, description="Number of orders managed by the design staff")
+ *                 ),
+ *                 @OA\Property(property="production_staff", type="object",
+ *                     @OA\Property(property="id", type="integer", example=4, description="ID of the production staff"),
+ *                     @OA\Property(property="name", type="string", example="Bob Doe", description="Name of the production staff"),
+ *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/account/4/image.jpg", description="URL of the production staff image"),
+ *                     @OA\Property(property="dob", type="string", example="01/01/1983", description="Date of birth of the production staff"),
+ *                     @OA\Property(property="deactivated_date", type="string", example="01/01/2025", description="Deactivation date of the production staff"),
+ *                     @OA\Property(property="role", type="object",
+ *                         @OA\Property(property="id", type="integer", example=4, description="ID of the role"),
+ *                         @OA\Property(property="name", type="string", example="Production Staff", description="Role of the production staff")
+ *                     ),
+ *                     @OA\Property(property="order_count", type="integer", example=15, description="Number of orders managed by the production staff")
+ *                 ),
+ *                 @OA\Property(property="quote_status", type="object",
+ *                     @OA\Property(property="id", type="integer", example=1, description="ID of the quote status"),
+ *                     @OA\Property(property="name", type="string", example="Pending", description="Name of the quote status")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="No input received",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="No input received")
+ *         )
+ *     )
+ * )
+ */
     public function get_quote_detail(Request $request)
     {
         $input = json_decode($request->input('quote_id'), true);

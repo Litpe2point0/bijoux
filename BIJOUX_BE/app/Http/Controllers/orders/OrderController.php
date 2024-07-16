@@ -27,6 +27,32 @@ use function Pest\Laravel\json;
 
 class OrderController extends Controller
 {
+    /**
+ * @OA\Post(
+ *     path="/api/admin/order/get_order_list",
+ *     summary="Get order list for admin",
+ *     description="Retrieve customized and template order lists for admin users.",
+ *     operationId="getOrderListAdmin",
+ *     tags={"Order"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="customize_order_list",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Order")
+ *             ),
+ *             @OA\Property(
+ *                 property="template_order_list",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Order")
+ *             )
+ *         )
+ *     )
+ * )
+ */
     public function get_order_list_admin()
     {
         $customize_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
@@ -100,6 +126,43 @@ class OrderController extends Controller
             'template_order_list' => $template_order_list
         ]);
     }
+    /**
+ * @OA\Post(
+ *     path="/api/order/get_order_list",
+ *     summary="Get order list for customer",
+ *     description="Retrieve customized and template order lists for the authenticated customer.",
+ *     operationId="getOrderListCustomer",
+ *     tags={"Order"},
+ *     security={
+ *         {"bearerAuth": {}}
+ *     },
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="customize_order_list",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Order")
+ *             ),
+ *             @OA\Property(
+ *                 property="template_order_list",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Order")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     )
+ * )
+ */
     public function get_order_list_customer(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -2545,15 +2608,15 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    public function generateOrderCode()
-    {
-        $orderCode = intval(substr(strval(microtime(true) * 10000), -6));
-        $payment = DB::table('payment')->where('id', $orderCode)->get();
-        if ($payment->count() > 0) {
-            $this->generateOrderCode();
-        }
-        return $orderCode;
-    }
+    // public function generateOrderCode()
+    // {
+    //     $orderCode = intval(substr(strval(microtime(true) * 10000), -6));
+    //     $payment = DB::table('payment')->where('id', $orderCode)->get();
+    //     if ($payment->count() > 0) {
+    //         $this->generateOrderCode();
+    //     }
+    //     return $orderCode;
+    // }
 
     public function create_payment_link(Request $request)
     {
@@ -2613,30 +2676,31 @@ class OrderController extends Controller
             return $th->getMessage();
         }
     }
-    public function isValidData($transaction, $transaction_signature, $checksum_key)
-    {
-        ksort($transaction);
-        $transaction_str_arr = [];
-        foreach ($transaction as $key => $value) {
-            if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
-                $value = "";
-            }
+    // public function isValidData($transaction, $transaction_signature, $checksum_key)
+    // {
+    //     ksort($transaction);
+    //     $transaction_str_arr = [];
+    //     foreach ($transaction as $key => $value) {
+    //         if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
+    //             $value = "";
+    //         }
 
-            if (is_array($value)) {
-                $valueSortedElementObj = array_map(function ($ele) {
-                    ksort($ele);
-                    return $ele;
-                }, $value);
-                $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
-            }
-            $transaction_str_arr[] = $key . "=" . $value;
-        }
-        $transaction_str = implode("&", $transaction_str_arr);
-        dump($transaction_str);
-        $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
-        dump($signature);
-        return $signature == $transaction_signature;
-    }
+    //         if (is_array($value)) {
+    //             $valueSortedElementObj = array_map(function ($ele) {
+    //                 ksort($ele);
+    //                 return $ele;
+    //             }, $value);
+    //             $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
+    //         }
+    //         $transaction_str_arr[] = $key . "=" . $value;
+    //     }
+    //     $transaction_str = implode("&", $transaction_str_arr);
+    //     dump($transaction_str);
+    //     $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
+    //     dump($signature);
+    //     return $signature == $transaction_signature;
+    // }
+
     public function confirm_payment(Request $request)
     {
         $checksum_key = env('CHECK_SUM_KEY');
@@ -2712,125 +2776,127 @@ class OrderController extends Controller
             'success' => 'Transaction complete'
         ], 200);
     }
-    public function generatePDF($orderCode, $guarantee_expired_date)
-    {
-        $payment = DB::table('payment')->where('id', $orderCode)->first();
-        $account = DB::table('account')->where('id', $payment->account_id)->first();
-        $order = DB::table('orders')->where('id', $payment->order_id)->first();
-        $product = DB::table('product')->where('id', $order->product_id)->first();
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
-        $product_diamond->map(function ($product_diamond) {
-            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
-            $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
-            $diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
-            $diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
-            $diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
 
-            $product_diamond->name = $diamond->size . " (mm) " . $diamond_color->name . '-' . $diamond_clarity->name . ' ' . $diamond_shape->name . ' Shape ' . $diamond_cut->name . ' Cut Diamond';
-            $product_diamond->price = $this->formatCurrency($product_diamond->price);
-            $product_diamond->unit_price = $this->formatCurrency($diamond->price);
-            return $product_diamond;
-        });
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
-        $product_metal->map(function ($product_metal) {
-            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
-            $product_metal->name = $metal->name;
-            $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
-            $product_metal->price = $this->formatCurrency($product_metal->price);
-            return $product_metal;
-        });
-        $data = [
-            'date' => Carbon::now()->format('d/m/Y'),
-            'account' => $account,
-            'payment' => $payment,
-            'product_diamond' => $product_diamond,
-            'product_metal' => $product_metal,
-            'order' => $order,
-            'product_price' => $this->formatCurrency($order->product_price),
-            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
-            'total_price' => $this->formatCurrency($order->total_price),
-            'extra' => ($payment->money + $order->deposit_has_paid) - $order->total_price,
-            'guarantee_expired_date' => Carbon::parse($guarantee_expired_date)->format('d/m/Y')
-        ];
+    // public function generatePDF($orderCode, $guarantee_expired_date){
+    //     $payment = DB::table('payment')->where('id', $orderCode)->first();
+    //     $account = DB::table('account')->where('id', $payment->account_id)->first();
+    //     $order = DB::table('orders')->where('id', $payment->order_id)->first();
+    //     $product = DB::table('product')->where('id', $order->product_id)->first();
+    //     $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
+    //     $product_diamond->map(function ($product_diamond) {
+    //         $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+    //         $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+    //         $diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+    //         $diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+    //         $diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
 
-        $pdf = PDF::loadView('pdf', $data);
-        $fileName = Carbon::now()->timestamp . '_' . $payment->id . '.pdf';
-        // $fileName = $payment->id . '.pdf';
-        $content = $pdf->download()->getOriginalContent();
-        $destinationPath = public_path('pdf/' . $order->id);
-        if (!file_exists($destinationPath)) {
-            mkdir($destinationPath, 0755, true);
-        }
-        $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
-        File::put($filePath, $content);
-        $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
-        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
-        //$this->sendMail('bachdxse182030@fpt.edu.vn', $messageContent, 'Payment Invoice', $filePath);
-    }
-    public function generatePDFextra($orderId, $guarantee_expired_date)
-    {
-        $order = DB::table('orders')->where('id', $orderId)->first();
-        $account = DB::table('account')->where('id', $order->account_id)->first();
-        $product = DB::table('product')->where('id', $order->product_id)->first();
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
-        $product_diamond->map(function ($product_diamond) {
-            $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
-            $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
-            $diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
-            $diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
-            $diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
+    //         $product_diamond->name = $diamond->size . " (mm) " . $diamond_color->name . '-' . $diamond_clarity->name . ' ' . $diamond_shape->name . ' Shape ' . $diamond_cut->name . ' Cut Diamond';
+    //         $product_diamond->price = $this->formatCurrency($product_diamond->price);
+    //         $product_diamond->unit_price = $this->formatCurrency($diamond->price);
+    //         return $product_diamond;
+    //     });
+    //     $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
+    //     $product_metal->map(function ($product_metal) {
+    //         $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+    //         $product_metal->name = $metal->name;
+    //         $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
+    //         $product_metal->price = $this->formatCurrency($product_metal->price);
+    //         return $product_metal;
+    //     });
+    //     $data = [
+    //         'date' => Carbon::now()->format('d/m/Y'),
+    //         'account' => $account,
+    //         'payment' => $payment,
+    //         'product_diamond' => $product_diamond,
+    //         'product_metal' => $product_metal,
+    //         'order' => $order,
+    //         'product_price' => $this->formatCurrency($order->product_price),
+    //         'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
+    //         'total_price' => $this->formatCurrency($order->total_price),
+    //         'extra' => ($payment->money + $order->deposit_has_paid) - $order->total_price,
+    //         'guarantee_expired_date' => Carbon::parse($guarantee_expired_date)->format('d/m/Y')
+    //     ];
 
-            $product_diamond->name = $diamond->size . " (mm) " . $diamond_color->name . '-' . $diamond_clarity->name . ' ' . $diamond_shape->name . ' Shape ' . $diamond_cut->name . ' Cut Diamond';
-            $product_diamond->price = $this->formatCurrency($product_diamond->price);
-            $product_diamond->unit_price = $this->formatCurrency($diamond->price);
-            return $product_diamond;
-        });
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
-        $product_metal->map(function ($product_metal) {
-            $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
-            $product_metal->name = $metal->name;
-            $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
-            $product_metal->price = $this->formatCurrency($product_metal->price);
-            return $product_metal;
-        });
-        $data = [
-            'date' => Carbon::now()->format('d/m/Y'),
-            'account' => $account,
-            'product_diamond' => $product_diamond,
-            'product_metal' => $product_metal,
-            'order' => $order,
-            'product_price' => $this->formatCurrency($order->product_price),
-            'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
-            'total_price' => $this->formatCurrency($order->total_price),
-            'extra' => $order->deposit_has_paid - $order->total_price,
-            'guarantee_expired_date' => Carbon::parse($guarantee_expired_date)->format('d/m/Y')
-        ];
+    //     $pdf = PDF::loadView('pdf', $data);
+    //     $fileName = Carbon::now()->timestamp . '_' . $payment->id . '.pdf';
+    //     // $fileName = $payment->id . '.pdf';
+    //     $content = $pdf->download()->getOriginalContent();
+    //     $destinationPath = public_path('pdf/' . $order->id);
+    //     if (!file_exists($destinationPath)) {
+    //         mkdir($destinationPath, 0755, true);
+    //     }
+    //     $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
+    //     File::put($filePath, $content);
+    //     $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
+    //     $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
+    //     //$this->sendMail('bachdxse182030@fpt.edu.vn', $messageContent, 'Payment Invoice', $filePath);
+    // }
 
-        $pdf = PDF::loadView('pdf', $data);
-        $fileName = Carbon::now()->timestamp . '_' . $order->id . '.pdf';
-        // $fileName = $payment->id . '.pdf';
-        $content = $pdf->download()->getOriginalContent();
-        $destinationPath = public_path('pdf/' . $order->id);
-        if (!file_exists($destinationPath)) {
-            mkdir($destinationPath, 0755, true);
-        }
-        $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
-        File::put($filePath, $content);
-        $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
-        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
-    }
-    function formatCurrency($amount)
-    {
-        return number_format($amount, 0);
-    }
-    public function sendMail($toEmail, $messageContent, $subject, $pathToFile)
-    {
-        try {
-            Mail::to($toEmail)->send(new Email($messageContent, $subject, $pathToFile));
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
-        }
-    }
+    // public function generatePDFextra($orderId, $guarantee_expired_date)
+    // {
+    //     $order = DB::table('orders')->where('id', $orderId)->first();
+    //     $account = DB::table('account')->where('id', $order->account_id)->first();
+    //     $product = DB::table('product')->where('id', $order->product_id)->first();
+    //     $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
+    //     $product_diamond->map(function ($product_diamond) {
+    //         $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
+    //         $diamond_color = DB::table('diamond_color')->where('id', $diamond->diamond_color_id)->first();
+    //         $diamond_clarity = DB::table('diamond_clarity')->where('id', $diamond->diamond_clarity_id)->first();
+    //         $diamond_cut = DB::table('diamond_cut')->where('id', $diamond->diamond_cut_id)->first();
+    //         $diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
+
+    //         $product_diamond->name = $diamond->size . " (mm) " . $diamond_color->name . '-' . $diamond_clarity->name . ' ' . $diamond_shape->name . ' Shape ' . $diamond_cut->name . ' Cut Diamond';
+    //         $product_diamond->price = $this->formatCurrency($product_diamond->price);
+    //         $product_diamond->unit_price = $this->formatCurrency($diamond->price);
+    //         return $product_diamond;
+    //     });
+    //     $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
+    //     $product_metal->map(function ($product_metal) {
+    //         $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
+    //         $product_metal->name = $metal->name;
+    //         $product_metal->sale_price_per_gram = $this->formatCurrency($metal->sale_price_per_gram);
+    //         $product_metal->price = $this->formatCurrency($product_metal->price);
+    //         return $product_metal;
+    //     });
+    //     $data = [
+    //         'date' => Carbon::now()->format('d/m/Y'),
+    //         'account' => $account,
+    //         'product_diamond' => $product_diamond,
+    //         'product_metal' => $product_metal,
+    //         'order' => $order,
+    //         'product_price' => $this->formatCurrency($order->product_price),
+    //         'production_price' => $this->formatCurrency($order->production_price + ($order->product_price) * $order->profit_rate / 100),
+    //         'total_price' => $this->formatCurrency($order->total_price),
+    //         'extra' => $order->deposit_has_paid - $order->total_price,
+    //         'guarantee_expired_date' => Carbon::parse($guarantee_expired_date)->format('d/m/Y')
+    //     ];
+
+    //     $pdf = PDF::loadView('pdf', $data);
+    //     $fileName = Carbon::now()->timestamp . '_' . $order->id . '.pdf';
+    //     // $fileName = $payment->id . '.pdf';
+    //     $content = $pdf->download()->getOriginalContent();
+    //     $destinationPath = public_path('pdf/' . $order->id);
+    //     if (!file_exists($destinationPath)) {
+    //         mkdir($destinationPath, 0755, true);
+    //     }
+    //     $filePath = public_path('pdf/' . $order->id . '/' . $fileName);
+    //     File::put($filePath, $content);
+    //     $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
+    //     $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
+    // }
+
+    // function formatCurrency($amount)
+    // {
+    //     return number_format($amount, 0);
+    // }
+
+    // public function sendMail($toEmail, $messageContent, $subject, $pathToFile){
+    //     try {
+    //         Mail::to($toEmail)->send(new Email($messageContent, $subject, $pathToFile));
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+    //     }
+    // }
     public function get_payment_history(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -3252,27 +3318,27 @@ class OrderController extends Controller
             'order_customize' => $order_customize
         ]);
     }
-    function formatNumber($number)
-    {
-        $suffix = '';
-        if ($number >= 1000 && $number < 1000000) {
-            $number = $number / 1000;
-            $suffix = 'k';
-        } elseif ($number >= 1000000 && $number < 1000000000) {
-            $number = $number / 1000000;
-            $suffix = 'M';
-        } elseif ($number >= 1000000000) {
-            $number = $number / 1000000000;
-            $suffix = 'B';
-        }
+    // function formatNumber($number)
+    // {
+    //     $suffix = '';
+    //     if ($number >= 1000 && $number < 1000000) {
+    //         $number = $number / 1000;
+    //         $suffix = 'k';
+    //     } elseif ($number >= 1000000 && $number < 1000000000) {
+    //         $number = $number / 1000000;
+    //         $suffix = 'M';
+    //     } elseif ($number >= 1000000000) {
+    //         $number = $number / 1000000000;
+    //         $suffix = 'B';
+    //     }
 
-        // Round to 1 decimal place
-        $number = round($number, 1);
-        $formatted_order_count = (floor($number) == $number) ? number_format($number, 0) : $number;
+    //     // Round to 1 decimal place
+    //     $number = round($number, 1);
+    //     $formatted_order_count = (floor($number) == $number) ? number_format($number, 0) : $number;
 
-        // Format the number with suffix
-        return $formatted_order_count . $suffix;
-    }
+    //     // Format the number with suffix
+    //     return $formatted_order_count . $suffix;
+    // }
     public function cancel_payment(Request $request)
     {
         $input = json_decode($request->input('payment_id'), true);
