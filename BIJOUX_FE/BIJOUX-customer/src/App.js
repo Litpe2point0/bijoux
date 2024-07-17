@@ -37,6 +37,8 @@ import PricedQuoteDetails from "./pages/Cart/PricedQuoteDetails";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Account/Login";
 import OrderDetails from "./pages/Cart/OrderDetails";
+import SelectType from "./pages/Services/SelectType";
+import CustomizationForm from "./pages/Services/CustomizationForm";
 
 const Layout = () => {
   return (
@@ -77,6 +79,8 @@ const router = createBrowserRouter(
         <Route path="/profile" element={<Profile />}></Route>
         <Route path="/contact" element={<Contact />}></Route>
         <Route path="/journal" element={<Journal />}></Route>
+        <Route path="/select-type" element={<SelectType />}></Route>
+        <Route path="/customization-form" element={<CustomizationForm />}></Route>
         {/* ==================== Header Navlink End here ===================== */}
         <Route path="/category/:category" element={<Offer />}></Route>
         <Route path="/product/_:id" element={<ProductDetails />}></Route>

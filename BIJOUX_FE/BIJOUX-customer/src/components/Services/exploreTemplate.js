@@ -6,21 +6,8 @@ import ModelTypeOptionCard
     from "./Template/modelTypeOptionCard";
 import { CSpinner } from "@coreui/react";
 import { get_mounting_type_list } from '../../api/main/items/Model_api'
+import { templateBanner, et_1, et_2, et_3, et_4 } from "../../assets/images";
 
-// const mountingTypes = [
-//     {
-//         id: 1,
-//         name: "Ring",
-//     },
-//     {
-//         id: 2,
-//         name: "Band",
-//     },
-//     {
-//         id: 3,
-//         name: "Pendant",
-//     },
-// ];
 
 
 export default function ExploreTemplate() {
@@ -50,48 +37,59 @@ export default function ExploreTemplate() {
         <>
             <div class="w-full lg:h-full md:h-full xs:h-full bg-cover bg-center flex flex-col">
                 <div className="flex flex-col m-10 items-center ">
-                    <h1 className="md:text-5xl xs:text-4xl mt-5 font-loraFont font-light text-[#151542] mb-10">Explore Template</h1>
-                    <div className="grid md:grid-cols-4 xs:grid-cols-1 gap-5">
-                        <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
+                    <h1 className="md:text-5xl xs:text-4xl mt-5 font-loraFont font-light text-[#151542] ">Explore Template</h1>
+                    <div className="w-full grid grid-cols-2 mt-5 mb-10 gap-3">
+                        <div className="w-full flex flex-col justify-center items-end">
+                            <p className="text-lg text-start w-[624px] font-gantariFont text-gray-400 mt-2 mb-5"> Choose from our extensive collection of templates to create stunning jewelry pieces. Our pre-designed options offer a blend of elegance and affordability, perfect for any occasion.</p>
+                            <div className="w-[624px] flex justify-start">
+                                <button onClick={handleOpen} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Get Started</button>
+                            </div>
+                        </div>
+                        <div className="w-full flex justify-center">
+                            <img src={templateBanner} alt="Image" className="w-[622px] h-[350px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
+                        </div>
+                    </div>
+                    <div className="flex justify-around w-full gap-5">
+                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
-                                src="https://st2.depositphotos.com/1613350/8401/i/450/depositphotos_84014742-stock-photo-gold-silver-rings-and-chains.jpg"
+                                src={et_1}
                                 alt="Ảnh"
-                                className="w-full h-44"
+                                className="w-full h-[260px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 1: Select Jewelry Type</h1>
-                            <p className="mt-2 ml-4">Choose the type of jewelry you would like to create. We offer options such as Rings / Bands / Pendants.</p>
+                            <p className="mt-2 text-sm ml-4">Choose the type of jewelry you would like to create. We offer options such as Rings / Bands / Pendants.</p>
 
                         </div>
-                        <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
-                                src="https://www.pasternakfindings.com/content/images/thumbs/1000956_four-prong-setting_630.jpeg"
+                                src={et_2}
                                 alt="Ảnh"
-                                className="w-full h-44"
+                                className="w-full  h-[260px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 2: Select Mounting</h1>
-                            <p className="mt-2 ml-4">Select the jewelry frame you prefer, along with the material, width, and view the frame from multiple angles in photos.</p>
+                            <p className="mt-2 text-sm ml-4">Select the jewelry frame you prefer, along with the material, width, and view the frame from multiple angles in photos.</p>
                         </div>
-                        <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
-                                src="https://yadav-stage-storage.sfo3.digitaloceanspaces.com/cms_pages_images/AdobeStock_263272792-53ce9abdc8f8d15a4181.jpg"
+                                src={et_3}
                                 alt="Ảnh"
-                                className="w-full h-44"
+                                className="w-full h-[260px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 3: Select Diamonds</h1>
-                            <p className="mt-2 ml-4">Choose the type of diamond to mount on the jewelry frame, customized according to the 4C standards: Cut, Color, Clarity, Carat, and the diamond shape.</p>
+                            <p className="mt-2 text-sm ml-4">Choose the type of diamond to mount on the jewelry frame, customized according to the 4C standards: Cut, Color, Clarity, Carat, and the diamond shape.</p>
                         </div>
-                        <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
-                                src="https://static8.depositphotos.com/1177973/842/i/450/depositphotos_8423176-stock-photo-pendant-in-form-of-rings.jpg"
+                                src={et_4}
                                 alt="Ảnh"
-                                className="w-full h-44"
+                                className="w-full h-[260px] object-cover"
                             />
-                            <h1 className="text-xl font-semibold mt-4 ml-4">Step 4: View completed jewelry and checkout</h1>
-                            <p className="mt-2 m-4"> View your creation from every angle and proceed to payment to complete your purchase.</p>
+                            <h1 className="text-xl font-semibold mt-4 ml-4">Step 4: Checkout jewelry</h1>
+                            <p className="mt-2 text-sm m-4"> View your creation from every angle and proceed to payment to complete your purchase.</p>
                         </div>
                     </div>
                     <div className="flex justify-around w-96 items-center mt-5">
-                        <button onClick={handleOpen} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Get Started</button>
+                        {/* <button onClick={handleOpen} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Get Started</button> */}
                         <Dialog open={open} onClose={handleClose}>
                             <div className="flex justify-center bg-cyan-800 text-white">
                                 <DialogTitle >Choose Your Jewelry Type</DialogTitle>
