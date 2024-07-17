@@ -20,6 +20,139 @@ use App\Mail\MarkDownMail;
 
 class AccountController extends Controller
 {
+    public function login(Request $request)
+    {
+        //input
+        $input = json_decode($request->input('login_information'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No input received'
+            ], 403);
+        }
+
+        //check account existed (case sensitive)
+        $account = DB::table('account')->whereRaw('BINARY username = ?', $input['username'])->orderBy('created', 'desc')->first();
+        $OGurl = env('ORIGIN_URL');
+        $url = env('ACCOUNT_URL');
+
+        //check account password
+        if ($account && Hash::check($input['password'], $account->password)) {
+            $user = Account::find($account->id);
+
+            //set expired date
+            if ($user->role_id == 5) {
+                $expiration = Carbon::now()->addYears(100)->timestamp;
+            } else {
+                $expiration = Carbon::now()->addHours(5)->timestamp;
+            }
+            if (!$account->google_id) {
+                $customClaims = [
+                    'exp' => $expiration,
+                    'imageUrl' => $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl
+                ];
+            } else {
+                $customClaims = [
+                    'exp' => $expiration,
+                    'imageUrl' => $account->imageUrl
+                ];
+            }
+
+
+            //create jwt token
+            $jwt = JWTAuth::claims($customClaims)->fromUser($user);
+        } else {
+            return response()->json(['error' => 'Wrong username or password'], 401);
+        }
+
+        //check account deactivate
+        $deactivated = (bool) $account->deactivated;
+        $status = (bool) $account->status;
+        if ($deactivated) {
+            return response()->json(['error' => 'Your account has been deactivated'], 401);
+        } else if (!$status) {
+            return response()->json(['error' => 'Wrong username or password'], 401);
+        }
+
+        return response()->json([
+            'access_token' => $jwt,
+            'success' => 'Login successfully',
+        ]);
+    }
+    public function login_with_google(Request $request)
+    {
+        $token = $request->input('token_id');
+
+        $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
+        $payload = $client->verifyIdToken($token);
+        DB::beginTransaction();
+        try {
+            if ($payload) {
+                $googleId = $payload['sub'];
+                $email = $payload['email'];
+                $name = $payload['name'];
+                $image = $payload['picture'];
+
+                // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
+                $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
+
+                if (!$account) {
+                    // Tạo người dùng mới nếu chưa tồn tại
+                    $account = DB::table('account')->insert([
+                        'fullname' => $name,
+                        'email' => $email,
+                        'google_id' => $googleId,
+                        'role_id'  => 5,
+                        'imageUrl' => $image,
+                        'deactivated' => 0,
+                        'status' => 1,
+                        'created' => Carbon::now()->format('Y-m-d H:i:s')
+                    ]);
+                } else {
+                    $updateData = ['status' => 1, 'imageUrl' => $image];
+                    if (!$account->google_id) {
+                        $updateData['google_id'] = $googleId;
+                    }
+                    DB::table('account')->where('id', $account->id)->update($updateData);
+
+                    if ((bool) $account->deactivated) {
+                        DB::rollBack();
+                        return response()->json(['error' => 'Your account has been deactivated'], 401);
+                    }
+                }
+
+                // Tạo JWT token
+                // $payload = [
+                //     'iss' => "your-issuer", // Issuer of the token
+                //     'sub' => $account->id, // Subject of the token
+                //     'iat' => time(), // Time when JWT was issued.
+                //     'exp' => time() + 60*60, // Expiration time
+                //     'imageUrl' => $image,
+                // ];
+
+                $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
+                $payload = [
+                    'id' => $account->id, // Subject of the token
+                    'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
+                    'email' => $account->email,
+                    'fullname' => $account->fullname,
+                    'role_id' => $account->role_id,
+                    'imageUrl' => $account->imageUrl,
+                    'phone' => $account->phone,
+                    'address' => $account->address
+                    // Thêm các claims khác nếu cần
+                ];
+
+                $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
+                DB::commit();
+                return response()->json(['success' => 'Login successfully', 'token' => $jwt], 200);
+            } else {
+                return response()->json(['error' => 'Invalid token'], 401);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
     public function get_account_list()
     {
         $customer_list = Account::where('role_id', 5)->where('status', 1)->orderBy('deactivated', 'asc')->get();
