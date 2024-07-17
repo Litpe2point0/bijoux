@@ -37,8 +37,9 @@ import AssignCard from "../../Manager/Quote widget/AssignCard";
 import QuoteProductImage from "../../Manager/Quote widget/QuoteProductImage";
 import AccountCard from "../../Manager/Quote widget/AccountCard";
 import NoteCard from "../../Manager/Quote widget/NoteCard";
-import { get_order_detail } from "../../../api/main/orders/Order_api";
+import { confirm_shipped, get_order_detail } from "../../../api/main/orders/Order_api";
 import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_formatter";
+import { SaleOrderPageContext } from "../Order_Page";
 
 
 
@@ -47,6 +48,8 @@ import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_
 const CustomForm = ({ orderInfo, onClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { handleDataChange } = useContext(SaleOrderPageContext)
+
 
     const [loading, setLoading] = useState(true);
     const [isReassign, setIsReassign] = useState(false);
@@ -144,7 +147,17 @@ const CustomForm = ({ orderInfo, onClose }) => {
         console.log("new note", new_note)
     }
 
-
+    const handleSubmit= async () =>{
+        
+        const formData= new FormData();
+        formData.append('order_id', order.id);
+        const response = await confirm_shipped(formData,'Order ID ' + order.id);
+        if (response.success) {
+            handleDataChange();
+            onClose();
+        }
+        dispatch(setToast(response.mess))
+    }
 
 
     return (
@@ -158,7 +171,11 @@ const CustomForm = ({ orderInfo, onClose }) => {
                 Loading...
             </CButton> :
                 <>
-
+                    {order.delivery_date &&
+                        <CCol xs={12}>
+                            <span className="text-success fw-normal fst-italic">*The order has been delivered to the customer's address - (delivered date: {order.delivery_date})</span>
+                        </CCol>
+                    }
                     <CCol lg={6} className="d-flex flex-column">
                         <AccountCard account={order.account} avatarSize={100} cardHeight={'120px'} />
                         <div className='flex-grow-1'>
@@ -455,8 +472,17 @@ const CustomForm = ({ orderInfo, onClose }) => {
                             </CCard>
                         </div>
                     </CCol>
+                    {order.order_status.id == 5 && !order.delivery_date 
+                        &&
+                        <CCol xs={12} className="d-flex justify-content-center align-items-center">
+                            <CButton className="mx-2" color="success" onClick={() => handleSubmit()}  >
+                                Confirm The Order Has Been Shipped
+                            </CButton>
+                        </CCol>
+                    }
+
                 </>}
-        </CForm>
+        </CForm >
     )
 }
 

@@ -32,7 +32,10 @@ class Account extends Authenticatable implements JWTSubject
         'deactivated',
         'deactivated_date',
         'google_id',
-        'role_id'
+        'role_id',
+        'status',
+        'created',
+        'security_code'
     ];
 
     /**

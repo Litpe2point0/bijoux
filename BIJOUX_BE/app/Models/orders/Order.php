@@ -25,6 +25,8 @@ class Order extends Model
         'saleStaff_id',
         'designStaff_id',
         'productionStaff_id',
-        'created'
+        'created',
+        'delivery_date',
+        'guarantee_expired_date'
     ];
 }

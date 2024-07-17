@@ -16,7 +16,7 @@ use Carbon\Carbon;
 use Google_Client;
 use Throwable;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\Email;
+use App\Mail\MarkDownMail;
 
 class AccountController extends Controller
 {
@@ -270,7 +270,7 @@ class AccountController extends Controller
         }
         //find account
         $account = Account::where('id', $input)->first();
-        if(!isset($account)){
+        if (!isset($account)) {
             return response()->json([
                 'error' => 'Account not found'
             ], 403);
@@ -297,6 +297,12 @@ class AccountController extends Controller
             unset($order->order_status_id);
             unset($order->order_type_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
             return $order;
         });
         $account->order_history = $order_history;
@@ -451,13 +457,52 @@ class AccountController extends Controller
             $id = $decodedToken->id;
         }
 
+
         //find account
         $account = Account::find($id);
+        if ($account->email == $input['email'] && $account->phone == $input['phone']) {
+            // Both email and phone match, skip uniqueness validation
+            $rules = [
+                'email' => 'required|string|email|max:255',
+                'phone' => 'nullable|string|max:20',
+            ];
+        } else {
+            // Check if only email matches
+            if ($account->email == $input['email']) {
+                $rules = [
+                    'email' => 'required|string|email|max:255',
+                    'phone' => 'nullable|string|max:20|unique:account,phone',
+                ];
+            }
+            // Check if only phone matches
+            else if ($account->phone == $input['phone']) {
+                $rules = [
+                    'email' => 'required|string|email|max:255|unique:account,email',
+                    'phone' => 'nullable|string|max:20',
+                ];
+            }
+            // Neither email nor phone match, apply full uniqueness validation
+            else {
+                $rules = [
+                    'email' => 'required|string|email|max:255|unique:account,email',
+                    'phone' => 'nullable|string|max:20|unique:account,phone',
+                ];
+            }
+        }
+        $validatedData = validator($input, $rules);
+        if ($validatedData->fails()) {
+            $errors = $validatedData->errors();
+            $errorString = '';
 
+            foreach ($errors->all() as $message) {
+                $errorString .= $message . "\n";
+            }
+
+            return response()->json(['error' => $errorString], 400);
+        }
         DB::beginTransaction();
         try {
             $updateData = [];
-
             if (!empty($input['username'])) {
                 $updateData['username'] = $input['username'];
             }
@@ -612,9 +657,9 @@ class AccountController extends Controller
                 $account->imageUrl = $fileName;
                 $account->save();
             }
-            $messageContent = 'Dear ' . $account->fullname . ',<br><br>This Is Your Security Code:<br>' . $security_code . '<br><br>Best Regards,<br>Bijoux Jewelry';
+            $messageContent = 'Dear ' . $account->fullname . ', This Is Your Security Code:';
             $subject = "Activate Bijoux Account";
-            $this->sendMail($account->email, $messageContent, $subject, null);
+            $this->sendMail($account->email, $subject, $messageContent, $security_code);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -704,10 +749,15 @@ class AccountController extends Controller
             ], 200);
         }
     }
-    public function sendMail($toEmail, $messageContent, $subject, $pathToFile)
+    public function sendMail($toEmail, $subject, $messageContent, $security_code)
     {
+        $data = [
+            'subject' => $subject,
+            'messageContent' => $messageContent,
+            'security_code' => $security_code
+        ];
         try {
-            Mail::to($toEmail)->send(new Email($messageContent, $subject, $pathToFile));
+            Mail::to($toEmail)->send(new MarkDownMail($data));
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
         }
