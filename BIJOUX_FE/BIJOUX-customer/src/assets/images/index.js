@@ -1,4 +1,4 @@
-import logo from "./bijoux_logo_2.jpg";
+import logo from "./bijoux_logo_3.jpg";
 import logoLight from "./logoLight.png";
 import bannerImgOne from "./banner/jewelry1.png";
 import bannerImgTwo from "./banner/jewelry2.png";

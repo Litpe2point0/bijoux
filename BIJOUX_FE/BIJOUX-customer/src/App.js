@@ -79,8 +79,8 @@ const router = createBrowserRouter(
         <Route path="/profile" element={<Profile />}></Route>
         <Route path="/contact" element={<Contact />}></Route>
         <Route path="/journal" element={<Journal />}></Route>
-        <Route path="/select-type" element={<SelectType />}></Route>
-        <Route path="/customization-form" element={<CustomizationForm />}></Route>
+        <Route path="/templates" element={<SelectType />}></Route>
+        <Route path="/customization" element={<CustomizationForm />}></Route>
         {/* ==================== Header Navlink End here ===================== */}
         <Route path="/category/:category" element={<Offer />}></Route>
         <Route path="/product/_:id" element={<ProductDetails />}></Route>

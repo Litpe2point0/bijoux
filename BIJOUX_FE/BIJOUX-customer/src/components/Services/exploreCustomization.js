@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Card as MUICard, CardActionArea, CardContent, CardMedia, Typography as MUITypography } from "@mui/material";
+import { Card as MUICard, CardActionArea, CardContent, CardMedia, Typography as MUITypography, Box, CircularProgress } from "@mui/material";
 import { Dialog, DialogTitle, DialogContent, TextField, Select, MenuItem, Button } from '@mui/material'
 import { useState } from "react";
 import { get_mounting_type_list } from "../../api/main/items/Model_api";
@@ -119,7 +119,7 @@ export default function ExploreCustomization() {
         if (additionalInfoShow == true) {
             if (!phoneNumber || !address) {
                 setLoadingSubmit(false)
-                return showAlert('error', 'New Phone Number And Address Required', 'Your Account Need To Be Update To Use Our Features');
+                return showAlert('error', 'New Phone Number And Address Required', 'Your Account Need To Be Update To Use Our Features', false);
 
             }
             const new_account = {
@@ -132,7 +132,7 @@ export default function ExploreCustomization() {
             //alert('ok2')
             if (!response.success) {
                 setLoadingSubmit(false)
-                return showAlert('error', 'Error', 'Your account has not been updated');
+                return showAlert('error', 'Error', 'Your account has not been updated', false);
             } else {
                 const token = response.data.token;
                 if (token) {
@@ -141,7 +141,7 @@ export default function ExploreCustomization() {
 
                 } else {
                     setLoadingSubmit(false)
-                    return showAlert('error', 'Error', 'Token Error');
+                    return showAlert('error', 'Error', 'Token Error', false);
                 }
             }
         }
@@ -155,16 +155,16 @@ export default function ExploreCustomization() {
         const response = await add_quote(formData, 'New Quote', true);
         //alert('ok3')
         if (response.success) {
-            showAlert('success', 'Success', 'Your quote has been submitted successfully');
+            showAlert('success', 'Success', 'Your quote has been submitted successfully', true);
             handleClose();
         } else {
-            showAlert('error', 'Error', 'Your quote has not been submitted');
+            showAlert('error', 'Error', 'Your quote has not been submitted', false);
         }
 
         setLoadingSubmit(false)
 
     }
-    const showAlert = (icon, title, text,) => {
+    const showAlert = (icon, title, text, updateResult) => {
         Swal.fire({
             title: title,
             text: text,
@@ -176,7 +176,7 @@ export default function ExploreCustomization() {
                 popup: 'swal2-custom-zindex'
             }
         }).then((result) => {
-            if (result.isConfirmed && additionalInfoShow == true && phoneNumber && address) {
+            if (result.isConfirmed && additionalInfoShow == true && phoneNumber && address && updateResult) {
                 Swal.fire({
                     title: 'Success',
                     html: "Your Account Infomation Has Been Update <br>*Phone Number: " + phoneNumber + '<br>*Address: ' + address,
@@ -297,7 +297,11 @@ export default function ExploreCustomization() {
 
                                 <div className="mb-4 flex justify-center">
                                     <button onClick={() => handleSubmit()} disabled={loadingSubmit} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">
-                                        {loadingSubmit ? 'Loading...' : 'Submit'}
+                                        {loadingSubmit ?
+                                            <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                                <CircularProgress color="inherit" size={25} />
+                                            </Box>
+                                            : 'Submit'}
                                     </button>
                                 </div>
 
