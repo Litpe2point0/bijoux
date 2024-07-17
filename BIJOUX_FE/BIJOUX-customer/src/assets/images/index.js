@@ -1,4 +1,4 @@
-import logo from "./bijoux_logo_2.jpg";
+import logo from "./bijoux_logo_3.jpg";
 import logoLight from "./logoLight.png";
 import bannerImgOne from "./banner/jewelry1.png";
 import bannerImgTwo from "./banner/jewelry2.png";
@@ -21,6 +21,16 @@ import demoFinalRelated1 from "./finalTemplate/Related_1.jpg"
 import demoFinalRelated2 from "./finalTemplate/Related_2.jpg"
 import loginLogo from "./login/login_logo.jpg";
 import loginLogo2 from "./login/login_logo2.jpg";
+import templateBanner from './banner/template_banner_1.jpg'
+import customBanner from './banner/customize_banner_3.jpg'
+import ec_1 from './ec_1.jpg'
+import ec_2 from './ec_2.jpg'
+import ec_3 from './ec_3.jpg'
+import ec_4 from './ec_4.jpg'
+import et_1 from './et_1.jpg'
+import et_2 from './et_2.jpg'
+import et_3 from './et_3.jpg'
+import et_4 from './et_4.jpg'
 // ============== Products Start here ====================
 import pdf1 from "../pdf/pdf1.pdf";
 // New Arrivals
@@ -91,6 +101,16 @@ import espson1 from "../images/products/imprimante/espson1.webp";
 import espson2 from "../images/products/imprimante/espson2.webp";
 
 export {
+  ec_1,
+  ec_2,
+  ec_3,
+  ec_4,
+  et_1,
+  et_2,
+  et_3,
+  et_4,
+  templateBanner,
+  customBanner,
   loginLogo2,
   loginLogo,
   demoFinalMain,
