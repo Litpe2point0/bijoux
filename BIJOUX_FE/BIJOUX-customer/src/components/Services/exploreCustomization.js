@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Card as MUICard, CardActionArea, CardContent, CardMedia, Typography as MUITypography } from "@mui/material";
+import { Card as MUICard, CardActionArea, CardContent, CardMedia, Typography as MUITypography, Box, CircularProgress } from "@mui/material";
 import { Dialog, DialogTitle, DialogContent, TextField, Select, MenuItem, Button } from '@mui/material'
 import { useState } from "react";
 import { get_mounting_type_list } from "../../api/main/items/Model_api";
@@ -15,7 +15,7 @@ import { getUserFromToken } from "../../api/main/accounts/Login";
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber } from 'react-phone-number-input';
-
+import { customBanner, ec_1, ec_2, ec_3, ec_4 } from "../../assets/images";
 
 export default function ExploreCustomization() {
     const dispatch = useDispatch();
@@ -79,7 +79,7 @@ export default function ExploreCustomization() {
 
     const handleOpen = async () => {
 
-        let account =  getUserFromPersist();
+        let account = getUserFromPersist();
         if (!account) {
             return loginRequiredAlert();
         }
@@ -89,7 +89,7 @@ export default function ExploreCustomization() {
         const response_update_account_detail = await get_update_account_detail(formData_update_account_detail, "Get Account Detail", true);
         if (response_update_account_detail.success) {
             const user = response_update_account_detail.data.account_detail;
-            account= user;
+            account = user;
         } else {
             return loginRequiredAlert();
         }
@@ -97,11 +97,11 @@ export default function ExploreCustomization() {
             return loginRequiredAlert();
         } else if (account && (!account.phone || !account.address)) {
             setAdditionalInfoShow(true);
-        } else{
+        } else {
             setAdditionalInfoShow(false)
         }
 
-        
+
         setOpen(true);
     };
 
@@ -119,7 +119,7 @@ export default function ExploreCustomization() {
         if (additionalInfoShow == true) {
             if (!phoneNumber || !address) {
                 setLoadingSubmit(false)
-                return showAlert('error', 'New Phone Number And Address Required', 'Your Account Need To Be Update To Use Our Features');
+                return showAlert('error', 'New Phone Number And Address Required', 'Your Account Need To Be Update To Use Our Features', false);
 
             }
             const new_account = {
@@ -132,7 +132,7 @@ export default function ExploreCustomization() {
             //alert('ok2')
             if (!response.success) {
                 setLoadingSubmit(false)
-                return showAlert('error', 'Error', 'Your account has not been updated');
+                return showAlert('error', 'Error', 'Your account has not been updated', false);
             } else {
                 const token = response.data.token;
                 if (token) {
@@ -141,7 +141,7 @@ export default function ExploreCustomization() {
 
                 } else {
                     setLoadingSubmit(false)
-                    return showAlert('error', 'Error', 'Token Error');
+                    return showAlert('error', 'Error', 'Token Error', false);
                 }
             }
         }
@@ -155,16 +155,16 @@ export default function ExploreCustomization() {
         const response = await add_quote(formData, 'New Quote', true);
         //alert('ok3')
         if (response.success) {
-            showAlert('success', 'Success', 'Your quote has been submitted successfully');
+            showAlert('success', 'Success', 'Your quote has been submitted successfully', true);
             handleClose();
         } else {
-            showAlert('error', 'Error', 'Your quote has not been submitted');
+            showAlert('error', 'Error', 'Your quote has not been submitted', false);
         }
 
         setLoadingSubmit(false)
 
     }
-    const showAlert = (icon, title, text,) => {
+    const showAlert = (icon, title, text, updateResult) => {
         Swal.fire({
             title: title,
             text: text,
@@ -176,7 +176,7 @@ export default function ExploreCustomization() {
                 popup: 'swal2-custom-zindex'
             }
         }).then((result) => {
-            if (result.isConfirmed && additionalInfoShow == true && phoneNumber && address) {
+            if (result.isConfirmed && additionalInfoShow == true && phoneNumber && address && updateResult) {
                 Swal.fire({
                     title: 'Success',
                     html: "Your Account Infomation Has Been Update <br>*Phone Number: " + phoneNumber + '<br>*Address: ' + address,
@@ -195,50 +195,61 @@ export default function ExploreCustomization() {
         <>
             <div class="w-full lg:h-full md:h-full xs:h-full bg-cover bg-center flex flex-col">
                 <div className="flex flex-col m-10 items-center ">
-                    <h1 className="md:text-5xl xs:text-4xl mt-5 font-loraFont font-light text-[#151542] mb-10">Explore Customization</h1>
-                    <div className="grid md:grid-cols-4 xs:grid-cols-1 gap-5">
-                        <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
+                    <h1 className="md:text-5xl xs:text-4xl mt-5 font-loraFont font-light text-[#151542]">Explore Customization</h1>
+                    <div className="w-full grid grid-cols-2 mt-5 mb-10 gap-3">
+                        <div className="w-full flex justify-end">
+                            <img src={customBanner} alt="Image" className="w-[622px] h-[350px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
+                        </div>
+                        <div className="w-full flex flex-col justify-center items-center">
+                            <p className="text-lg text-start w-[624px] font-gantariFont text-gray-400 mt-2 mb-5"> We offer personalized jewelry services, allowing you to design unique pieces that reflect your individual style and personality. Create bespoke rings, necklaces, and bracelets tailored just for you.</p>
+                            <div className="w-[624px] flex justify-start">
+                                <button onClick={handleOpen} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Contact Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex justify-around w-full gap-5">
+                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
-                                src="https://media.istockphoto.com/id/1331493599/photo/shot-of-a-businessman-using-a-computer-while-working-in-a-call-center.jpg?s=612x612&w=0&k=20&c=ocaFzVRnDARFnANjyd6CMrwAI0Ua6I0Na_MKej8IysA="
+                                src={ec_1}
                                 alt="Ảnh"
-                                className="w-full h-44"
+                                className="w-full h-[260px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 1: Contact</h1>
-                            <p className="mt-2 ml-4"> Enter your information and we will contact you as soon as possible.</p>
+                            <p className="mt-2 text-sm ml-4">Enter your information and we will contact you as soon as possible.</p>
 
                         </div>
-                        <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
-                                src="https://img.freepik.com/free-photo/business-brainstorming-graph-chart-report-data-concept_53876-31213.jpg"
+                                src={ec_2}
                                 alt="Ảnh"
-                                className="w-full h-44"
+                                className="w-full  h-[260px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 2: Planning</h1>
-                            <p className="mt-2 ml-4">We provide a team of professional consultants to help you brainstorm ideas for your jewelry.</p>
+                            <p className="mt-2 text-sm ml-4">We provide a team of professional consultants to help you brainstorm ideas for your jewelry.</p>
                         </div>
-                        <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
-                                src="https://t3.ftcdn.net/jpg/05/45/25/44/360_F_545254467_ls0i5SlQprMEBbdy7iMUvxpGMkUJCsMp.jpg"
+                                src={ec_3}
                                 alt="Ảnh"
-                                className="w-full h-44"
+                                className="w-full h-[260px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 3: Designing</h1>
-                            <p className="mt-2 ml-4">From those ideas, we will design a 3D file to give you a comprehensive view and allow for modifications.</p>
+                            <p className="mt-2 text-sm ml-4">From those ideas, we will design a 3D file to give you a comprehensive view and allow for modifications.</p>
                         </div>
-                        <div className="w-auto h-96 overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
-                                src="https://static8.depositphotos.com/1177973/842/i/450/depositphotos_8423176-stock-photo-pendant-in-form-of-rings.jpg"
+                                src={ec_4}
                                 alt="Ảnh"
-                                className="w-full h-44"
+                                className="w-full h-[260px] object-cover"
                             />
-                            <h1 className="text-xl font-semibold mt-4 ml-4  nnn">Step 4: Compliting</h1>
-                            <p className="mt-2 m-4">Your product will be completed as soon as possible and delivered to your doorstep so you can enjoy your own piece of art.</p>
+                            <h1 className="text-xl font-semibold mt-4 ml-4">Step 4: Compliting</h1>
+                            <p className="mt-2 text-sm m-4"> Your product will be completed as soon as possible and delivered to your doorstep so you can enjoy your own piece of art.</p>
                         </div>
                     </div>
 
-                    <div className="flex justify-around w-96 items-center mt-5">
+                    {/* <div className="flex justify-around w-96 items-center mt-5">
                         <button onClick={handleOpen} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Contact Now</button>
-                    </div>
+                    </div> */}
 
                     <Dialog sx={{ zIndex: '999 !important' }} open={open} onClose={handleClose}>
                         <div className="flex justify-center bg-cyan-800 text-white">
@@ -286,7 +297,11 @@ export default function ExploreCustomization() {
 
                                 <div className="mb-4 flex justify-center">
                                     <button onClick={() => handleSubmit()} disabled={loadingSubmit} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">
-                                        {loadingSubmit ? 'Loading...' : 'Submit'}
+                                        {loadingSubmit ?
+                                            <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                                <CircularProgress color="inherit" size={25} />
+                                            </Box>
+                                            : 'Submit'}
                                     </button>
                                 </div>
 

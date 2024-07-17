@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TextField } from "@mui/material";
+import { Box, CircularProgress, TextField } from "@mui/material";
 import { Upload, Phone, IdentificationCard, CalendarBlank, EnvelopeSimple, MapPin } from 'phosphor-react';
 import { Calendar } from 'primereact/calendar';
 import 'primereact/resources/themes/saga-blue/theme.css'; // Import theme CSS
@@ -97,11 +97,15 @@ export default function Profile() {
             <div className="w-full flex flex-col items-center">
                 <p className="font-loraFont text-4xl font-semibold text-[#151542] mb-5 mt-5">Your Profile</p>
                 <div className="w-10/12 h-0.5 bg-[#151542] rounded-sm mb-5"></div>
-                {loading ? <CSpinner color="primary" />
+                {loading ? 
+                
+                    <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
+                        <CircularProgress color="inherit" />
+                    </Box>
                     :
-                    <div className="w-10/12 grid grid-cols-2">
-                        <div className="w-full flex flex-col items-center">
-                            {/* Avatar Control */}
+                    <div className="w-10/12 grid md:grid-cols-2">
+                        {/* <div className="w-full flex flex-col items-center">
+                            
                             <div className="w-3/4">
                                 <img className="md:w-[500px] md:h-[500px] xs:w-[200px] xs:h-[200px] rounded-full object-cover object-top shadow-xl" src={imageUrl}></img>
                             </div>
@@ -117,6 +121,16 @@ export default function Profile() {
                             <div className="flex items-center">
                                 <p className="text-2xl font-bold text-gray-500">#{id}</p>
                             </div>
+                        </div> */}
+                        
+                        <div className="w-full flex justify-center items-center">
+                            {/* <div className="w-3/4 flex flex-col items-center " >
+                                <img className="h-[75%] rounded-full object-cover object-top shadow-xl" src={imageUrl}></img>
+                                <span className="text-2xl font-bold text-gray-500">
+                               Account id: #{id}
+                                </span>
+                            </div> */}
+                            <img className="h-[75%] rounded-full object-cover object-top shadow-xl" src={imageUrl}></img>   
                         </div>
                         <div className="flex flex-col">
                             {/* Change Full Name */}
