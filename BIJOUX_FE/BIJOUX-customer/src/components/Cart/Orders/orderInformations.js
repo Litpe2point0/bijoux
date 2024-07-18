@@ -156,7 +156,7 @@ export default function OrderInformations({ order }) {
                             <div className="w-[210px] flex items-center justify-start h-9 bg-slate-200 rounded-lg">
                                 {order.product.mounting_size
                                     ? (
-                                        <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">{order.product.mounting_size}.0 (mm)</p>
+                                        <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">{order.product.mounting_size} (mm)</p>
                                     )
                                     : (
                                         <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">...</p>
