@@ -134,7 +134,7 @@ export default function MountingDetail() {
                     const formData = new FormData();
                     formData.append('metal_compatibility', JSON.stringify(metal_compatibility));
                     const compatibility_data = await get_metal_compatibility(formData);
-                  
+
                     if (finalProduct.metal_2 && !compatibility_data.success) {
                         alert()
                         return systemUpdateAlertMaker();
@@ -142,7 +142,7 @@ export default function MountingDetail() {
                     setSideMetalArray(compatibility_data.success ? compatibility_data.data : [])
                     setSideMetal(finalProduct.metal_2); //SET KIM LOẠI SIDE
                     //THÊM ĐIỀU KIỆN
-                    if ( finalProduct.metal_2 && compatibility_data.data.find(metal => metal.metal.id === finalProduct.metal_2.id) == null) {
+                    if (finalProduct.metal_2 && compatibility_data.data.find(metal => metal.metal.id === finalProduct.metal_2.id) == null) {
                         return systemUpdateAlertMaker();
                     }
                 }
@@ -288,20 +288,20 @@ export default function MountingDetail() {
                 </Box>
                 :
                 <>
-                    <div className="grid grid-cols-2 gap-5 w-full h-auto">
+                    <div className="grid md:grid-cols-2 sm:grid-cols-1 gap-5 w-full h-auto">
                         <div className="w-full flex items-center justify-center">
                             <img
-                                className="w-3/4 h-auto object-cover border border-gray-900 shadow-lg"
+                                className="w-[476px] h-auto object-cover border border-gray-300 rounded-md shadow-lg"
                                 alt={model.name}
                                 src={model.imageUrl}
                             />
                         </div>
-                        <div className="flex flex-col w-full">
-                            <p className="w-1/2 text-3xl font-loraFont font-medium text-[#151542]">{model.name}</p>
+                        <div className="flex flex-col md:items-start sm:items-center w-full">
+                            <p className="md:w-1/2 sm:w-[477px] text-3xl font-loraFont font-medium text-[#151542]">{model.name}</p>
                             <div className="w-3/4 h-0.5 bg-slate-300 mt-5 mb-5"></div>
 
                             {checkMountingType && (
-                                <>
+                                <div className="sm:w-[477px]  md:w-full flex flex-col items-start">
                                     <p className="font-loraFont font-medium text-[#151542]">Select Finger Size</p>
                                     <FormControl className="w-1/3">
                                         <Select
@@ -326,44 +326,46 @@ export default function MountingDetail() {
                                         </Select>
                                     </FormControl>
 
-                                </>
+                                </div>
                             )
                             }
-                            <p className="font-loraFont mt-5 font-medium text-[#151542]">Select Main Metal</p>
-                            <FormControl className="w-1/3">
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
-                                    value={JSON.stringify(mainMetal)}
-                                    label="Age"
-                                    onChange={handleMainMetalChange}
-                                >
-                                    {
-                                        mainMetal == null &&
-                                        <MenuItem value={null}>
-                                            Select Main Metal
-                                        </MenuItem>
-                                    }
-                                    {mainMetalArray.map((item) => {
-                                        //console.log("itemmmmmmmmmmmmmmmmmmmmmm", item.metal.name)
-                                        return (
-
-                                            <MenuItem key={item.metal.id} value={JSON.stringify(item.metal)}>
-                                                <img
-                                                    className="w-10 h-auto inline-block mr-1 align-middle"
-
-                                                    src={item.metal.imageUrl}
-                                                />
-                                                {item.metal.name}
+                            <div className="sm:w-[477px]  md:w-full flex flex-col items-start">
+                                <p className="font-loraFont mt-5 font-medium text-[#151542]">Select Main Metal</p>
+                                <FormControl className="w-1/3">
+                                    <Select
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        value={JSON.stringify(mainMetal)}
+                                        label="Age"
+                                        onChange={handleMainMetalChange}
+                                    >
+                                        {
+                                            mainMetal == null &&
+                                            <MenuItem value={null}>
+                                                Select Main Metal
                                             </MenuItem>
-                                        )
-                                    })}
-                                </Select>
-                            </FormControl>
+                                        }
+                                        {mainMetalArray.map((item) => {
+                                            //console.log("itemmmmmmmmmmmmmmmmmmmmmm", item.metal.name)
+                                            return (
 
+                                                <MenuItem key={item.metal.id} value={JSON.stringify(item.metal)}>
+                                                    <img
+                                                        className="w-10 h-auto inline-block mr-1 align-middle"
+
+                                                        src={item.metal.imageUrl}
+                                                    />
+                                                    {item.metal.name}
+                                                </MenuItem>
+                                            )
+                                        })}
+                                    </Select>
+                                </FormControl>
+
+                            </div>
 
                             {sideMetalListVisible && (
-                                <>
+                                <div className="sm:w-[477px] md:w-full flex flex-col items-start">
                                     <p className="font-loraFont mt-5 font-medium text-[#151542]" visible="false">Select Side Metal</p>
                                     <FormControl className="w-1/3">
                                         <Select
@@ -390,7 +392,7 @@ export default function MountingDetail() {
                                             )}
                                         </Select>
                                     </FormControl>
-                                </>
+                                </div>
                             )}
 
                             <div className="w-3/4 flex justify-center mt-5">

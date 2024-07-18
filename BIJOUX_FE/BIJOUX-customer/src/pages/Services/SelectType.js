@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import TypeCard from "../../components/Card/TypeCard";
 import { get_mounting_type_list } from "../../api/main/items/Model_api";
 import { Box, CircularProgress } from "@mui/material";
-
+import { ring, band, pendant } from "../../assets/images";
 export default function SelectType() {
     const [typeList, setTypeList] = useState([]);
     // useEffect(() => {
@@ -40,9 +40,9 @@ export default function SelectType() {
                         <TypeCard
                             type={type}
                             image={
-                                (type.id === 1 && "https://images.unsplash.com/photo-1589674781759-c21c37956a44?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") ||
-                                (type.id === 2 && "https://images.unsplash.com/photo-1565206077212-4eb48d41f54b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") ||
-                                (type.id === 3 && "https://images.unsplash.com/photo-1610661022658-5068c4d8f286?q=80&w=2942&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+                                (type.id === 1 && ring) ||
+                                (type.id === 2 && band) ||
+                                (type.id === 3 && pendant)
                             }
                         />
                     ))
