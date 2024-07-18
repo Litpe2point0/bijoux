@@ -172,7 +172,7 @@ const CustomForm = () => {
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Contact Phone Number</CFormLabel>
-        <CFormInput type="number" id="validationCustom02" ref={phone} required />
+        <CFormInput type="text" id="validationCustom02" ref={phone} required />
         <CFormFeedback valid>Looks good!</CFormFeedback>
       </CCol>
       <CCol md={12}>
