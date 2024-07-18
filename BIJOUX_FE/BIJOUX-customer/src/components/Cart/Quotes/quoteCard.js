@@ -57,7 +57,7 @@ export default function QuoteCard({ quote, onCancel }) {
                 <div className="mx-1 h-full w-0.5 bg-black"> </div>
 
                 <div className="flex-1 flex flex-col h-full ml-5">
-                    {quote.total_price ? (
+                    {quote.total_price  && quote.quote_status.id == 4 ? (
                         <p className="font-cartFont text-xl font-semibold"><CurrencyFormatter value={quote.total_price} /></p>
                     ) : (
                         <p className="font-cartFont text-xl font-semibold">Unpriced yet</p>
@@ -78,7 +78,7 @@ export default function QuoteCard({ quote, onCancel }) {
 
                     <div className="flex">
                         <p className="font-cartFont text-md mr-2">Materials Price: </p>
-                        {quote.product_price ? (
+                        {quote.product_price && quote.quote_status.id == 4 ? (
                             <p className="font-cartFont"><CurrencyFormatter value={quote.product_price} /></p>
                         ) : (
                             <p>Not yet</p>
@@ -87,22 +87,14 @@ export default function QuoteCard({ quote, onCancel }) {
 
                     <div className="flex">
                         <p className="font-cartFont text-md mr-2">Production Price: </p>
-                        {quote.production_price ? (
+                        {quote.production_price && quote.quote_status.id == 4 ? (
                             <p className="font-cartFont"><CurrencyFormatter value={newProductionPrice} /></p>
                         ) : (
                             <p>Not yet</p>
                         )}
                     </div>
 
-                    {/* <div className="w-full h-[65px] flex items-center justify-around">
-                        <button onClick={handleOpenClose} className="md:w-[140px] sm:w-[100px] h-[35px] bg-[#0024A4] text-white hover:bg-[#071E6F]">SUPPORT STAFFS</button>
-                        {quote.quote_status.id === 4 || quote.quote_status.id === 5 ? (
-                            <button className="md:w-[130px] sm:w-[100px] h-[35px] bg-slate-500 text-white ">CANCEL</button>
-                        ) : (
-                            <button onClick={onCancel} className="md:w-[130px] sm:w-[100px] h-[35px] bg-[#CD0B2A] text-white hover:bg-[#8B1023]">CANCEL</button>
-                        )}
-
-                    </div> */}
+                    
                     <div className="w-full h-[65px] flex items-center justify-around">
                         <Button onClick={handleOpenClose} variant="contained">
                             SEE SUPPORTERS
@@ -218,110 +210,7 @@ export default function QuoteCard({ quote, onCancel }) {
                     </div>
 
                 </div>
-                {/* <div className="w-10/12 bg-slate-100 grid grid-cols-4 gap-2 p-4">
-                        <div>
-                            <p className="text-[#151542] font-semibold">Product Informations:</p>
-                            <ul>
-                                {quote.product.id ? (
-                                    <li>- Product ID: {quote.product.id}</li>
-                                ) : (
-                                    <li>- Product ID: Not yet</li>
-                                )}
-                                {quote.product.mounting_type ? (
-                                    <li>- Product Type: {quote.product.mounting_type.name}</li>
-                                ) : (
-                                    <li>- Product Type: Not yet</li>
-                                )}
-                                {quote.product.mounting_size ? (
-                                    <li>- Product Size : {quote.product.mounting_size}</li>
-                                ) : (
-                                    <li>- Product Size: Not Available</li>
-                                )}
-                            </ul>
-                        </div>
-
-                        <div className="flex flex-col">
-                            <p className="text-[#151542] font-semibold">Sale Staff Informations:</p>
-                            {quote.saleStaff_id ? (
-                                <div>
-                                    <p>{saleStaffInformations.name}</p>
-                                    <div className="flex items-center">
-                                        <Phone size={20} className="mr-2" />
-                                        <p>{saleStaffInformations.phone}</p>
-                                    </div>
-
-                                    <div className="flex items-center">
-                                        <Envelope size={20} className="mr-2" />
-                                        <p>{saleStaffInformations.email}</p>
-                                    </div>
-                                </div>
-                            )
-                                : (
-                                    <div className="w-full">
-                                        <p className="font-bold text-sky-800">NOT YET...</p>
-                                    </div>
-                                )}
-                        </div>
-
-                        <div className="flex flex-col">
-                            <p className="text-[#151542] font-semibold">Designer Staff Informations:</p>
-                            {quote.designStaff_id ? (
-                                <div>
-                                    <p>{designStaffInformations.name}</p>
-                                    <div className="flex items-center">
-                                        <Phone size={20} className="mr-2" />
-                                        <p>{designStaffInformations.phone}</p>
-                                    </div>
-
-                                    <div className="flex items-center">
-                                        <Envelope size={20} className="mr-2" />
-                                        <p>{designStaffInformations.email}</p>
-                                    </div>
-                                </div>
-                            )
-                                : (
-                                    <div className="w-full">
-                                        <p className="font-bold text-sky-800">NOT YET...</p>
-                                    </div>
-                                )}
-                        </div>
-
-                        <div className="flex flex-col">
-                            <p className="text-[#151542] font-semibold">Production Staff Informations:</p>
-                            {quote.productionStaff_id ? (
-                                <div>
-                                    <p>{productionStaffInformations.name}</p>
-                                    <div className="flex items-center">
-                                        <Phone size={20} className="mr-2" />
-                                        <p>{productionStaffInformations.phone}</p>
-                                    </div>
-
-                                    <div className="flex items-center">
-                                        <Envelope size={20} className="mr-2" />
-                                        <p>{productionStaffInformations.email}</p>
-                                    </div>
-                                </div>
-                            )
-                                : (
-                                    <div className="w-full">
-                                        <p className="font-bold text-sky-800">NOT YET...</p>
-                                    </div>
-                                )}
-                        </div>
-
-                        <div className="flex flex-col">
-                            <p className="text-[#151542] font-semibold">Created Date:</p>
-                            <p>{quote.created_date}</p>
-                        </div>
-
-                        <div className="flex flex-col">
-                            <p className="text-[#151542] font-semibold">Note:</p>
-                            <div className="bg-indigo-200 p-4 rounded-lg">
-                                <p>{quote.note}</p>
-                            </div>
-                        </div>
-
-                    </div> */}
+                
 
             </Collapse >
 
