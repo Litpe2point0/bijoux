@@ -101,7 +101,7 @@ class QuoteController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -229,7 +229,7 @@ class QuoteController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -241,8 +241,14 @@ class QuoteController extends Controller
         $account = DB::table('account')->where('id', $account_id)->first();
         if ($account->deactivated) {
             return response()->json([
-                'error' => 'The Selected Customer Account Has Been Deactivated'
+                'error' => 'The selected customer account has been deactivated'
             ], 403);
+        } else {
+            if(!$account->status){
+                return response()->json([
+                    'error' => 'The selected customer account hasn\'t been activated'
+                ], 403);  
+            }
         }
 
         if (isset($input['mounting_type_id']) && $input['mounting_type_id'] != null) {
@@ -289,7 +295,7 @@ class QuoteController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Quote Create Successfully'
+            'success' => 'Quote create successfully'
         ], 201);
     }
     public function assign_quote(Request $request) //
@@ -297,7 +303,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('assigned_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -306,13 +312,13 @@ class QuoteController extends Controller
             if ($quote->quote_status_id == 4) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Has Been Completed'
+                    'error' => 'The selected quote has been completed'
                 ], 403);
             }
             if ($quote->quote_status_id == 5) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Has Been Cancelled'
+                    'error' => 'The selected quote has been cancelled'
                 ], 403);
             }
             $saleStaff_id = isset($input['saleStaff_id']) ? $input['saleStaff_id'] : null;
@@ -321,51 +327,51 @@ class QuoteController extends Controller
             if ($saleStaff_id != null) $sale_staff = DB::table('account')->where('id', $input['saleStaff_id'])->first();
             else {
                 return response()->json([
-                    'error' => 'The Selected Sale Staff Account Can\'t Be Null'
+                    'error' => 'The selected sale staff account can\'t be null'
                 ], 403);
             }
             if ($designStaff_id != null) $design_staff = DB::table('account')->where('id', $input['designStaff_id'])->first();
             else {
                 return response()->json([
-                    'error' => 'The Selected Sale Staff Account Can\'t Be Null'
+                    'error' => 'The selected sale staff account can\'t be null'
                 ], 403);
             }
             if ($productionStaff_id != null) $production_staff = DB::table('account')->where('id', $input['productionStaff_id'])->first();
             else {
                 return response()->json([
-                    'error' => 'The Selected Production Staff Account Can\'t Be Null'
+                    'error' => 'The selected production staff account can\'t be null'
                 ], 403);
             }
             if ($sale_staff != null) {
                 if ($sale_staff->role_id != '2') {
                     return response()->json([
-                        'error' => 'The Selected Sale Staff Account Is Not a Sale Staff'
+                        'error' => 'The selected sale staff account is not a sale staff'
                     ], 403);
                 } else if ($sale_staff->deactivated) {
                     return response()->json([
-                        'error' => 'The Selected Sale Staff Account Has Been Deactivated'
+                        'error' => 'The selected sale staff account has been deactivated'
                     ], 403);
                 }
             }
             if ($design_staff != null) {
                 if ($design_staff->role_id != '3') {
                     return response()->json([
-                        'error' => 'The Selected Design Staff Account Is Not a Design Staff'
+                        'error' => 'The selected design staff account is not a design staff'
                     ], 403);
                 } else if ($design_staff->deactivated) {
                     return response()->json([
-                        'error' => 'The Selected Design Staff Account Has Been Deactivated'
+                        'error' => 'The selected design staff account has been deactivated'
                     ], 403);
                 }
             }
             if ($production_staff != null) {
                 if ($production_staff->role_id != '4') {
                     return response()->json([
-                        'error' => 'The Selected Production Staff Account Is Not a Production Staff'
+                        'error' => 'The selected production staff account is not a production staff'
                     ], 403);
                 } else if ($production_staff->deactivated) {
                     return response()->json([
-                        'error' => 'The Selected Production Staff Account Has Been Deactivated'
+                        'error' => 'The selected production staff account has been deactivated'
                     ], 403);
                 }
             }
@@ -388,7 +394,7 @@ class QuoteController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Assign Quote Succesfully'
+            'success' => 'Assign quote succesfully'
         ], 201);
     }
     public function pricing_quote(Request $request)
@@ -396,7 +402,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('priced_quote'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -410,7 +416,7 @@ class QuoteController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -422,7 +428,7 @@ class QuoteController extends Controller
         $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
         if ($quote->saleStaff_id != $id) {
             return response()->json([
-                'error' => 'Your Account Isn\'t Assigned To This Quote'
+                'error' => 'Your account isn\'t assigned to this quote'
             ], 403);
         }
         $product_price = 0;
@@ -433,25 +439,25 @@ class QuoteController extends Controller
             if ($quote->quote_status_id < 2) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Hasn\'t Been Assigned'
+                    'error' => 'The selected quote hasn\'t been assigned'
                 ], 403);
             }
             if ($quote->quote_status_id == 3) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Has Already Been Priced'
+                    'error' => 'The selected quote has already been priced'
                 ], 403);
             }
             if ($quote->quote_status_id == 4) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Has Already Been Completed'
+                    'error' => 'The selected quote has already been completed'
                 ], 403);
             }
             if ($quote->quote_status_id >= 5) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Has Already Been Cancelled'
+                    'error' => 'The selected quote has already been cancelled'
                 ], 403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
@@ -487,7 +493,7 @@ class QuoteController extends Controller
                     if ($diamond->deactivated == true) {
                         DB::rollBack();
                         return response()->json([
-                            'error' => 'One Of The Selected Diamond Is Currently Deactivated'
+                            'error' => 'One of the selected diamond is currently deactivated'
                         ], 403);
                     }
                     $product_diamond->product_id = $quote->product_id;
@@ -506,7 +512,7 @@ class QuoteController extends Controller
                 if ($metal->deactivated == true) {
                     DB::rollBack();
                     return response()->json([
-                        'error' => 'One Of The Selected Metal Is Currently Deactivated'
+                        'error' => 'One of the selected metal is currently deactivated'
                     ], 403);
                 }
                 $product_metal->product_id = $quote->product_id;
@@ -524,7 +530,7 @@ class QuoteController extends Controller
                 'profit_rate' => $input['profit_rate'],
                 'product_price' => $product_price,
                 'quote_status_id' => 3,
-                'total_price' => ceil(($product_price + $input['production_price']) * ($input['profit_rate'] + 100) / 100)
+                'total_price' => ceil(($product_price) * ($input['profit_rate'] + 100) / 100 + $input['production_price'])
             ]);
             DB::commit();
         } catch (\Exception $e) {
@@ -533,7 +539,7 @@ class QuoteController extends Controller
         }
 
         return response()->json([
-            'success' => 'Successfully Price Quote'
+            'success' => 'Successfully price quote'
         ], 201);
     }
     public function approve_quote(Request $request)
@@ -541,7 +547,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('approval'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
@@ -551,19 +557,19 @@ class QuoteController extends Controller
             if ($quote->quote_status_id < 3) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Hasn\'t Been Priced'
+                    'error' => 'The selected quote hasn\'t been priced'
                 ], 403);
             }
             if ($quote->quote_status_id == 4) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Has Already Been Approved'
+                    'error' => 'The selected quote has already been approved'
                 ], 403);
             }
             if ($quote->quote_status_id == 5) {
                 DB::rollBack();
                 return response()->json([
-                    'error' => 'The Selected Quote Has Already Been Cancelled'
+                    'error' => 'The selected quote has already been cancelled'
                 ], 403);
             }
             if ($input['approve'] || $input['approve'] == 1) {
@@ -594,7 +600,7 @@ class QuoteController extends Controller
                 ]);
                 DB::commit();
                 return response()->json([
-                    'success' => 'Decline Quote Successfully'
+                    'success' => 'Decline quote successfully'
                 ], 201);
             }
             DB::commit();
@@ -603,7 +609,7 @@ class QuoteController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Approve Quote Successfully'
+            'success' => 'Approve quote successfully'
         ], 201);
     }
     public function cancel(Request $request)
@@ -611,7 +617,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('cancel'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $authorizationHeader = $request->header('Authorization');
@@ -625,7 +631,7 @@ class QuoteController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -637,7 +643,7 @@ class QuoteController extends Controller
         $account = Account::find($id);
         if ($account->role_id != 1 && $account->role_id != 5) {
             return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
+                'error' => 'Invalid user (User is unauthorized)'
             ], 500);
         }
         DB::beginTransaction();
@@ -645,12 +651,12 @@ class QuoteController extends Controller
             $quote = DB::table('quote')->where('id', $input['quote_id'])->first();
             if ($quote->quote_status_id == 4) {
                 return response()->json([
-                    'error' => 'Quote Has Already Been Completed, Action Can\'t Be Performed'
+                    'error' => 'The selected quote has already been completed'
                 ], 403);
             }
             if ($quote->quote_status_id == 5) {
                 return response()->json([
-                    'error' => 'Quote Has Already Been Cancelled, Action Can\'t Be Performed'
+                    'error' => 'The selected quote has already been cancelled'
                 ], 403);
             }
             DB::table('quote')->where('id', $input['quote_id'])->update([
@@ -663,7 +669,7 @@ class QuoteController extends Controller
             return response()->json($e->getMessage(), 500);
         }
         return response()->json([
-            'success' => 'Cancel Successfully'
+            'success' => 'Cancel successfully'
         ], 201);
     }
     public function get_assigned_quote_sale(Request $request)
@@ -679,7 +685,7 @@ class QuoteController extends Controller
                 try {
                     $decodedToken = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }
@@ -691,11 +697,11 @@ class QuoteController extends Controller
         $account = Account::find($input);
         if ($account->role_id != 2) {
             return response()->json([
-                'error' => 'Invalid User (User is Unauthorized)'
+                'error' => 'Invalid user (User is unauthorized)'
             ], 500);
         }
 
-        $quote = DB::table('quote')->where('saleStaff_id', $input)->get();
+        $quote = DB::table('quote')->where('saleStaff_id', $input)->orderBy('quote_status_id','asc')->get();
         $quote->map(function ($quote) {
             $product = DB::table('product')->where('id', $quote->product_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -730,7 +736,7 @@ class QuoteController extends Controller
         $input = json_decode($request->input('quote_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         $quote = DB::table('quote')->where('id', $input)->first();

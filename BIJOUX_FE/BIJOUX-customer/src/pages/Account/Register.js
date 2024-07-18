@@ -1,45 +1,83 @@
 import React, { useState } from "react";
+import ReactFileReader from "react-file-reader";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginLogo2 } from "../../assets/images";
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { isValidPhoneNumber } from 'react-phone-number-input';
+import { activate_account, register } from "../../api/main/accounts/Account_api";
+import { instantAlertMaker } from "../../api/instance/axiosInstance";
+import Swal from "sweetalert2";
+import { Avatar, Box, CircularProgress } from "@mui/material";
+import { FolderPlus } from "phosphor-react";
+//import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
+
 const nonNameWords = ['admin', 'sale', 'designer', 'production', 'manager']
 
+
+
 const Register = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   // ============= Initial State Start here =============
-  const [clientName, setClientName] = useState("");
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [zip, setZip] = useState("");
   const [checked, setChecked] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [dob, setDob] = useState(null);
+  const [fullName, setFullName] = useState(null);
+
   // ============= Initial State End here ===============
   // ============= Error Msg Start here =================
   const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(true);
-  const [errClientName, setErrClientName] = useState("");
+  const [erruserName, setErruserName] = useState("");
   const [errEmail, setErrEmail] = useState("");
   const [errPhone, setErrPhone] = useState("");
   const [errPassword, setErrPassword] = useState("");
   const [errAddress, setErrAddress] = useState("");
-  const [errCity, setErrCity] = useState("");
-  const [errCountry, setErrCountry] = useState("");
-  const [errZip, setErrZip] = useState("");
+  const [errFullName, setErrFullName] = useState("");
+  const [errImageUrl, setErrImageUrl] = useState("");
+  const [errDob, setErrDob] = useState("");
+
   // ============= Error Msg End here ===================
   const [successMsg, setSuccessMsg] = useState("");
   // ============= Event Handler Start here =============
-  const handleName = (e) => {
-    setClientName(e.target.value);
-    setErrClientName("");
+  const handleUserName = (e) => {
+    setUserName(e.target.value);
+    setErruserName("");
   };
+  const handleFullName = (e) => {
+    setFullName(e.target.value);
+    setErrFullName("");
+  };
+  const handleChangeImage = (event) => {
+    //alert('ngu')
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    if (file) {
+      reader.readAsDataURL(file);
+      reader.onload = function () {
+        setImageUrl(reader.result);
+      };
+    }
+
+    //setImageUrl(reader.value)
+    //console.log(reader.value)
+    setErrImageUrl("");
+  }
+
   const handleEmail = (e) => {
     setEmail(e.target.value);
     setErrEmail("");
   };
+  const handleDob = (e) => {
+    setDob(e.target.value);
+    setErrDob("");
+  }
   const handlePhone = (value) => {
     setPhone(value);
     if (value) {
@@ -63,41 +101,51 @@ const Register = () => {
     setAddress(e.target.value);
     setErrAddress("");
   };
-  const handleCity = (e) => {
-    setCity(e.target.value);
-    setErrCity("");
-  };
-  const handleCountry = (e) => {
-    setCountry(e.target.value);
-    setErrCountry("");
-  };
-  const handleZip = (e) => {
-    setZip(e.target.value);
-    setErrZip("");
-  };
   // ============= Event Handler End here ===============
   // ================= Email Validation start here =============
   //Valid có dấu
   const validateSingleWord = (word) => {
-    const regex = /^[A-ZÀ-Ý][a-zA-Zà-ý]*$/;
+    const regex = /^[A-ZÀ-Ý][a-zA-Zà-ýÀ-Ý]*$/;
     return regex.test(word);
   };
 
+  const checkUserName = (username) => {
+    if (!username || username.length === 0) {
+      return 0; // Trường hợp chuỗi rỗng
+    }
+
+    const firstChar = username.charAt(0);
+
+    // Kiểm tra nếu ký tự đầu tiên là chữ cái viết hoa
+    if (firstChar.match(/[A-Z]/)) {
+      return 2;
+    }
+
+    // Kiểm tra nếu ký tự đầu tiên là số hoặc các ký tự đặc biệt
+    if (firstChar.match(/[^a-zA-Z]/)) {
+      return 3;
+    }
+
+    // Kiểm tra nếu chuỗi có dấu cách
+    if (username.includes(' ')) {
+      return 4;
+    }
+
+    // Nếu chuỗi hợp lệ
+    return 1;
+  };
+
   const NameValidation = (name) => {
-    // Tách tên thành các từ riêng lẻ
+    const nonNameWords = ['admin', 'sale', 'designer', 'production', 'manager'];
     const words = name.split(' ');
 
-    // Kiểm tra từng từ
     for (const word of words) {
-      // Bỏ qua các từ rỗng (trường hợp người dùng nhập nhiều khoảng trắng)
       if (word.trim() === '') continue;
 
-      // Nếu từ không hợp lệ, trả về false
       if (!validateSingleWord(word)) {
         return false;
       }
 
-      // Nếu từ thuộc danh sách cấm, trả về false
       if (nonNameWords.includes(word.toLowerCase())) {
         return false;
       }
@@ -105,6 +153,8 @@ const Register = () => {
 
     return true;
   };
+
+
 
   const EmailValidation = (email) => {
     return String(email)
@@ -115,85 +165,211 @@ const Register = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-    if (checked) {
-      if (!clientName) {
-        setErrClientName("Enter your name");
+    let isValid = true;
+
+    // Reset error messages
+    setErruserName("");
+    setErrEmail("");
+    setErrImageUrl("");
+    setErrDob("");
+    setErrFullName("");
+    setErrPhone("");
+    setErrPassword("");
+    setErrAddress("");
+
+    // Validate fields
+    if (!userName) {
+      setErruserName("Enter your username");
+      isValid = false;
+    } else {
+      const userNameCheck = checkUserName(userName);
+      if (userNameCheck === 2) {
+        setErruserName("Username cannot start with a capital letter");
+        isValid = false;
       }
-      if (!email) {
-        setErrEmail("Enter your email");
-      } else {
-        if (!EmailValidation(email)) {
-          setErrEmail("Enter a Valid email");
-        }
+      if (userNameCheck === 3) {
+        setErruserName("Username must start with a letter");
+        isValid = false;
       }
-      if (!phone) {
-        setErrPhone("Enter your phone number");
+      if (userNameCheck === 4) {
+        setErruserName("Username cannot contain spaces");
+        isValid = false;
       }
-      if (!password) {
-        setErrPassword("Create a password");
-      } else {
-        if (password.length < 6) {
-          setErrPassword("Passwords must be at least 6 characters");
-        }
-      }
-      if (!address) {
-        setErrAddress("Enter your address");
-      }
-      if (!city) {
-        setErrCity("Enter your city name");
-      }
-      if (!country) {
-        setErrCountry("Enter the country you are residing");
-      }
-      if (!zip) {
-        setErrZip("Enter the zip code of your area");
-      }
-      // ============== Getting the value ==============
-      if (
-        NameValidation(clientName) &&
-        email &&
-        EmailValidation(email) &&
-        password &&
-        password.length >= 6 &&
-        address &&
-        city &&
-        country &&
-        zip
-      ) {
-        setSuccessMsg(
-          `Hello dear ${clientName}, Welcome you to BIJOUX Admin panel. We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
-        );
-        // const new_account={
-        //   username: clientName,
-        //   password: password,
-        // imageUrl: null,
-        // dob: ,
-        // email,
-        // fullname,
-        // role:{id,name},
-        // phone,
-        // address
-        // }
-        
-        setClientName("");
-        setEmail("");
-        setPhone("");
-        setPassword("");
-        setAddress("");
-        setCity("");
-        setCountry("");
-        setZip("");
-      }
-      if (!NameValidation(clientName)) {
-        setErrClientName("Name isn't valid, please Capitalize the first letter and use only alphabets. Real name cannot contains Admin, Sale, Designer, Production, Manager");
-      }
+    }
+
+    if (!email) {
+      setErrEmail("Enter your email");
+      isValid = false;
+    } else {
       if (!EmailValidation(email)) {
         setErrEmail("Enter a Valid email");
+        isValid = false;
       }
+    }
+
+    if (!imageUrl) {
+      setErrImageUrl("Enter your image");
+      isValid = false;
+    }
+
+    if (!dob) {
+      setErrDob("Enter your date of birth");
+      isValid = false;
+    }
+
+    if (!fullName) {
+      setErrFullName("Enter your full name");
+      isValid = false;
+    } else {
+      if (!NameValidation(fullName)) {
+        setErrFullName("Name isn't valid, please Capitalize the first letter and use only alphabets. Real name cannot contains Admin, Sale, Designer, Production, Manager");
+        isValid = false;
+      }
+    }
+
+    if (!phone) {
+      setErrPhone("Enter your phone number");
+      isValid = false;
+    }
+
+    if (!password) {
+      setErrPassword("Create a password");
+      isValid = false;
+    } else {
+      if (password.length < 6) {
+        setErrPassword("Passwords must be at least 6 characters");
+        isValid = false;
+      }
+    }
+
+    if (!address) {
+      setErrAddress("Enter your address");
+      isValid = false;
+    }
+
+    // Check if all validations pass
+    if (isValid) {
+      setLoading(true);
+      const new_account = {
+        username: userName,
+        password: password,
+        imageUrl: imageUrl,
+        dob: dob,
+        email: email,
+        fullname: fullName,
+        role: { id: 5, name: 'Customer' },
+        phone: phone,
+        address: address,
+      }
+
+      const formData = new FormData();
+      formData.append('new_account', JSON.stringify(new_account));
+      const response = await register(formData);
+      if (response.success) {
+        messAlertMaker('info', 'Register Successfully !', 'We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ' + email)
+      } else {
+        messAlertMaker('error', 'Register Failed !', 'Please try again later !')
+      }
+      // setSuccessMsg(
+      //   `Hello dear ${userName}, Welcome you to BIJOUX Admin panel. We received your Register request. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
+      // );
 
 
     }
   };
+  const empty_input = () => {
+    setUserName("");
+    setEmail("");
+    setPhone("");
+    setPassword("");
+    setAddress("");
+    setFullName(""); // Clear fullName as well
+    setImageUrl(""); // Clear imageUrl as well
+    setDob(""); // Clear dob as well
+  }
+  const messAlertMaker = (icon, title, text) => {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      allowOutsideClick: false,
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'OK',
+    }).then(async (result) => {
+      if (result.isConfirmed && icon === 'info') {
+        await securityAlertMaker();
+      }else{
+        //empty_input();
+        setLoading(false);
+      }
+    })
+  };
+
+  const securityAlertMaker = async () => {
+    Swal.fire({
+      title: 'Enter your 6-digit activation code',
+      input: 'text',
+      inputAttributes: {
+        maxlength: 6,
+        pattern: '\\d{6}', // Chỉ cho phép nhập số và phải đúng 6 chữ số
+        inputmode: 'numeric' // Hiển thị bàn phím số trên các thiết bị di động
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Submit',
+      showLoaderOnConfirm: true,
+      preConfirm: (code) => {
+        return new Promise((resolve) => {
+          if (/^\d{6}$/.test(code)) {
+            resolve(code); // Trả về mã nếu hợp lệ
+          } else {
+            Swal.showValidationMessage('Please enter a valid 6-digit code');
+          }
+        });
+      },
+      allowOutsideClick: false
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        //gọi api để kích hoạt
+        const security = {
+          username: userName,
+          security_code: result.value
+
+        }
+        const formData = new FormData();
+        formData.append('security', JSON.stringify(security) );
+        const response = await activate_account(formData);
+        if (response.success) {
+          navigateAlertMaker();
+        } else {
+          instantAlertMaker('error', 'Activation Failed !', 'Please try again later !')
+        }
+        setLoading(false);
+      }else{
+        //empty_input();
+        setLoading(false);
+      }
+    });
+  };
+
+  const navigateAlertMaker = () => {
+    Swal.fire({
+      title: 'Account Activated',
+      text: 'Your account has been activated successfully. You can now log in to your account.',
+      icon: 'success',
+      allowOutsideClick: false,
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Go to Login Page',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate('/login');
+      }else{
+        empty_input();
+        setLoading(false);
+      }
+    })
+  }
+
+
   return (
     <div className="w-full h-screen flex items-center justify-start">
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
@@ -286,19 +462,98 @@ const Register = () => {
                 {/* client name */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Full Name
+                    Username
                   </p>
                   <input
-                    onChange={handleName}
-                    value={clientName}
+                    onChange={handleUserName}
+                    value={userName}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="text"
-                    placeholder="eg. John Doe"
+                    placeholder="eg. bijouxjewelry"
                   />
-                  {errClientName && (
+                  {erruserName && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
                       <span className="font-bold italic mr-1">!</span>
-                      {errClientName}
+                      {erruserName}
+                    </p>
+                  )}
+                </div>
+                {/* Password */}
+                <div className="flex flex-col gap-.5">
+                  <p className="font-titleFont text-base font-semibold text-gray-600">
+                    Password
+                  </p>
+                  <input
+                    onChange={handlePassword}
+                    value={password}
+                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                    type="password"
+                    placeholder="Create password"
+                  />
+                  {errPassword && (
+                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                      <span className="font-bold italic mr-1">!</span>
+                      {errPassword}
+                    </p>
+                  )}
+                </div>
+                {/* Image CHỈNH LẠI GIÚP TAO THÀNH UPFILE */}
+                <div className="flex flex-col gap-.5">
+                  <p className="font-titleFont text-base font-semibold text-gray-600">
+                    Image
+                  </p>
+                  <div style={{display:'flex', alignItems:'center'}}>
+                  {imageUrl &&
+                    <Avatar alt="User Avatar" src={imageUrl} />
+                    
+                  }
+                  <input
+          
+                    onChange={handleChangeImage}
+                    //value={imageUrl}
+                    className="w-50 h-8 placeholder:text-sm placeholder:tracking-wide text-base font-medium placeholder:font-normal rounded-md outline-none"
+                    type="file"
+                    placeholder="Upload your Image"
+                    accept=".jpg,.png"
+                  />
+                  </div>
+                  
+                  {/* <ReactFileReader
+                    fileTypes={[".png", ".jpg"]}
+                    base64={true}
+                    handleFiles={handleFile}
+
+                  >
+                    <Button >
+                      <FolderPlus size={20} color="white" weight="duotone" />
+                      Upload File
+
+                    </Button>
+                  </ReactFileReader> */}
+                  
+                  {errImageUrl && (
+                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                      <span className="font-bold italic mr-1">!</span>
+                      {errImageUrl}
+                    </p>
+                  )}
+                </div>
+                {/* Date Of Birth */}
+                <div className="flex flex-col gap-.5">
+                  <p className="font-titleFont text-base font-semibold text-gray-600">
+                    Your Birth Date
+                  </p>
+                  <input
+                    onChange={handleDob}
+                    value={dob}
+                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                    type="date"
+                    placeholder="Enter Your BirthDay"
+                  />
+                  {errDob && (
+                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                      <span className="font-bold italic mr-1">!</span>
+                      {errDob}
                     </p>
                   )}
                 </div>
@@ -321,18 +576,30 @@ const Register = () => {
                     </p>
                   )}
                 </div>
+                {/* Email */}
+                <div className="flex flex-col gap-.5">
+                  <p className="font-titleFont text-base font-semibold text-gray-600">
+                    Full Name
+                  </p>
+                  <input
+                    onChange={handleFullName}
+                    value={fullName}
+                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
+                    type="text"
+                    placeholder="eg. John Doe"
+                  />
+                  {errFullName && (
+                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
+                      <span className="font-bold italic mr-1">!</span>
+                      {errFullName}
+                    </p>
+                  )}
+                </div>
                 {/* Phone Number */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
                     Phone Number
                   </p>
-                  {/* <input
-                    onChange={handlePhone}
-                    value={phone}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="008801234567891"
-                  /> */}
                   <PhoneInput
                     placeholder="Enter phone number"
                     value={phone}
@@ -345,25 +612,6 @@ const Register = () => {
                     </p>
                   )}
 
-                </div>
-                {/* Password */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Password
-                  </p>
-                  <input
-                    onChange={handlePassword}
-                    value={password}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="password"
-                    placeholder="Create password"
-                  />
-                  {errPassword && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errPassword}
-                    </p>
-                  )}
                 </div>
                 {/* Address */}
                 <div className="flex flex-col gap-.5">
@@ -384,64 +632,6 @@ const Register = () => {
                     </p>
                   )}
                 </div>
-                {/* City */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    City
-                  </p>
-                  <input
-                    onChange={handleCity}
-                    value={city}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your city"
-                  />
-                  {errCity && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errCity}
-                    </p>
-                  )}
-                </div>
-                {/* Country */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Country
-                  </p>
-                  <input
-                    onChange={handleCountry}
-                    value={country}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your country"
-                  />
-                  {errCountry && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errCountry}
-                    </p>
-                  )}
-                </div>
-                {/* Zip code */}
-                {/* <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Zip/Postal code
-                  </p>
-                  <input
-                    onChange={handleZip}
-                    value={zip}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your country"
-                  />
-                  {errZip && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errZip}
-                    </p>
-                  )}
-                </div> */}
-                {/* Checkbox */}
                 <div className="flex items-start mdl:items-center gap-2">
                   <input
                     onChange={() => setChecked(!checked)}
@@ -455,14 +645,38 @@ const Register = () => {
                   </p>
                 </div>
                 <button
+                  disabled={!checked  || loading}
                   onClick={handleSignUp}
                   className={`${checked
                     ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
                     : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
                     } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
                 >
-                  Create Account
+                {loading? 
+                <Box display={'flex'} alignItems={'center'} justifyContent={'center'} >
+                <CircularProgress color="inherit" size={20} /> Registering...
+                </Box>
+                
+                 
+                 : 'Register'}
                 </button>
+                {/* <LoadingButton
+                  variant="contained"
+                  color="secondary"
+                  disabled={!checked}
+                  loading={loading}
+                  onClick={() => handleSignUp()}
+
+                // className={`${checked
+                //   ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
+                //   : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
+                //   } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
+                >
+                  <span>
+                    Register
+                  </span>
+
+                </LoadingButton>  */}
                 <p className="text-sm text-center font-titleFont font-medium">
                   Already have an Account?{" "}
                   <Link to="/login">

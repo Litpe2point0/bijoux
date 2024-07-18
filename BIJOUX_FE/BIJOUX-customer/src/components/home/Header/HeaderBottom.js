@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { paginationItems } from "../../../constants";
 import { BsSuitHeartFill } from "react-icons/bs";
 import { clearAuthToken } from "../../../redux/auth/authSlice";
+import { Avatar } from "@mui/material";
 
 const HeaderBottom = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,10 @@ const HeaderBottom = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showSearchBar, setShowSearchBar] = useState(false);
+  //Check xem co' user hay khong
+  const [isUser, setIsUser] = useState(false);
+  //Co thi set avatar vao day
+  const [userAvatar, setUserAvatar] = useState();
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -42,8 +47,20 @@ const HeaderBottom = () => {
     );
     setFilteredProducts(filtered);
   }, [searchQuery]);
+  useEffect(() => {
+    if (auth.user && auth.token) {
+      setIsUser(true);
+      setUserAvatar(auth.user.imageUrl);
+    }
+  }, [auth])
+
   const handleLogout = () => {
+
     dispatch(clearAuthToken());
+  }
+  const handleLogin = () => {
+    const redirectUrl = window.location.href;
+    localStorage.setItem('redirectUrl', redirectUrl);
   }
   return (
     <div className="w-full bg-[#F5F5F3] relative">
@@ -108,25 +125,33 @@ const HeaderBottom = () => {
           </div>
           <div className="flex gap-4 mt-2 lg:mt-0 items-center pr-6 cursor-pointer relative">
             <div onClick={() => setShowUser(!showUser)} className="flex">
-              <FaUser />
-              <FaCaretDown />
+              {/* <FaUser />
+              <FaCaretDown /> */}
+              <Avatar alt="User Avatar" src={userAvatar} />
             </div>
             {showUser && (
               <motion.ul
                 initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="absolute top-6 left-0 z-50 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6"
+                className="absolute top-11 left-0 z-50 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6"
               >
                 {(auth.user && auth.token) ?
-                  <Link to="/login" onClick={handleLogout}>
+                  <>
+                    <Link to="/profile" onClick={handleLogin}>
+                      <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+                        Profile
+                      </li>
+                    </Link>
+                    <Link to="/login" onClick={handleLogout}>
                       <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
                         Log Out
                       </li>
                     </Link>
-                :
+                  </>
+                  :
                   <>
-                    <Link to="/login">
+                    <Link to="/login" onClick={handleLogin}>
                       <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
                         Log In
                       </li>
@@ -137,25 +162,12 @@ const HeaderBottom = () => {
                       </li>
                     </Link>
                   </>
-                  
-
-                
-              }
-
-                <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                  Profile
-                </li>
-                <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400  hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                  Others
-                </li>
+                }
               </motion.ul>
             )}
-            <Link to="/cart">
+            <Link to="/cart/quote">
               <div className="relative">
                 <FaShoppingCart />
-                <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-                  {products.length > 0 ? products.length : 0}
-                </span>
               </div>
             </Link>
             <BsSuitHeartFill />

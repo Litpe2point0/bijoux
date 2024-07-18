@@ -80,7 +80,7 @@ const CustomForm = ({ orderInfo, account, onClose }) => {
                 onClose();
             }
             dispatch(setToast(response.mess))
-            
+
             // handleDataChange();
             // dispatch(setToast({ color: 'success', title: 'Order id ' + orderInfo.id, mess: "Cancel successfully !" }))
             // onClose();
@@ -95,6 +95,11 @@ const CustomForm = ({ orderInfo, account, onClose }) => {
             className="row g-3 needs-validation"
             onSubmit={handleSubmit}
         >
+            {orderInfo.delivery_date &&
+                <CCol xs={12}>
+                    <span className="text-success fw-normal fst-italic">*The order has been delivered to the customer's address - (delivered date: {orderInfo.delivery_date})</span>
+                </CCol>
+            }
             <CFormLabel htmlFor="note" className="form-label">This action will not permanent delete the item from the system</CFormLabel>
             <CCol md={12}>
                 <NoteCard isLoading={loading} note={note} handleChange={handleNote} />

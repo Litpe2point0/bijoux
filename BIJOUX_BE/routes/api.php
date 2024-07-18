@@ -11,8 +11,11 @@ use App\Http\Controllers\orders\OrderController;
 use App\Http\Middleware\checkDeactivate;
 
 Route::middleware('checkCors')->group(function () {
+    //Admin--------------------------------------------------------------
     Route::group(['prefix' => 'admin'], function () {
         Route::middleware('checkAdminLogin')->group(function () {
+            Route::post('/get_dashboard ', [OrderController::class, 'get_dashboard']);
+
             Route::group(['prefix' => 'account'], function () {
                 Route::post('/update', [AccountController::class, 'update']);
                 Route::post('/get_staff_role_list', [AccountController::class, 'get_staff_role_list']);
@@ -48,11 +51,15 @@ Route::middleware('checkCors')->group(function () {
                 Route::post('/get_assigned_orders_design ', [OrderController::class, 'get_assigned_orders_design']);
                 Route::post('/get_assigned_orders_production ', [OrderController::class, 'get_assigned_orders_production']);
                 Route::post('/get_assigned_complete_orders_production ', [OrderController::class, 'get_assigned_complete_orders_production']);
+                Route::post('/get_refund_list ', [OrderController::class, 'get_refund_list'])->middleware('checkManager');
+                Route::post('/confirm_refund ', [OrderController::class, 'confirm_refund'])->middleware('checkManager');
+                Route::post('/confirm_shipped', [OrderController::class, 'confirm_shipped'])->middleware('checkSaleStaff');
             });
         });
     });
+    //--------------------------------------------------------------------------------
 
-
+    //Sài Chung------------------------------------------------------------------------------
     Route::group(['prefix' => 'items'], function () {
         Route::group(['prefix' => 'model'], function () {
             Route::post('/get_list', [ModelController::class, 'get_model_list']);
@@ -104,13 +111,17 @@ Route::middleware('checkCors')->group(function () {
             });
         });
     });
+    Route::post('/activate_account', [AccountController::class, 'activate_account']);
+    Route::post('/create_payment_link', [OrderController::class, 'create_payment_link']);
+    //--------------------------------------------------------------------------------
 
-
+    //Đa số Customer------------------------------------------------------------------------
     Route::group([], function () {
         Route::post('/login', [AccountController::class, 'login']);
         Route::post('/login_with_google', [AccountController::class, 'login_with_google']);
         Route::post('/logout', [AccountController::class, 'logout']);
         Route::post('/register', [AccountController::class, 'register']);
+        Route::post('/get_update_account_detail', [AccountController::class, 'get_account_detail']);
 
         Route::middleware('checkUserLogin')->group(function () {
             Route::group(['prefix' => 'account'], function () {
@@ -140,16 +151,17 @@ Route::middleware('checkCors')->group(function () {
                 Route::post('/get_production_process_list', [OrderController::class, 'get_production_process_list']);
                 Route::post('/get_product_detail', [OrderController::class, 'get_product_detail']);
                 Route::post('/confirm_delivery', [OrderController::class, 'confirm_delivery']);
+                Route::post('/cancel_payment', [OrderController::class, 'cancel_payment']);
             });
         });
     });
-
-    Route::post('/create_payment_link', [OrderController::class, 'create_payment_link']);
 });
 
-// "DMMM"
+//Webhook------------------------------------------------------------------------
 Route::post('/confirm_payment', [OrderController::class, 'confirm_payment']);
-Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);
 
+//test------------------------------------------------------------------------
+// Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);
+// Route::get('/sendMail', [AccountController::class, 'sendMail']);
 // Route::post('/decode', [AccountController::class, 'decode']);
 // Route::get('/get_image', [AccountController::class, 'get_image']);

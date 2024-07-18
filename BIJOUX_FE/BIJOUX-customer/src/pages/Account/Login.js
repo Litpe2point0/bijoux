@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginLogo2 } from "../../assets/images";
 import LoginByGoogle from "./LoginByGoogle";
-import { setAuthToken } from "../../redux/auth/authSlice";
+import { clearAuthToken, setAuthToken } from "../../redux/auth/authSlice";
 import { getUserFromToken, login } from "../../api/main/accounts/Login";
 import { useDispatch } from "react-redux";
 import { instantAlertMaker } from "../../api/instance/axiosInstance";
+import { Box, CircularProgress } from "@mui/material";
 
 
 export const save_login = (dispatch, token, user) => {
@@ -19,8 +20,13 @@ export const save_login = (dispatch, token, user) => {
   dispatch(setAuthToken(saveInfo))
 }
 
+const useQuery = () => {
+  return new URLSearchParams(useLocation().search);
+};
+
 const Login = () => {
   const [disabled, setDisabled] = useState(false);
+  const query = useQuery();
   // ============= Initial State Start here =============
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -40,29 +46,10 @@ const Login = () => {
     setPassword(e.target.value);
     setErrPassword("");
   };
-  // ============= Event Handler End here ===============
-  // const handleSignUp = (e) => {
-  //   e.preventDefault();
 
-  //   if (!email) {
-  //     setErrEmail("Enter your email");
-  //   }
-
-  //   if (!password) {
-  //     setErrPassword("Create a password");
-  //   }
-  //   // ============== Getting the value ==============
-  //   if (email && password) {
-  //     setSuccessMsg(
-  //       `Hello dear, Thank you for your attempt. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
-  //     );
-  //     setEmail("");
-  //     setPassword("");
-  //   }
-  // };
   const navigate = useNavigate();
-  const dispatch=useDispatch();
-  const handleSignUp = async (e) => {
+  const dispatch = useDispatch();
+  const handleLogin = async (e) => {
     setDisabled(true);
     e.preventDefault();
     const login_information = {
@@ -74,29 +61,41 @@ const Login = () => {
     let response = await login(formData);
     if (response.success) {
 
-      //alert(response.success)
       const token = response.access_token
       const user = getUserFromToken(token)
       console.log("User From JWT", user)
-      //dispatch(setToast({ color: "success", title: 'Login Successfully !', mess: 'Welcome ' + user.fullname }))
-      //sessionStorage.setItem('user', JSON.stringify(user));
+      const redirectUrl = localStorage.getItem('redirectUrl');
+      if (redirectUrl) {
+        localStorage.removeItem('redirectUrl');
+        window.location.href = redirectUrl;
+      } else {
+        window.location.href = '/';
+      }
       save_login(dispatch, token, user)
       instantAlertMaker('success', 'Login Successfully !', 'Welcome ' + user.fullname)
-      navigate('/shop')
       return;
-
     } else if (response.error) {
-      instantAlertMaker('error', 'Login Failed !', 'Wrong username or password')
+      instantAlertMaker('error', 'Login Failed !', response.error)
       console.log(response.error)
-      
+
     } else {
-      instantAlertMaker('error', 'Login Failed !', response.message)
+      instantAlertMaker('error', 'Login Failed !', response.error)
       console.log(response.error)
-      
+
     }
     setDisabled(false);
 
   };
+
+  
+  useEffect(() => {
+    if (query.get("clear")) {
+      //alert('ngu')
+      dispatch(clearAuthToken());
+      localStorage.removeItem("persist:root");
+      navigate('/login')
+    }
+  }, [query]);
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
@@ -189,7 +188,7 @@ const Login = () => {
                 {/* Email */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Email
+                    Username
                   </p>
                   <input
                     disabled={disabled}
@@ -197,7 +196,7 @@ const Login = () => {
                     value={username}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="email"
-                    placeholder="john@workemail.com"
+                    placeholder="@yourusername"
                   />
                   {errEmail && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
@@ -218,7 +217,7 @@ const Login = () => {
                     value={password}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="password"
-                    placeholder="Create password"
+                    placeholder="Enter password"
                   />
                   {errPassword && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
@@ -230,12 +229,17 @@ const Login = () => {
 
                 <button
                   disabled={disabled}
-                  onClick={handleSignUp}
+                  onClick={handleLogin}
                   className="bg-primeColor hover:bg-black text-gray-200 hover:text-white cursor-pointer w-full text-base font-medium h-10 rounded-md  duration-300"
                 >
-                  Log In
+                {disabled? 
+                <Box display={'flex'} alignItems={'center'} justifyContent={'center'} >
+                <CircularProgress color="inherit" size={20} /> Logging...
+                </Box>
+                 : 'Log In'}
+                 
                 </button>
-                <LoginByGoogle />
+                <LoginByGoogle  />
 
 
                 <p className="text-sm text-center font-titleFont font-medium">

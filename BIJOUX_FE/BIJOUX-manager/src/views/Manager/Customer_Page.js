@@ -37,7 +37,7 @@ export const CustomerPageContext = createContext();
 const state_creator = (table) => {
     const state = {
         columnDefs: [
-            { headerName: "id", field: "id", flex: 0.4 },
+            { headerName: "ID", field: "id", flex: 0.4 },
             {
                 headerName: "Avatar", flex: 0.5,
                 cellRenderer: (params) => {
@@ -45,14 +45,12 @@ const state_creator = (table) => {
                         <AvatarInput size={50} src={params.data.imageUrl} />)
 
                 },
-                editable: false,
             },
             { headerName: "Name", field: "fullname" },
             { headerName: "Contact Number", field: "phone" },
             { headerName: "Address", field: "address" },
             {
                 headerName: "Status",
-                editable: false,
                 cellClass: 'd-flex align-items-center ',
                 valueGetter: 'data.deactivated',
                 cellRenderer: (params) => {
@@ -131,6 +129,7 @@ const Customer_Page = () => {
             autoHeight: true,
             wrapText: true,
             cellClass: 'd-flex align-items-center',
+            editable: false
         };
     }, [])
     return (

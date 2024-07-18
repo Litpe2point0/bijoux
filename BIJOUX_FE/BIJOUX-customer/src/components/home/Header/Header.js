@@ -14,6 +14,7 @@ const Header = () => {
   const [category, setCategory] = useState(false);
   const [brand, setBrand] = useState(false);
   const location = useLocation();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   console.log(location.pathname);
   console.log("hello");
   useEffect(() => {
@@ -28,6 +29,13 @@ const Header = () => {
     window.addEventListener("resize", ResponsiveMenu);
   }, []);
 
+  const handleNavigate = (id) => {
+    localStorage.removeItem("mountingType");
+    localStorage.removeItem("finalProduct");
+    localStorage.removeItem("currentStep");
+    localStorage.removeItem("nextStep");
+    window.location.href = `/template?step=1&mountingType=${id}`;
+  }
   return (
     <div className="w-full h-20 bg-white sticky top-0 z-50 border-b-[1px] border-b-gray-200">
       <nav className="h-full px-4 max-w-container mx-auto relative">
@@ -47,16 +55,115 @@ const Header = () => {
                 className="flex items-center w-auto z-50 p-0 gap-2"
               >
                 <>
-                  {navBarList.map(({ _id, title, link }) => (
+                  {/* <div
+                    className="relative inline-block md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0 py-1">
+
+                  </div> */}
+                  <div
+                    className="relative inline-block md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0 py-1">
                     <NavLink
-                      key={_id}
-                      className="flex font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-base text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
-                      to={link}
+                      key={1001}
+                      className="flex  text-sm font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                      to={"/"}
                       state={{ data: location.pathname.split("/")[1] }}
                     >
-                      <li>{title}</li>
+                      <li>Home</li>
                     </NavLink>
-                  ))}
+                  </div>
+                  <div
+                    className="relative inline-block md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0 py-1">
+                    <NavLink
+                      key={1002}
+                      className="flex  text-sm font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                      to={"/services"}
+                      state={{ data: location.pathname.split("/")[1] }}
+                    >
+                      <li>Services</li>
+                    </NavLink>
+                  </div>
+                  <div
+                    className="relative inline-block md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0 py-1">
+                    <NavLink
+                      key={1005}
+                      className="flex  text-sm font-normal hover:font-bold w-[120px] h-6 justify-center items-center px-12 text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                      to={"/customization"}
+                      state={{ data: location.pathname.split("/")[1] }}
+                    >
+                      <li>Customization</li>
+                    </NavLink>
+                  </div>
+
+
+
+
+                  <div
+                    className="relative inline-block md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0 py-1"
+                    onMouseEnter={() => setIsDropdownOpen(true)}
+                    onMouseLeave={() => setIsDropdownOpen(false)}
+                  >
+                    <NavLink
+                      key={1006}
+                      className="flex  text-sm font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626]  hoverEffect "
+                      to="/templates"
+                      state={{ data: location.pathname.split("/")[1] }}
+                    >
+                      <li>Templates</li>
+                    </NavLink>
+                    {isDropdownOpen && (
+                      <div className="absolute top-[20px] mt-2 w-40 bg-black text-white rounded-md shadow-lg" >
+                        <NavLink
+                          onClick={() => handleNavigate(1)}
+                          //to='/template?step=1&mountingType=1'
+                          className="block px-4 py-2 text-sm hover:bg-gray-700 hover:rounded-md"
+                        >
+                          Ring
+                        </NavLink>
+                        <NavLink
+                          onClick={() => handleNavigate(2)}
+                          //to='/template?step=1&mountingType=2'
+                          className="block px-4 py-2 text-sm hover:bg-gray-700 hover:rounded-md"
+                        >
+                          Band
+                        </NavLink>
+                        <NavLink
+                          onClick={() => handleNavigate(3)}
+                          //to='/template?step=1&mountingType=3'
+                          className="block px-4 py-2 text-sm hover:bg-gray-700 hover:rounded-md"
+                        >
+                          Pendant
+                        </NavLink>
+
+                      </div>
+                    )}
+                  </div>
+
+                  <div
+                    className="relative inline-block md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0 py-1">
+                    <NavLink
+                      key={1003}
+                      className="flex  text-sm font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                      to={"/about"}
+                      state={{ data: location.pathname.split("/")[1] }}
+                    >
+                      <li>About</li>
+                    </NavLink>
+                  </div>
+
+                  <div
+                    className="relative inline-block md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0 py-1">
+                    <NavLink
+                      key={1004}
+                      className="flex  text-sm font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                      to={"/contact"}
+                      state={{ data: location.pathname.split("/")[1] }}
+                    >
+                      <li>Contact</li>
+                    </NavLink>
+                  </div>
+
+
+
+
                 </>
               </motion.ul>
             )}

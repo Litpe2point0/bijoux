@@ -31,7 +31,7 @@ class checkProductionStaff
                 try {
                     $decodedToken = JWT::decode($token, new Key( env('JWT_SECRET'), 'HS256'));
                 } catch (\Exception $e) {
-                    return response()->json(['error' => 'Invalid Token'], 401);
+                    return response()->json(['error' => 'Invalid token'], 401);
                 }
             }
         }

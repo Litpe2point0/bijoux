@@ -51,6 +51,7 @@ import UploadSingle from "./UploadSingle";
 import { ArrowCircleDown } from "phosphor-react";
 import ProductionComplete from "../Modal_body/ProductionComplete";
 import { add_production_process, get_order_detail, get_production_process_list } from "../../../api/main/orders/Order_api";
+import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_formatter";
 
 
 
@@ -301,7 +302,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                                                     <ListItemText className="text-dark w-25" primary='Type' secondary={item.metal.name} />
                                                                     <ListItemText className="text-dark w-25" primary='Volume' secondary={item.volume} />
                                                                     <ListItemText className="text-dark w-25" primary='Weight' secondary={item.weight} />
-                                                                    <ListItemText className="text-dark w-25" primary='Caculated Price' secondary={item.price + ' vnd'} />
+                                                                    <ListItemText className="text-dark w-25" primary='Caculated Price' secondary={<CurrencyFormatterLowercase value={item.price}/>} />
 
                                                                 </ListItem>
                                                             )
@@ -312,7 +313,10 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                                             <span className="text-danger fw-bold fs-5">Metal Sum: </span>
                                                         </CCol>
                                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center">
-                                                            <span className="text-secondary fs-6">{metalList.reduce((total, item) => total + item.price, 0)} vnd</span>
+                                                            <span className="text-secondary fs-6">
+                                                            <CurrencyFormatterLowercase value={metalList.reduce((total, item) => total + item.price, 0)}/>
+                                                            {/* {metalList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                            </span>
 
                                                         </CCol>
                                                     </CRow>
@@ -353,7 +357,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                                                     <ListItemText className="text-dark w-25" primary='Clarity' secondary={item.diamond.diamond_clarity.name} />
                                                                     <ListItemText className="text-dark w-25" primary='Cut' secondary={item.diamond.diamond_cut.name} />
                                                                     <ListItemText className="text-dark w-25" primary='Count' secondary={item.count} />
-                                                                    <ListItemText className="text-dark w-25" primary='Total Price' secondary={item.price + ' vnd'} />
+                                                                    <ListItemText className="text-dark w-25" primary='Total Price' secondary={<CurrencyFormatterLowercase value={item.price}/>} />
                                                                     {diamondList.length == 0 &&
                                                                         <IconButton onClick={() => handleRemove(index)} aria-label="delete" size="large" color="error">
                                                                             <XCircle size={30} color="crimson" weight="duotone" />
@@ -368,7 +372,10 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                                             <span className="text-danger fw-bold fs-5">Diamond Sum: </span>
                                                         </CCol>
                                                         <CCol xl={2} className="p-0 m-0 d-flex align-items-center">
-                                                            <span className="text-secondary fs-6">{diamondList.reduce((total, item) => total + item.price, 0)} vnd</span>
+                                                            <span className="text-secondary fs-6">
+                                                            <CurrencyFormatterLowercase value={diamondList.reduce((total, item) => total + item.price, 0)}/>
+                                                            {/* {diamondList.reduce((total, item) => total + item.price, 0)} vnd */}
+                                                            </span>
 
                                                         </CCol>
                                                     </CRow>

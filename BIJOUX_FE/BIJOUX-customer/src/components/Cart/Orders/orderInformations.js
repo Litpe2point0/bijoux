@@ -50,7 +50,7 @@ const getRightFormattedCreatedDate = (inputString) => {
 };
 
 export default function OrderInformations({ order }) {
-    const updateProductionPrice = order.total_price - order.product_price;
+    const updateProductionPrice = (order.profit_rate / 100) * order.product_price + order.production_price;
     const formattedCreatedDate = getFormattedDate(order.created);
     const today = new Date();
 
@@ -118,7 +118,7 @@ export default function OrderInformations({ order }) {
                             <p className="font-gantariFont text-[#151542] font-bold text-base mr-2">Order Type:</p>
                             <div className="flex-1"></div>
                             <div className="w-[210px] flex items-center justify-start h-9 bg-slate-200 rounded-lg">
-                                <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">Customization</p>
+                                <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">{order.order_type.name}</p>
                             </div>
                         </div>
                     </div>

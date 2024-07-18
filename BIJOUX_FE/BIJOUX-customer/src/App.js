@@ -37,6 +37,8 @@ import PricedQuoteDetails from "./pages/Cart/PricedQuoteDetails";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Account/Login";
 import OrderDetails from "./pages/Cart/OrderDetails";
+import SelectType from "./pages/Services/SelectType";
+import CustomizationForm from "./pages/Services/CustomizationForm";
 
 const Layout = () => {
   return (
@@ -70,12 +72,15 @@ const router = createBrowserRouter(
         {/* ==================== Header Navlink Start here =================== */}
         <Route index element={<Home />}></Route>
         <Route path="/shop" element={<Shop />}></Route>
+        <Route path="/about" element={<About />}></Route>
         <Route path="/services" element={<Services />}></Route>
         <Route path="/template" element={<Template />}></Route>
         <Route path="/mounting-detail/:id" element={<MountingDetail />}></Route>
         <Route path="/profile" element={<Profile />}></Route>
         <Route path="/contact" element={<Contact />}></Route>
         <Route path="/journal" element={<Journal />}></Route>
+        <Route path="/templates" element={<SelectType />}></Route>
+        <Route path="/customization" element={<CustomizationForm />}></Route>
         {/* ==================== Header Navlink End here ===================== */}
         <Route path="/category/:category" element={<Offer />}></Route>
         <Route path="/product/_:id" element={<ProductDetails />}></Route>

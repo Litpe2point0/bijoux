@@ -32,6 +32,7 @@ import { Pencil } from "phosphor-react";
 import { AspectRatio } from "@mui/joy";
 import { MetalPageContext } from "../../Metal_Page";
 import { get_metal_detail, set_deactivate_metal, update_price_metal } from "../../../../api/main/items/Metal_api";
+import { CurrencyFormatterText } from "../../../component_items/Ag-grid/money_formatter";
 
 
 
@@ -159,7 +160,7 @@ const CustomForm = ({ metalInfo, onClose }) => {
                                             <span style={{ fontSize: '15px' }}>Buy Price: </span>
                                         </CCol>
                                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={metal.buy_price_per_gram + ' vnd ' + ` (updated date: ${metal.created} )`} />
+                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={CurrencyFormatterText(metal.buy_price_per_gram) + ' vnd ' + ` (updated date: ${metal.created} )`} />
                                         </CCol>
                                     </CRow>
                                     <CRow>
@@ -167,7 +168,7 @@ const CustomForm = ({ metalInfo, onClose }) => {
                                             <span style={{ fontSize: '15px' }}>Sale Price: </span>
                                         </CCol>
                                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={metal.sale_price_per_gram + ' vnd' + ` (updated date:${metal.created} )`} />
+                                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={CurrencyFormatterText(metal.sale_price_per_gram) + ' vnd' + ` (updated date:${metal.created} )`} />
                                         </CCol>
                                     </CRow>
                                     <CRow>

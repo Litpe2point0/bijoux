@@ -24,6 +24,7 @@ import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { get_diamond_imageUrl } from "../../../../api/Back_End_Url";
 import { get_clarity_list, get_color_list, get_cut_list, get_diamond_list, get_origin_list, get_shape_list, get_size_list } from "../../../../api/main/items/Diamond_api";
+import { CurrencyFormatterText } from "../../../component_items/Ag-grid/money_formatter";
 
 const diamond_list = [
     {
@@ -344,30 +345,6 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
     }
     const handleSearch = () => {
 
-
-        // const setResult = async () => {
-        //     await get_account_list();
-        //     const diamond_search_information = {
-        //         size: addSize,
-        //         diamond_color_id: addColor,
-        //         diamond_origin_id: addOrigin.id,
-        //         diamond_clarity_id: addClarity,
-        //         diamond_cut_id: addCut
-        //     }
-        //     console.log('diamond_search_information', diamond_search_information)
-
-        //     let diamond_search = diamondList.filter(item => item.diamond_origin.id == addOrigin.id && item.diamond_color.id == addColor && item.size == addSize && item.diamond_clarity.id == addClarity && item.diamond_cut.id == addCut)[0];
-
-        //     setSearchedDiamond(diamond_search);
-        //     console.log('diamond_search', diamond_search)
-        //     if (diamond_search) {
-        //         setIsSearch(true)
-
-        //     } else {
-        //         setIsSearch(false)
-
-        //     }
-        // }
         const setResult = async () => {
             //await get_account_list();
             const diamond_search_information = {
@@ -379,7 +356,6 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             }
             console.log('diamond_search_information', diamond_search_information)
 
-            //let diamond_search = diamondList.filter(item => item.diamond_origin.id == addOrigin.id && item.diamond_color.id == addColor && item.size == addSize && item.diamond_clarity.id == addClarity && item.diamond_cut.id == addCut)[0];
             const formData = new FormData();
             formData.append('diamond_search_information', JSON.stringify(diamond_search_information) );
 
@@ -408,10 +384,6 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
         } else if (form.checkValidity() === true) {
             const add_diamond = {
                 diamond: searchedDiamond,
-                //diamond_color: addColor,
-                //diamond_size: addSize,
-                //diamond_clarity: addClarity,
-                //price_in_one: searchedDiamond.price,
                 diamond_shape: addShape,
                 count: count,
                 price: searchedDiamond.price * count
@@ -703,14 +675,14 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             <CCol md={12}>
                 <CFormLabel htmlFor="validationCustom02">Price In One</CFormLabel>
 
-                <CFormInput disabled type="number" id="validationCustom02" value={searchedDiamond?.price} required />
+                <CFormInput disabled  id="validationCustom02" value={searchedDiamond? CurrencyFormatterText(searchedDiamond.price):''} required />
 
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
             <CCol md={12}>
                 <CFormLabel htmlFor="validationCustom02">Price In Total</CFormLabel>
 
-                <CFormInput disabled type="number" id="validationCustom02" value={searchedDiamond?.price * count} required />
+                <CFormInput disabled  id="validationCustom02" value={searchedDiamond ? CurrencyFormatterText(searchedDiamond.price * count):''} required />
 
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>

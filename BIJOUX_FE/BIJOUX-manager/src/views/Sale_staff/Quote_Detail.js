@@ -48,223 +48,7 @@ import { setToast } from "../../redux/notification/toastSlice";
 import { get_account_list } from "../../api/main/accounts/Account_api";
 import { get_quote_detail, pricing_quote } from "../../api/main/orders/Quote_api";
 import { get_mounting_type_list } from "../../api/main/items/Model_api";
-
-
-const quote_detail_data = {
-    "quote_detail": {
-        "id": 1,
-        "product": {
-            "id": 1,
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "mounting_type": {
-                "id": 1,
-                "name": "Prong"
-            },
-            //"mounting_type": null,
-            "model": null,
-            "mounting_size": 123,
-            "product_diamond": [
-                // {
-                //     "id": 1,
-                //     "product_id": 1,
-                //     "diamond": {
-                //         "id": 1,
-                //         "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-                //         "size": 1.0,
-                //         "diamond_color": {
-                //             "id": 1,
-                //             "name": "D"
-                //         },
-                //         "diamond_origin": {
-                //             "id": 1,
-                //             "name": "Natural"
-                //         },
-                //         "diamond_clarity": {
-                //             "id": 1,
-                //             "name": "IF"
-                //         },
-                //         "diamond_cut": {
-                //             "id": 1,
-                //             "name": "Excellent"
-                //         },
-                //         "price": 10000.00,
-                //         "deactivated": false,
-                //         "created": "2023-01-01T00:00:00.000Z"
-                //     },
-                //     "diamond_shape": {
-                //         "id": 1,
-                //         "name": "Round",
-                //         "drawing_path": "https://example.com/shapes/round.png"
-                //     },
-                //     "count": 1,
-                //     "price": 10000.00,
-                //     "isAccepted": true
-                // },
-                // {
-                //     "id": 2,
-                //     "product_id": 1,
-                //     "diamond": {
-                //         "id": 2,
-                //         "imageUrl": "http://localhost:8000/image/Diamond/E_VVS1.jpg",
-                //         "size": 0.5,
-                //         "diamond_color": {
-                //             "id": 2,
-                //             "name": "E"
-                //         },
-                //         "diamond_origin": {
-                //             "id": 1,
-                //             "name": "Natural"
-                //         },
-                //         "diamond_clarity": {
-                //             "id": 2,
-                //             "name": "VVS1"
-                //         },
-                //         "diamond_cut": {
-                //             "id": 2,
-                //             "name": "Very Good"
-                //         },
-                //         "price": 5000.00,
-                //         "deactivated": false,
-                //         "created": "2023-01-01"
-                //     },
-                //     "diamond_shape": {
-                //         "id": 2,
-                //         "name": "Princess",
-                //         "drawing_path": "http://localhost:8000/image/Metal/1/main.jpg",
-                //     },
-                //     "count": 2,
-                //     "price": 10000.00,
-                //     "isAccepted": true
-                // }
-            ],
-            "product_metal": [
-                // {
-                //     "product_id": 1,
-                //     "metal": {
-                //         "id": 1,
-                //         "name": "Gold",
-                //         "buy_price_per_gram": 50.00,
-                //         "sale_price_per_gram": 75.00,
-                //         "imageUrl": "http://localhost:8000/image/Metal/1/main.jpg",
-                //         "specific_weight": 19.32,
-                //         "deactivated": false,
-                //         "created": "2023-01-01T00:00:00.000Z"
-                //     },
-                //     "volume": 3.0,
-                //     "weight": 60.0,
-                //     "isAccepted": true,
-                //     "price": 4500.00
-                // },
-                // {
-                //     "product_id": 1,
-                //     "metal": {
-                //         "id": 2,
-                //         "name": "Platinum",
-                //         "buy_price_per_gram": 100.00,
-                //         "sale_price_per_gram": 150.00,
-                //         "imageUrl": "http://localhost:8000/image/Metal/2/main.jpg",
-                //         "specific_weight": 21.45,
-                //         "deactivated": false,
-                //         "created": "2023-01-01T00:00:00.000Z"
-                //     },
-                //     "volume": 2.0,
-                //     "weight": 50.0,
-                //     "isAccepted": true,
-                //     "price": 7500.00
-                // }
-            ]
-        },
-        "account": {
-            "id": 1,
-            "username": "john_doe",
-            "password": "hashed_password",
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "dob": "1985-06-15",
-            "email": "john.doe@example.com",
-            "fullname": "John Doe",
-            "role": {
-                "id": 1,
-                "name": "Customer"
-            },
-            "phone": "+1234567890",
-            "address": "123 Main St, Springfield, IL"
-        },
-        "quote_status": {
-            "id": 2,
-            "name": "Assign"
-        },
-        "order_type": {
-            "id": 1,
-            "name": "Custom"
-        },
-        "product_price": 0,
-        "production_price": 0,
-        "profit_rate": 0,
-        "sale_staff": {
-            "id": 2,
-            "username": "sales_jane",
-            "password": "hashed_password",
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "dob": "1990-07-20",
-            "email": "jane.sales@example.com",
-            "fullname": "Jane Sales",
-            "role": {
-                "id": 2,
-                "name": "Sales"
-            },
-            "phone": "+1230987654",
-            "address": "456 Elm St, Shelbyville, IL"
-        },
-        "design_staff": {
-            "id": 3,
-            "username": "design_bob",
-            "password": "hashed_password",
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "dob": "1988-05-22",
-            "email": "bob.design@example.com",
-            "fullname": "Bob Designer",
-            "role": {
-                "id": 3,
-                "name": "Designer"
-            },
-            "phone": "+3216549870",
-            "address": "789 Maple St, Capital City, IL"
-        },
-        "production_staff": {
-            "id": 4,
-            "username": "prod_alice",
-            "password": "hashed_password",
-            "imageUrl": "http://localhost:8000/image/Diamond/D_IF.jpg",
-            "dob": "1992-11-30",
-            "email": "alice.prod@example.com",
-            "fullname": "Alice Producer",
-            "role": {
-                "id": 4,
-                "name": "Production"
-            },
-            "phone": "+3214560987",
-            "address": "321 Oak St, Ogdenville, IL"
-        },
-        "note": "This is a special custom order.",
-        "created": "2024-05-20T08:30:00.000Z"
-    }
-
-}
-const mounting_type = [
-    {
-        id: 1,
-        name: "Ring",
-    },
-    {
-        id: 2,
-        name: "Band",
-    },
-    {
-        id: 3,
-        name: "Pendant",
-    }
-]
-
+import { CurrencyFormatterLowercase } from "../component_items/Ag-grid/money_formatter";
 
 
 
@@ -349,7 +133,7 @@ const Quote_Detail = () => {
             setMountingType(mounting_type_list.data)
 
 
-            setImageBase64(quote_detail.product.imageUrl)
+            //setImageBase64(quote_detail.product.imageUrl)
             setTypeId(quote_detail.product.mounting_type ? quote_detail.product.mounting_type.id : null)
             setSize(quote_detail.product.mounting_size)
             setNote(quote_detail.note)
@@ -373,7 +157,7 @@ const Quote_Detail = () => {
             "quote_id": quote.id,
             "mounting_type_id": isNaN(typeId) ? null : typeId,
             "mounting_size": isNaN(size) ? null : size,
-            "imageUrl": imageBase64.includes('unknown.jpg') ? null : imageBase64,
+            "imageUrl": imageBase64 ? imageBase64 :  null ,
             "diamond_list": diamondList,
             "metal_list": metalList,
             "production_price": productionPrice,
@@ -460,7 +244,7 @@ const Quote_Detail = () => {
 
                                     </CCol>
                                     <CCol xs={12} md={12} lg={12} >
-                                        <span className="text-dark fw-bold fs-3">Total Price: {totalPrice} vnd</span>
+                                        <span className="text-dark fw-bold fs-3">Total Price: <CurrencyFormatterLowercase value={totalPrice} /> </span>
                                     </CCol>
                                 </CRow>
                                 <div className="d-flex justify-content-center mt-5">

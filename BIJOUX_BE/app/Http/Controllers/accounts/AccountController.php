@@ -15,6 +15,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Carbon\Carbon;
 use Google_Client;
 use Throwable;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MarkDownMail;
 
 class AccountController extends Controller
 {
@@ -24,12 +26,12 @@ class AccountController extends Controller
         $input = json_decode($request->input('login_information'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
         //check account existed (case sensitive)
-        $account = DB::table('account')->whereRaw('BINARY username = ?', $input['username'])->first();
+        $account = DB::table('account')->whereRaw('BINARY username = ?', $input['username'])->orderBy('created', 'desc')->first();
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
 
@@ -43,26 +45,37 @@ class AccountController extends Controller
             } else {
                 $expiration = Carbon::now()->addHours(5)->timestamp;
             }
-            $customClaims = [
-                'exp' => $expiration,
-                'imageUrl' => $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl
-            ];
+            if (!$account->google_id) {
+                $customClaims = [
+                    'exp' => $expiration,
+                    'imageUrl' => $account->imageUrl = $OGurl . $url . $account->id . "/" . $account->imageUrl
+                ];
+            } else {
+                $customClaims = [
+                    'exp' => $expiration,
+                    'imageUrl' => $account->imageUrl
+                ];
+            }
+
 
             //create jwt token
             $jwt = JWTAuth::claims($customClaims)->fromUser($user);
         } else {
-            return response()->json(['error' => 'Unauthorized'], 500);
+            return response()->json(['error' => 'Wrong username or password'], 401);
         }
 
         //check account deactivate
         $deactivated = (bool) $account->deactivated;
+        $status = (bool) $account->status;
         if ($deactivated) {
-            return response()->json(['error' => 'Your Account Has Been Deactivated'], 401);
+            return response()->json(['error' => 'Your account has been deactivated'], 401);
+        } else if (!$status) {
+            return response()->json(['error' => 'Wrong username or password'], 401);
         }
 
         return response()->json([
             'access_token' => $jwt,
-            'success' => 'Login Successfully',
+            'success' => 'Login successfully',
         ]);
     }
     public function login_with_google(Request $request)
@@ -71,65 +84,78 @@ class AccountController extends Controller
 
         $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
         $payload = $client->verifyIdToken($token);
+        DB::beginTransaction();
+        try {
+            if ($payload) {
+                $googleId = $payload['sub'];
+                $email = $payload['email'];
+                $name = $payload['name'];
+                $image = $payload['picture'];
 
-        if ($payload) {
-            $googleId = $payload['sub'];
-            $email = $payload['email'];
-            $name = $payload['name'];
-            $image = $payload['picture'];
+                // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
+                $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
 
-            // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu chưa
-            $account = Account::where('email', $email)->first();
+                if (!$account) {
+                    // Tạo người dùng mới nếu chưa tồn tại
+                    $account = DB::table('account')->insert([
+                        'fullname' => $name,
+                        'email' => $email,
+                        'google_id' => $googleId,
+                        'role_id'  => 5,
+                        'imageUrl' => $image,
+                        'deactivated' => 0,
+                        'status' => 1,
+                        'created' => Carbon::now()->format('Y-m-d H:i:s')
+                    ]);
+                } else {
+                    $updateData = ['status' => 1, 'imageUrl' => $image];
+                    if (!$account->google_id) {
+                        $updateData['google_id'] = $googleId;
+                    }
+                    DB::table('account')->where('id', $account->id)->update($updateData);
 
-            if (!$account) {
-                // Tạo người dùng mới nếu chưa tồn tại
-                $account = Account::create([
-                    'fullname' => $name,
-                    'email' => $email,
-                    'google_id' => $googleId,
-                    'role_id'  => 5,
-                    'imageUrl' => $image,
-                    'deactivated' => 0,
-                    'created' => Carbon::now()->format('Y-m-d H:i:s'),
-                ]);
-            } else if (!$account->google_id) {
-                // Cập nhật google_id cho người dùng nếu đã tồn tại email này nhưng chưa có google_id
-                $account->update(['google_id' => $googleId, 'photo' => $image]);
+                    if ((bool) $account->deactivated) {
+                        DB::rollBack();
+                        return response()->json(['error' => 'Your account has been deactivated'], 401);
+                    }
+                }
+
+                // Tạo JWT token
+                // $payload = [
+                //     'iss' => "your-issuer", // Issuer of the token
+                //     'sub' => $account->id, // Subject of the token
+                //     'iat' => time(), // Time when JWT was issued.
+                //     'exp' => time() + 60*60, // Expiration time
+                //     'imageUrl' => $image,
+                // ];
+
+                $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
+                $payload = [
+                    'id' => $account->id, // Subject of the token
+                    'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
+                    'email' => $account->email,
+                    'fullname' => $account->fullname,
+                    'role_id' => $account->role_id,
+                    'imageUrl' => $account->imageUrl,
+                    'phone' => $account->phone,
+                    'address' => $account->address
+                    // Thêm các claims khác nếu cần
+                ];
+
+                $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
+                DB::commit();
+                return response()->json(['success' => 'Login successfully', 'token' => $jwt], 200);
+            } else {
+                return response()->json(['error' => 'Invalid token'], 401);
             }
-            $account->update(['imageUrl' => $image]);
-
-            // Tạo JWT token
-            // $payload = [
-            //     'iss' => "your-issuer", // Issuer of the token
-            //     'sub' => $account->id, // Subject of the token
-            //     'iat' => time(), // Time when JWT was issued.
-            //     'exp' => time() + 60*60, // Expiration time
-            //     'imageUrl' => $image,
-            // ];
-
-            $account = Account::where('email', $email)->first();
-            $payload = [
-                'id' => $account->id, // Subject of the token
-                'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
-                'email' => $account->email,
-                'fullname' => $account->fullname,
-                'role_id' => $account->role_id,
-                'imageUrl' => $account->imageUrl,
-                'phone' => $account->phone,
-                'address' => $account->address
-                // Thêm các claims khác nếu cần
-            ];
-
-            $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
-
-            return response()->json(['success' => 'User logged in', 'token' => $jwt]);
-        } else {
-            return response()->json(['error' => 'Invalid token'], 401);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     public function get_account_list()
     {
-        $customer_list = Account::where('role_id', 5)->orderBy('deactivated', 'asc')->get();
+        $customer_list = Account::where('role_id', 5)->where('status', 1)->orderBy('deactivated', 'asc')->get();
         foreach ($customer_list as $customer) {
             $customer->role = DB::table('role')->where('id', $customer->role_id)->first();
             unset($customer->role_id);
@@ -239,18 +265,24 @@ class AccountController extends Controller
         $input = json_decode($request->input('account_id'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         //find account
         $account = Account::where('id', $input)->first();
+        if (!isset($account)) {
+            return response()->json([
+                'error' => 'Account not found'
+            ], 403);
+        }
         $account->role = DB::table('role')->where('id', $account->role_id)->first();
         unset($account->role_id);
         $account->order_count = (int) DB::table('orders')->where('account_id', $account->id)->count();
         //modify account imageUrl
         $OGurl = env('ORIGIN_URL');
         $url = env('ACCOUNT_URL');
-        if(!$account->google_id){
+        //https://fast-scorpion-strictly.ngrok-free.app/image/account/{$account->id}/{$account->imageUrl}
+        if (!$account->google_id) {
             $account->imageUrl = $OGurl . $url . $account->id .  "/" . $account->imageUrl;
         }
         $account->dob = Carbon::parse($account->dob)->format('d/m/Y');
@@ -265,6 +297,12 @@ class AccountController extends Controller
             unset($order->order_status_id);
             unset($order->order_type_id);
             $order->created = Carbon::parse($order->created)->format('H:i:s d/m/Y');
+            if ($order->delivery_date != null) {
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('H:i:s d/m/Y');
+            }
+            if ($order->guarantee_expired_date != null) {
+                $order->guarantee_expired_date = Carbon::parse($order->guarantee_expired_date)->format('H:i:s d/m/Y');
+            }
             return $order;
         });
         $account->order_history = $order_history;
@@ -279,12 +317,12 @@ class AccountController extends Controller
         $input = json_decode($request->input('new_account'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
 
         if (!isset($input['id']) || $input['id'] == null) {
-            return response()->json(['error' => 'No Account id Received'], 400);
+            return response()->json(['error' => 'No account id received'], 400);
         }
 
         $id = $input['id'];
@@ -394,7 +432,7 @@ class AccountController extends Controller
         $input = json_decode($request->input('new_account'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         //check token
@@ -421,11 +459,55 @@ class AccountController extends Controller
 
         //find account
         $account = Account::find($id);
+        // if(empty($input['email'])){
+        //     $input['email'] = $account->email;
+        // }
+        // if(empty($input['phone'])){
+        //     $input['phone'] = $account->phone;
+        // }
+        // if ($account->email == $input['email'] && $account->phone == $input['phone']) {
+        //     // Both email and phone match, skip uniqueness validation
+        //     $rules = [
+        //         'email' => 'required|string|email|max:255',
+        //         'phone' => 'nullable|string|max:20',
+        //     ];
+        // } else {
+        //     // Check if only email matches
+        //     if ($account->email == $input['email']) {
+        //         $rules = [
+        //             'email' => 'required|string|email|max:255',
+        //             'phone' => 'nullable|string|max:20|unique:account,phone',
+        //         ];
+        //     }
+        //     // Check if only phone matches
+        //     else if ($account->phone == $input['phone']) {
+        //         $rules = [
+        //             'email' => 'required|string|email|max:255|unique:account,email',
+        //             'phone' => 'nullable|string|max:20',
+        //         ];
+        //     }
+        //     // Neither email nor phone match, apply full uniqueness validation
+        //     else {
+        //         $rules = [
+        //             'email' => 'required|string|email|max:255|unique:account,email',
+        //             'phone' => 'nullable|string|max:20|unique:account,phone',
+        //         ];
+        //     }
+        // }
+        // $validatedData = validator($input, $rules);
+        // if ($validatedData->fails()) {
+        //     $errors = $validatedData->errors();
+        //     $errorString = '';
 
+        //     foreach ($errors->all() as $message) {
+        //         $errorString .= $message . "\n";
+        //     }
+
+        //     return response()->json(['error' => $errorString], 400);
+        // }
         DB::beginTransaction();
         try {
             $updateData = [];
-
             if (!empty($input['username'])) {
                 $updateData['username'] = $input['username'];
             }
@@ -484,7 +566,7 @@ class AccountController extends Controller
             DB::commit();
             return response()->json([
                 'token' => $jwt,
-                'success' => "Update Successfully",
+                'success' => "Update successfully",
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -497,14 +579,14 @@ class AccountController extends Controller
         $input = json_decode($request->input('new_account'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
         $validatedData = validator($input, [
-            'username' => 'required|string|max:255|unique:account,username',
-            'email' => 'required|string|email|max:255|unique:account,email',
-            'phone' => 'nullable|string|max:20|unique:account,phone',
+            'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'phone' => 'nullable|string|max:20',
         ]);
         if ($validatedData->fails()) {
             $errors = $validatedData->errors();
@@ -516,7 +598,14 @@ class AccountController extends Controller
 
             return response()->json(['error' => $errorString], 400);
         }
+        $account1 = DB::table('account')->whereRaw('BINARY username = ?', $input['username'])->orderBy('created', 'desc')->first();
+        $account2 = DB::table('account')->whereRaw('BINARY email = ?', $input['email'])->orderBy('created', 'desc')->first();
+        $account3 = DB::table('account')->whereRaw('BINARY phone = ?', $input['phone'])->orderBy('created', 'desc')->first();
+        if (($account1 != null && $account1->status == 1) || ($account2 != null && $account2->status == 1) || ($account3 != null && $account3->status == 1)) {
+            return response()->json(['error' => 'The Username, Email Or Phone Number Has Been Used'], 403);
+        }
         try {
+            $security_code = $this->generateSecurityCode();
             //create new account
             $account = new Account();
             $account->username = $input['username'];
@@ -524,15 +613,21 @@ class AccountController extends Controller
             $account->email = $input['email'];
             $account->password = Hash::make($input['password']);
             $account->deactivated = false;
-            $account->deactivated_date = Carbon::createFromFormat('Y-m-d H:i:s', '0000-01-01 00:00:00');
             $account->role_id = $input['role']['id'];
             $account->address = $input['address'];
+            if ($input['role']['id'] == 5) {
+                $account->status = 0;
+            } else {
+                $account->status = 1;
+            }
+            $account->security_code = $security_code;
+            $account->created = Carbon::now()->format('Y-m-d H:i:s');
             if (isset($input['dob']) && $input['dob'] != null) {
                 $account->dob = Carbon::parse($input['dob'])->format('Y-m-d');
             } else {
                 $account->dob = null;
             }
-            if (!empty($input['phone'])) {
+            if (!isset($input['phone'])) {
                 $account->phone = $input['phone'];
             }
             //save new account
@@ -567,6 +662,9 @@ class AccountController extends Controller
                 $account->imageUrl = $fileName;
                 $account->save();
             }
+            $messageContent = 'Dear ' . $account->fullname . ', This Is Your Security Code:';
+            $subject = "Activate Bijoux Account";
+            $this->sendMail($account->email, $subject, $messageContent, $security_code);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -575,7 +673,7 @@ class AccountController extends Controller
         }
 
         return response()->json([
-            'success' => "Register Successfully",
+            'success' => "Register successfully",
         ], 201);
     }
     public function get_staff_role_list()
@@ -600,7 +698,7 @@ class AccountController extends Controller
     //     $input = $request->imageUrl;
     //     if (!isset($input) || $input == null) {
     //         return response()->json([
-    //             'error' => 'No Input Received'
+    //             'error' => 'No input received'
     //         ], 403);
     //     }
     //     $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input));
@@ -621,7 +719,7 @@ class AccountController extends Controller
         $input = json_decode($request->input('deactivate'), true);
         if (!isset($input) || $input == null) {
             return response()->json([
-                'error' => 'No Input Received'
+                'error' => 'No input received'
             ], 403);
         }
         DB::beginTransaction();
@@ -637,7 +735,7 @@ class AccountController extends Controller
             } else if ($input['deactivate'] == false) {
                 DB::table('account')->where('id', $input['account_id'])->update([
                     'deactivated' => false,
-                    'deactivated_date' => Carbon::createFromFormat('Y-m-d H:i:s', '0000-01-01 00:00:00')
+                    'deactivated_date' => null
                 ]);
                 $tf = false;
             }
@@ -648,12 +746,62 @@ class AccountController extends Controller
         }
         if ($tf) {
             return response()->json([
-                'success' => 'Deactivate Account Successfully'
+                'success' => 'Deactivate account successfully'
             ], 200);
         } else {
             return response()->json([
-                'success' => 'Activate Account Successfully'
+                'success' => 'Activate account successfully'
             ], 200);
+        }
+    }
+    public function sendMail($toEmail, $subject, $messageContent, $security_code)
+    {
+        $data = [
+            'subject' => $subject,
+            'messageContent' => $messageContent,
+            'security_code' => $security_code
+        ];
+        try {
+            Mail::to($toEmail)->send(new MarkDownMail($data));
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
+        }
+    }
+    public function generateSecurityCode()
+    {
+        // Generate a random 6-digit number
+        $securityCode = mt_rand(100000, 999999);
+
+        // Check if the generated code already exists in the database
+        $account = DB::table('account')->where('security_code', $securityCode)->exists();
+
+        // If code exists, recursively call the function to generate a new one
+        if ($account) {
+            return $this->generateSecurityCode();
+        }
+
+        return $securityCode;
+    }
+    public function activate_account(Request $request)
+    {
+        $input = json_decode($request->input('security'), true);
+        if (!isset($input) || $input == null) {
+            return response()->json([
+                'error' => 'No input received'
+            ], 403);
+        }
+        $account = DB::table('account')->where('username', $input['username'])->orderBy('created', 'desc')->first();
+        if ($account->security_code != $input['security_code']) {
+            return response()->json([
+                'error' => 'Wrong security code'
+            ], 403);
+        } else {
+            DB::table('account')->where('id', $account->id)->update([
+                'status' => 1
+            ]);
+            return response()->json([
+                'success' => 'Your account has been activated'
+            ]);
         }
     }
 }

@@ -6,11 +6,13 @@
     <title>Invoice</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
         .change-font {
             font-family: 'Roboto', sans-serif;
             font-size: 14px;
         }
+
         .invoice-box {
             max-width: 800px;
             margin: auto;
@@ -94,9 +96,32 @@
             border-bottom: none;
         }
 
+        .invoice-box table tr.total td:nth-child(1) {
+            border-top: 1px solid #eee;
+            font-weight: bold;
+            font-size: larger;
+        }
+
         .invoice-box table tr.total td:nth-child(2) {
             border-top: 1px solid #eee;
             font-weight: bold;
+            font-size: larger;
+            color: green;
+        }
+
+        .invoice-box table tr.price td:nth-child(1) {
+            border-top: 1px solid #eee;
+            font-weight: bold;
+        }
+
+        .invoice-box table tr.change td:nth-child(1) {
+            border-top: 1px solid #eee;
+            font-weight: bold;
+        }
+
+        .invoice-box table tr.change td:nth-child(2) {
+            border-top: 1px solid #eee;
+            color: red;
         }
 
         .invoice-box table .fixed-width td:nth-child(1) {
@@ -142,6 +167,46 @@
         .invoice-box.rtl table tr td:nth-child(2) {
             text-align: left;
         }
+
+
+        /* Custom styles for warranty section */
+        .warranty-section {
+            border-top: 2px solid #535353;
+            font-family: 'Dancing Script', cursive;
+            font-size: 34px;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+
+        .conditions-section {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            padding-bottom: 20px;
+        }
+
+        .conditions-section h5 {
+            font-weight: bold;
+        }
+
+        .conditions-section ul {
+            padding-left: 20px;
+        }
+
+        .warranty-details {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+        }
     </style>
 </head>
 
@@ -156,7 +221,7 @@
                                 BIJOUX JEWELRY <!-- replace with logo link -->
                             </td>
                             <td>
-                                Invoice NO.: {{ $payment->id }}<br />
+                                Invoice No.{{ $order->id }}<br />
                                 Issue Date: {{ $date }}<br />
                             </td>
                         </tr>
@@ -192,12 +257,12 @@
 
             <tr class="headingOrder">
                 <td>Your Order:</td>
-                <td>Order#</td>
+                <td></td>
             </tr>
 
             <tr class="details">
                 <td>Order</td>
-                <td>{{ $order->id }}#</td>
+                <td>#{{ $order->id }}</td>
             </tr>
 
             <tr class="headingDescription">
@@ -214,12 +279,12 @@
                             <td>Amount (VND)</td>
                         </tr>
                         @foreach($product_metal as $metal)
-                        <tr>
-                            <td>{{ $metal->name }}</td>
-                            <td>{{ number_format($metal->weight, 2) }} g</td>
-                            <td>{{ $metal->sale_price_per_gram }}</td>
-                            <td>{{ $metal->price }}</td>
-                        </tr>
+                            <tr>
+                                <td>{{ $metal->name }}</td>
+                                <td>{{ number_format($metal->weight, 2) }}</td>
+                                <td>{{ $metal->sale_price_per_gram }}</td>
+                                <td>{{ $metal->price }}</td>
+                            </tr>
                         @endforeach
                     </table>
                 </td>
@@ -241,34 +306,47 @@
                         </thead>
                         <tbody>
                             @foreach($product_diamond as $diamond)
-                            <tr>
-                                <td>{{ $diamond->name }}</td>
-                                <td>{{ $diamond->count }}</td>
-                                <td>{{ $diamond->unit_price }}</td>
-                                <td>{{ $diamond->price }}</td>
-                            </tr>
+                                <tr>
+                                    <td>{{ $diamond->name }}</td>
+                                    <td>{{ $diamond->count }}</td>
+                                    <td>{{ $diamond->unit_price }}</td>
+                                    <td>{{ $diamond->price }}</td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </td>
             </tr>
-            <tr class="total" align="right">
+            <tr class="price" align="right">
                 <td>Product Price</td>
-                <td>{{ $product_price }}</td>
+                <td>{{ $product_price }} VND</td>
             </tr>
-            <tr class="total" align="right">
+            <tr class="price" align="right">
                 <td>Production Price</td>
-                <td>{{ $production_price }}</td>
+                <td>{{ $production_price }} VND</td>
             </tr>
+
+            <tr class="change" align="right">
+                <td>Change </td>
+                @if($extra == 0)
+                    <td class="change">No Change</td>
+                @else
+                    <td class="change">{{ $extra }} VND</td>
+                @endif
+            </tr>
+
             <tr class="total" align="right">
-                <td>Total (VND)</td>
-                <td>{{ $total_price }}</td>
+                <td>Total </td>
+                <td>{{ $total_price }} VND</td>
+
             </tr>
         </table>
-        <div class="text-center mt-4" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: larger; padding-top: 50px;">
+        <div class="text-center mt-4"
+            style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-size: larger; padding-top: 50px; border-top: 1px solid black;">
             <p>Thank you for your business!</p>
         </div>
-        <div class="footer text-center mt-4" style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
+        <div class="footer text-center mt-4"
+            style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
             <p>If you have any questions about this invoice, please contact us at:</p>
             <p>Email: bijouxjewelryoriginal@gmail.com | Phone: +1 123-456-7890</p>
             <p>Bijoux Jewelry</p>

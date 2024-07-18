@@ -44,10 +44,6 @@ const get_roleNav = (role_id, account_id) => {
         name: 'Dashboard',
         to: '/dashboard',
         icon: <Gauge size={35} color="red" weight="duotone" />,
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
       },
       {
         component: CNavTitle,
@@ -111,6 +107,18 @@ const get_roleNav = (role_id, account_id) => {
             component: CNavItem,
             name: 'Price reporting',
             to: '/orders_manager/price_reporting',
+            icon: <ArrowCircleRight size={13} color="lightsalmon" weight="duotone" />
+          },
+          {
+            component: CNavItem,
+            name: 'Refund List',
+            to: '/orders_manager/refund',
+            icon: <ArrowCircleRight size={13} color="lightsalmon" weight="duotone" />
+          },
+          {
+            component: CNavItem,
+            name: 'Transactions',
+            to: '/orders_manager/transactions',
             icon: <ArrowCircleRight size={13} color="lightsalmon" weight="duotone" />
           },
 
@@ -189,60 +197,17 @@ const get_roleNav = (role_id, account_id) => {
 
 
 
-      // {
-      //   component: CNavItem,
-      //   name: 'Product',
-      //   to: '/product/table',
-      //   icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-      //   badge: {
-      //     color: 'info',
-      //     text: 'NEW',
-      //   },
-      // },
-      // {
-      //   component: CNavGroup,
-      //   name: 'Product',
-      //   to: '/product',
-      //   icon: <HardDrives size={20} color="hotpink" weight="duotone" />,
-      //   items: [
-      //     {
-      //       component: CNavItem,
-      //       name: 'Table',
-      //       to: '/product/table',
-      //     },
-      //     {
-      //       component: CNavItem,
-      //       name: 'Add',
-      //       to: '/product/add',
-      //     },
-
-      //   ],
-      // },
-      // {
-      //   component: CNavItem,
-      //   name: 'Customize items',
-      //   to: '/ItemsManage',
-      //   icon: <MagicWand size={20} color="hotpink" weight="duotone" />,  //cil-fastfood
-      //   badge: {
-      //     color: 'info',
-      //     text: 'NEW',
-      //   },
-      // }
 
 
     ],
     // sale_staff ID: 2
     [
-      {
-        component: CNavItem,
-        name: 'Dashboard',
-        to: '/dashboard',
-        icon: <Gauge size={35} color="red" weight="duotone" />,
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Dashboard',
+      //   to: '/dashboard',
+      //   icon: <Gauge size={35} color="red" weight="duotone" />,
+      // },
       {
         component: CNavTitle,
         name: 'Accounts Management',
@@ -252,10 +217,6 @@ const get_roleNav = (role_id, account_id) => {
         name: 'Customers',
         to: '/customers/table',
         icon: <Users size={35} color="red" weight="duotone" />,
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
       },
       {
         component: CNavTitle,
@@ -269,10 +230,6 @@ const get_roleNav = (role_id, account_id) => {
         //icon: <FileText size={35} color={account_id == 7 ? "gray": "red"} weight="duotone" />,  //cil-fastfood
         icon: <FileText size={35} color={"red"} weight="duotone" />,  //cil-fastfood
 
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
       },
       {
         component: CNavGroup,
@@ -294,28 +251,31 @@ const get_roleNav = (role_id, account_id) => {
             icon: <ArrowCircleRight size={13} color="lightsalmon" weight="duotone" />
 
           },
+          {
+            component: CNavItem,
+            name: 'Transactions',
+            to: '/orders_manager/transactions',
+            icon: <ArrowCircleRight size={13} color="lightsalmon" weight="duotone" />
+          }
 
         ],
       }
     ],
     // design_staff ID: 3
     [
-      {
-        component: CNavItem,
-        name: 'Dashboard',
-        to: '/dashboard',
-        icon: <Gauge size={35} color="red" weight="duotone" />,
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Dashboard',
+      //   to: '/dashboard',
+      //   icon: <Gauge size={35} color="red" weight="duotone" />,
+      // },
       {
         component: CNavTitle,
         name: 'Orders Management',
       },
       {
         component: CNavGroup,
+        show: true,
         name: 'Assigned Orders',
         to: '/orders_design_staff',
         icon: <ShoppingCartSimple size={35} color="red" weight="duotone" />,  //cil-fastfood
@@ -340,22 +300,19 @@ const get_roleNav = (role_id, account_id) => {
     ],
     // production_staff ID: 4
     [
-      {
-        component: CNavItem,
-        name: 'Dashboard',
-        to: '/dashboard',
-        icon: <Gauge size={35} color="red" weight="duotone" />,
-        badge: {
-          color: 'info',
-          text: 'NEW',
-        },
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Dashboard',
+      //   to: '/dashboard',
+      //   icon: <Gauge size={35} color="red" weight="duotone" />,
+      // },
       {
         component: CNavTitle,
         name: 'Orders Management',
       },
       {
         component: CNavGroup,
+        show: true,
         name: 'Assigned Orders',
         to: '/orders_production_staff',
         icon: <FcFactoryBreakdown size={35} color="red" weight="duotone" />,
@@ -381,7 +338,6 @@ const get_roleNav = (role_id, account_id) => {
     ],
   ]
   const roleNav = role_id ? _roleNav[role_id] : _roleNav[0];
-  //console.log('roleNav',roleNav)
 
   return roleNav;
 }
