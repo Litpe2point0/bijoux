@@ -40,6 +40,7 @@ import NoteCard from "../../Manager/Quote widget/NoteCard";
 import { confirm_shipped, get_order_detail } from "../../../api/main/orders/Order_api";
 import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_formatter";
 import { SaleOrderPageContext } from "../Order_Page";
+import OrderDetailCard from "./OrderDetailCard";
 
 
 
@@ -185,7 +186,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                     </CCol>
                     <CCol lg={6}>
                         <div style={{ height: 'fit-content' }}>
-                            <QuoteDetailCard quote={order} title={'INFORMATION OF ORDER'} />
+                            <OrderDetailCard order={order} title={'INFORMATION OF ORDER'} />
                         </div>
 
                         <div className="mt-1" style={{ height: 'fit-content' }}  >
