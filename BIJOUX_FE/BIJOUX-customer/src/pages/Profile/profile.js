@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, TextField } from "@mui/material";
+import { Avatar, Box, CircularProgress, TextField } from "@mui/material";
 import { Upload, Phone, IdentificationCard, CalendarBlank, EnvelopeSimple, MapPin } from 'phosphor-react';
 import { Calendar } from 'primereact/calendar';
 import 'primereact/resources/themes/saga-blue/theme.css'; // Import theme CSS
@@ -130,7 +130,8 @@ export default function Profile() {
                                Account id: #{id}
                                 </span>
                             </div> */}
-                            <img className="h-[75%] rounded-full object-cover object-top shadow-xl" src={imageUrl}></img>
+
+                            <img className="h-[400px] w-[400px] rounded-full object-cover object-center shadow-xl" src={imageUrl}></img>
                         </div>
                         <div className="flex flex-col">
                             {/* Change Full Name */}

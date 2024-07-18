@@ -55,12 +55,12 @@ export default function PaymentHistory() {
     }, []);
 
     return (
-        <div className="flex flex-col w-full items-center">
-            <p className="font-loraFont text-3xl text-[#151542] font-semibold">Your Payment History</p>
+        <div className="flex flex-col w-full items-center mt-5">
+            <p className="font-loraFont text-4xl font-semibold">Your Payment History</p>
             <div className="my-5 w-3/4 h-0.5 bg-[#151542]"></div>
             {loading ?
                 <Box sx={{ display: 'flex', height: '100%', alignItems: 'center', padding: '100px' }}>
-                <CircularProgress color="inherit" />
+                    <CircularProgress color="inherit" />
                 </Box>
                 :
                 <div id="customize"
@@ -71,7 +71,7 @@ export default function PaymentHistory() {
                     }}
                     className="ag-theme-quartz mb-5">
 
-                    
+
                     <AgGridReact
                         enableColResize={true}
                         columnDefs={state.columnDefs}
@@ -84,7 +84,7 @@ export default function PaymentHistory() {
                         domLayout='autoHeight'
                     // onGridReady={onGridReady('customize')}
                     />
-                    
+
                 </div>
             }
         </div>
