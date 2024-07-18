@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TextField } from "@mui/material";
+import { Avatar, Box, CircularProgress, TextField } from "@mui/material";
 import { Upload, Phone, IdentificationCard, CalendarBlank, EnvelopeSimple, MapPin } from 'phosphor-react';
 import { Calendar } from 'primereact/calendar';
 import 'primereact/resources/themes/saga-blue/theme.css'; // Import theme CSS
@@ -47,7 +47,7 @@ export default function Profile() {
             formData.append("account_id", user ? user.id : null);
             const account_detail_data = await get_account_detail(formData, "Get account detail", true);
             // if(!account_detail_data.success){
-                
+
             //     window.location.href = "/login";
             // }
             const account_detail = account_detail_data.data.account_detail;
@@ -97,11 +97,15 @@ export default function Profile() {
             <div className="w-full flex flex-col items-center">
                 <p className="font-loraFont text-4xl font-semibold text-[#151542] mb-5 mt-5">Your Profile</p>
                 <div className="w-10/12 h-0.5 bg-[#151542] rounded-sm mb-5"></div>
-                {loading ? <CSpinner color="primary" />
+                {loading ?
+
+                    <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
+                        <CircularProgress color="inherit" />
+                    </Box>
                     :
-                    <div className="w-10/12 grid grid-cols-2">
-                        <div className="w-full flex flex-col items-center">
-                            {/* Avatar Control */}
+                    <div className="w-10/12 grid md:grid-cols-2">
+                        {/* <div className="w-full flex flex-col items-center">
+                            
                             <div className="w-3/4">
                                 <img className="md:w-[500px] md:h-[500px] xs:w-[200px] xs:h-[200px] rounded-full object-cover object-top shadow-xl" src={imageUrl}></img>
                             </div>
@@ -117,6 +121,17 @@ export default function Profile() {
                             <div className="flex items-center">
                                 <p className="text-2xl font-bold text-gray-500">#{id}</p>
                             </div>
+                        </div> */}
+
+                        <div className="w-full flex justify-center items-center">
+                            {/* <div className="w-3/4 flex flex-col items-center " >
+                                <img className="h-[75%] rounded-full object-cover object-top shadow-xl" src={imageUrl}></img>
+                                <span className="text-2xl font-bold text-gray-500">
+                               Account id: #{id}
+                                </span>
+                            </div> */}
+
+                            <img className="h-[400px] w-[400px] rounded-full object-cover object-center shadow-xl" src={imageUrl}></img>
                         </div>
                         <div className="flex flex-col">
                             {/* Change Full Name */}
@@ -125,7 +140,11 @@ export default function Profile() {
                                     <IdentificationCard size={28} />
                                     <p className="ml-2 text-xl font-bold text-[#151542] font-loraFont">Full Name:</p>
                                 </div>
-                                <TextField onChange={(e) => handleChangeFullName(e)} id="outlined-basic" defaultValue={fullname} variant="outlined" />
+                                <TextField
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                    id="outlined-basic" defaultValue={fullname} variant="outlined" />
                             </div>
 
                             {/* Change Phone number */}
@@ -134,7 +153,11 @@ export default function Profile() {
                                     <Phone size={28} />
                                     <p className="ml-2 text-xl font-bold text-[#151542] font-loraFont">Phone Number:</p>
                                 </div>
-                                <TextField onChange={(e) => handleChangePhone(e)} id="outlined-basic" defaultValue={phone} variant="outlined" />
+                                <TextField
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                    id="outlined-basic" defaultValue={phone} variant="outlined" />
                             </div>
 
                             <div className="flex flex-col mb-5">
@@ -142,7 +165,11 @@ export default function Profile() {
                                     <EnvelopeSimple size={28} />
                                     <p className="ml-2 text-xl font-bold text-[#151542] font-loraFont">Email:</p>
                                 </div>
-                                <TextField onChange={(e) => handleChangeEmail(e)} id="outlined-basic" defaultValue={email} variant="outlined" />
+                                <TextField
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                    id="outlined-basic" defaultValue={email} variant="outlined" />
                             </div>
 
                             <div className="flex flex-col mb-5">
@@ -150,7 +177,11 @@ export default function Profile() {
                                     <MapPin size={28} />
                                     <p className="ml-2 text-xl font-bold text-[#151542] font-loraFont">Address:</p>
                                 </div>
-                                <TextField onChange={(e) => handleChangeAddress(e)} id="outlined-basic" defaultValue={address} variant="outlined" />
+                                <TextField
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                    id="outlined-basic" defaultValue={address} variant="outlined" />
                             </div>
 
 
@@ -170,7 +201,7 @@ export default function Profile() {
                                 />
                             </div> */}
 
-                            {checkChange && (
+                            {/* {checkChange && (
                                 <div className="flex justify-center">
                                     <button onClick={() => handleSaveChange()} className="w-full bg-[#151542] text-white font-bold py-2 px-4 rounded-md">Save Changes</button>
                                 </div>
@@ -196,7 +227,7 @@ export default function Profile() {
                                         Update successfully!
                                     </Alert>
                                 </Collapse>
-                            )}
+                            )} */}
                         </div>
                     </div>
                 }

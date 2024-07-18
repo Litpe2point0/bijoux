@@ -748,7 +748,7 @@ class QuoteController extends Controller
         $product->mounting_type = DB::table('mounting_type')->where('id', $product->mounting_type_id)->first();
         unset($product->mounting_type_id);
 
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->get();
+        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
         $product_diamond->map(function ($product_diamond) {
             $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
             $diamond->created = Carbon::parse($diamond->created)->format('H:i:s d/m/Y');
@@ -772,7 +772,7 @@ class QuoteController extends Controller
         });
         $product->product_diamond = $product_diamond;
 
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->get();
+        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
         $product_metal->map(function ($product_metal) {
             $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
             $OGurl = env('ORIGIN_URL');

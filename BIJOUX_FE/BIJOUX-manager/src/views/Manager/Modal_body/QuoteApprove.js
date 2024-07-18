@@ -347,7 +347,7 @@ const CustomForm = ({ quoteInfo, onClose }) => {
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
                                             <span className="text-secondary fs-6">
-                                                <CurrencyFormatterLowercase value={diamondList.reduce((total, item) => total + item.price, 0)} />
+                                                <CurrencyFormatterLowercase value={quote.product_price} />
                                                 {/* {diamondList.reduce((total, item) => total + item.price, 0)}000000 vnd */}
                                             </span>
 
@@ -386,7 +386,6 @@ const CustomForm = ({ quoteInfo, onClose }) => {
                                             <span className="text-secondary fs-6">
                                             <CurrencyFormatterLowercase value={quote.total_price} />
 
-                                            {/* {quote.total_price} vnd */}
                                             </span>
 
                                         </CCol>

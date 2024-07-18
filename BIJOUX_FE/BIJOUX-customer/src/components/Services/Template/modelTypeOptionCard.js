@@ -6,7 +6,7 @@ export default function ModelTypeOptionCard({ modelType, modelTypeImage }) {
             <img
                 src={modelTypeImage}
                 alt="Ảnh"
-                className="w-full"
+                className="w-[172px] h-[172px]"
             />
             <h1 className="text-xl font-semibold mt-4 mb-2">{modelType.name}</h1>
 

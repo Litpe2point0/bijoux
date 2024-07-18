@@ -161,7 +161,7 @@ Route::middleware('checkCors')->group(function () {
 Route::post('/confirm_payment', [OrderController::class, 'confirm_payment']);
 
 //test------------------------------------------------------------------------
-Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);
+// Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);
 // Route::get('/sendMail', [AccountController::class, 'sendMail']);
 // Route::post('/decode', [AccountController::class, 'decode']);
 // Route::get('/get_image', [AccountController::class, 'get_image']);

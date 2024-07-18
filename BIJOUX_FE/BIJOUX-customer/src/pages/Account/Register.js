@@ -117,9 +117,9 @@ const Register = () => {
     const firstChar = username.charAt(0);
 
     // Kiểm tra nếu ký tự đầu tiên là chữ cái viết hoa
-    if (firstChar.match(/[A-Z]/)) {
-      return 2;
-    }
+    // if (firstChar.match(/[A-Z]/)) {
+    //   return 2;
+    // }
 
     // Kiểm tra nếu ký tự đầu tiên là số hoặc các ký tự đặc biệt
     if (firstChar.match(/[^a-zA-Z]/)) {
@@ -298,7 +298,7 @@ const Register = () => {
     }).then(async (result) => {
       if (result.isConfirmed && icon === 'info') {
         await securityAlertMaker();
-      }else{
+      } else {
         //empty_input();
         setLoading(false);
       }
@@ -336,7 +336,7 @@ const Register = () => {
 
         }
         const formData = new FormData();
-        formData.append('security', JSON.stringify(security) );
+        formData.append('security', JSON.stringify(security));
         const response = await activate_account(formData);
         if (response.success) {
           navigateAlertMaker();
@@ -344,7 +344,7 @@ const Register = () => {
           instantAlertMaker('error', 'Activation Failed !', 'Please try again later !')
         }
         setLoading(false);
-      }else{
+      } else {
         //empty_input();
         setLoading(false);
       }
@@ -362,7 +362,7 @@ const Register = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         navigate('/login');
-      }else{
+      } else {
         empty_input();
         setLoading(false);
       }
@@ -502,22 +502,22 @@ const Register = () => {
                   <p className="font-titleFont text-base font-semibold text-gray-600">
                     Image
                   </p>
-                  <div style={{display:'flex', alignItems:'center'}}>
-                  {imageUrl &&
-                    <Avatar alt="User Avatar" src={imageUrl} />
-                    
-                  }
-                  <input
-          
-                    onChange={handleChangeImage}
-                    //value={imageUrl}
-                    className="w-50 h-8 placeholder:text-sm placeholder:tracking-wide text-base font-medium placeholder:font-normal rounded-md outline-none"
-                    type="file"
-                    placeholder="Upload your Image"
-                    accept=".jpg,.png"
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {imageUrl &&
+                      <Avatar alt="User Avatar" src={imageUrl} />
+
+                    }
+                    <input
+
+                      onChange={handleChangeImage}
+                      //value={imageUrl}
+                      className="w-50 h-8 placeholder:text-sm placeholder:tracking-wide text-base font-medium placeholder:font-normal rounded-md outline-none"
+                      type="file"
+                      placeholder="Upload your Image"
+                      accept=".jpg,.png"
+                    />
                   </div>
-                  
+
                   {/* <ReactFileReader
                     fileTypes={[".png", ".jpg"]}
                     base64={true}
@@ -530,7 +530,7 @@ const Register = () => {
 
                     </Button>
                   </ReactFileReader> */}
-                  
+
                   {errImageUrl && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
                       <span className="font-bold italic mr-1">!</span>
@@ -645,20 +645,20 @@ const Register = () => {
                   </p>
                 </div>
                 <button
-                  disabled={!checked  || loading}
+                  disabled={!checked || loading}
                   onClick={handleSignUp}
                   className={`${checked
                     ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
                     : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
                     } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
                 >
-                {loading? 
-                <Box display={'flex'} alignItems={'center'} justifyContent={'center'} >
-                <CircularProgress color="inherit" size={20} /> Registering...
-                </Box>
-                
-                 
-                 : 'Register'}
+                  {loading ?
+                    <Box display={'flex'} alignItems={'center'} justifyContent={'center'} >
+                      <CircularProgress color="inherit" size={20} /> Registering...
+                    </Box>
+
+
+                    : 'Register'}
                 </button>
                 {/* <LoadingButton
                   variant="contained"

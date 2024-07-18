@@ -2819,7 +2819,7 @@ class OrderController extends Controller
             'success' => 'Transaction complete'
         ], 200);
     }
-    public function generatePDF($orderCode = 1, $guarantee_expired_date = "2021-01-01 00:00:00")
+    public function generatePDF($orderCode, $guarantee_expired_date)
     {
         $payment = DB::table('payment')->where('id', $orderCode)->first();
         $account = DB::table('account')->where('id', $payment->account_id)->first();
@@ -2879,7 +2879,7 @@ class OrderController extends Controller
         File::put($filePath2, $content2);
         $path_to_files = [$filePath, $filePath2];
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
-        // $this->sendMail($account->email, $messageContent, 'Payment Invoice', $path_to_files);
+        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $path_to_files);
         // $this->sendMail('dxbach31102004@gmail.com', $messageContent, 'Payment Invoice', $path_to_files);
     }
     public function generatePDFextra($orderId, $guarantee_expired_date)
@@ -3248,14 +3248,26 @@ class OrderController extends Controller
             $months = $months->push($monthName);
         }
         $user = new \stdClass();
-        $user->user_year = $this->formatNumber(DB::table('account')->where('status', 1)->whereYear('created', $year)->count());
-        $user->this_month = $this->formatNumber(DB::table('account')->where('status', 1)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        if (DB::table('account')->where('status', 1)->whereYear('created', $year)->count() != null && DB::table('account')->where('status', 1)->whereYear('created', $year)->count() != 0) {
+            $user->user_year = $this->formatNumber(DB::table('account')->where('status', 1)->whereYear('created', $year)->count());
+        } else {
+            $user->user_year = 0;
+        }
+        if (DB::table('account')->where('status', 1)->whereMonth('created', $month)->whereYear('created', $year)->count() != null && DB::table('account')->where('status', 1)->whereMonth('created', $month)->whereYear('created', $year)->count() != 0) {
+            $user->this_month = $this->formatNumber(DB::table('account')->where('status', 1)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        } else {
+            $user->this_month = 0;
+        }
         $user_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $account_count = DB::table('account')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $account_count = DB::table('account')->where('status', 1)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            if (DB::table('account')->where('status', 1)->whereMonth('created', $i)->whereYear('created', $year)->count() != null && DB::table('account')->where('status', 1)->whereMonth('created', $i)->whereYear('created', $year)->count() != 0) {
+                $account_count = DB::table('account')->where('status', 1)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            } else {
+                $account_count = 0;
+            }
             // }
             $user_month->push($account_count);
         }
@@ -3263,24 +3275,33 @@ class OrderController extends Controller
 
         $profit = new \stdClass();
         $temp = 0;
-        $orders2 = DB::table('orders')->where('order_status_id', 6)->whereYear('created', $year)->get();
-        foreach ($orders2 as $order) {
-            $product_price = $order->product_price;
-            $production_price = $order->production_price;
-            $profit_rate = $order->profit_rate;
-            $temp += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+        if (DB::table('orders')->where('order_status_id', 6)->whereYear('created', $year)->get() != null) {
+            $orders2 = DB::table('orders')->where('order_status_id', 6)->whereYear('created', $year)->get();
+            foreach ($orders2 as $order) {
+                $product_price = $order->product_price;
+                $production_price = $order->production_price;
+                $profit_rate = $order->profit_rate;
+                $temp += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+            }
+            $profit->profit_year = $this->formatNumber($temp);
+        } else {
+            $profit->profit_year = 0;
         }
-        $profit->profit_year = $this->formatNumber($temp);
+
 
         $temp1 = 0;
-        $orders3 = DB::table('orders')->where('order_status_id', 6)->whereMonth('created', $month)->whereYear('created', $year)->get();
-        foreach ($orders3 as $order) {
-            $product_price = $order->product_price;
-            $production_price = $order->production_price;
-            $profit_rate = $order->profit_rate;
-            $temp1 += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+        if (DB::table('orders')->where('order_status_id', 6)->whereMonth('created', $month)->whereYear('created', $year)->get() != null) {
+            $orders3 = DB::table('orders')->where('order_status_id', 6)->whereMonth('created', $month)->whereYear('created', $year)->get();
+            foreach ($orders3 as $order) {
+                $product_price = $order->product_price;
+                $production_price = $order->production_price;
+                $profit_rate = $order->profit_rate;
+                $temp1 += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+            }
+            $profit->this_month = $this->formatNumber($temp1);
+        } else {
+            $profit->this_month = 0;
         }
-        $profit->this_month = $this->formatNumber($temp1);
         $profit_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             $profits = 0;
@@ -3293,12 +3314,16 @@ class OrderController extends Controller
             //         $profit += $production_price + ($product_price)*(($profit_rate * 100)/100);
             //     }
             // } else {
-            $orders = DB::table('orders')->where('order_status_id', 6)->whereMonth('created', $i)->whereYear('created', $year)->get();
-            foreach ($orders as $order) {
-                $product_price = $order->product_price;
-                $production_price = $order->production_price;
-                $profit_rate = $order->profit_rate;
-                $profits += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+            if (DB::table('orders')->where('order_status_id', 6)->whereMonth('created', $i)->whereYear('created', $year)->get() != null) {
+                $orders = DB::table('orders')->where('order_status_id', 6)->whereMonth('created', $i)->whereYear('created', $year)->get();
+                foreach ($orders as $order) {
+                    $product_price = $order->product_price;
+                    $production_price = $order->production_price;
+                    $profit_rate = $order->profit_rate;
+                    $profits += ceil($production_price + ($product_price) * (($profit_rate * 100) / 100));
+                }
+            } else {
+                $profits = 0;
             }
             // }
             $profit_month->push($profits);
@@ -3306,69 +3331,129 @@ class OrderController extends Controller
         $profit->profit_month = $profit_month->values()->all();
 
         $order = new \stdClass();
-        $order->order_year = $this->formatNumber(DB::table('orders')->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
-        $order->this_month = $this->formatNumber(DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        if(DB::table('orders')->whereNot('order_status_id', 7)->whereYear('created', $year)->count() != null && DB::table('orders')->whereNot('order_status_id', 7)->whereYear('created', $year)->count() != 0){
+            $order->order_year = $this->formatNumber(DB::table('orders')->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
+        } else {
+            $order->order_year = 0;
+        }
+        if(DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count() != null && DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count() != 0){
+            $order->this_month = $this->formatNumber(DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        } else {
+            $order->this_month = 0;
+        }
         $order_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $order_count = DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            if(DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count() != null && DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count() != 0){
+                $order_count = DB::table('orders')->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            } else {
+                $order_count = 0;
+            }
             // }
             $order_month->push($order_count);
         }
         $order->order_month = $order_month->values()->all();
 
-        $total_order = DB::table('orders')->where('order_status_id', '<', 6)->count();
+        if(DB::table('orders')->where('order_status_id', '<', 6)->count() != null && DB::table('orders')->where('order_status_id', '<', 6)->count() != 0){
+            $total_order = DB::table('orders')->where('order_status_id', '<', 6)->count();
+        } else {
+            $total_order = 1;
+        }
 
         $order_deposit = new \stdClass();
-        $order_deposit_count = DB::table('orders')->where('order_status_id', 1)->count();
+        if(DB::table('orders')->where('order_status_id', 1)->count() != null && DB::table('orders')->where('order_status_id', 1)->count() != 0){
+            $order_deposit_count = DB::table('orders')->where('order_status_id', 1)->count();
+        } else {
+            $order_deposit_count = 0;
+        }
         $order_deposit->deposit_percentage = round($order_deposit_count / $total_order * 100, 0);
         $order_deposit->deposit_count = $order_deposit_count;
 
         $order_design = new \stdClass();
-        $order_design_count = DB::table('orders')->where('order_status_id', 2)->count();
+        if(DB::table('orders')->where('order_status_id', 2)->count() != null && DB::table('orders')->where('order_status_id', 2)->count() != 0){
+            $order_design_count = DB::table('orders')->where('order_status_id', 2)->count();
+        } else {
+            $order_design_count = 0;
+        }
         $order_design->design_percentage = round($order_design_count / $total_order * 100, 0);
         $order_design->design_count = $order_design_count;
 
         $order_production = new \stdClass();
-        $order_production_count = DB::table('orders')->where('order_status_id', 3)->count();
+        if(DB::table('orders')->where('order_status_id', 3)->count() != null && DB::table('orders')->where('order_status_id', 3)->count() != 0){
+            $order_production_count = DB::table('orders')->where('order_status_id', 3)->count();
+        } else {
+            $order_production_count = 0;
+        }
         $order_production->production_percentage = round($order_production_count / $total_order * 100, 0);
         $order_production->production_count = $order_production_count;
 
         $order_payment = new \stdClass();
-        $order_payment_count = DB::table('orders')->where('order_status_id', 4)->count();
+        if(DB::table('orders')->where('order_status_id', 4)->count() != null && DB::table('orders')->where('order_status_id', 4)->count() != 0){
+            $order_payment_count = DB::table('orders')->where('order_status_id', 4)->count();
+        } else {
+            $order_payment_count = 0;
+        }
         $order_payment->payment_percentage = round($order_payment_count / $total_order * 100, 0);
         $order_payment->payment_count = $order_payment_count;
 
         $order_delivery = new \stdClass();
-        $order_delivery_count = DB::table('orders')->where('order_status_id', 5)->count();
+        if(DB::table('orders')->where('order_status_id', 5)->count() != null && DB::table('orders')->where('order_status_id', 5)->count() != 0){
+            $order_delivery_count = DB::table('orders')->where('order_status_id', 5)->count();
+        } else {
+            $order_delivery_count = 0;
+        }
         $order_delivery->delivery_percentage = round($order_delivery_count / $total_order * 100, 0);
         $order_delivery->delivery_count = $order_delivery_count;
 
         $order_template = new \stdClass();
-        $order_template->order_template_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
-        $order_template->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        if(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereYear('created', $year)->count() != null && DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereYear('created', $year)->count() != 0){
+            $order_template->order_template_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
+        } else {
+            $order_template->order_template_year = 0;
+        }
+        if(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count() != null && DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count() != 0){
+            $order_template->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        } else {
+            $order_template->this_month = 0;
+        }
         $order_template_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $order_count = DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            if(DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count() != null && DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count() != 0){
+                $order_count = DB::table('orders')->where('order_type_id', 1)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            } else {
+                $order_count = 0;
+            }
             // }
             $order_template_month->push($order_count);
         }
         $order_template->order_template_month = $order_template_month->values()->all();
 
         $order_customize = new \stdClass();
-        $order_customize->order_customize_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
-        $order_customize->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        if(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereYear('created', $year)->count() != null && DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereYear('created', $year)->count() != 0){
+            $order_customize->order_customize_year = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereYear('created', $year)->count());
+        } else {
+            $order_customize->order_customize_year = 0;
+        }
+        if(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count() != null && DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count() != 0){
+            $order_customize->this_month = $this->formatNumber(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $month)->whereYear('created', $year)->count());
+        } else {
+            $order_customize->this_month = 0;
+        }
         $order_customize_month = collect();
         for ($i = 1; $i <= Carbon::now()->month; $i++) {
             // if($i = 1){
             //     $order_count = DB::table('orders')->whereMonth('created', 12)->whereYear('created', $year-1)->count();
             // } else {
-            $order_count = DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            if(DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count() != null && DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count() != 0){
+                $order_count = DB::table('orders')->where('order_type_id', 2)->whereNot('order_status_id', 7)->whereMonth('created', $i)->whereYear('created', $year)->count();
+            } else {
+                $order_count = 0;
+            }
             // }
             $order_customize_month->push($order_count);
         }

@@ -48,7 +48,7 @@ const OrderDetailCard = ({ order }) => {
                             <span >Order Type: </span>
                         </CCol>
                         <CCol xs={12} sm={6} md={6} lg={6} xl={6} xxl={6} className='d-flex align-items-center'>
-                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={"Customize"} />
+                            <CFormInput disabled className="h-75 w-100 quote-detail-card" defaultValue={order.order_type.name} />
                         </CCol>
                     </CRow>
                     <CRow>
