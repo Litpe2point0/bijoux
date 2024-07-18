@@ -8,7 +8,8 @@ import {
     CFormFeedback,
     CFormLabel,
     CFormCheck,
-    CSpinner
+    CSpinner,
+    CFormSelect
 } from '@coreui/react'
 import { useDispatch } from "react-redux";
 import { Avatar, Button, ListItemAvatar, ListItemText } from "@mui/material";
@@ -17,7 +18,8 @@ import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import { get_account_list } from "../../../../api/main/accounts/Account_api";
-import { get_shape_list } from "../../../../api/main/items/Diamond_api";
+import { get_shape_list, get_size_list } from "../../../../api/main/items/Diamond_api";
+import { setToast } from "../../../../redux/notification/toastSlice";
 
 
 
@@ -43,16 +45,17 @@ function renderValue(item) {
 }
 
 const CustomForm = ({ handleAddDiamond, onClose }) => {
+    const dispatch = useDispatch();
+    const [validated, setValidated] = useState(false)
+    const [loading, setLoading] = useState(true)
 
-    const [validated, setValidated] = useState(false)   
-    const [loading, setLoading] = useState(true)   
-
-    const [isSearch, setIsSearch] = useState(false)   
+    const [isSearch, setIsSearch] = useState(false)
 
 
     const [shapeList, setShapeList] = useState([]);
 
     const [addShape, setAddShape] = useState(null);
+    const [sizeList, setSizeList] = useState([]);
     const [minSize, setMinSize] = useState(1);
     const [maxSize, setMaxSize] = useState(1);
     const [count, setCount] = useState(1);
@@ -64,10 +67,11 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
         const setAttribute = async () => {
 
-            const shape_list= await get_shape_list();
-
+            const shape_list = await get_shape_list();
+            const size_list = await get_size_list();
 
             setShapeList(shape_list.data)
+            setSizeList(size_list.data)
             setAddShape(shape_list.data[0])
 
 
@@ -86,7 +90,7 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
         console.log('count', count)
         console.log('isEditable', isEditable)
-    }, [addShape, minSize,maxSize, count, isEditable])
+    }, [addShape, minSize, maxSize, count, isEditable])
 
 
     const handleShapeSelect = (event, newValue) => {
@@ -96,13 +100,15 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
 
     const handleCount = (event) => {
-        setCount(event.target.value)     
+        setCount(event.target.value)
     }
     const handleMinSize = (event) => {
-        setMinSize(parseFloat(event.target.value) )     
+        console.log('min size', parseFloat(event.target.value))
+        setMinSize(parseFloat(event.target.value))
     }
     const handleMaxSize = (event) => {
-        setMaxSize(parseFloat(event.target.value))     
+        console.log('max size', parseFloat(event.target.value))
+        setMaxSize(parseFloat(event.target.value))
     }
 
     const handleSubmit = (event) => {
@@ -119,7 +125,11 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
                 count: count,
                 is_editable: isEditable ? 1 : 0
             }
+
             console.log('add diamond', add_diamond)
+            if(maxSize < minSize){
+                return dispatch(setToast({ color: 'danger',title: 'Add Failed', mess: "max size must be greater than min size" }))
+            }
             handleAddDiamond(add_diamond)
             onClose();
         }
@@ -182,12 +192,39 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             </CCol>
             <CCol md={12}>
                 <CFormLabel htmlFor="validationCustom02">Min Size</CFormLabel>
-                <CFormInput type="number" min={0}  id="validationCustom02" onChange={handleMinSize} defaultValue={minSize} required />
+                {/* <CFormInput type="number" min={0} id="validationCustom02" onChange={handleMinSize} defaultValue={minSize} required /> */}
+                {loading
+                    ?
+                    <CButton color="light w-100" disabled>
+                        <CSpinner as="span" size="sm" aria-hidden="true" />
+                        Loading...
+                    </CButton>
+                    :
+                    <CFormSelect aria-label="Default select example" onChange={(e) => handleMinSize(e)}>
+                        {sizeList.map((size, index) => (
+                            <option key={index} value={size} >{size}</option>
+                        ))}
+                    </CFormSelect>
+                }
+
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
             <CCol md={12}>
                 <CFormLabel htmlFor="validationCustom02">Max Size</CFormLabel>
-                <CFormInput type="number" min={0}  id="validationCustom02" onChange={handleMaxSize} defaultValue={maxSize} required />
+                {/* <CFormInput type="number" min={0} id="validationCustom02" onChange={handleMaxSize} defaultValue={maxSize} required /> */}
+                {loading
+                    ?
+                    <CButton color="light w-100" disabled>
+                        <CSpinner as="span" size="sm" aria-hidden="true" />
+                        Loading...
+                    </CButton>
+                    :
+                    <CFormSelect aria-label="Default select example" onChange={(e) => handleMaxSize(e)}>
+                        {sizeList.map((size, index) => (
+                            <option key={index} value={size} >{size}</option>
+                        ))}
+                    </CFormSelect>
+                }
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
             <CCol md={12}>
@@ -197,15 +234,15 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             </CCol>
 
             <CCol md={12} className="border border-light rounded w-25 p-1">
-                
-                <CFormCheck  id="flexCheckDefault" label="Is Editable " defaultChecked={isEditable} onChange={e=>setIsEditable(e.target.checked)} />
+
+                <CFormCheck id="flexCheckDefault" label="Is Editable " defaultChecked={isEditable} onChange={e => setIsEditable(e.target.checked)} />
                 <CFormFeedback valid>Looks good!</CFormFeedback>
             </CCol>
-            
-            
-            
+
+
+
             <CCol xs={12} className="d-flex justify-content-center">
-                <CButton  color="success" type="submit" >
+                <CButton disabled={loading} color="success" type="submit" >
                     Confirm add
                 </CButton>
             </CCol>

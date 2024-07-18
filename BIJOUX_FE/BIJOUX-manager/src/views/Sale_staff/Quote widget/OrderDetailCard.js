@@ -19,11 +19,11 @@ import {
     CFormSelect,
     CFormTextarea,
 } from '@coreui/react'
-const OrderDetailCard = ({ order }) => {
+const OrderDetailCard = ({ order, title }) => {
     return (
         <CCard className="h-100">
             <CCardHeader className="text-center text-light fw-bold" >
-                INFORMATION OF ORDER
+              {title? title : 'INFORMATION OF ORDER'}  
             </CCardHeader>
             <CCardBody className="d-flex flex-column justify-content-between">
                 

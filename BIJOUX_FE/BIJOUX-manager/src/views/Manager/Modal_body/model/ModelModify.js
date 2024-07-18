@@ -140,7 +140,7 @@ const AddForm = ({ mounting_type, handleModelAdd, onClose }) => {
 
                                             <span className="text-dark fw-bold fs-5 text-center">Model Image</span>
 
-                                            <UploadSingle defaultImage={"http://localhost:8000/image/Mounting/mounting_model/unknown.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
+                                            <UploadSingle defaultImage={"https://fast-scorpion-strictly.ngrok-free.app/image/Mounting/mounting_model/unknown.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
 
                                         </div>
                                     </CCol>
@@ -311,7 +311,7 @@ const UpdateForm = ({ modelInfo, mounting_type, onClose }) => {
 
                                             <span className="text-dark fw-bold fs-5 text-center">Model Image</span>
 
-                                            <UploadSingle defaultImage={model ? model.imageUrl : "http://localhost:8000/image/Metal/1/main.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
+                                            <UploadSingle defaultImage={model ? model.imageUrl : "https://fast-scorpion-strictly.ngrok-free.app/image/Metal/1/main.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
 
                                         </div>
                                     </CCol>
