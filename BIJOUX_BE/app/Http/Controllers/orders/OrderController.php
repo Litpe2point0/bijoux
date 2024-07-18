@@ -2819,7 +2819,7 @@ class OrderController extends Controller
             'success' => 'Transaction complete'
         ], 200);
     }
-    public function generatePDF($orderCode = 1, $guarantee_expired_date = "2021-01-01 00:00:00")
+    public function generatePDF($orderCode, $guarantee_expired_date)
     {
         $payment = DB::table('payment')->where('id', $orderCode)->first();
         $account = DB::table('account')->where('id', $payment->account_id)->first();
@@ -2879,7 +2879,7 @@ class OrderController extends Controller
         File::put($filePath2, $content2);
         $path_to_files = [$filePath, $filePath2];
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
-        // $this->sendMail($account->email, $messageContent, 'Payment Invoice', $path_to_files);
+        $this->sendMail($account->email, $messageContent, 'Payment Invoice', $path_to_files);
         // $this->sendMail('dxbach31102004@gmail.com', $messageContent, 'Payment Invoice', $path_to_files);
     }
     public function generatePDFextra($orderId, $guarantee_expired_date)

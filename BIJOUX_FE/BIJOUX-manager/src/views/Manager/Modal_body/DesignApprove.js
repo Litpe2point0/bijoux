@@ -41,6 +41,7 @@ import { ArrowFatLinesRight, CaretDoubleRight } from "phosphor-react";
 import { OrderPriceContext } from "../Order_Price";
 import { approve_design_process, get_design_process_detail } from "../../../api/main/orders/Order_api";
 import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_formatter";
+import OrderDetailCard from "../Quote widget/OrderDetailCard";
 
 
 
@@ -184,7 +185,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                 <CAccordionItem>
                                     <CAccordionHeader>INFORMATION OF ORDER</CAccordionHeader>
                                     <CAccordionBody>
-                                        <QuoteDetailCard quote={order} title={'INFORMATION OF ORDER'} />
+                                        <OrderDetailCard order={order} title={'INFORMATION OF ORDER'} />
                                     </CAccordionBody>
                                 </CAccordionItem>
                             </CAccordion>
@@ -193,7 +194,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                         <div className="mt-1" style={{ height: 'fit-content' }}  >
                             <CAccordion >
                                 <CAccordionItem>
-                                    <CAccordionHeader>INFORMATION OF ORDER</CAccordionHeader>
+                                    <CAccordionHeader>ADDITIONAL INFORMATION</CAccordionHeader>
                                     <CAccordionBody>
                                         <CCard className="h-100">
                                             <CCardHeader className="text-center text-light fw-bold" >
@@ -557,7 +558,6 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                     <span className="text-secondary fs-6">
                                                         <CurrencyFormatterLowercase value={order.product_price} />
 
-                                                        {/* {order.product_price} vnd */}
                                                     </span>
 
                                                 </CCol>
@@ -588,9 +588,6 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                             </CRow>
                                         </CCol>
-                                        {/* <CCol md={1} className="d-flex align-items-center justify-content-center p-0">
-                                            <CaretDoubleRight size={30} color='gray' weight="light" />
-                                        </CCol> */}
                                         <CCol md={5} className="p-0">
                                             <span className="text-success fw-bold fs-5 d-flex align-items-center">Updating </span>
 

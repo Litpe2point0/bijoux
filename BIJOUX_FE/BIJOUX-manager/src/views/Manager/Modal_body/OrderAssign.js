@@ -39,6 +39,7 @@ import QuoteProductImage from "../Quote widget/QuoteProductImage";
 import { OrderPageContext } from "../Order_Page";
 import { get_order_detail, reassign_order } from "../../../api/main/orders/Order_api";
 import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_formatter";
+import OrderDetailCard from "../Quote widget/OrderDetailCard";
 
 
 
@@ -184,7 +185,7 @@ const CustomForm = ({ orderInfo, onClose }) => {
                     </CCol>
                     <CCol lg={6}>
                         <div style={{ height: 'fit-content' }}>
-                            <QuoteDetailCard quote={order} title={'INFORMATION OF ORDER'} />
+                            <OrderDetailCard order={order} title={'INFORMATION OF ORDER'} />
                         </div>
 
                         <div className="mt-1" style={{ height: 'fit-content' }}  >

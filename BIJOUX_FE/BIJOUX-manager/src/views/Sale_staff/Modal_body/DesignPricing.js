@@ -45,6 +45,7 @@ import ProductionPriceChange from "./ProductionPriceChange";
 import { SaleOrderPriceContext } from "../Order_Price";
 import { get_design_process_detail, pricing_design_process } from "../../../api/main/orders/Order_api";
 import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_formatter";
+import OrderDetailCard from "../Quote widget/OrderDetailCard";
 
 
 
@@ -195,7 +196,6 @@ const CustomForm = ({ designInfo, onClose }) => {
                                 </CAccordionBody>
                             </CAccordionItem>
                         </CAccordion>
-                        {/* <AccountCard account={order.account} avatarSize={100} cardHeight={'120px'} /> */}
                         <div className='flex-grow-1'>
                             <NoteCard mainNote={note} minRows={8} maxRows={20} isLoading={loading} note={designProcess.note} handleChange={handleNote} />
 
@@ -207,11 +207,10 @@ const CustomForm = ({ designInfo, onClose }) => {
                                 <CAccordionItem>
                                     <CAccordionHeader>INFORMATION OF ORDER</CAccordionHeader>
                                     <CAccordionBody>
-                                        <QuoteDetailCard quote={order} title={'INFORMATION OF ORDER'} />
+                                        <OrderDetailCard order={order} title={'INFORMATION OF ORDER'} />
                                     </CAccordionBody>
                                 </CAccordionItem>
                             </CAccordion>
-                            {/* <QuoteDetailCard quote={order} title={'INFORMATION OF ORDER'} /> */}
                         </div>
                         <div className="mt-1" style={{ height: 'fit-content' }}  >
                             <CAccordion >
