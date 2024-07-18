@@ -138,12 +138,12 @@ export default function ChooseMounting() {
 
     return (
 
-        <div className="flex flex-col items-center m-20">
+        <div className="flex flex-col items-center mt-5 ml-20 mr-20 mb-20">
 
 
             {loading ?
                 <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
-                    <CircularProgress color="inherit"/>
+                    <CircularProgress color="inherit" />
                 </Box>
                 :
                 <>
