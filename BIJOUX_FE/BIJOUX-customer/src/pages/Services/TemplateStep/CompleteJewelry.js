@@ -194,7 +194,7 @@ export default function CompleteRing() {
     }
     const handleOrderAdding = async () => {
         setLoadingComplete(true);
-        let account =  getUserFromPersist();
+        let account = getUserFromPersist();
         if (!account) {
             return loginRequiredAlert();
         }
@@ -204,7 +204,7 @@ export default function CompleteRing() {
         const response_update_account_detail = await get_update_account_detail(formData_update_account_detail, "Get Account Detail", true);
         if (response_update_account_detail.success) {
             const user = response_update_account_detail.data.account_detail;
-            account= user;
+            account = user;
         } else {
             return loginRequiredAlert();
         }
@@ -243,16 +243,16 @@ export default function CompleteRing() {
             localStorage.removeItem('finalProduct');
             setLoading(2);
             // navigate('/services');
-        }else{
+        } else {
             setLoading(3)
         }
         setLoadingComplete(false);
     }
 
-    
+
     return (
         <div className="flex flex-col items-center text-[#151542] mb-20">
-            <p className="text-[#151542] text-4xl font-loraFont font-semibold">Your Final Jewelry Has Been Complete !</p>
+            <p className="text-[#151542] md:text-4xl sm:text-2xl font-loraFont font-semibold">Your Final Jewelry Has Been Complete !</p>
             <div className="w-3/4 h-0.5 bg-slate-500 mb-20 mt-5"></div>
             {loading == 1 &&
                 <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
@@ -278,11 +278,11 @@ export default function CompleteRing() {
 
             }
             {loading == 0 &&
-                <div className="w-10/12 grid grid-cols-2 gap-5">
-                    <div className="w-3/4">
+                <div className="w-10/12 grid md:grid-cols-2 sm:grid-cols-1 gap-5">
+                    <div className="w-full flex flex-col items-center sm:justify-center md:justify-start">
                         <div className="w-full flex justify-center mb-10">
 
-                            <img src={showImage} alt="diamond" className="w-3/4 border-2 drop-shadow-xl" />
+                            <img src={showImage} alt="diamond" className="w-10/12 border-2 drop-shadow-xl rounded-md" />
 
                         </div>
                         <div className="w-full">
@@ -410,43 +410,43 @@ export default function CompleteRing() {
                             <p className="font-gantariFont text-[#151542] font-semibold">Our Policies:</p>
                         </div>
 
-                        <div className="w-full h-[100px] bg-gray-100 rounded-lg flex items-center mb-5">
-                            <div className="w-[100px] h-[100px] flex items-center justify-center">
-                                <div className="bg-gray-200 h-3/4 w-3/4 flex items-center justify-center rounded-xl ">
+                        <div className="w-full md:h-[120px] sm:h-[120px] bg-gray-100 rounded-lg flex items-center mb-5">
+                            <div className="md:w-[100px] h-full sm:w-[50px] flex md:items-center sm:items-start md:p-0 sm:p-5 justify-center">
+                                <div className="md:bg-gray-200 sm:bg-transparent sm:h-[35px] sm:w-[35px] md:h-[78px] md:w-[78px] flex items-center justify-center rounded-xl ">
                                     <FiTruck size={40} />
                                 </div>
                             </div>
-                            <div className="ml-3 flex flex-col">
+                            <div className="ml-3 flex flex-col h-full flex-1 justify-center">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Free Shipping</p>
-                                <div className="w-[550px]">
+                                <div className="w-full">
                                     <p className="font-gantariFont text-sm">Your jewelry will be shipped nationwide free of charge with the utmost expediency. We are committed to ensuring the security and integrity of your product throughout the shipping process.</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="w-full h-[100px] bg-gray-100 rounded-lg flex items-center mb-5">
-                            <div className="w-[100px] h-[100px] flex items-center justify-center">
-                                <div className="bg-gray-200 h-3/4 w-3/4 flex items-center justify-center rounded-xl ">
+                        <div className="w-full md:h-[120px] sm:h-[120px] bg-gray-100 rounded-lg flex items-center mb-5">
+                            <div className="md:w-[100px] h-full sm:w-[50px] flex md:items-center sm:items-start md:p-0 sm:p-5 justify-center">
+                                <div className="md:bg-gray-200 sm:bg-transparent sm:h-[35px] sm:w-[35px] md:h-[78px] md:w-[78px] flex items-center justify-center rounded-xl ">
                                     <AiOutlineDollarCircle size={40} />
                                 </div>
                             </div>
-                            <div className="ml-3 flex flex-col">
+                            <div className="ml-3 flex flex-col h-full flex-1 justify-center">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Material's Price Changing</p>
-                                <div className="w-[550px]">
+                                <div className="w-full">
                                     <p className="font-gantariFont text-sm">Jewelry prices may vary due to changes in the prices of raw materials before you place a deposit. Therefore, place your deposit early to lock in the best price.</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="w-full h-[100px] bg-gray-100 rounded-lg flex items-center">
-                            <div className="w-[100px] h-[100px] flex items-center justify-center">
-                                <div className="bg-gray-200 h-3/4 w-3/4 flex items-center justify-center rounded-xl ">
+                        <div className="w-full md:h-[120px] sm:h-[120px] bg-gray-100 rounded-lg flex items-center mb-5">
+                            <div className="md:w-[100px] h-full sm:w-[50px] flex md:items-center sm:items-start md:p-0 sm:p-5 justify-center">
+                                <div className="md:bg-gray-200 sm:bg-transparent sm:h-[35px] sm:w-[35px] md:h-[78px] md:w-[78px] flex items-center justify-center rounded-xl ">
                                     <CgSandClock size={40} />
                                 </div>
                             </div>
-                            <div className="ml-3 flex flex-col">
+                            <div className="ml-3 flex flex-col h-full flex-1 justify-center">
                                 <p className="font-gantariFont text-[#151542] font-semibold">Lifetime warranty</p>
-                                <div className="w-[550px]">
+                                <div className="w-full">
                                     <p className="font-gantariFont text-sm">Your jewelry is covered by a lifetime warranty from Bijoux. Any issues related to the materials used in the jewelry will be resolved by us.</p>
                                 </div>
                             </div>
@@ -490,18 +490,18 @@ export default function CompleteRing() {
                         />
                     </div>
                     <div className="flex flex-col items-center justify-center mt-2">
-                        
-                            <button disabled={loadingUpdateSelf} onClick={() => handleUpdateSelf()} className="w-[150px] h-[40px] text-white font-semibold font-gantariFont bg-sky-800 hover:bg-sky-500 rounded-sm">
-                            {loadingUpdateSelf ?
-                            <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center'}}>
-                                <CircularProgress color="inherit" />
-                            </Box>
-                            :
-                            'Submit'
-                            }
-                            </button>
 
-                        
+                        <button disabled={loadingUpdateSelf} onClick={() => handleUpdateSelf()} className="w-[150px] h-[40px] text-white font-semibold font-gantariFont bg-sky-800 hover:bg-sky-500 rounded-sm">
+                            {loadingUpdateSelf ?
+                                <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                    <CircularProgress color="inherit" />
+                                </Box>
+                                :
+                                'Submit'
+                            }
+                        </button>
+
+
                         <p className="text-xs text-center text-gray-500 font-gantariFont mt-4">Please make sure that you submit correct informations.</p>
                     </div>
                 </Box>

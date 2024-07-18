@@ -31,18 +31,18 @@ export default function OrderDetails() {
     const [updateProductionPrice, setUpdateProductionPrice] = useState(0);
     const [refundPrice, setRefundPrice] = useState(0);
 
-    const handleCancelPayment=async (payment_id)=>{
+    const handleCancelPayment = async (payment_id) => {
         const formData = new FormData();
         formData.append("payment_id", payment_id);
         const response = await cancel_payment(formData, 'Get order detail', true);
     }
     useEffect(() => {
-        
+
         if (query.get("payment_status") == "success") {
             paymentAlertMaker(navigate, 'success', 'Payment success', 'Your payment has been successfully processed. Thank you for your purchase!')
         } else if (query.get("payment_status") == "cancel") {
-            if(query.get("status")==="CANCELLED"){
-                const payment_id=query.get("orderCode");
+            if (query.get("status") === "CANCELLED") {
+                const payment_id = query.get("orderCode");
                 handleCancelPayment(payment_id);
             }
             paymentAlertMaker(navigate, 'error', 'Payment failed', 'Your payment has failed. Please try again!')
@@ -110,7 +110,7 @@ export default function OrderDetails() {
                         {!loading && <OrderStepper order={orderDetail} />}
                     </div>
                     {!loading &&
-                        <div className="w-10/12 grid grid-cols-3">
+                        <div className="w-10/12 flex justify-around">
                             <div className="w-full flex items-center justify-center">
                                 <button onClick={() => handleChangeContent("order-informations")} className="md:w-[190px] md:h-[40px] sm:w-[165px] sm:h-[40px] sm:text-sm md:text-base bg-[#151542] text-white font-semibold hover:bg-[#2323D5] hover:text-yellow-400">Order Informations</button>
                             </div>
@@ -190,7 +190,7 @@ export default function OrderDetails() {
                         <div className="flex-1"></div>
                         <p><CurrencyFormatter value={orderDetail.total_price} /></p>
                     </div>
-                    
+
 
                 </div>}
         </div>

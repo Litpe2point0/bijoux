@@ -99,8 +99,14 @@ import ricoh5 from "../images/products/imprimante/ricoh5.webp";
 
 import espson1 from "../images/products/imprimante/espson1.webp";
 import espson2 from "../images/products/imprimante/espson2.webp";
+import ring from "../images/ring.jpg";
+import band from "../images/band.jpg";
+import pendant from "../images/pendant.jpg";
 
 export {
+  ring,
+  band,
+  pendant,
   ec_1,
   ec_2,
   ec_3,
