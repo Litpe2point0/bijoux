@@ -191,26 +191,39 @@ const Header = () => {
                       alt="logoLight"
                     />
                     <ul className="text-gray-200 flex flex-col gap-2">
-                      {navBarList.map((item) => (
-                        <li
-                          className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
-                          key={item._id}
+
+                      <li
+                        className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                        key={1001}
+                      >
+                        <NavLink
+                          to={"/"}
+                          state={{ data: location.pathname.split("/")[1] }}
+                          onClick={() => setSidenav(false)}
                         >
-                          <NavLink
-                            to={item.link}
-                            state={{ data: location.pathname.split("/")[1] }}
-                            onClick={() => setSidenav(false)}
-                          >
-                            {item.title}
-                          </NavLink>
-                        </li>
-                      ))}
+                          Home
+                        </NavLink>
+                      </li>
+
+                      <li
+                        className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                        key={1002}
+                      >
+                        <NavLink
+                          to={"/services"}
+                          state={{ data: location.pathname.split("/")[1] }}
+                          onClick={() => setSidenav(false)}
+                        >
+                          Services
+                        </NavLink>
+                      </li>
+
                     </ul>
                     <div className="mt-4">
                       <h1
                         className="flex justify-between text-base cursor-pointer items-center font-titleFont mb-2"
                       >
-                        <p onClick={() => handleNavigatePage("/templates")}>Templates{" "}</p>
+                        <p className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0" onClick={() => handleNavigatePage("/templates")}>Templates{" "}</p>
                         <span onClick={() => setCategory(!category)} className="text-lg">{category ? "-" : "+"}</span>
                       </h1>
                       {category && (
@@ -226,14 +239,42 @@ const Header = () => {
                         </motion.ul>
                       )}
                     </div>
+
                     <div className="mt-4">
                       <h1
                         onClick={() => handleNavigatePage("/customization")}
                         className="flex justify-between text-base cursor-pointer items-center font-titleFont mb-2"
                       >
-                        Customization
+                        <p className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0">Customization</p>
                       </h1>
                     </div>
+
+                    <ul className="text-gray-200 flex flex-col gap-2 mt-4">
+                      <li
+                        className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                        key={1003}
+                      >
+                        <NavLink
+                          to={"/about"}
+                          state={{ data: location.pathname.split("/")[1] }}
+                          onClick={() => setSidenav(false)}
+                        >
+                          About
+                        </NavLink>
+                      </li>
+                      <li
+                        className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                        key={1004}
+                      >
+                        <NavLink
+                          to={"/contact"}
+                          state={{ data: location.pathname.split("/")[1] }}
+                          onClick={() => setSidenav(false)}
+                        >
+                          Contact
+                        </NavLink>
+                      </li>
+                    </ul>
                   </div>
                   <span
                     onClick={() => setSidenav(false)}
@@ -242,6 +283,8 @@ const Header = () => {
                     <MdClose />
                   </span>
                 </motion.div>
+
+
               </div>
             )}
           </div>

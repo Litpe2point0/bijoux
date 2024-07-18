@@ -30,7 +30,7 @@ export default function SelectType() {
         <div className="w-full flex flex-col items-center font-gantariFont text-[#151542]">
             <p className="my-5 text-4xl font-loraFont">Select Your Jewelry Type</p>
             <div className="h-0.5 w-3/4 bg-[#151542] mb-5"></div>
-            <div className="w-full flex items-center justify-around">
+            <div className="w-full md:flex md:items-center md:justify-around sm:grid sm:grid-cols-1">
                 {loading ?
                     <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
                         <CircularProgress color="inherit" />
