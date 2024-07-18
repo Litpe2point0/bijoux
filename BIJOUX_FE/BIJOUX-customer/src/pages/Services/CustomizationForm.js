@@ -130,7 +130,7 @@ export default function CustomizationForm() {
         setLoadingSubmit(false)
 
     }
-    const empty_input = () => { 
+    const empty_input = () => {
         setIdea("");
         setPhoneNumber("");
         setAddress("");
@@ -167,8 +167,8 @@ export default function CustomizationForm() {
 
     return (
         <div className="flex flex-col items-center">
-            <p className="my-5 text-4xl font-loraFont text-[#151542]">Submit your informations for Jewelry Customization</p>
-            <p className="text-gray-500 text-sm text-center">Before making your own jewelry, please give us informations so that we can know more about you and your ideas !</p>
+            <p className="my-5 md:text-4xl sm:text-2xl font-loraFont text-[#151542]">Submit your informations for Jewelry Customization</p>
+            <p className="text-gray-500 text-sm md:pl-0 md:pr-0 sm:pl-5 sm:pr-5 text-center">Before making your own jewelry, please give us informations so that we can know more about you and your ideas !</p>
             {loading ?
                 <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', paddingY: '100px' }}>
                     <CircularProgress color="inherit" />
@@ -177,7 +177,7 @@ export default function CustomizationForm() {
                 <div className="w-full flex flex-col items-center p-10">
 
                     {/* Chọn type */}
-                    <div className="w-[828px] mb-5">
+                    <div className="md:w-[828px] sm:w-full mb-5">
                         <p className="font-gantariFont text-gray-600 mb-2 text-lg font-semibold">What would you want to make ?</p>
 
                         <Select sx={{ width: '100%' }} value={JSON.stringify(selectedMountingType)} onChange={handleMountingTypeSelect}>
@@ -189,7 +189,7 @@ export default function CustomizationForm() {
                     </div>
 
                     {/* Nhập Idea */}
-                    <div className="w-[828px]">
+                    <div className="md:w-[828px] sm:w-full">
                         <p className="font-gantariFont text-gray-600 mb-2 text-lg font-semibold">Let us hear more about your ideas !</p>
                         <TextField sx={{ width: '100%' }} multiline value={idea} onChange={(e) => setIdea(e.target.value)} />
                     </div>
@@ -198,7 +198,7 @@ export default function CustomizationForm() {
                     {additionalInfoShow &&
                         <div className="w-full flex flex-col items-center p-5">
                             {/* Phone */}
-                            <div className="w-[828px] mb-5">
+                            <div className="md:w-[828px] sm:w-full mb-5">
                                 <p className="font-gantariFont text-gray-600 mb-2 text-lg font-semibold">Your Phone Number ?</p>
                                 <PhoneInput
                                     placeholder="Enter phone number"
@@ -215,7 +215,7 @@ export default function CustomizationForm() {
 
                             {/* Address */}
 
-                            <div className="w-[828px]">
+                            <div className="md:w-[828px] sm:w-full">
                                 <p className="font-gantariFont text-gray-600 mb-2 text-lg font-semibold">Your address ?</p>
                                 <TextField sx={{ width: '100%' }} type="text" value={address} onChange={(e) => setAddress(e.target.value)} />
                             </div>
@@ -225,7 +225,7 @@ export default function CustomizationForm() {
                     <div className="my-4  flex justify-center">
                         <button onClick={() => handleSubmit()} disabled={loadingSubmit} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">
                             {loadingSubmit ?
-                                <Box sx={{ display: 'flex',height:'100%',  width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                                     <CircularProgress color="inherit" size={25} />
                                 </Box>
                                 : 'Submit'}

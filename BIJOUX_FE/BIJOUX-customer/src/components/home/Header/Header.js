@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { MdClose } from "react-icons/md";
 import { HiMenuAlt2 } from "react-icons/hi";
 import { motion } from "framer-motion";
@@ -9,6 +9,7 @@ import { navBarList } from "../../../constants";
 import Flex from "../../designLayouts/Flex";
 
 const Header = () => {
+  const navigate = useNavigate()
   const [showMenu, setShowMenu] = useState(true);
   const [sidenav, setSidenav] = useState(false);
   const [category, setCategory] = useState(false);
@@ -36,6 +37,10 @@ const Header = () => {
     localStorage.removeItem("nextStep");
     window.location.href = `/template?step=1&mountingType=${id}`;
   }
+  const handleNavigatePage = (path) => {
+    navigate(path);
+  }
+
   return (
     <div className="w-full h-20 bg-white sticky top-0 z-50 border-b-[1px] border-b-gray-200">
       <nav className="h-full px-4 max-w-container mx-auto relative">
@@ -186,28 +191,40 @@ const Header = () => {
                       alt="logoLight"
                     />
                     <ul className="text-gray-200 flex flex-col gap-2">
-                      {navBarList.map((item) => (
-                        <li
-                          className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
-                          key={item._id}
+
+                      <li
+                        className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                        key={1001}
+                      >
+                        <NavLink
+                          to={"/"}
+                          state={{ data: location.pathname.split("/")[1] }}
+                          onClick={() => setSidenav(false)}
                         >
-                          <NavLink
-                            to={item.link}
-                            state={{ data: location.pathname.split("/")[1] }}
-                            onClick={() => setSidenav(false)}
-                          >
-                            {item.title}
-                          </NavLink>
-                        </li>
-                      ))}
+                          Home
+                        </NavLink>
+                      </li>
+
+                      <li
+                        className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                        key={1002}
+                      >
+                        <NavLink
+                          to={"/services"}
+                          state={{ data: location.pathname.split("/")[1] }}
+                          onClick={() => setSidenav(false)}
+                        >
+                          Services
+                        </NavLink>
+                      </li>
+
                     </ul>
                     <div className="mt-4">
                       <h1
-                        onClick={() => setCategory(!category)}
                         className="flex justify-between text-base cursor-pointer items-center font-titleFont mb-2"
                       >
-                        Shop by Category{" "}
-                        <span className="text-lg">{category ? "-" : "+"}</span>
+                        <p className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0" onClick={() => handleNavigatePage("/templates")}>Templates{" "}</p>
+                        <span onClick={() => setCategory(!category)} className="text-lg">{category ? "-" : "+"}</span>
                       </h1>
                       {category && (
                         <motion.ul
@@ -216,37 +233,48 @@ const Header = () => {
                           transition={{ duration: 0.4 }}
                           className="text-sm flex flex-col gap-1"
                         >
-                          <li className="headerSedenavLi">New Arrivals</li>
-                          <li className="headerSedenavLi">Gudgets</li>
-                          <li className="headerSedenavLi">Accessories</li>
-                          <li className="headerSedenavLi">Electronics</li>
-                          <li className="headerSedenavLi">Others</li>
+                          <li onClick={() => handleNavigate(1)} className="headerSedenavLi">Ring</li>
+                          <li onClick={() => handleNavigate(2)} className="headerSedenavLi">Band</li>
+                          <li onClick={() => handleNavigate(3)} className="headerSedenavLi">Pendant</li>
                         </motion.ul>
                       )}
                     </div>
+
                     <div className="mt-4">
                       <h1
-                        onClick={() => setBrand(!brand)}
+                        onClick={() => handleNavigatePage("/customization")}
                         className="flex justify-between text-base cursor-pointer items-center font-titleFont mb-2"
                       >
-                        Shop by Brand
-                        <span className="text-lg">{brand ? "-" : "+"}</span>
+                        <p className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0">Customization</p>
                       </h1>
-                      {brand && (
-                        <motion.ul
-                          initial={{ y: 15, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          transition={{ duration: 0.4 }}
-                          className="text-sm flex flex-col gap-1"
-                        >
-                          <li className="headerSedenavLi">New Arrivals</li>
-                          <li className="headerSedenavLi">Gudgets</li>
-                          <li className="headerSedenavLi">Accessories</li>
-                          <li className="headerSedenavLi">Electronics</li>
-                          <li className="headerSedenavLi">Others</li>
-                        </motion.ul>
-                      )}
                     </div>
+
+                    <ul className="text-gray-200 flex flex-col gap-2 mt-4">
+                      <li
+                        className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                        key={1003}
+                      >
+                        <NavLink
+                          to={"/about"}
+                          state={{ data: location.pathname.split("/")[1] }}
+                          onClick={() => setSidenav(false)}
+                        >
+                          About
+                        </NavLink>
+                      </li>
+                      <li
+                        className="font-normal hover:font-bold items-center text-lg text-gray-200 hover:underline underline-offset-[4px] decoration-[1px] hover:text-white md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                        key={1004}
+                      >
+                        <NavLink
+                          to={"/contact"}
+                          state={{ data: location.pathname.split("/")[1] }}
+                          onClick={() => setSidenav(false)}
+                        >
+                          Contact
+                        </NavLink>
+                      </li>
+                    </ul>
                   </div>
                   <span
                     onClick={() => setSidenav(false)}
@@ -255,6 +283,8 @@ const Header = () => {
                     <MdClose />
                   </span>
                 </motion.div>
+
+
               </div>
             )}
           </div>
