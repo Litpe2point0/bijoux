@@ -279,7 +279,7 @@ export default function CompleteRing() {
             }
             {loading == 0 &&
                 <div className="w-10/12 grid md:grid-cols-2 sm:grid-cols-1 gap-5">
-                    <div className="w-3/4 sm:w-full sm:flex sm:flex-col sm:items-center sm:justify-center">
+                    <div className="w-full flex flex-col items-center sm:justify-center md:justify-start">
                         <div className="w-full flex justify-center mb-10">
 
                             <img src={showImage} alt="diamond" className="w-10/12 border-2 drop-shadow-xl rounded-md" />
