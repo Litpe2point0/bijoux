@@ -413,7 +413,10 @@ const CustomForm = ({ orderInfo, onClose }) => {
                                             <span className="text-dark fw-bold fs-5 ">Deposit Has Paid: </span>
                                         </CCol>
                                         <CCol lg={3} className="p-0 m-0 d-flex align-items-center">
-                                            <span className="text-secondary fs-6">{order.deposit_has_paid} vnd</span>
+                                            <span className="text-secondary fs-6">
+                                            {/* {order.deposit_has_paid} vnd */}
+                                            <CurrencyFormatterLowercase value={order.deposit_has_paid} />
+                                            </span>
 
                                         </CCol>
                                     </CRow>
