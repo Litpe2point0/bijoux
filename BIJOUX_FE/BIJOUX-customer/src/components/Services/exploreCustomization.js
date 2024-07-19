@@ -197,8 +197,8 @@ export default function ExploreCustomization() {
                 <div className="flex flex-col m-10 items-center ">
                     <h1 className="md:text-5xl xs:text-4xl mt-5 font-loraFont font-light text-[#151542]">Explore Customization</h1>
                     <div className="w-full grid md:grid-cols-2 sm:grid-cols-1 mt-5 mb-10 gap-3">
-                        <div className="w-full flex justify-end">
-                            <img src={customBanner} alt="Image" className="md:w-[622px] md:h-[350px] lg:w-[750px] lg:h-[400px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
+                        <div className="w-full flex md:justify-end sm:justify-center">
+                            <img src={customBanner} alt="Image" className="w-10/12 md:h-[350px] lg:h-[400px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
                         </div>
                         <div className="w-full flex flex-col justify-center items-start md:ml-4 sm:ml-0">
                             <p className="md:text-lg sm:text-sm text-start md:w-[624px] sm:w-[554px] font-gantariFont text-gray-400 mt-2 mb-5"> We offer personalized jewelry services, allowing you to design unique pieces that reflect your individual style and personality. Create bespoke rings, necklaces, and bracelets tailored just for you.</p>
