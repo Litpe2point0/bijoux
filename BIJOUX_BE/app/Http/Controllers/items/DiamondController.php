@@ -166,25 +166,29 @@ class DiamondController extends Controller
             $data = [];
             foreach ($product_diamond as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
-                if($temp1 != null){
-                    if($temp1->order_status_id >= 3){
+                if ($temp1 != null) {
+                    if ($temp1->order_status_id >= 3) {
                         continue;
                     }
                 }
-                $true = false;
+                $true1 = false;
+                $true2 = false;
                 //find all product_diamond list to update price
                 $diamond_list = DB::table('product_diamond')->where('product_id', $product->product_id)->where('diamond_id', $input['diamond_id'])->get();
                 //check if the list has already been update previously to avoid removing the original price
                 foreach ($diamond_list as $diamond) {
                     if ($diamond->status == 3) {
-                        $true = true;
+                        $true1 = true;
+                    }
+                    if ($diamond->status == 4) {
+                        $true2 = true;
                     }
                 }
                 //loop to update diamond price
                 foreach ($diamond_list as $diamond) {
                     //update current diamond price
                     if ($diamond->status == 1) {
-                        if (!$true) {
+                        if (!$true1) {
                             //set status to save the original current diamond price before update price
                             DB::table('product_diamond')->where('product_id', $product->product_id)->where('diamond_id', $diamond->diamond_id)->where('status', 1)->update([
                                 'status' => 3
@@ -202,7 +206,7 @@ class DiamondController extends Controller
                         DB::table('product_diamond')->where('product_id', $product->product_id)->where('diamond_id', $diamond->diamond_id)->where('status', 1)->delete();
                         $data[] = $temp;
                     } else if ($diamond->status == 0) {
-                        if (!$true) {
+                        if (!$true2) {
                             //set status to save the original future diamond price before update price
                             DB::table('product_diamond')->where('product_id', $product->product_id)->where('diamond_id', $diamond->diamond_id)->where('status', 0)->update([
                                 'status' => 4
@@ -227,8 +231,8 @@ class DiamondController extends Controller
             //loop to update diamond price in order and quote
             foreach ($product_diamond as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
-                if($temp1 != null){
-                    if($temp1->order_status_id >= 3){
+                if ($temp1 != null) {
+                    if ($temp1->order_status_id >= 3) {
                         continue;
                     }
                 }
@@ -251,10 +255,12 @@ class DiamondController extends Controller
                             $product_price += $metal->price;
                         }
                     }
-                    DB::table('orders')->where('product_id', $product->product_id)->update([
-                        'product_price' => $product_price,
-                        'total_price' => ceil($product_price * ($profit_rate + 100) / 100 + $production_price)
-                    ]);
+                    if ($order->order_status_id == 1) {
+                        DB::table('orders')->where('product_id', $product->product_id)->update([
+                            'product_price' => $product_price,
+                            'total_price' => ceil($product_price * ($profit_rate + 100) / 100 + $production_price)
+                        ]);
+                    }
                 }
 
                 $quote =  DB::table('quote')->where('product_id', $product->product_id)->first();

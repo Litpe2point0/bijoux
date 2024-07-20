@@ -91,25 +91,29 @@ class MetalController extends Controller
             $data = [];
             foreach ($product_metal as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
-                if($temp1 != null){
-                    if($temp1->order_status_id >= 3){
+                if ($temp1 != null) {
+                    if ($temp1->order_status_id >= 3) {
                         continue;
                     }
                 }
-                $true = false;
+                $true1 = false;
+                $true2 = false;
                 //find all product_metal list to update price
                 $metal_list = DB::table('product_metal')->where('product_id', $product->product_id)->where('metal_id', $input['metal_id'])->get();
                 //check if the list has already been update previously to avoid removing the original price
                 foreach ($metal_list as $metal) {
                     if ($metal->status == 3) {
-                        $true = true;
+                        $true1 = true;
+                    }
+                    if ($metal->status == 4) {
+                        $true2 = true;
                     }
                 }
                 //loop to update metal price
                 foreach ($metal_list as $metal) {
                     //update current metal price
                     if ($metal->status == 1) {
-                        if (!$true) {
+                        if (!$true1) {
                             //set status to save the original current metal price before update price
                             DB::table('product_metal')->where('product_id', $product->product_id)->where('metal_id', $metal->metal_id)->where('status', 1)->update([
                                 'status' => 3
@@ -127,7 +131,7 @@ class MetalController extends Controller
                         DB::table('product_metal')->where('product_id', $product->product_id)->where('metal_id', $metal->metal_id)->where('status', 1)->delete();
                         $data[] = $temp;
                     } else if ($metal->status == 0) {
-                        if (!$true) {
+                        if (!$true2) {
                             //set status to save the original future metal price before update price
                             DB::table('product_metal')->where('product_id', $product->product_id)->where('metal_id', $metal->metal_id)->where('status', 0)->update([
                                 'status' => 4
@@ -152,8 +156,8 @@ class MetalController extends Controller
             //loop to update metal price in order and quote
             foreach ($product_metal as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
-                if($temp1 != null){
-                    if($temp1->order_status_id >= 3){
+                if ($temp1 != null) {
+                    if ($temp1->order_status_id >= 3) {
                         continue;
                     }
                 }
@@ -176,10 +180,12 @@ class MetalController extends Controller
                             $product_price += $metal->price;
                         }
                     }
-                    DB::table('orders')->where('product_id', $product->product_id)->update([
-                        'product_price' => $product_price,
-                        'total_price' => ceil(($product_price) * ($profit_rate + 100) / 100 + $production_price)
-                    ]);
+                    if ($order->order_status_id == 1) {
+                        DB::table('orders')->where('product_id', $product->product_id)->update([
+                            'product_price' => $product_price,
+                            'total_price' => ceil($product_price * ($profit_rate + 100) / 100 + $production_price)
+                        ]);
+                    }
                 }
 
                 $quote =  DB::table('quote')->where('product_id', $product->product_id)->first();
@@ -216,7 +222,7 @@ class MetalController extends Controller
                         if ($design_process->design_process_status_id < 3) {
                             $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0)->get();
                             $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0)->get();
-                        } else if($design_process->design_process_status_id = 3){
+                        } else if ($design_process->design_process_status_id = 3) {
                             $diamond_list = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 2)->get();
                             $metal_list = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 2)->get();
                         }
@@ -454,7 +460,7 @@ class MetalController extends Controller
                 }
             }
         }
-        if($data->isEmpty()){
+        if ($data->isEmpty()) {
             return response()->json([
                 'error' => 'No compatibility metal found'
             ], 403);
