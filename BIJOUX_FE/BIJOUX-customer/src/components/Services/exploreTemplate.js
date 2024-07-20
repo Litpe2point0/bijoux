@@ -50,7 +50,9 @@ export default function ExploreTemplate() {
                                 </button>
                             </div>
                         </div>
-                        <div className="w-full flex justify-center sm:order-1 md:order-2 ">
+
+                         <div className="w-full flex md:justify-start sm:justify-center sm:order-1 md:order-2 ">
+
                             <img src={templateBanner} alt="Image" className="w-10/12 h-[350px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
                         </div>
                     </div>
