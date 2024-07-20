@@ -19,3 +19,11 @@ Schedule::call(function(){
     ]);
     echo('Đã xong rồi em');
 })->everyFiveMinutes();
+
+//->everyTwoMinutes();
+//->everyMinute();
+//->everyThreeMinutes();
+
+//->subDays(3)
+//->subMinute()
+//->subMinutes(3)

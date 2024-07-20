@@ -196,54 +196,54 @@ export default function ExploreCustomization() {
             <div class="w-full lg:h-full md:h-full xs:h-full bg-cover bg-center flex flex-col">
                 <div className="flex flex-col m-10 items-center ">
                     <h1 className="md:text-5xl xs:text-4xl mt-5 font-loraFont font-light text-[#151542]">Explore Customization</h1>
-                    <div className="w-full grid grid-cols-2 mt-5 mb-10 gap-3">
-                        <div className="w-full flex justify-end">
-                            <img src={customBanner} alt="Image" className="w-[622px] h-[350px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
+                    <div className="w-full grid md:grid-cols-2 sm:grid-cols-1 mt-5 mb-10 gap-3">
+                        <div className="w-full flex md:justify-end sm:justify-center">
+                            <img src={customBanner} alt="Image" className="w-10/12 md:h-[350px] lg:h-[400px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
                         </div>
-                        <div className="w-full flex flex-col justify-center items-center">
-                            <p className="text-lg text-start w-[624px] font-gantariFont text-gray-400 mt-2 mb-5"> We offer personalized jewelry services, allowing you to design unique pieces that reflect your individual style and personality. Create bespoke rings, necklaces, and bracelets tailored just for you.</p>
-                            <div className="w-[624px] flex justify-start">
+                        <div className="w-full flex flex-col justify-center items-start md:ml-4 sm:ml-0">
+                            <p className="md:text-lg sm:text-sm text-start md:w-[624px] sm:w-[554px] font-gantariFont text-gray-400 mt-2 mb-5"> We offer personalized jewelry services, allowing you to design unique pieces that reflect your individual style and personality. Create bespoke rings, necklaces, and bracelets tailored just for you.</p>
+                            <div className="md:w-[624px] sm:w-[554px] flex md:justify-start sm:justify-center">
                                 <button onClick={handleOpen} className="bg-[#151542] hover:bg-cyan-900 w-36 text-white pl-5 pr-5 pt-2 pb-2 rounded-sm">Contact Now</button>
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-around w-full gap-5">
-                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] md:h-[400px] sm:h-[450px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
                                 src={ec_1}
                                 alt="Ảnh"
-                                className="w-full h-[260px] object-cover"
+                                className="w-full md:h-[260px] sm:h-[128px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 1: Contact</h1>
-                            <p className="mt-2 text-sm ml-4">Enter your information and we will contact you as soon as possible.</p>
+                            <p className="mt-2 text-start text-sm ml-4">Enter your information and we will contact you as soon as possible.</p>
 
                         </div>
-                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] md:h-[400px] sm:h-[450px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
                                 src={ec_2}
                                 alt="Ảnh"
-                                className="w-full  h-[260px] object-cover"
+                                className="w-full md:h-[260px] sm:h-[128px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 2: Planning</h1>
-                            <p className="mt-2 text-sm ml-4">We provide a team of professional consultants to help you brainstorm ideas for your jewelry.</p>
+                            <p className="mt-2 text-start text-sm ml-4">We provide a team of professional consultants to help you brainstorm ideas for your jewelry.</p>
                         </div>
-                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] md:h-[400px] sm:h-[450px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
                                 src={ec_3}
                                 alt="Ảnh"
-                                className="w-full h-[260px] object-cover"
+                                className="w-full md:h-[260px] sm:h-[128px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 3: Designing</h1>
-                            <p className="mt-2 text-sm ml-4">From those ideas, we will design a 3D file to give you a comprehensive view and allow for modifications.</p>
+                            <p className="mt-2 text-start text-sm ml-4">From those ideas, we will design a 3D file to give you a comprehensive view and allow for modifications.</p>
                         </div>
-                        <div className="w-[330px] h-[400px] overflow-hidden shadow-lg hover:bg-slate-100">
+                        <div className="w-[330px] md:h-[400px] sm:h-[450px] overflow-hidden shadow-lg hover:bg-slate-100">
                             <img
                                 src={ec_4}
                                 alt="Ảnh"
-                                className="w-full h-[260px] object-cover"
+                                className="w-full md:h-[260px] sm:h-[128px] object-cover"
                             />
                             <h1 className="text-xl font-semibold mt-4 ml-4">Step 4: Compliting</h1>
-                            <p className="mt-2 text-sm m-4"> Your product will be completed as soon as possible and delivered to your doorstep so you can enjoy your own piece of art.</p>
+                            <p className="mt-2 text-start text-sm m-4"> Your product will be completed as soon as possible and delivered to your doorstep so you can enjoy your own piece of art.</p>
                         </div>
                     </div>
 

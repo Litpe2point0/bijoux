@@ -627,8 +627,10 @@ class AccountController extends Controller
             } else {
                 $account->dob = null;
             }
-            if (!isset($input['phone'])) {
+            if (isset($input['phone'])) {
                 $account->phone = $input['phone'];
+            } else {
+                $account->phone = null;
             }
             //save new account
             $account->save();

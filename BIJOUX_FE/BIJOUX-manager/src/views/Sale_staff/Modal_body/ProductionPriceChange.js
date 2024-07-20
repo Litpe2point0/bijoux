@@ -39,7 +39,7 @@ const CustomForm = ({ productionPrice, handleProductionPrice,onClose }) => {
             <CCol xs={12} className="d-flex justify-content-center align-items-center">
                 
                 <CButton className="mx-2" color="success" type="submit" >
-                    Carculate
+                    Calculate
                 </CButton>
 
             </CCol>
