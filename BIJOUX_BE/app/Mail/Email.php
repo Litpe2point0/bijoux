@@ -24,7 +24,7 @@ class Email extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($messageContent, $subject, $pathToFile)
+    public function __construct($messageContent, $subject, $pathToFile = [])
     {
         $this->messageContent = $messageContent;
         $this->subject = $subject;
@@ -62,8 +62,12 @@ class Email extends Mailable
         if($this->pathToFile == null){
             return [];
         }
-        return [
-            Attachment::fromPath($this->pathToFile),
-        ];
+        $attachments = [];
+
+        foreach ($this->pathToFile as $path) {
+            $attachments[] = Attachment::fromPath($path);
+        }
+
+        return $attachments;
     }
 }

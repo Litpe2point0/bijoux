@@ -43,7 +43,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('checkCors', [
             CorsMiddleware::class,
         ]);
-        $middleware->append(SkipNgrokBrowserWarning::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
