@@ -51,7 +51,7 @@ export default function ExploreTemplate() {
                             </div>
                         </div>
                         <div className="w-full flex justify-center sm:order-1 md:order-2 ">
-                            <img src={templateBanner} alt="Image" className="w-[622px] sm:w-full h-[350px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
+                            <img src={templateBanner} alt="Image" className="w-10/12 h-[350px] border-1 border-gray-800 shadow-lg object-cover rounded-md" />
                         </div>
                     </div>
                     {/* <div className="w-full grid grid-cols-2 mt-5 mb-10 gap-3">
