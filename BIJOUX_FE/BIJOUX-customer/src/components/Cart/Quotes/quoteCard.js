@@ -57,7 +57,7 @@ export default function QuoteCard({ quote, onCancel }) {
                 <div className="mx-1 h-full w-0.5 bg-black"> </div>
 
                 <div className="flex-1 flex flex-col h-full ml-5">
-                    {quote.total_price  && quote.quote_status.id == 4 ? (
+                    {quote.total_price && quote.quote_status.id == 4 ? (
                         <p className="font-cartFont text-xl font-semibold"><CurrencyFormatter value={quote.total_price} /></p>
                     ) : (
                         <p className="font-cartFont text-xl font-semibold">Unpriced yet</p>
@@ -94,7 +94,7 @@ export default function QuoteCard({ quote, onCancel }) {
                         )}
                     </div>
 
-                    
+
                     <div className="w-full h-[65px] flex items-center justify-around">
                         <Button onClick={handleOpenClose} variant="contained">
                             SEE SUPPORTERS
@@ -134,7 +134,7 @@ export default function QuoteCard({ quote, onCancel }) {
                                 <div className="w-3/4 flex flex-col">
                                     <div className="flex justify-center mb-2">
                                         <img src={saleStaff.imageUrl} alt="saleStaff" className="w-[25px] h-[25px] rounded-full mr-2" />
-                                        <p className="font-cartFont font-semibold">{saleStaff.name}</p>
+                                        <p className="font-cartFont font-semibold">{saleStaff.fullname}</p>
                                     </div>
                                     <div className="flex mb-2">
                                         <Phone size={20} className="mr-2" />
@@ -162,7 +162,7 @@ export default function QuoteCard({ quote, onCancel }) {
                                 <div className="w-3/4 flex flex-col">
                                     <div className="flex justify-center mb-2">
                                         <img src={designStaff.imageUrl} alt="saleStaff" className="w-[25px] h-[25px] rounded-full mr-2" />
-                                        <p className="font-cartFont font-semibold">{designStaff.name}</p>
+                                        <p className="font-cartFont font-semibold">{designStaff.fullname}</p>
                                     </div>
                                     <div className="flex mb-2">
                                         <Phone size={20} className="mr-2" />
@@ -189,7 +189,7 @@ export default function QuoteCard({ quote, onCancel }) {
                                 <div className="w-3/4 flex flex-col">
                                     <div className="flex justify-center mb-2">
                                         <img src={productionStaff.imageUrl} alt="saleStaff" className="w-[25px] h-[25px] rounded-full mr-2" />
-                                        <p className="font-cartFont font-semibold">{productionStaff.name}</p>
+                                        <p className="font-cartFont font-semibold">{productionStaff.fullname}</p>
                                     </div>
                                     <div className="flex mb-2">
                                         <Phone size={20} className="mr-2" />
@@ -210,7 +210,7 @@ export default function QuoteCard({ quote, onCancel }) {
                     </div>
 
                 </div>
-                
+
 
             </Collapse >
 
