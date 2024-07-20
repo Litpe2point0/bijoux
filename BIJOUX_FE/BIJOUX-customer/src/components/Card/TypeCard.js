@@ -12,7 +12,7 @@ export default function TypeCard({ type, image }) {
     }
     return (
         <div className="flex flex-col items-center border-1 border-gray-300 rounded-md">
-            <div className="w-[500px] h-[400px] flex items-center justify-center">
+            <div className="w-full flex items-center justify-center">
                 <img src={image} alt={type.name} className="w-[350px] h-[350px] rounded-full object-cover" />
             </div>
             <p className="font-gantariFont text-2xl font-semibold text-[#151542]">{type.name}</p>
