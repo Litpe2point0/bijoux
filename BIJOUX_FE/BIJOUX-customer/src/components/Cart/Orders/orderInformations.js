@@ -181,7 +181,7 @@ export default function OrderInformations({ order }) {
 
                 <div className='grid grid-cols-2 gap-5'>
                     <div className='flex flex-col'>
-                        <p className='font-gantariFont font-semibold text-gray-500 text-xl'>Price at {getRightFormattedCreatedDate(order.created)}</p>
+                        <p className='font-gantariFont font-semibold text-gray-500 text-xl'>Previous Price</p>
                         {oldMetals.length > 0 && (
                             oldMetals.map((metal, index) => (
                                 <MetalDesignProcessCard key={index} metal={metal} status={2} />
@@ -194,7 +194,7 @@ export default function OrderInformations({ order }) {
                         )}
                     </div>
                     <div className='flex flex-col'>
-                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>Price at {getFormattedDate(today)}</p>
+                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>New Price</p>
                         {currentMetals.map((metal, index) => (
                             <MetalDesignProcessCard metal={metal} status={1} />
                         ))}
