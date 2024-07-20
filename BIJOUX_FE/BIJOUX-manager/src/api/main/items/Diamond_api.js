@@ -42,12 +42,74 @@ export async function get_diamond_detail(formData, title, { signal } = {}) {
         return response_with_mess(false, mess_title, error.response.data.error, null);
     }
 }
+///////////////////////// cũ
 
+// export async function get_color_list(formData, title, { signal } = {}) {
+//     const mess_title = title ? title : null;
+//     const request_body = formData ? formData : null;
+//     try {
+//         const response = await api.post('/items/diamond/get_color_list', request_body, { signal });
+//         return response_with_mess(true, mess_title, response.data.success, response.data);
+//     } catch (error) {
+//         console.log("get_color_list" + " BIG ERROR", error)
+//         return response_with_mess(false, mess_title, error.response.data.error, null);
+//     }
+// }
+
+// export async function get_origin_list(formData, title, { signal } = {}) {
+//     const mess_title = title ? title : null;
+//     const request_body = formData ? formData : null;
+//     try {
+//         const response = await api.post('/items/diamond/get_diamond_origin_list', request_body, { signal });
+//         return response_with_mess(true, mess_title, response.data.success, response.data);
+//     } catch (error) {
+//         console.log("get_diamond_origin_list" + " BIG ERROR", error)
+//         return response_with_mess(false, mess_title, error.response.data.error, null);
+//     }
+// }
+
+// export async function get_clarity_list(formData, title, { signal } = {}) {
+//     const mess_title = title ? title : null;
+//     const request_body = formData ? formData : null;
+//     try {
+//         const response = await api.post('/items/diamond/get_clarity_list', request_body, { signal });
+//         return response_with_mess(true, mess_title, response.data.success, response.data);
+//     } catch (error) {
+//         console.log("get_clarity_list" + " BIG ERROR", error)
+//         return response_with_mess(false, mess_title, error.response.data.error, null);
+//     }
+// }
+
+// export async function get_cut_list(formData, title, { signal } = {}) {
+//     const mess_title = title ? title : null;
+//     const request_body = formData ? formData : null;
+//     try {
+//         const response = await api.post('/items/diamond/get_cut_list', request_body, { signal });
+//         return response_with_mess(true, mess_title, response.data.success, response.data);
+//     } catch (error) {
+//         console.log("get_cut_list" + " BIG ERROR", error)
+//         return response_with_mess(false, mess_title, error.response.data.error, null);
+//     }
+// }
+
+// export async function get_size_list(formData, title, { signal } = {}) {
+//     const mess_title = title ? title : null;
+//     const request_body = formData ? formData : null;
+//     try {
+//         const response = await api.post('/items/diamond/get_size_list', request_body, { signal });
+//         return response_with_mess(true, mess_title, response.data.success, response.data);
+//     } catch (error) {
+//         console.log("get_size_list" + " BIG ERROR", error)
+//         return response_with_mess(false, mess_title, error.response.data.error, null);
+//     }
+// }
+
+/////////////////////////// mới
 export async function get_color_list(formData, title, { signal } = {}) {
     const mess_title = title ? title : null;
     const request_body = formData ? formData : null;
     try {
-        const response = await api.post('/items/diamond/get_color_list', request_body, { signal });
+        const response = await axios.post(`${backend_url}/items/diamond/get_color_list`, request_body, { signal });
         return response_with_mess(true, mess_title, response.data.success, response.data);
     } catch (error) {
         console.log("get_color_list" + " BIG ERROR", error)
@@ -55,12 +117,11 @@ export async function get_color_list(formData, title, { signal } = {}) {
     }
 }
 
-
 export async function get_origin_list(formData, title, { signal } = {}) {
     const mess_title = title ? title : null;
     const request_body = formData ? formData : null;
     try {
-        const response = await api.post('/items/diamond/get_diamond_origin_list', request_body, { signal });
+        const response = await axios.post(`${backend_url}/items/diamond/get_diamond_origin_list`, request_body, { signal });
         return response_with_mess(true, mess_title, response.data.success, response.data);
     } catch (error) {
         console.log("get_diamond_origin_list" + " BIG ERROR", error)
@@ -72,7 +133,7 @@ export async function get_clarity_list(formData, title, { signal } = {}) {
     const mess_title = title ? title : null;
     const request_body = formData ? formData : null;
     try {
-        const response = await api.post('/items/diamond/get_clarity_list', request_body, { signal });
+        const response = await axios.post(`${backend_url}/items/diamond/get_clarity_list`, request_body, { signal });
         return response_with_mess(true, mess_title, response.data.success, response.data);
     } catch (error) {
         console.log("get_clarity_list" + " BIG ERROR", error)
@@ -84,7 +145,7 @@ export async function get_cut_list(formData, title, { signal } = {}) {
     const mess_title = title ? title : null;
     const request_body = formData ? formData : null;
     try {
-        const response = await api.post('/items/diamond/get_cut_list', request_body, { signal });
+        const response = await axios.post(`${backend_url}/items/diamond/get_cut_list`, request_body, { signal });
         return response_with_mess(true, mess_title, response.data.success, response.data);
     } catch (error) {
         console.log("get_cut_list" + " BIG ERROR", error)
@@ -96,15 +157,14 @@ export async function get_size_list(formData, title, { signal } = {}) {
     const mess_title = title ? title : null;
     const request_body = formData ? formData : null;
     try {
-        const response = await api.post('/items/diamond/get_size_list', request_body, { signal });
+        const response = await axios.post(`${backend_url}/items/diamond/get_size_list`, request_body, { signal });
         return response_with_mess(true, mess_title, response.data.success, response.data);
     } catch (error) {
         console.log("get_size_list" + " BIG ERROR", error)
         return response_with_mess(false, mess_title, error.response.data.error, null);
     }
 }
-
-
+///////////////////////////
 export async function update_price_diamond(formData, title, { signal } = {}) {
     const mess_title = title ? title : null;
     const request_body = formData ? formData : null;
