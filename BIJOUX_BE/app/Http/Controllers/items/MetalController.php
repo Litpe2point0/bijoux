@@ -92,7 +92,7 @@ class MetalController extends Controller
             foreach ($product_metal as $product) {
                 $temp1 = DB::table('orders')->where('product_id', $product->product_id)->first();
                 if ($temp1 != null) {
-                    if ($temp1->order_status_id >= 3) {
+                    if ($temp1->order_status_id >= 3 || ($temp1->deposit_has_paid != 0 && $temp1->order_status_id == 1)) {
                         continue;
                     }
                 }
@@ -181,10 +181,12 @@ class MetalController extends Controller
                         }
                     }
                     if ($order->order_status_id == 1) {
-                        DB::table('orders')->where('product_id', $product->product_id)->update([
-                            'product_price' => $product_price,
-                            'total_price' => ceil($product_price * ($profit_rate + 100) / 100 + $production_price)
-                        ]);
+                        if ($order->deposit_has_paid == 0) {
+                            DB::table('orders')->where('product_id', $product->product_id)->update([
+                                'product_price' => $product_price,
+                                'total_price' => ceil($product_price * ($profit_rate + 100) / 100 + $production_price)
+                            ]);
+                        }
                     }
                 }
 
