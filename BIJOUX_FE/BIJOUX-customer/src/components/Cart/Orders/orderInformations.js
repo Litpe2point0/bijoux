@@ -49,6 +49,39 @@ const getRightFormattedCreatedDate = (inputString) => {
     }
 };
 
+const complete_old_version_metal = (old_list, new_list) => {
+
+    old_list.forEach(old_item => {
+        const found = new_list.find(new_item => (old_item.metal.id === new_item.metal.id) && (old_item.volume === new_item.volume));
+        if (!found) {
+            old_list.splice(old_list.indexOf(old_item), 1);
+        }
+    });
+    new_list.forEach(new_item => {
+        const found = old_list.find(old_item => (old_item.metal.id === new_item.metal.id) && (old_item.volume === new_item.volume));
+        if (!found) {
+            old_list.push(new_item);
+        }
+    });
+    return old_list;
+}
+const complete_old_version_diamond = (old_list, new_list) => {
+    old_list.forEach(old_item => {
+        const found = new_list.find(new_item => (old_item.diamond.id === new_item.diamond.id) && (old_item.count === new_item.count));
+        if (!found) {
+            old_list.splice(old_list.indexOf(old_item), 1);
+        }
+    });
+    new_list.forEach(new_item => {
+        const found = old_list.find(old_item => (old_item.diamond.id === new_item.diamond.id) && (old_item.count === new_item.count));
+        if (!found) {
+            old_list.push(new_item);
+        }
+    });
+
+    return old_list;
+}
+
 export default function OrderInformations({ order }) {
     const updateProductionPrice = (order.profit_rate / 100) * order.product_price + order.production_price;
     const formattedCreatedDate = getFormattedDate(order.created);
@@ -57,6 +90,7 @@ export default function OrderInformations({ order }) {
 
     const currentMetals = order.product.product_metal.filter(metal => metal.status === 1);
     const oldMetals = order.product.product_metal.filter(metal => metal.status === 3);
+    console.log('old METAL', oldMetals)
     const unchangedMetals = currentMetals.filter(current =>
         !oldMetals.some(old => old.metal.id === current.metal.id)
     );
@@ -77,14 +111,14 @@ export default function OrderInformations({ order }) {
             <div className="w-full flex justify-center items-center mb-5">
                 <p className="font-loraFont text-4xl text-[#151542] font-light">Order Informations</p>
             </div>
-            <div className="grid grid-cols-2 gap-5 mb-10">
+            <div className="grid w-full grid-cols-2 gap-5 mb-10">
                 <div className="w-full">
                     <div className="w-3/4 flex justify-center items-center">
                         <p className="font-gantariFont text-[#151542] text-xl">IMAGE OF PRODUCT</p>
                     </div>
                     <div className="w-3/4 h-0.5 bg-[#151542] mb-5"></div>
                     <div className="w-3/4">
-                        <img src={order.imageUrl} alt="product" className="w-full rounded-lg" />
+                        <img src={order.imageUrl} alt="product" className="w-full object-cover rounded-lg" />
                     </div>
                 </div>
                 <div className="w-full flex flex-col items-center">
@@ -168,9 +202,9 @@ export default function OrderInformations({ order }) {
                     <div className="w-3/4 flex flex-col mb-5">
                         <div className="flex flex-col justifi-center">
                             <p className="font-gantariFont text-[#151542] font-bold text-base mr-2">Note:</p>
-                            <div className='w-full h-[70px] border-sm bg-slate-200 overflow-y-auto'>
-                                <p className="font-gantariFont text-[#151542] font-medium text-base mx-2">{order.note}</p>
-                            </div>
+                            <textarea readOnly className="w-full h-[175px] resize-none bg-slate-200 overflow-y-auto font-gantariFont p-2 border-2 border-gray-200 rounded-md">
+                                {order.note}
+                            </textarea>
                         </div>
                     </div>
                 </div>
@@ -194,10 +228,20 @@ export default function OrderInformations({ order }) {
                         )}
                     </div>
                     <div className='flex flex-col'>
-                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>New Price</p>
-                        {currentMetals.map((metal, index) => (
+                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>Current Price</p>
+                        {/* {currentMetals.map((metal, index) => (
                             <MetalDesignProcessCard metal={metal} status={1} />
-                        ))}
+                        ))} */}
+                        {(order.order_status.id == 2 && oldMetals.length > 0) ? (
+                            complete_old_version_metal(oldMetals, currentMetals).map((metal, index) => (
+                                <MetalDesignProcessCard key={index} metal={metal} status={2} />
+                            ))
+                        )
+                            :
+                            currentMetals.map((metal, index) => (
+                                <MetalDesignProcessCard metal={metal} status={1} />
+                            ))
+                        }
                     </div>
                 </div>
             </div>
@@ -219,10 +263,24 @@ export default function OrderInformations({ order }) {
                         )}
                     </div>
                     <div className='flex flex-col'>
-                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>New Price</p>
-                        {currentDiamonds.map((diamond, index) => (
+                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>Current Price</p>
+
+                        {(order.order_status.id == 2 && oldDiamonds.length > 0) ? (
+                            complete_old_version_diamond(oldDiamonds, currentDiamonds).map((diamond, index) => (
+                                <DiamondDesignProcessCard key={index} diamond={diamond} status={2} />
+                            ))
+                        )
+                            :
+                            currentDiamonds.map((diamond, index) => (
+                                <DiamondDesignProcessCard diamond={diamond} status={1} />
+                            ))
+                        }
+                        {/* {currentDiamonds.map((diamond, index) => (
                             <DiamondDesignProcessCard diamond={diamond} status={1} />
-                        ))}
+                        ))
+                        } */}
+
+
                     </div>
                 </div>
             </div>

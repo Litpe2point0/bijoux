@@ -745,7 +745,52 @@ class OrderController extends Controller
         $product_url = $product->imageUrl;
         $product->imageUrl = $OGurl . $Ourl . $product->id . "/" . $product->imageUrl;
 
-        $product_diamond = DB::table('product_diamond')->where('product_id', $product->id)->where('status', 1)->get();
+
+        $product_diamond = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 1)->get();
+        if ($order->order_status_id == 2) {
+            $new_product_diamond = collect();
+
+            foreach ($product_diamond as $tempp) {
+                $copy1 = DB::table('product_diamond')
+                    ->where('product_id', $order->product_id)
+                    ->where('status', 3)
+                    ->where('diamond_id', $tempp->diamond_id)
+                    ->where('count', $tempp->count)
+                    ->first();
+
+                if ($copy1 != null) {
+                    $copy1->status = 1;
+                    $new_product_diamond->push($copy1);
+                } else {
+                    $new_product_diamond->push($tempp);
+                }
+            }
+
+            $product_diamond = $new_product_diamond;
+        } else if ($order->order_status_id == 1 && $order->deposit_has_paid != 0) {
+            $new_product_diamond = collect();
+            $product_diamond1 = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 3)->get();
+            foreach ($product_diamond as $diamond1) {
+                $check = false;
+                foreach ($product_diamond1 as $diamond2) {
+                    if ($diamond1->diamond_id == $diamond2->diamond_id && $diamond1->count == $diamond2->count) {
+                        $check = true;
+                    }
+                }
+                if (!$check) {
+                    $new_product_diamond->push($diamond1);
+                } else {
+                    $copy11 = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 3)->where('diamond_id', $diamond1->diamond_id)->where('count', $diamond1->count)->first();
+                    if ($copy11 != null) {
+                        $copy11->status = 1;
+                        $new_product_diamond->push($copy11);
+                    } else {
+                        $new_product_diamond->push($diamond1);
+                    }
+                }
+            }
+            $product_diamond = $new_product_diamond;
+        }
         $product_diamond->map(function ($product_diamond) {
             $diamond = DB::table('diamond')->where('id', $product_diamond->diamond_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -760,8 +805,8 @@ class OrderController extends Controller
             unset($diamond->diamond_origin_id);
             unset($diamond->diamond_clarity_id);
             unset($diamond->diamond_cut_id);
-            $product_diamond->diamond = $diamond;
 
+            $product_diamond->diamond = $diamond;
             $product_diamond->diamond_shape = DB::table('diamond_shape')->where('id', $product_diamond->diamond_shape_id)->first();
             unset($product_diamond->diamond_id);
             unset($product_diamond->diamond_shape_id);
@@ -769,7 +814,51 @@ class OrderController extends Controller
         });
         $product->product_diamond = $product_diamond;
 
-        $product_metal = DB::table('product_metal')->where('product_id', $product->id)->where('status', 1)->get();
+        $product_metal = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 1)->get();
+        if ($order->order_status_id == 2) {
+            $new_product_metal = collect();
+
+            foreach ($product_metal as $temp) {
+                $copy2 = DB::table('product_metal')
+                    ->where('product_id', $order->product_id)
+                    ->where('status', 3)
+                    ->where('metal_id', $temp->metal_id)
+                    ->where('volume', $temp->volume)
+                    ->first();
+
+                if ($copy2 != null) {
+                    $copy2->status = 1;
+                    $new_product_metal->push($copy2);
+                } else {
+                    $new_product_metal->push($temp);
+                }
+            }
+
+            $product_metal = $new_product_metal;
+        } else if ($order->order_status_id == 1 && $order->deposit_has_paid != 0) {
+            $new_product_metal = collect();
+            $product_metal1 = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 3)->get();
+            foreach ($product_metal as $metal1) {
+                $check = false;
+                foreach ($product_metal1 as $metal2) {
+                    if ($metal1->metal_id == $metal2->metal_id && $metal1->volume == $metal2->volume) {
+                        $check = true;
+                    }
+                }
+                if (!$check) {
+                    $new_product_metal->push($metal1);
+                } else {
+                    $copy22 = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 3)->where('metal_id', $metal1->metal_id)->where('volume', $metal1->volume)->first();
+                    if ($copy22 != null) {
+                        $copy22->status = 1;
+                        $new_product_metal->push($copy22);
+                    } else {
+                        $new_product_metal->push($metal1);
+                    }
+                }
+            }
+            $product_metal = $new_product_metal;
+        }
         $product_metal->map(function ($product_metal) {
             $metal = DB::table('metal')->where('id', $product_metal->metal_id)->first();
             $OGurl = env('ORIGIN_URL');
@@ -1750,7 +1839,7 @@ class OrderController extends Controller
                 'design_process_status_id' => 1,
                 'production_price' => $order->production_price,
                 'profit_rate' => $order->profit_rate,
-                'product_price' => 0,
+                'product_price' => $product_price,
                 'total_price' => 0,
                 'created' => Carbon::now()->format('Y-m-d H:i:s'),
             ]);
@@ -1780,7 +1869,7 @@ class OrderController extends Controller
             }
             DB::table('design_process')->where('id', $id)->update([
                 'imageUrl' => $imageUrl,
-                'product_price' => $product_price,
+                'product_price' => $product_price
             ]);
 
             DB::commit();
@@ -1953,16 +2042,16 @@ class OrderController extends Controller
                 }
                 if (DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 0) != null) {
                     $product1 = DB::table('product_diamond')->where('product_id', $order->product_id)->where('status', 1)->get();
-                    foreach($product1 as $product){
-                        $copy = DB::table('product_diamond')->where('product_id',$order->product_id)->where('diamond_id',$product->diamond_id)->where('count',$product->count)->where('status',3)->first();
-                        if($copy != null){
+                    foreach ($product1 as $product) {
+                        $copy = DB::table('product_diamond')->where('product_id', $order->product_id)->where('diamond_id', $product->diamond_id)->where('count', $product->count)->where('status', 3)->first();
+                        if ($copy != null) {
                             $copy1 = collect($copy)->toArray();
                             $copy1['status'] = 2;
                             $copy1['id'] = null;
                             DB::table('product_diamond')->insert($copy1);
-                            DB::table('product_diamond')->where('product_id',$order->product_id)->where('diamond_id',$product->diamond_id)->where('count',$product->count)->where('status', 1)->delete();
+                            DB::table('product_diamond')->where('product_id', $order->product_id)->where('diamond_id', $product->diamond_id)->where('count', $product->count)->where('status', 1)->delete();
                         } else {
-                            DB::table('product_diamond')->where('product_id',$order->product_id)->where('diamond_id',$product->diamond_id)->where('count',$product->count)->where('status', 1)->update([
+                            DB::table('product_diamond')->where('product_id', $order->product_id)->where('diamond_id', $product->diamond_id)->where('count', $product->count)->where('status', 1)->update([
                                 'status' => 2
                             ]);
                         }
@@ -2038,16 +2127,16 @@ class OrderController extends Controller
 
                 if (DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 0) != null) {
                     $product2 = DB::table('product_metal')->where('product_id', $order->product_id)->where('status', 1)->get();
-                    foreach($product2 as $product){
-                        $cop = DB::table('product_metal')->where('product_id',$order->product_id)->where('metal_id',$product->metal_id)->where('volume',$product->volume)->where('status',3)->first();
-                        if($cop != null){
+                    foreach ($product2 as $product) {
+                        $cop = DB::table('product_metal')->where('product_id', $order->product_id)->where('metal_id', $product->metal_id)->where('volume', $product->volume)->where('status', 3)->first();
+                        if ($cop != null) {
                             $copy2 = collect($cop)->toArray();
                             $copy2['status'] = 2;
                             $copy2['id'] = null;
                             DB::table('product_metal')->insert($copy2);
-                            DB::table('product_metal')->where('product_id',$order->product_id)->where('metal_id',$product->metal_id)->where('volume',$product->volume)->where('status', 1)->delete();
+                            DB::table('product_metal')->where('product_id', $order->product_id)->where('metal_id', $product->metal_id)->where('volume', $product->volume)->where('status', 1)->delete();
                         } else {
-                            DB::table('product_metal')->where('product_id',$order->product_id)->where('metal_id',$product->metal_id)->where('volume',$product->volume)->where('status', 1)->update([
+                            DB::table('product_metal')->where('product_id', $order->product_id)->where('metal_id', $product->metal_id)->where('volume', $product->volume)->where('status', 1)->update([
                                 'status' => 2
                             ]);
                         }
