@@ -17,16 +17,19 @@ export default function ProductDesignProcessCard({ order, state }) {
     const [imageUrl, setImageUrl] = useState('');
     const [productPrice, setProductPrice] = useState(0);
     const [productionPrice, setProductionPrice] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const setAttribute = async () => {
             if (state === "updating") {
+                setTotalPrice(order.total_price);
                 setImageUrl(order.product.imageUrl);
                 setMountingType(order.product.mounting_type);
                 setMountingSize(order.product.mounting_size);
                 setProductPrice(order.product_price)
                 setProductionPrice(order.production_price + order.product_price * (order.profit_rate / 100));
             } else {
+                setTotalPrice(order.design_process.total_price);
                 setImageUrl(order.design_process.imageUrl);
                 setMountingType(order.design_process.mounting_type);
                 setMountingSize(order.design_process.mounting_size);
@@ -51,7 +54,7 @@ export default function ProductDesignProcessCard({ order, state }) {
                     <div className='w-full col-span-1 md:col-span-4 flex p-3 flex-col'>
                         <p className={
                             state === 'previous' ? 'text-gray-600 text-xl font-gantariFont' : 'text-green-800 text-xl font-gantariFont'
-                        }><CurrencyFormatter value={order.total_price} /></p>
+                        }><CurrencyFormatter value={totalPrice} /></p>
 
                         <div className='flex'>
                             <p className='font-gantariFont md:text-base xs:text-xs font-semibold text-[#151542] mr-3'>Mounting Type: </p>
