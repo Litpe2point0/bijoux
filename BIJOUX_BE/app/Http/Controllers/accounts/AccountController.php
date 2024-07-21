@@ -664,10 +664,11 @@ class AccountController extends Controller
                 $account->imageUrl = $fileName;
                 $account->save();
             }
-            $messageContent = 'Dear ' . $account->fullname . ', This Is Your Security Code:';
-            $subject = "Activate Bijoux Account";
-            $this->sendMail($account->email, $subject, $messageContent, $security_code);
-
+            if($input['role']['id'] == 5){
+                $messageContent = 'Dear ' . $account->fullname . ', This Is Your Security Code:';
+                $subject = "Activate Bijoux Account";
+                $this->sendMail($account->email, $subject, $messageContent, $security_code);
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
