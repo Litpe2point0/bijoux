@@ -156,7 +156,7 @@ export default function OrderInformations({ order }) {
                             <div className="w-[210px] flex items-center justify-start h-9 bg-slate-200 rounded-lg">
                                 {order.product.mounting_size
                                     ? (
-                                        <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">{order.product.mounting_size}.0 (mm)</p>
+                                        <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">{order.product.mounting_size} (mm)</p>
                                     )
                                     : (
                                         <p className="font-gantariFont text-[#151542] font-medium text-base ml-2">...</p>
@@ -181,7 +181,7 @@ export default function OrderInformations({ order }) {
 
                 <div className='grid grid-cols-2 gap-5'>
                     <div className='flex flex-col'>
-                        <p className='font-gantariFont font-semibold text-gray-500 text-xl'>Price at {getRightFormattedCreatedDate(order.created)}</p>
+                        <p className='font-gantariFont font-semibold text-gray-500 text-xl'>Previous Price</p>
                         {oldMetals.length > 0 && (
                             oldMetals.map((metal, index) => (
                                 <MetalDesignProcessCard key={index} metal={metal} status={2} />
@@ -194,7 +194,7 @@ export default function OrderInformations({ order }) {
                         )}
                     </div>
                     <div className='flex flex-col'>
-                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>Price at {getFormattedDate(today)}</p>
+                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>New Price</p>
                         {currentMetals.map((metal, index) => (
                             <MetalDesignProcessCard metal={metal} status={1} />
                         ))}
@@ -206,7 +206,7 @@ export default function OrderInformations({ order }) {
                 <p className="font-gantariFont text-2xl text-[#151542] font-bold">Diamonds:</p>
                 <div className='grid grid-cols-2 gap-5'>
                     <div className='flex flex-col'>
-                        <p className='font-gantariFont font-semibold text-gray-500 text-xl'>Price at {getRightFormattedCreatedDate(order.created)}</p>
+                        <p className='font-gantariFont font-semibold text-gray-500 text-xl'>Previous Price</p>
                         {oldDiamonds.length > 0 && (
                             oldDiamonds.map((diamond, index) => (
                                 <DiamondDesignProcessCard key={index} diamond={diamond} status={2} />
@@ -219,7 +219,7 @@ export default function OrderInformations({ order }) {
                         )}
                     </div>
                     <div className='flex flex-col'>
-                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>Price at {getFormattedDate(today)}</p>
+                        <p className='font-gantariFont font-semibold text-green-500 text-xl'>New Price</p>
                         {currentDiamonds.map((diamond, index) => (
                             <DiamondDesignProcessCard diamond={diamond} status={1} />
                         ))}

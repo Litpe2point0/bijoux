@@ -144,7 +144,7 @@ const CustomForm = ({ account, onClose }) => {
       </CCol>
       <CCol md={12}>
         <CFormLabel htmlFor="validationCustom02">Contact Phone Number</CFormLabel>
-        <CFormInput type="number" id="validationCustom02" defaultValue={account.phone} ref={phone} required />
+        <CFormInput type="text" id="validationCustom02" defaultValue={account.phone} ref={phone} required />
         <CFormFeedback valid>Looks good!</CFormFeedback>
       </CCol>
       <CCol md={12}>

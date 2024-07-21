@@ -330,7 +330,7 @@ class ModelController extends Controller
                             $isValid = false;
                             continue;
                         }
-                        $check2 = true;
+                        $check2 = false;
                         foreach ($main_metal_ids as $metal) {
                             $check3 = false;
                             $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
@@ -341,8 +341,8 @@ class ModelController extends Controller
                                     }
                                 }
                             }
-                            if (!$check3) {
-                                $check2 = false;
+                            if ($check3) {
+                                $check2 = true;
                             }
                         }
                         if($check2){
@@ -600,6 +600,7 @@ class ModelController extends Controller
                         'error' => 'The selected model isn\'t available'
                     ], 403);
                 }
+                $check2 = false;
                 foreach ($main_metal_ids as $metal) {
                     $check3 = false;
                     $metalCompatibilities1 = DB::table('metal_compatibility')->where('Metal_id_1', $metal)->get();
@@ -612,14 +613,16 @@ class ModelController extends Controller
                             }
                         }
                     }
-                    if (!$check3) {
-                        return response()->json([
-                            'error' => 'Metal compatibility error'
-                        ], 403);
-                    } else {
+                    if ($check3) {
                         $mm1 = DB::table('model_metal')->where('model_id', $model->id)->where('metal_id', $metal)->where('is_main', 1)->first();
                         $temp->push($mm1);
+                        $check2 = true;
                     }
+                }
+                if(!$check2){
+                    return response()->json([
+                        'error' => 'Metal compatibility error'
+                    ], 403);
                 }
             } else {
                 foreach ($model_metal as $metal1) {

@@ -499,10 +499,10 @@ class QuoteController extends Controller
                     $product_diamond->product_id = $quote->product_id;
                     $product_diamond->diamond_id = $diamond1['diamond']['id'];
                     $product_diamond->count = $diamond1['count'];
-                    $product_diamond->price = $diamond1['price'];
+                    $product_diamond->price = ceil($diamond->price * $diamond1['count']);
                     $product_diamond->diamond_shape_id = $diamond1['diamond_shape']['id'];
                     $product_diamond->status = true;
-                    $product_price += $product_diamond->price;
+                    $product_price += ceil($diamond->price * $diamond1['count']);
                     $product_diamond->save();
                 }
             }
@@ -517,11 +517,11 @@ class QuoteController extends Controller
                 }
                 $product_metal->product_id = $quote->product_id;
                 $product_metal->metal_id = $metal1['metal']['id'];
-                $product_metal->price = $metal1['price'];
+                $product_metal->price = ceil($metal->sale_price_per_gram * $metal1['weight']);
                 $product_metal->volume = $metal1['volume'];
                 $product_metal->weight = $metal1['weight'];
                 $product_metal->status = true;
-                $product_price += $product_metal->price;
+                $product_price += ceil($metal->sale_price_per_gram * $metal1['weight']);
                 $product_metal->save();
             }
 
@@ -587,12 +587,16 @@ class QuoteController extends Controller
                     'total_price' => $quote->total_price,
                     'order_type_id' => 2,
                     'order_status_id' => 1,
-                    'note' => $quote->note,
+                    'note' => $input['note'],
                     'saleStaff_id' => $quote->saleStaff_id,
                     'designStaff_id' => $quote->designStaff_id,
                     'productionStaff_id' => $quote->productionStaff_id,
                     'created' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
+                DB::table('product_diamond')->where('product_id', $quote->product_id)->where('status',3)->delete();
+                DB::table('product_diamond')->where('product_id', $quote->product_id)->where('status',4)->delete();
+                DB::table('product_metal')->where('product_id', $quote->product_id)->where('status',3)->delete();
+                DB::table('product_metal')->where('product_id', $quote->product_id)->where('status',4)->delete();
             } else if (!$input['approve'] || $input['approve'] == 0) {
                 DB::table('quote')->where('id', $input['quote_id'])->update([
                     'quote_status_id' => 2,

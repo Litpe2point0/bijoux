@@ -54,7 +54,6 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
     const [isSearch, setIsSearch] = useState(false)  
 
-    const [diamondList, setDiamondList] = useState(null)
     const [searchedDiamond, setSearchedDiamond] = useState(null);  
 
     const [shapeList, setShapeList] = useState([]);
@@ -77,7 +76,6 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
 
 
         const setAttribute = async () => {
-            const diamond_list= await get_diamond_list();
             const shape_list= await get_shape_list();
             const color_list= await get_color_list();
             const origin_list= await get_origin_list();
@@ -85,7 +83,6 @@ const CustomForm = ({ handleAddDiamond, onClose }) => {
             const cut_list= await get_cut_list();
             const size_list= await get_size_list();
 
-            setDiamondList(diamond_list.data)
 
             setShapeList(shape_list.data)
             setColorList(color_list.data)
