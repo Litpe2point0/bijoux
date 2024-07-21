@@ -111,14 +111,14 @@ export default function OrderInformations({ order }) {
             <div className="w-full flex justify-center items-center mb-5">
                 <p className="font-loraFont text-4xl text-[#151542] font-light">Order Informations</p>
             </div>
-            <div className="grid grid-cols-2 gap-5 mb-10">
+            <div className="grid w-full grid-cols-2 gap-5 mb-10">
                 <div className="w-full">
                     <div className="w-3/4 flex justify-center items-center">
                         <p className="font-gantariFont text-[#151542] text-xl">IMAGE OF PRODUCT</p>
                     </div>
                     <div className="w-3/4 h-0.5 bg-[#151542] mb-5"></div>
                     <div className="w-3/4">
-                        <img src={order.imageUrl} alt="product" className="w-full rounded-lg" />
+                        <img src={order.imageUrl} alt="product" className="w-full object-cover rounded-lg" />
                     </div>
                 </div>
                 <div className="w-full flex flex-col items-center">
