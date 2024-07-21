@@ -826,14 +826,14 @@ class AccountController extends Controller
  *         response=400,
  *         description="Invalid input or Username, Email, or Phone Number already used",
  *         @OA\JsonContent(
- *             @OA\Property(property="error", type="string", exanple="Invalid input or Username, Email, or Phone Number already used")
+ *             @OA\Property(property="error", type="string", example="Invalid input or Username, Email, or Phone Number already used")
  *         )
  *     ),
  *     @OA\Response(
  *         response=500,
  *         description="Server Error",
  *         @OA\JsonContent(
- *             @OA\Property(property="error", type="string", axample="Server Error")
+ *             @OA\Property(property="error", type="string", example="Server Error")
  *         )
  *     )
  * )

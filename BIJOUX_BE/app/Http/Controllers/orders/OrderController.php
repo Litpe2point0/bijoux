@@ -28,31 +28,31 @@ use function Pest\Laravel\json;
 class OrderController extends Controller
 {
     /**
- * @OA\Post(
- *     path="/api/admin/order/get_order_list",
- *     summary="Get order list for admin",
- *     description="Retrieve customized and template order lists for admin users.",
- *     operationId="getOrderListAdmin",
- *     tags={"Order"},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation",
- *         @OA\JsonContent(
- *             type="object",
- *             @OA\Property(
- *                 property="customize_order_list",
- *                 type="array",
- *                 @OA\Items(ref="#/components/schemas/Order")
- *             ),
- *             @OA\Property(
- *                 property="template_order_list",
- *                 type="array",
- *                 @OA\Items(ref="#/components/schemas/Order")
- *             )
- *         )
- *     )
- * )
- */
+     * @OA\Post(
+     *     path="/api/admin/order/get_order_list_admin",
+     *     summary="Get order list for admin",
+     *     description="Retrieve customized and template order lists for admin users.",
+     *     operationId="getOrderListAdmin",
+     *     tags={"Order"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="customize_order_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Order")
+     *             ),
+     *             @OA\Property(
+     *                 property="template_order_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Order")
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function get_order_list_admin()
     {
         $customize_order_list = DB::table('orders')->where('order_type_id', 2)->orderBy('order_status_id', 'asc')->get();
@@ -127,42 +127,42 @@ class OrderController extends Controller
         ]);
     }
     /**
- * @OA\Post(
- *     path="/api/order/get_order_list",
- *     summary="Get order list for customer",
- *     description="Retrieve customized and template order lists for the authenticated customer.",
- *     operationId="getOrderListCustomer",
- *     tags={"Order"},
- *     security={
- *         {"bearerAuth": {}}
- *     },
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation",
- *         @OA\JsonContent(
- *             type="object",
- *             @OA\Property(
- *                 property="customize_order_list",
- *                 type="array",
- *                 @OA\Items(ref="#/components/schemas/Order")
- *             ),
- *             @OA\Property(
- *                 property="template_order_list",
- *                 type="array",
- *                 @OA\Items(ref="#/components/schemas/Order")
- *             )
- *         )
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthorized",
- *         @OA\JsonContent(
- *             type="object",
- *             @OA\Property(property="error", type="string", example="Invalid token")
- *         )
- *     )
- * )
- */
+     * @OA\Post(
+     *     path="/api/order/get_order_list_customer",
+     *     summary="Get order list for customer",
+     *     description="Retrieve customized and template order lists for the authenticated customer.",
+     *     operationId="getOrderListCustomer",
+     *     tags={"Order"},
+     *     security={
+     *         {"bearerAuth": {}}
+     *     },
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="customize_order_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Order")
+     *             ),
+     *             @OA\Property(
+     *                 property="template_order_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Order")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Invalid token")
+     *         )
+     *     )
+     * )
+     */
     public function get_order_list_customer(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -356,6 +356,67 @@ class OrderController extends Controller
             'template_order_list' => $template_order_list
         ]);
     }
+
+    /**
+ * @OA\Post(
+ *     path="/api/order/add_order_template",
+ *     tags={"Order"},
+ *     summary="Create a new order template",
+ *     description="This endpoint allows creating a new order template based on the provided model, metals, diamonds, and other details. Requires a valid JWT token.",
+ *     security={{"bearerAuth": {}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="new_order",
+ *                 type="object",
+ *                 description="Details of the new order template",
+ *                 @OA\Property(property="model_id", type="integer", example=1),
+ *                 @OA\Property(property="metal_1_id", type="integer", example=1),
+ *                 @OA\Property(property="metal_2_id", type="integer", example=2),
+ *                 @OA\Property(property="diamond_shape_id", type="integer", example=1),
+ *                 @OA\Property(property="mounting_size", type="string", example="M"),
+ *                 @OA\Property(property="diamond_size", type="string", example="1.0"),
+ *                 @OA\Property(property="diamond_color_id", type="integer", example=1),
+ *                 @OA\Property(property="diamond_clarity_id", type="integer", example=1),
+ *                 @OA\Property(property="diamond_cut_id", type="integer", example=1),
+ *                 @OA\Property(property="diamond_origin_id", type="integer", example=1),
+ *                 @OA\Property(property="note", type="string", example="Custom note for the order")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Order successfully created",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string", example="Order successfully created")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid token",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Forbidden - Detailed error information",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Error occurred with specific details. E.g., The selected model doesn't exist.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="An error message describing the issue")
+ *         )
+ *     )
+ * )
+ */
+
     public function add_order_template(Request $request)
     {
         $input = json_decode($request->input('new_order'), true);
@@ -588,6 +649,53 @@ class OrderController extends Controller
             'success' => 'Order succesfully created',
         ]);
     }
+/**
+ * @OA\Post(
+ *     path="/api/admin/order/reassign_order",
+ *     summary="Reassign order to different staff members",
+ *     tags={"Order"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="assigned_information",
+ *                 type="object",
+ *                 description="Information for reassignment of the order",
+ *                 @OA\Property(property="order_id", type="integer", example=1, description="ID of the order"),
+ *                 @OA\Property(property="saleStaff_id", type="integer", example=2, description="ID of the new sales staff"),
+ *                 @OA\Property(property="designStaff_id", type="integer", example=3, description="ID of the new design staff"),
+ *                 @OA\Property(property="productionStaff_id", type="integer", example=4, description="ID of the new production staff"),
+ *                 @OA\Property(property="note", type="string", example="Reassigning due to staff unavailability", description="Additional note for reassignment")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Successfully reassigned",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="string", example="Successfully reassigned", description="Success message")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="No input received or invalid reassignment request",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="No input received", description="Error message")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Internal server error", description="Error message")
+ *         )
+ *     )
+ * )
+ */
     public function reassign_order(Request $request) //
     {
         $input = json_decode($request->input('assigned_information'), true);
@@ -687,6 +795,58 @@ class OrderController extends Controller
             'success' => 'Successfully reassign'
         ], 201);
     }
+/**
+ * @OA\Post(
+ *     path="/api/cancel_order",
+ *     summary="Cancel an existing order",
+ *     tags={"Order"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="cancel",
+ *                 type="object",
+ *                 description="Information required to cancel the order",
+ *                 @OA\Property(property="order_id", type="integer", example=1, description="ID of the order to be canceled"),
+ *                 @OA\Property(property="note", type="string", example="Customer requested cancellation", description="Reason for cancellation")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Order canceled successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="string", example="Cancel successfully", description="Success message")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid cancel request",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Invalid cancel request", description="Error message")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized request due to invalid token",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Invalid token", description="Error message")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Internal server error", description="Error message")
+ *         )
+ *     )
+ * )
+ */
     public function cancel_order(Request $request)
     {
         $input = json_decode($request->input('cancel'), true);
@@ -751,18 +911,226 @@ class OrderController extends Controller
             'success' => 'Cancel successfully'
         ], 201);
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/order/get_order_status_list",
+     *     summary="Get list of order statuses",
+     *     tags={"Order"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of order statuses",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example="1"),
+     *                 @OA\Property(property="name", type="string", example="Pending"),
+     *                 @OA\Property(property="description", type="string", example="Order is pending processing")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
+     *     )
+     * )
+     */
     public function get_order_status_list()
     {
         return response()->json(
             DB::table('order_status')->get()
         );
     }
+    /**
+     * @OA\Post(
+     *     path="/apiorder/get_order_type_list",
+     *     summary="Get list of order types",
+     *     tags={"Order"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of order types",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example="1"),
+     *                 @OA\Property(property="name", type="string", example="Custom"),
+     *                 @OA\Property(property="description", type="string", example="Customized order")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
+     *     )
+     * )
+     */
     public function get_order_type_list()
     {
         return response()->json(
             DB::table('order_type')->get()
         );
     }
+    /**
+     * @OA\Post(
+     *     path="/api/order/get_order_detail",
+     *     summary="Get details of an order",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"order_id"},
+     *             @OA\Property(property="order_id", type="integer", example="1")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Details of the order",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="order_detail", type="object",
+     *                 @OA\Property(property="id", type="integer", example="1"),
+     *                 @OA\Property(property="created", type="string", format="date-time", example="10:00:00 01/01/2023"),
+     *                 @OA\Property(property="delivery_date", type="string", format="date-time", example="10:00:00 01/01/2023"),
+     *                 @OA\Property(property="guarantee_expired_date", type="string", format="date-time", example="10:00:00 01/01/2023"),
+     *                 @OA\Property(property="product", type="object",
+     *                     @OA\Property(property="id", type="integer", example="1"),
+     *                     @OA\Property(property="name", type="string", example="Product Name"),
+     *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/images/product.jpg"),
+     *                     @OA\Property(property="mounting_type", type="object",
+     *                         @OA\Property(property="id", type="integer", example="1"),
+     *                         @OA\Property(property="name", type="string", example="Mounting Type")
+     *                     ),
+     *                     @OA\Property(property="model", type="object",
+     *                         @OA\Property(property="id", type="integer", example="1"),
+     *                         @OA\Property(property="name", type="string", example="Model Name"),
+     *                         @OA\Property(property="imageUrl", type="string", example="http://example.com/images/model.jpg"),
+     *                         @OA\Property(property="mounting_style", type="object",
+     *                             @OA\Property(property="id", type="integer", example="1"),
+     *                             @OA\Property(property="imageUrl", type="string", example="http://example.com/images/style.jpg")
+     *                         )
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="product_diamond", type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="diamond", type="object",
+     *                             @OA\Property(property="id", type="integer", example="1"),
+     *                             @OA\Property(property="imageUrl", type="string", example="http://example.com/images/diamond.jpg"),
+     *                             @OA\Property(property="diamond_color", type="object",
+     *                                 @OA\Property(property="id", type="integer", example="1"),
+     *                                 @OA\Property(property="name", type="string", example="Diamond Color")
+     *                             ),
+     *                             @OA\Property(property="diamond_clarity", type="object",
+     *                                 @OA\Property(property="id", type="integer", example="1"),
+     *                                 @OA\Property(property="name", type="string", example="Diamond Clarity")
+     *                             ),
+     *                             @OA\Property(property="diamond_cut", type="object",
+     *                                 @OA\Property(property="id", type="integer", example="1"),
+     *                                 @OA\Property(property="name", type="string", example="Diamond Cut")
+     *                             )
+     *                         )
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="product_metal", type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="metal", type="object",
+     *                             @OA\Property(property="id", type="integer", example="1"),
+     *                             @OA\Property(property="imageUrl", type="string", example="http://example.com/images/metal.jpg")
+     *                         )
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="account", type="object",
+     *                     @OA\Property(property="id", type="integer", example="1"),
+     *                     @OA\Property(property="name", type="string", example="Account Name"),
+     *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/images/account.jpg"),
+     *                     @OA\Property(property="dob", type="string", example="01/01/2000"),
+     *                     @OA\Property(property="deactivated_date", type="string", example="01/01/2023"),
+     *                     @OA\Property(property="role", type="object",
+     *                         @OA\Property(property="id", type="integer", example="1"),
+     *                         @OA\Property(property="name", type="string", example="Role Name")
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="sale_staff", type="object",
+     *                     @OA\Property(property="id", type="integer", example="1"),
+     *                     @OA\Property(property="name", type="string", example="Sale Staff Name"),
+     *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/images/sale_staff.jpg"),
+     *                     @OA\Property(property="dob", type="string", example="01/01/2000"),
+     *                     @OA\Property(property="deactivated_date", type="string", example="01/01/2023"),
+     *                     @OA\Property(property="role", type="object",
+     *                         @OA\Property(property="id", type="integer", example="1"),
+     *                         @OA\Property(property="name", type="string", example="Role Name")
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="design_staff", type="object",
+     *                     @OA\Property(property="id", type="integer", example="1"),
+     *                     @OA\Property(property="name", type="string", example="Design Staff Name"),
+     *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/images/design_staff.jpg"),
+     *                     @OA\Property(property="dob", type="string", example="01/01/2000"),
+     *                     @OA\Property(property="deactivated_date", type="string", example="01/01/2023"),
+     *                     @OA\Property(property="role", type="object",
+     *                         @OA\Property(property="id", type="integer", example="1"),
+     *                         @OA\Property(property="name", type="string", example="Role Name")
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="production_staff", type="object",
+     *                     @OA\Property(property="id", type="integer", example="1"),
+     *                     @OA\Property(property="name", type="string", example="Production Staff Name"),
+     *                     @OA\Property(property="imageUrl", type="string", example="http://example.com/images/production_staff.jpg"),
+     *                     @OA\Property(property="dob", type="string", example="01/01/2000"),
+     *                     @OA\Property(property="deactivated_date", type="string", example="01/01/2023"),
+     *                     @OA\Property(property="role", type="object",
+     *                         @OA\Property(property="id", type="integer", example="1"),
+     *                         @OA\Property(property="name", type="string", example="Role Name")
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="order_status", type="object",
+     *                     @OA\Property(property="id", type="integer", example="1"),
+     *                     @OA\Property(property="name", type="string", example="Order Status")
+     *                 ),
+     *                 @OA\Property(property="order_type", type="object",
+     *                     @OA\Property(property="id", type="integer", example="1"),
+     *                     @OA\Property(property="name", type="string", example="Order Type")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="No input received",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="No input received")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Order not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Order not found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Internal server error")
+     *         )
+     *     )
+     * )
+     */
     public function get_order_detail(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);
@@ -932,6 +1300,43 @@ class OrderController extends Controller
             'order_detail' => $order
         ]);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/get_order_detail_customer",
+     *     summary="Get order detail for customer",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="order_id",
+     *                 type="integer",
+     *                 description="ID of the order to fetch details"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="order_detail",
+     *                 ref="#/components/schemas/Order"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Error: No input received or order not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="error",
+     *                 type="string"
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function get_order_detail_customer(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);
@@ -1103,6 +1508,77 @@ class OrderController extends Controller
             'order_detail' => $order
         ]);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/get_assigned_staff",
+     *     summary="Get assigned staff for an order",
+     *     tags={"Order"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="order_id",
+     *                 type="integer",
+     *                 example="123"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="current_sale_staff",
+     *                 type="object",
+     *                 description="Current sale staff assigned to the order",
+     *                 ref="#/components/schemas/Account"
+     *             ),
+     *             @OA\Property(
+     *                 property="current_design_staff",
+     *                 type="object",
+     *                 description="Current design staff assigned to the order",
+     *                 ref="#/components/schemas/Account"
+     *             ),
+     *             @OA\Property(
+     *                 property="current_production_staff",
+     *                 type="object",
+     *                 description="Current production staff assigned to the order",
+     *                 ref="#/components/schemas/Account"
+     *             ),
+     *             @OA\Property(
+     *                 property="sale_staff_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Account"),
+     *                 description="List of available sale staff members"
+     *             ),
+     *             @OA\Property(
+     *                 property="design_staff_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Account"),
+     *                 description="List of available design staff members"
+     *             ),
+     *             @OA\Property(
+     *                 property="production_staff_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Account"),
+     *                 description="List of available production staff members"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="No input received",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="error",
+     *                 type="string",
+     *                 example="No input received"
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function get_assigned_staff(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);
@@ -1124,7 +1600,8 @@ class OrderController extends Controller
             $current_sale_staff->role = DB::table('role')->where('id', $current_sale_staff->role_id)->first();
             unset($current_sale_staff->password);
             unset($current_sale_staff->role_id);
-        } else $current_sale_staff = null;
+        } else
+            $current_sale_staff = null;
 
         if ($order->designStaff_id != null) {
             $current_design_staff = DB::table('account')->where('id', $order->designStaff_id)->first();
@@ -1138,7 +1615,8 @@ class OrderController extends Controller
             $current_design_staff->role = DB::table('role')->where('id', $current_design_staff->role_id)->first();
             unset($current_design_staff->password);
             unset($current_design_staff->role_id);
-        } else $current_design_staff = null;
+        } else
+            $current_design_staff = null;
 
         if ($order->productionStaff_id != null) {
             $current_production_staff = DB::table('account')->where('id', $order->productionStaff_id)->first();
@@ -1152,7 +1630,8 @@ class OrderController extends Controller
             $current_production_staff->role = DB::table('role')->where('id', $current_production_staff->role_id)->first();
             unset($current_production_staff->password);
             unset($current_production_staff->role_id);
-        } else $current_production_staff = null;
+        } else
+            $current_production_staff = null;
 
         $sale_query = Account::query();
         $design_query = Account::query();
@@ -1219,6 +1698,55 @@ class OrderController extends Controller
             'production_staff_list' => $production_list
         ]);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/get_assigned_orders_sale",
+     *     summary="Get assigned orders for sale staff",
+     *     tags={"Order"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="template_order_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Order"),
+     *                 description="List of template orders"
+     *             ),
+     *             @OA\Property(
+     *                 property="customize_order_list",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Order"),
+     *                 description="List of customize orders assigned to the sale staff"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid token",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="error",
+     *                 type="string",
+     *                 example="Invalid token"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Invalid user (User is unauthorized)",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="error",
+     *                 type="string",
+     *                 example="Invalid user (User is unauthorized)"
+     *             )
+     *         )
+     *     )
+     * )
+     */
+
     public function get_assigned_orders_sale(Request $request) //
     {
         $authorizationHeader = $request->header('Authorization');
@@ -1321,6 +1849,29 @@ class OrderController extends Controller
             'customize_order_list' => $customize_order_list
         ]);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/get-assigned-orders-design",
+     *     summary="Get assigned orders for design staff",
+     *     tags={"Order"},
+     *     security={{ "bearerAuth":{} }},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="template_order_list", type="array", @OA\Items(ref="#/components/schemas/Order")),
+     *             @OA\Property(property="customize_order_list", type="array", @OA\Items(ref="#/components/schemas/Order"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid Token")
+     *         )
+     *     )
+     * )
+     */
     public function get_assigned_orders_design(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -1403,6 +1954,30 @@ class OrderController extends Controller
             $sorted_order_list->values()->all() // Resetting the keys to have a clean array
         );
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/get-assigned-orders-production",
+     *     summary="Get assigned orders for production staff",
+     *     tags={"Order"},
+     *     security={{ "bearerAuth":{} }},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="template_order_list", type="array", @OA\Items(ref="#/components/schemas/Order")),
+     *             @OA\Property(property="customize_order_list", type="array", @OA\Items(ref="#/components/schemas/Order"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid Token")
+     *         )
+     *     )
+     * )
+     */
     public function get_assigned_orders_production(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -1542,6 +2117,49 @@ class OrderController extends Controller
             'customize_order_list' => $sorted_customize_order_list->values()->all()
         ]);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/get_assigned_complete_orders_production",
+     *     summary="Get assigned and complete production orders",
+     *     tags={"Order"},
+     *     security={{ "bearerAuth": {} }},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="Authorization", type="string", example="Bearer {token}"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="template_order_list", type="array", @OA\Items(ref="#/components/schemas/Order")),
+     *             @OA\Property(property="customize_order_list", type="array", @OA\Items(ref="#/components/schemas/Order")),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid token"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid user (User is unauthorized)"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Internal server error"),
+     *         ),
+     *     ),
+     * )
+     */
     public function get_assigned_complete_orders_production(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -1706,6 +2324,55 @@ class OrderController extends Controller
             'customize_order_list' => $sorted_customize_order_list->values()->all()
         ]);
     }
+    
+    /**
+ * @OA\Post(
+ *     path="/api/admin/order/request_design_process",
+ *     summary="Request design process for an order",
+ *     tags={"Order"},
+ *     security={{ "bearerAuth": {} }},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="new_design_process",
+ *                 type="object",
+ *                 @OA\Property(property="order_id", type="integer", example=1),
+ *                 @OA\Property(property="design_process_details", type="string", example="Detailed description of the design process")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Design process requested successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="string", example="Request design process successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Forbidden - One of the selected diamonds is currently deactivated",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="One of the selected diamonds is currently deactivated")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Internal server error")
+ *         )
+ *     )
+ * )
+ */
     public function request_design_process(Request $request)
     {
         $input = json_decode($request->input('new_design_process'), true);
@@ -1856,6 +2523,62 @@ class OrderController extends Controller
             'success' => 'Request design process successfully'
         ], 201);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/pricing-design-process",
+     *     summary="Price design process",
+     *     tags={"Order"},
+     *     security={{ "bearerAuth": {} }},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="JSON payload containing pricing details",
+     *         @OA\JsonContent(
+     *             required={"priced_design_process"},
+     *             @OA\Property(property="priced_design_process", type="object",
+     *                 @OA\Property(property="design_process_id", type="integer", example="1"),
+     *                 @OA\Property(property="production_price", type="number", example="500"),
+     *                 @OA\Property(property="profit_rate", type="number", example="15"),
+     *                 @OA\Property(property="note", type="string", example="Additional notes")
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Successfully priced design process",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="string", example="Successfully price design process")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid token")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No input received")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="The selected design process doesn't exist")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Internal Server Error")
+     *         )
+     *     )
+     * )
+     */
     public function pricing_design_process(Request $request)
     {
         $input = json_decode($request->input('priced_design_process'), true);
@@ -1941,6 +2664,45 @@ class OrderController extends Controller
             'success' => 'Successfully price design process'
         ], 201);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/approve-design-process",
+     *     summary="Approve or decline a design process",
+     *     tags={"Order"},
+     *     security={{ "bearerAuth":{} }},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="approval", type="object", 
+     *                 @OA\Property(property="design_process_id", type="integer", description="ID of the design process"),
+     *                 @OA\Property(property="approve", type="boolean", description="Approval status"),
+     *                 @OA\Property(property="note", type="string", description="Optional note")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Design process approved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="string", example="Design process approve successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No input received")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="An error occurred")
+     *         )
+     *     )
+     * )
+     */
     public function approve_design_process(Request $request)
     {
         $input = json_decode($request->input('approval'), true);
@@ -2105,12 +2867,122 @@ class OrderController extends Controller
             'success' => 'Design process approve successfully'
         ], 200);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/design_process/status_list",
+     *     summary="Get list of design process statuses",
+     *     tags={"Order"},
+     *     description="Retrieve the list of all available design process statuses.",
+     *     operationId="getDesignProcessStatusList",
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of design process statuses",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="id",
+     *                     type="integer",
+     *                     description="Status ID"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="name",
+     *                     type="string",
+     *                     description="Status name"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function get_design_process_status_list(Request $request)
     {
         return response()->json(
             DB::table('design_process_status')->get()
         );
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/design_process/list",
+     *     summary="Get list of design processes",
+     *     tags={"Order"},
+     *     description="Retrieve the list of design processes based on user role and token authentication.",
+     *     operationId="getDesignProcessList",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of design processes",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="id",
+     *                     type="integer",
+     *                     description="Design process ID"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="order_id",
+     *                     type="integer",
+     *                     description="Order ID"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="design_process_status",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="id",
+     *                         type="integer",
+     *                         description="Status ID"
+     *                     ),
+     *                     @OA\Property(
+     *                         property="name",
+     *                         type="string",
+     *                         description="Status name"
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="mounting_type",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="id",
+     *                         type="integer",
+     *                         description="Mounting type ID"
+     *                     ),
+     *                     @OA\Property(
+     *                         property="name",
+     *                         type="string",
+     *                         description="Mounting type name"
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="created",
+     *                     type="string",
+     *                     format="date-time",
+     *                     description="Creation date and time"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="imageUrl",
+     *                     type="string",
+     *                     description="Image URL"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid token"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function get_design_process_list(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -2188,6 +3060,65 @@ class OrderController extends Controller
             $design_list
         );
     }
+
+/**
+ * @OA\Post(
+ *     path="/api/admin/order/get_design_process_detail",
+ *     summary="Retrieve design process detail",
+ *     tags={"Order"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="design_process_id",
+ *                 type="integer",
+ *                 example=1,
+ *                 description="ID of the design process to retrieve"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Design process detail retrieved successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="design_process",
+ *                 type="object",
+ *                 description="Details of the design process",
+ *                 @OA\Property(property="id", type="integer", example=1, description="ID of the design process"),
+ *                 @OA\Property(property="status", type="string", example="In Progress", description="Current status of the design process"),
+ *                 @OA\Property(property="details", type="string", example="Initial design phase", description="Additional details about the design process")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid request or design process does not exist",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="error",
+ *                 type="string",
+ *                 example="Invalid request or design process does not exist"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="error",
+ *                 type="string",
+ *                 example="Internal server error"
+ *             )
+ *         )
+ *     )
+ * )
+ */
     public function get_design_process_detail(Request $request)
     {
         $input = json_decode($request->input('design_process_id'), true);
@@ -2383,13 +3314,94 @@ class OrderController extends Controller
             'design_process' => $design_process
         ]);
     }
-
+    /**
+     * @OA\Post(
+     *     path="/api/order/get_production_status_list",
+     *     summary="Retrieve the list of production statuses",
+     *     tags={"Order"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Production status list retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="error",
+     *                 type="string",
+     *                 example="Internal server error"
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function get_production_status_list()
     {
         return response()->json(
             DB::table('production_status')->get()
         );
     }
+/**
+ * @OA\Post(
+ *     path="/api/admin/order/add_production_process",
+ *     summary="Add Production Process",
+ *     tags={"Order"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="new_production_process",
+ *                 type="object",
+ *                 description="Details of the new production process",
+ *                 @OA\Property(property="order_id", type="integer", example=1, description="ID of the order"),
+ *                 @OA\Property(property="production_status_id", type="integer", example=3, description="ID of the production status"),
+ *                 @OA\Property(property="imageUrl", type="string", example="base64_encoded_image", description="Base64 encoded image")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Production process successfully added",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="string", example="Production process successfully added")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid input or bad request",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Invalid input or bad request")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthorized access due to invalid token",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Invalid token")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal server error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Internal server error")
+ *         )
+ *     )
+ * )
+ */
     public function add_production_process(Request $request)
     {
         $input = json_decode($request->input('new_production_process'), true);
@@ -2495,6 +3507,43 @@ class OrderController extends Controller
             'success' => 'Production process successfully added'
         ], 201);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/order/production-process-list",
+     *     summary="Get Production Process List",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="order_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of production processes",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="order_id", type="integer", example=1),
+     *                 @OA\Property(property="production_status", type="object",
+     *                     @OA\Property(property="id", type="integer", example=3),
+     *                     @OA\Property(property="status", type="string", example="In Progress")
+     *                 ),
+     *                 @OA\Property(property="imageUrl", type="string", example="http://example.com/image.jpg"),
+     *                 @OA\Property(property="created", type="string", example="12:00:00 21/07/2024")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Error occurred",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No input received")
+     *         )
+     *     )
+     * )
+     */
     public function get_production_process_list(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);
@@ -2519,6 +3568,45 @@ class OrderController extends Controller
             $production_process_list
         );
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/production_complete",
+     *     summary="Complete the production process for an order",
+     *     tags={"Order"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="order_id", type="integer", example=123)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Production complete",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="string", example="Production complete")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Invalid input or unauthorized",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="No input received")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="An error message")
+     *         )
+     *     )
+     * )
+     */
     public function production_complete(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);
@@ -2608,16 +3696,48 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    // public function generateOrderCode()
-    // {
-    //     $orderCode = intval(substr(strval(microtime(true) * 10000), -6));
-    //     $payment = DB::table('payment')->where('id', $orderCode)->get();
-    //     if ($payment->count() > 0) {
-    //         $this->generateOrderCode();
-    //     }
-    //     return $orderCode;
-    // }
-
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/create_payment_link",
+     *     summary="Create a payment link for an order",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="order_information", type="object", 
+     *                 @OA\Property(property="order_id", type="integer", example=123),
+     *                 @OA\Property(property="return_url", type="string", example="https://example.com/return"),
+     *                 @OA\Property(property="cancel_url", type="string", example="https://example.com/cancel")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Payment link created",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="payment_link", type="string", example="https://paymentgateway.com/checkout/abc123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Invalid input or order status not ready for payment",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="No input received")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="An error message")
+     *         )
+     *     )
+     * )
+     */
     public function create_payment_link(Request $request)
     {
         $input = json_decode($request->input('order_information'), true);
@@ -2676,31 +3796,43 @@ class OrderController extends Controller
             return $th->getMessage();
         }
     }
-    // public function isValidData($transaction, $transaction_signature, $checksum_key)
-    // {
-    //     ksort($transaction);
-    //     $transaction_str_arr = [];
-    //     foreach ($transaction as $key => $value) {
-    //         if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
-    //             $value = "";
-    //         }
 
-    //         if (is_array($value)) {
-    //             $valueSortedElementObj = array_map(function ($ele) {
-    //                 ksort($ele);
-    //                 return $ele;
-    //             }, $value);
-    //             $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
-    //         }
-    //         $transaction_str_arr[] = $key . "=" . $value;
-    //     }
-    //     $transaction_str = implode("&", $transaction_str_arr);
-    //     dump($transaction_str);
-    //     $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
-    //     dump($signature);
-    //     return $signature == $transaction_signature;
-    // }
-
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/confirm-payment",
+     *     summary="Confirm payment",
+     *     description="Confirms the payment and updates the order status accordingly.",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", type="object", description="Payment data"),
+     *             @OA\Property(property="signature", type="string", description="Signature for verifying payment data")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Transaction complete",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="string", example="Transaction complete")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid signature or order code")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
     public function confirm_payment(Request $request)
     {
         $checksum_key = env('CHECK_SUM_KEY');
@@ -2776,6 +3908,35 @@ class OrderController extends Controller
             'success' => 'Transaction complete'
         ], 200);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/generate-pdf",
+     *     summary="Generate PDF",
+     *     description="Generates a PDF for the given payment and sends it to the user's email.",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="orderCode", type="integer", description="Order code"),
+     *             @OA\Property(property="guarantee_expired_date", type="string", description="Guarantee expiration date")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="PDF generated and email sent",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="string", example="PDF generated and email sent")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
     public function generatePDF($orderCode, $guarantee_expired_date)
     {
         $payment = DB::table('payment')->where('id', $orderCode)->first();
@@ -2831,6 +3992,35 @@ class OrderController extends Controller
         $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
         //$this->sendMail('bachdxse182030@fpt.edu.vn', $messageContent, 'Payment Invoice', $filePath);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/generate-pdf-extra",
+     *     summary="Generate PDF Extra",
+     *     description="Generates a PDF for the given order and sends it to the user's email.",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="orderId", type="integer", description="Order ID"),
+     *             @OA\Property(property="guarantee_expired_date", type="string", description="Guarantee expiration date")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="PDF generated and email sent",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="string", example="PDF generated and email sent")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
     public function generatePDFextra($orderId, $guarantee_expired_date)
     {
         $order = DB::table('orders')->where('id', $orderId)->first();
@@ -2883,10 +4073,67 @@ class OrderController extends Controller
         $messageContent = 'Dear ' . $account->fullname . ',<br><br>Thank you for your purchase. Please find attached the payment invoice for your order.<br><br>Best Regards,<br>Bijoux Jewelry';
         $this->sendMail($account->email, $messageContent, 'Payment Invoice', $filePath);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/format-currency",
+     *     summary="Format Currency",
+     *     description="Formats the given amount as currency.",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="amount", type="number", description="Amount to format")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Formatted amount",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="formatted_amount", type="string", example="1,000")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Error message")
+     *         )
+     *     )
+     * )
+     */
     function formatCurrency($amount)
     {
         return number_format($amount, 0);
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/sendMail",
+     *     summary="Send an email",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="toEmail", type="string", example="example@example.com"),
+     *             @OA\Property(property="messageContent", type="string", example="Your message content"),
+     *             @OA\Property(property="subject", type="string", example="Email Subject"),
+     *             @OA\Property(property="pathToFile", type="string", example="/path/to/file")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Email sent successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Email sent successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to send email",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Failed to send email: Error message")
+     *         )
+     *     )
+     * )
+     */
     public function sendMail($toEmail, $messageContent, $subject, $pathToFile)
     {
         try {
@@ -2895,6 +4142,37 @@ class OrderController extends Controller
             return response()->json(['error' => 'Failed to send email: ' . $e->getMessage()], 500);
         }
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/get_payment_history",
+     *     summary="Get payment history",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Payment history retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="payment_list", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid token")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Access denied",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="You don't have permission to access this page")
+     *         )
+     *     )
+     * )
+     */
     public function get_payment_history(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -2969,6 +4247,40 @@ class OrderController extends Controller
             $payment_list
         );
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/order/confirm_delivery",
+     *     summary="Confirm order delivery",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="order_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Order delivery confirmed successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Order delivery confirmed successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Invalid token",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Invalid token")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="No input received",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="No input received")
+     *         )
+     *     )
+     * )
+     */
     public function confirm_delivery(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);
@@ -3019,6 +4331,96 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    /**
+ * @OA\Post(
+ *     path="/api/admin/order/get_refund_list",
+ *     summary="Get list of refundable orders",
+ *     description="Retrieve a list of orders that are eligible for refunds, including both custom and template orders. This endpoint requires sending additional data in the request body, such as filters or search parameters.",
+ *     operationId="getRefundList",
+ *     tags={"Order"},
+ *     @OA\RequestBody(
+ *         required=false,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="filters",
+ *                 type="object",
+ *                 description="Optional filters for retrieving the refund list",
+ *                 @OA\Property(property="status", type="string", description="Filter by order status"),
+ *                 @OA\Property(property="date_range", type="object", description="Filter by date range",
+ *                     @OA\Property(property="start_date", type="string", format="date", description="Start date in YYYY-MM-DD format"),
+ *                     @OA\Property(property="end_date", type="string", format="date", description="End date in YYYY-MM-DD format")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response="200",
+ *         description="List of refundable orders",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="customize_order_list",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="id", type="integer", description="Order ID"),
+ *                     @OA\Property(property="product", type="object", description="Product details", 
+ *                         @OA\Property(property="id", type="integer", description="Product ID"),
+ *                         @OA\Property(property="imageUrl", type="string", description="URL of the product image")
+ *                     ),
+ *                     @OA\Property(property="account", type="object", description="Account details", 
+ *                         @OA\Property(property="id", type="integer", description="Account ID"),
+ *                         @OA\Property(property="imageUrl", type="string", description="URL of the account image"),
+ *                         @OA\Property(property="dob", type="string", description="Date of birth in d/m/Y format"),
+ *                         @OA\Property(property="deactivated_date", type="string", description="Deactivation date in d/m/Y format")
+ *                     ),
+ *                     @OA\Property(property="order_status", type="object", description="Order status details",
+ *                         @OA\Property(property="id", type="integer", description="Order status ID")
+ *                     ),
+ *                     @OA\Property(property="order_type", type="object", description="Order type details",
+ *                         @OA\Property(property="id", type="integer", description="Order type ID")
+ *                     ),
+ *                     @OA\Property(property="created", type="string", description="Creation date in H:i:s d/m/Y format"),
+ *                     @OA\Property(property="delivery_date", type="string", description="Delivery date in H:i:s d/m/Y format"),
+ *                     @OA\Property(property="guarantee_expired_date", type="string", description="Guarantee expired date in H:i:s d/m/Y format")
+ *                 )
+ *             ),
+ *             @OA\Property(
+ *                 property="template_order_list",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="id", type="integer", description="Order ID"),
+ *                     @OA\Property(property="product", type="object", description="Product details", 
+ *                         @OA\Property(property="id", type="integer", description="Product ID"),
+ *                         @OA\Property(property="imageUrl", type="string", description="URL of the product image")
+ *                     ),
+ *                     @OA\Property(property="account", type="object", description="Account details", 
+ *                         @OA\Property(property="id", type="integer", description="Account ID"),
+ *                         @OA\Property(property="imageUrl", type="string", description="URL of the account image"),
+ *                         @OA\Property(property="dob", type="string", description="Date of birth in d/m/Y format"),
+ *                         @OA\Property(property="deactivated_date", type="string", description="Deactivation date in d/m/Y format")
+ *                     ),
+ *                     @OA\Property(property="order_status", type="object", description="Order status details",
+ *                         @OA\Property(property="id", type="integer", description="Order status ID")
+ *                     ),
+ *                     @OA\Property(property="order_type", type="object", description="Order type details",
+ *                         @OA\Property(property="id", type="integer", description="Order type ID")
+ *                     ),
+ *                     @OA\Property(property="created", type="string", description="Creation date in H:i:s d/m/Y format"),
+ *                     @OA\Property(property="delivery_date", type="string", description="Delivery date in H:i:s d/m/Y format"),
+ *                     @OA\Property(property="guarantee_expired_date", type="string", description="Guarantee expired date in H:i:s d/m/Y format")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response="500",
+ *         description="Internal server error"
+ *     )
+ * )
+ */
     public function get_refund_list()
     {
         $customize_order_list = DB::table('orders')->where('order_type_id', 2)->where('order_status_id', '>=', 4)->orderBy('order_status_id', 'asc')->get();
@@ -3104,6 +4506,8 @@ class OrderController extends Controller
             'template_order_list' => $temp2
         ]);
     }
+
+
     public function confirm_refund(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);
@@ -3140,7 +4544,59 @@ class OrderController extends Controller
             'success' => 'Refund complete'
         ]);
     }
-
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/dashboard",
+     *     summary="Retrieve dashboard data",
+     *     description="Fetches various dashboard metrics including user counts, profits, and order statistics.",
+     *     operationId="getDashboard",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 properties={}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="months", type="array", @OA\Items(type="string")),
+     *             @OA\Property(property="user", type="object", @OA\Property(property="user_year", type="integer"), @OA\Property(property="this_month", type="integer"), @OA\Property(property="user_month", type="array", @OA\Items(type="integer"))),
+     *             @OA\Property(property="profit", type="object", @OA\Property(property="profit_year", type="integer"), @OA\Property(property="this_month", type="integer"), @OA\Property(property="profit_month", type="array", @OA\Items(type="integer"))),
+     *             @OA\Property(property="order", type="object", @OA\Property(property="order_year", type="integer"), @OA\Property(property="this_month", type="integer"), @OA\Property(property="order_month", type="array", @OA\Items(type="integer"))),
+     *             @OA\Property(property="order_deposit", type="object", @OA\Property(property="deposit_percentage", type="integer"), @OA\Property(property="deposit_count", type="integer")),
+     *             @OA\Property(property="order_design", type="object", @OA\Property(property="design_percentage", type="integer"), @OA\Property(property="design_count", type="integer")),
+     *             @OA\Property(property="order_production", type="object", @OA\Property(property="production_percentage", type="integer"), @OA\Property(property="production_count", type="integer")),
+     *             @OA\Property(property="order_payment", type="object", @OA\Property(property="payment_percentage", type="integer"), @OA\Property(property="payment_count", type="integer")),
+     *             @OA\Property(property="order_delivery", type="object", @OA\Property(property="delivery_percentage", type="integer"), @OA\Property(property="delivery_count", type="integer")),
+     *             @OA\Property(property="order_template", type="object", @OA\Property(property="order_template_year", type="integer"), @OA\Property(property="this_month", type="integer"), @OA\Property(property="order_template_month", type="array", @OA\Items(type="integer"))),
+     *             @OA\Property(property="order_customize", type="object", @OA\Property(property="order_customize_year", type="integer"), @OA\Property(property="this_month", type="integer"), @OA\Property(property="order_customize_month", type="array", @OA\Items(type="integer")))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Invalid token")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="You don't have permission to access this page")
+     *         )
+     *     )
+     * )
+     */
     public function get_dashboard(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
@@ -3316,27 +4772,49 @@ class OrderController extends Controller
             'order_customize' => $order_customize
         ]);
     }
-    // function formatNumber($number)
-    // {
-    //     $suffix = '';
-    //     if ($number >= 1000 && $number < 1000000) {
-    //         $number = $number / 1000;
-    //         $suffix = 'k';
-    //     } elseif ($number >= 1000000 && $number < 1000000000) {
-    //         $number = $number / 1000000;
-    //         $suffix = 'M';
-    //     } elseif ($number >= 1000000000) {
-    //         $number = $number / 1000000000;
-    //         $suffix = 'B';
-    //     }
-
-    //     // Round to 1 decimal place
-    //     $number = round($number, 1);
-    //     $formatted_order_count = (floor($number) == $number) ? number_format($number, 0) : $number;
-
-    //     // Format the number with suffix
-    //     return $formatted_order_count . $suffix;
-    // }
+    /**
+     * @OA\Post(
+     *     path="/api/order/cancel-payment",
+     *     summary="Cancel a payment",
+     *     description="Cancels a payment if it has not been completed yet.",
+     *     operationId="cancelPayment",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(property="payment_id", type="integer", description="The ID of the payment to cancel")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="string", example="Payment cancelled successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="The selected payment can't be cancelled")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Error message here")
+     *         )
+     *     )
+     * )
+     */
     public function cancel_payment(Request $request)
     {
         $input = json_decode($request->input('payment_id'), true);
@@ -3365,6 +4843,57 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    /**
+     * @OA\Post(
+     *     path="/api/admin/order/confirm-shipped",
+     *     summary="Confirm an order as shipped",
+     *     description="Marks an order as shipped if it is ready and assigned to the staff.",
+     *     operationId="confirmShipped",
+     *     tags={"Order"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(property="order_id", type="integer", description="The ID of the order to confirm as shipped")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="string", example="Confirm successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="The selected order isn't ready for shipping")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Invalid token")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="error", type="string", example="Error message here")
+     *         )
+     *     )
+     * )
+     */
     public function confirm_shipped(Request $request)
     {
         $input = json_decode($request->input('order_id'), true);

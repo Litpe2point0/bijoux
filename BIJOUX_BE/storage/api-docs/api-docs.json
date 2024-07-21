@@ -537,7 +537,8 @@
                                 "schema": {
                                     "properties": {
                                         "success": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Registration successful"
                                         }
                                     },
                                     "type": "object"
@@ -552,7 +553,8 @@
                                 "schema": {
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Invalid input or Username, Email, or Phone Number already used"
                                         }
                                     },
                                     "type": "object"
@@ -567,7 +569,8 @@
                                 "schema": {
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "example": "Server Error"
                                         }
                                     },
                                     "type": "object"
@@ -3131,7 +3134,7 @@
                 }
             }
         },
-        "/api/admin/order/get_order_list": {
+        "/api/admin/order/get_order_list_admin": {
             "post": {
                 "tags": [
                     "Order"
@@ -3167,7 +3170,7 @@
                 }
             }
         },
-        "/api/order/get_order_list": {
+        "/api/order/get_order_list_customer": {
             "post": {
                 "tags": [
                     "Order"
@@ -3222,6 +3225,3365 @@
                         "bearerAuth": []
                     }
                 ]
+            }
+        },
+        "/api/order/add_order_template": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Create a new order template",
+                "description": "This endpoint allows creating a new order template based on the provided model, metals, diamonds, and other details. Requires a valid JWT token.",
+                "operationId": "7c937aeab3486cccb3b6a47c8976231f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "new_order": {
+                                        "description": "Details of the new order template",
+                                        "properties": {
+                                            "model_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "metal_1_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "metal_2_id": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "diamond_shape_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "mounting_size": {
+                                                "type": "string",
+                                                "example": "M"
+                                            },
+                                            "diamond_size": {
+                                                "type": "string",
+                                                "example": "1.0"
+                                            },
+                                            "diamond_color_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "diamond_clarity_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "diamond_cut_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "diamond_origin_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "note": {
+                                                "type": "string",
+                                                "example": "Custom note for the order"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Order successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Order successfully created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Detailed error information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error occurred with specific details. E.g., The selected model doesn't exist."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "An error message describing the issue"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/reassign_order": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Reassign order to different staff members",
+                "operationId": "34ec47d9284974d3a824043f6892b631",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "assigned_information": {
+                                        "description": "Information for reassignment of the order",
+                                        "properties": {
+                                            "order_id": {
+                                                "description": "ID of the order",
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "saleStaff_id": {
+                                                "description": "ID of the new sales staff",
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "designStaff_id": {
+                                                "description": "ID of the new design staff",
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "productionStaff_id": {
+                                                "description": "ID of the new production staff",
+                                                "type": "integer",
+                                                "example": 4
+                                            },
+                                            "note": {
+                                                "description": "Additional note for reassignment",
+                                                "type": "string",
+                                                "example": "Reassigning due to staff unavailability"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successfully reassigned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "description": "Success message",
+                                            "type": "string",
+                                            "example": "Successfully reassigned"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received or invalid reassignment request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Error message",
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Error message",
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cancel_order": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Cancel an existing order",
+                "operationId": "78acada50f222f8a978ee590120e33b1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "cancel": {
+                                        "description": "Information required to cancel the order",
+                                        "properties": {
+                                            "order_id": {
+                                                "description": "ID of the order to be canceled",
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "note": {
+                                                "description": "Reason for cancellation",
+                                                "type": "string",
+                                                "example": "Customer requested cancellation"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Order canceled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "description": "Success message",
+                                            "type": "string",
+                                            "example": "Cancel successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid cancel request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Error message",
+                                            "type": "string",
+                                            "example": "Invalid cancel request"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized request due to invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Error message",
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "description": "Error message",
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order/get_order_status_list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get list of order statuses",
+                "operationId": "b59d558cd8c0194a09bf9139bba6dec0",
+                "responses": {
+                    "200": {
+                        "description": "List of order statuses",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": "1"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Pending"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "example": "Order is pending processing"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/apiorder/get_order_type_list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get list of order types",
+                "operationId": "b7265bb6d4694d6b1d04ec730ad43b29",
+                "responses": {
+                    "200": {
+                        "description": "List of order types",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": "1"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Custom"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "example": "Customized order"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order/get_order_detail": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get details of an order",
+                "operationId": "7f2f1788e8f48eb7836aba0cb4a55701",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "order_id"
+                                ],
+                                "properties": {
+                                    "order_id": {
+                                        "type": "integer",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Details of the order",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "order_detail": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "created": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "10:00:00 01/01/2023"
+                                                },
+                                                "delivery_date": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "10:00:00 01/01/2023"
+                                                },
+                                                "guarantee_expired_date": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "10:00:00 01/01/2023"
+                                                },
+                                                "product": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Product Name"
+                                                        },
+                                                        "imageUrl": {
+                                                            "type": "string",
+                                                            "example": "http://example.com/images/product.jpg"
+                                                        },
+                                                        "mounting_type": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": "1"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Mounting Type"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "model": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": "1"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Model Name"
+                                                                },
+                                                                "imageUrl": {
+                                                                    "type": "string",
+                                                                    "example": "http://example.com/images/model.jpg"
+                                                                },
+                                                                "mounting_style": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": "1"
+                                                                        },
+                                                                        "imageUrl": {
+                                                                            "type": "string",
+                                                                            "example": "http://example.com/images/style.jpg"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "product_diamond": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "diamond": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": "1"
+                                                                    },
+                                                                    "imageUrl": {
+                                                                        "type": "string",
+                                                                        "example": "http://example.com/images/diamond.jpg"
+                                                                    },
+                                                                    "diamond_color": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": "1"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "Diamond Color"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "diamond_clarity": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": "1"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "Diamond Clarity"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "diamond_cut": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": "1"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "Diamond Cut"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "product_metal": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "metal": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": "1"
+                                                                    },
+                                                                    "imageUrl": {
+                                                                        "type": "string",
+                                                                        "example": "http://example.com/images/metal.jpg"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "account": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Account Name"
+                                                        },
+                                                        "imageUrl": {
+                                                            "type": "string",
+                                                            "example": "http://example.com/images/account.jpg"
+                                                        },
+                                                        "dob": {
+                                                            "type": "string",
+                                                            "example": "01/01/2000"
+                                                        },
+                                                        "deactivated_date": {
+                                                            "type": "string",
+                                                            "example": "01/01/2023"
+                                                        },
+                                                        "role": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": "1"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Role Name"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "sale_staff": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Sale Staff Name"
+                                                        },
+                                                        "imageUrl": {
+                                                            "type": "string",
+                                                            "example": "http://example.com/images/sale_staff.jpg"
+                                                        },
+                                                        "dob": {
+                                                            "type": "string",
+                                                            "example": "01/01/2000"
+                                                        },
+                                                        "deactivated_date": {
+                                                            "type": "string",
+                                                            "example": "01/01/2023"
+                                                        },
+                                                        "role": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": "1"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Role Name"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "design_staff": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Design Staff Name"
+                                                        },
+                                                        "imageUrl": {
+                                                            "type": "string",
+                                                            "example": "http://example.com/images/design_staff.jpg"
+                                                        },
+                                                        "dob": {
+                                                            "type": "string",
+                                                            "example": "01/01/2000"
+                                                        },
+                                                        "deactivated_date": {
+                                                            "type": "string",
+                                                            "example": "01/01/2023"
+                                                        },
+                                                        "role": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": "1"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Role Name"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "production_staff": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Production Staff Name"
+                                                        },
+                                                        "imageUrl": {
+                                                            "type": "string",
+                                                            "example": "http://example.com/images/production_staff.jpg"
+                                                        },
+                                                        "dob": {
+                                                            "type": "string",
+                                                            "example": "01/01/2000"
+                                                        },
+                                                        "deactivated_date": {
+                                                            "type": "string",
+                                                            "example": "01/01/2023"
+                                                        },
+                                                        "role": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": "1"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Role Name"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "order_status": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Order Status"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "order_type": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": "1"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Order Type"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Order not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/get_order_detail_customer": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get order detail for customer",
+                "operationId": "a2cc8aa34d78eeb981fbd42f2be40e08",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "order_id": {
+                                        "description": "ID of the order to fetch details",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "order_detail": {
+                                            "$ref": "#/components/schemas/Order"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Error: No input received or order not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/get_assigned_staff": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get assigned staff for an order",
+                "operationId": "7b59d54b9da7149e7b7925bda3ccf603",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "order_id": {
+                                        "type": "integer",
+                                        "example": "123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "current_sale_staff": {
+                                            "$ref": "#/components/schemas/Account"
+                                        },
+                                        "current_design_staff": {
+                                            "$ref": "#/components/schemas/Account"
+                                        },
+                                        "current_production_staff": {
+                                            "$ref": "#/components/schemas/Account"
+                                        },
+                                        "sale_staff_list": {
+                                            "description": "List of available sale staff members",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        },
+                                        "design_staff_list": {
+                                            "description": "List of available design staff members",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        },
+                                        "production_staff_list": {
+                                            "description": "List of available production staff members",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/get_assigned_orders_sale": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get assigned orders for sale staff",
+                "operationId": "67272bb886293759b2e606d50039e008",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "template_order_list": {
+                                            "description": "List of template orders",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        },
+                                        "customize_order_list": {
+                                            "description": "List of customize orders assigned to the sale staff",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Invalid user (User is unauthorized)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid user (User is unauthorized)"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/get-assigned-orders-design": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get assigned orders for design staff",
+                "operationId": "024936bd9b51a520e1a9710f731332fd",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "template_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        },
+                                        "customize_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid Token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/get-assigned-orders-production": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get assigned orders for production staff",
+                "operationId": "657b78ae0307c5d93ea0953e9fcdbd38",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "template_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        },
+                                        "customize_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid Token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/get_assigned_complete_orders_production": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get assigned and complete production orders",
+                "operationId": "66fc9892b6c2e5cdf1c4aaa317d5e46d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "Authorization": {
+                                        "type": "string",
+                                        "example": "Bearer {token}"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "template_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        },
+                                        "customize_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid user (User is unauthorized)"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/request_design_process": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Request design process for an order",
+                "operationId": "583ef825e457186c98fc09f906839fdb",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "new_design_process": {
+                                        "properties": {
+                                            "order_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "design_process_details": {
+                                                "type": "string",
+                                                "example": "Detailed description of the design process"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Design process requested successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Request design process successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - One of the selected diamonds is currently deactivated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "One of the selected diamonds is currently deactivated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/pricing-design-process": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Price design process",
+                "operationId": "e2ed37c48d53c64b61068b60cc15155f",
+                "requestBody": {
+                    "description": "JSON payload containing pricing details",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "priced_design_process"
+                                ],
+                                "properties": {
+                                    "priced_design_process": {
+                                        "properties": {
+                                            "design_process_id": {
+                                                "type": "integer",
+                                                "example": "1"
+                                            },
+                                            "production_price": {
+                                                "type": "number",
+                                                "example": "500"
+                                            },
+                                            "profit_rate": {
+                                                "type": "number",
+                                                "example": "15"
+                                            },
+                                            "note": {
+                                                "type": "string",
+                                                "example": "Additional notes"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successfully priced design process",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Successfully price design process"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "The selected design process doesn't exist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal Server Error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/approve-design-process": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Approve or decline a design process",
+                "operationId": "a740035ea57ed0dce90c7ff5fea0625f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "approval": {
+                                        "properties": {
+                                            "design_process_id": {
+                                                "description": "ID of the design process",
+                                                "type": "integer"
+                                            },
+                                            "approve": {
+                                                "description": "Approval status",
+                                                "type": "boolean"
+                                            },
+                                            "note": {
+                                                "description": "Optional note",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Design process approved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Design process approve successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "An error occurred"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/design_process/status_list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get list of design process statuses",
+                "description": "Retrieve the list of all available design process statuses.",
+                "operationId": "getDesignProcessStatusList",
+                "responses": {
+                    "200": {
+                        "description": "List of design process statuses",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "description": "Status ID",
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "description": "Status name",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/admin/order/design_process/list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get list of design processes",
+                "description": "Retrieve the list of design processes based on user role and token authentication.",
+                "operationId": "getDesignProcessList",
+                "responses": {
+                    "200": {
+                        "description": "List of design processes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "description": "Design process ID",
+                                                "type": "integer"
+                                            },
+                                            "order_id": {
+                                                "description": "Order ID",
+                                                "type": "integer"
+                                            },
+                                            "design_process_status": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "Status ID",
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "description": "Status name",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "mounting_type": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "Mounting type ID",
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "description": "Mounting type name",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "created": {
+                                                "description": "Creation date and time",
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "imageUrl": {
+                                                "description": "Image URL",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/get_design_process_detail": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Retrieve design process detail",
+                "operationId": "957a85474dd48c81a950649c662d2524",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "design_process_id": {
+                                        "description": "ID of the design process to retrieve",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Design process detail retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "design_process": {
+                                            "description": "Details of the design process",
+                                            "properties": {
+                                                "id": {
+                                                    "description": "ID of the design process",
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "status": {
+                                                    "description": "Current status of the design process",
+                                                    "type": "string",
+                                                    "example": "In Progress"
+                                                },
+                                                "details": {
+                                                    "description": "Additional details about the design process",
+                                                    "type": "string",
+                                                    "example": "Initial design phase"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or design process does not exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid request or design process does not exist"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order/get_production_status_list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Retrieve the list of production statuses",
+                "operationId": "1117c0338ba214f9d64c666ae87881aa",
+                "responses": {
+                    "200": {
+                        "description": "Production status list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/add_production_process": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Add Production Process",
+                "operationId": "e39c30277c297a99b84c70a0738b0aca",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "new_production_process": {
+                                        "description": "Details of the new production process",
+                                        "properties": {
+                                            "order_id": {
+                                                "description": "ID of the order",
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "production_status_id": {
+                                                "description": "ID of the production status",
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "imageUrl": {
+                                                "description": "Base64 encoded image",
+                                                "type": "string",
+                                                "example": "base64_encoded_image"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Production process successfully added",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Production process successfully added"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid input or bad request"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access due to invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Internal server error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order/production-process-list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get Production Process List",
+                "operationId": "43fb2bbfa4a876cd2d6304f45f4a4e0f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "order_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of production processes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "order_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "production_status": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "In Progress"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "imageUrl": {
+                                                "type": "string",
+                                                "example": "http://example.com/image.jpg"
+                                            },
+                                            "created": {
+                                                "type": "string",
+                                                "example": "12:00:00 21/07/2024"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Error occurred",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/production_complete": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Complete the production process for an order",
+                "operationId": "cc54f8e6ace4771003f63920ac373303",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "order_id": {
+                                        "type": "integer",
+                                        "example": 123
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Production complete",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Production complete"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "An error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/order/create_payment_link": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Create a payment link for an order",
+                "operationId": "2f98cded484894354349cb90f54e7bad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "order_information": {
+                                        "properties": {
+                                            "order_id": {
+                                                "type": "integer",
+                                                "example": 123
+                                            },
+                                            "return_url": {
+                                                "type": "string",
+                                                "example": "https://example.com/return"
+                                            },
+                                            "cancel_url": {
+                                                "type": "string",
+                                                "example": "https://example.com/cancel"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payment link created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "payment_link": {
+                                            "type": "string",
+                                            "example": "https://paymentgateway.com/checkout/abc123"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid input or order status not ready for payment",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "An error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/confirm-payment": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Confirm payment",
+                "description": "Confirms the payment and updates the order status accordingly.",
+                "operationId": "da95a30a9c646e65612e5fb47f151fd9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "data": {
+                                        "description": "Payment data",
+                                        "type": "object"
+                                    },
+                                    "signature": {
+                                        "description": "Signature for verifying payment data",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transaction complete",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Transaction complete"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid signature or order code"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/generate-pdf": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Generate PDF",
+                "description": "Generates a PDF for the given payment and sends it to the user's email.",
+                "operationId": "1e16591ff7937ccfa003226208383abb",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "orderCode": {
+                                        "description": "Order code",
+                                        "type": "integer"
+                                    },
+                                    "guarantee_expired_date": {
+                                        "description": "Guarantee expiration date",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PDF generated and email sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "PDF generated and email sent"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/generate-pdf-extra": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Generate PDF Extra",
+                "description": "Generates a PDF for the given order and sends it to the user's email.",
+                "operationId": "04cf88cd260baa368408759690ce8651",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "orderId": {
+                                        "description": "Order ID",
+                                        "type": "integer"
+                                    },
+                                    "guarantee_expired_date": {
+                                        "description": "Guarantee expiration date",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PDF generated and email sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "PDF generated and email sent"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/format-currency": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Format Currency",
+                "description": "Formats the given amount as currency.",
+                "operationId": "d55b2f8b37caaee4a979449b238c179b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "amount": {
+                                        "description": "Amount to format",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Formatted amount",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "formatted_amount": {
+                                            "type": "string",
+                                            "example": "1,000"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/sendMail": {
+            "post": {
+                "summary": "Send an email",
+                "operationId": "4686f5de978d0e3e03d7ae8b74e9b53f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "toEmail": {
+                                        "type": "string",
+                                        "example": "example@example.com"
+                                    },
+                                    "messageContent": {
+                                        "type": "string",
+                                        "example": "Your message content"
+                                    },
+                                    "subject": {
+                                        "type": "string",
+                                        "example": "Email Subject"
+                                    },
+                                    "pathToFile": {
+                                        "type": "string",
+                                        "example": "/path/to/file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Email sent successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to send email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Failed to send email: Error message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/get_payment_history": {
+            "post": {
+                "summary": "Get payment history",
+                "operationId": "c9dd8bd2adcc98dd2439e02799a82fee",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payment history retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "payment_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "You don't have permission to access this page"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order/confirm_delivery": {
+            "post": {
+                "summary": "Confirm order delivery",
+                "operationId": "95470287796ff0d2bf2053e6a70a5777",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "order_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Order delivery confirmed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Order delivery confirmed successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No input received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No input received"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/get_refund_list": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get list of refundable orders",
+                "description": "Retrieve a list of orders that are eligible for refunds, including both custom and template orders. This endpoint requires sending additional data in the request body, such as filters or search parameters.",
+                "operationId": "getRefundList",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "filters": {
+                                        "description": "Optional filters for retrieving the refund list",
+                                        "properties": {
+                                            "status": {
+                                                "description": "Filter by order status",
+                                                "type": "string"
+                                            },
+                                            "date_range": {
+                                                "description": "Filter by date range",
+                                                "properties": {
+                                                    "start_date": {
+                                                        "description": "Start date in YYYY-MM-DD format",
+                                                        "type": "string",
+                                                        "format": "date"
+                                                    },
+                                                    "end_date": {
+                                                        "description": "End date in YYYY-MM-DD format",
+                                                        "type": "string",
+                                                        "format": "date"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of refundable orders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "customize_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "Order ID",
+                                                        "type": "integer"
+                                                    },
+                                                    "product": {
+                                                        "description": "Product details",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Product ID",
+                                                                "type": "integer"
+                                                            },
+                                                            "imageUrl": {
+                                                                "description": "URL of the product image",
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "account": {
+                                                        "description": "Account details",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Account ID",
+                                                                "type": "integer"
+                                                            },
+                                                            "imageUrl": {
+                                                                "description": "URL of the account image",
+                                                                "type": "string"
+                                                            },
+                                                            "dob": {
+                                                                "description": "Date of birth in d/m/Y format",
+                                                                "type": "string"
+                                                            },
+                                                            "deactivated_date": {
+                                                                "description": "Deactivation date in d/m/Y format",
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "order_status": {
+                                                        "description": "Order status details",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Order status ID",
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "order_type": {
+                                                        "description": "Order type details",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Order type ID",
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "created": {
+                                                        "description": "Creation date in H:i:s d/m/Y format",
+                                                        "type": "string"
+                                                    },
+                                                    "delivery_date": {
+                                                        "description": "Delivery date in H:i:s d/m/Y format",
+                                                        "type": "string"
+                                                    },
+                                                    "guarantee_expired_date": {
+                                                        "description": "Guarantee expired date in H:i:s d/m/Y format",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "template_order_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "description": "Order ID",
+                                                        "type": "integer"
+                                                    },
+                                                    "product": {
+                                                        "description": "Product details",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Product ID",
+                                                                "type": "integer"
+                                                            },
+                                                            "imageUrl": {
+                                                                "description": "URL of the product image",
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "account": {
+                                                        "description": "Account details",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Account ID",
+                                                                "type": "integer"
+                                                            },
+                                                            "imageUrl": {
+                                                                "description": "URL of the account image",
+                                                                "type": "string"
+                                                            },
+                                                            "dob": {
+                                                                "description": "Date of birth in d/m/Y format",
+                                                                "type": "string"
+                                                            },
+                                                            "deactivated_date": {
+                                                                "description": "Deactivation date in d/m/Y format",
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "order_status": {
+                                                        "description": "Order status details",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Order status ID",
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "order_type": {
+                                                        "description": "Order type details",
+                                                        "properties": {
+                                                            "id": {
+                                                                "description": "Order type ID",
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "created": {
+                                                        "description": "Creation date in H:i:s d/m/Y format",
+                                                        "type": "string"
+                                                    },
+                                                    "delivery_date": {
+                                                        "description": "Delivery date in H:i:s d/m/Y format",
+                                                        "type": "string"
+                                                    },
+                                                    "guarantee_expired_date": {
+                                                        "description": "Guarantee expired date in H:i:s d/m/Y format",
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/admin/order/dashboard": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Retrieve dashboard data",
+                "description": "Fetches various dashboard metrics including user counts, profits, and order statistics.",
+                "operationId": "getDashboard",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {},
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "months": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "user_year": {
+                                                    "type": "integer"
+                                                },
+                                                "this_month": {
+                                                    "type": "integer"
+                                                },
+                                                "user_month": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "profit": {
+                                            "properties": {
+                                                "profit_year": {
+                                                    "type": "integer"
+                                                },
+                                                "this_month": {
+                                                    "type": "integer"
+                                                },
+                                                "profit_month": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "order": {
+                                            "properties": {
+                                                "order_year": {
+                                                    "type": "integer"
+                                                },
+                                                "this_month": {
+                                                    "type": "integer"
+                                                },
+                                                "order_month": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "order_deposit": {
+                                            "properties": {
+                                                "deposit_percentage": {
+                                                    "type": "integer"
+                                                },
+                                                "deposit_count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "order_design": {
+                                            "properties": {
+                                                "design_percentage": {
+                                                    "type": "integer"
+                                                },
+                                                "design_count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "order_production": {
+                                            "properties": {
+                                                "production_percentage": {
+                                                    "type": "integer"
+                                                },
+                                                "production_count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "order_payment": {
+                                            "properties": {
+                                                "payment_percentage": {
+                                                    "type": "integer"
+                                                },
+                                                "payment_count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "order_delivery": {
+                                            "properties": {
+                                                "delivery_percentage": {
+                                                    "type": "integer"
+                                                },
+                                                "delivery_count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "order_template": {
+                                            "properties": {
+                                                "order_template_year": {
+                                                    "type": "integer"
+                                                },
+                                                "this_month": {
+                                                    "type": "integer"
+                                                },
+                                                "order_template_month": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "order_customize": {
+                                            "properties": {
+                                                "order_customize_year": {
+                                                    "type": "integer"
+                                                },
+                                                "this_month": {
+                                                    "type": "integer"
+                                                },
+                                                "order_customize_month": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "You don't have permission to access this page"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order/cancel-payment": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Cancel a payment",
+                "description": "Cancels a payment if it has not been completed yet.",
+                "operationId": "cancelPayment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "payment_id": {
+                                        "description": "The ID of the payment to cancel",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Payment cancelled successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "The selected payment can't be cancelled"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message here"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/order/confirm-shipped": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Confirm an order as shipped",
+                "description": "Marks an order as shipped if it is ready and assigned to the staff.",
+                "operationId": "confirmShipped",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "order_id": {
+                                        "description": "The ID of the order to confirm as shipped",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Confirm successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "The selected order isn't ready for shipping"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message here"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/admin/quote/get_quote_list": {
