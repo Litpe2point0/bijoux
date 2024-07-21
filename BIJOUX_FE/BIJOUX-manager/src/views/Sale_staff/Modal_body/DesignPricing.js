@@ -48,7 +48,89 @@ import { CurrencyFormatterLowercase } from "../../component_items/Ag-grid/money_
 import OrderDetailCard from "../Quote widget/OrderDetailCard";
 
 
+const complete_metal_list_previous = (old_list, new_list) => {  // old_list: status 3, new_list: status 1
+    if (old_list.length > 0) {
+        old_list.forEach((old_item) => {
+            const found = new_list.find((new_item) => new_item.metal.id == old_item.metal.id && new_item.volume == old_item.volume)
+            if (!found) {
+                old_list.splice(old_list.indexOf(old_item), 1);
+            }
+        })
+        new_list.forEach((new_item) => {
+            const found = old_list.find((old_item) => old_item.metal.id == new_item.metal.id && old_item.volume == new_item.volume)
+            if (!found) {
+                old_list.push(new_item)
+            }
+        }
+        )
+        return old_list
+    } else {
+        return new_list
+    }
+}
+const complete_diamond_list_previous = (old_list, new_list) => {   // old_list: status 3, new_list: status 1
+    if (old_list.length > 0) {
+        old_list.forEach((old_item) => {
+            const found = new_list.find((new_item) => new_item.diamond.id == old_item.diamond.id && new_item.count == old_item.count)
+            if (!found) {
+                old_list.splice(old_list.indexOf(old_item), 1);
+            }
+        })
+        new_list.forEach((new_item) => {
+            const found = old_list.find((old_item) => old_item.diamond.id == new_item.diamond.id && old_item.count == new_item.count)
+            if (!found) {
+                old_list.push(new_item)
+            }
+        }
+        )
+        return old_list
+    } else {
+        return new_list
 
+    }
+}
+const complete_metal_list_updating = (old_list, current_list, new_list) => { // old_list: status 3, current_list: status 1, new_list: status 0
+    const current = complete_metal_list_previous(old_list, current_list)
+    new_list.forEach((new_item, index) => {
+        const found = current.find((current_item) => current_item.metal.id == new_item.metal.id && current_item.volume == new_item.volume)
+        if (found) {
+            // new_list.splice(new_list.indexOf(new_item), 1)
+            // new_list.push(found)
+            new_list[index] = found;
+        }
+    }
+    )
+    return new_list
+}
+const complete_diamond_list_updating = (old_list, current_list, new_list) => { // old_list: status 3, current_list: status 1, new_list: status 0
+    const current = complete_diamond_list_previous(old_list, current_list)
+    new_list.forEach((new_item, index) => {
+        const found = current.find((current_item) => current_item.diamond.id == new_item.diamond.id && current_item.count == new_item.count)
+        if (found) {
+            // new_list.splice(new_list.indexOf(new_item), 1)
+            // new_list.push(found)
+            new_list[index] = found;
+        }
+    }
+    )
+    return new_list
+}
+
+const product_price_calculator = (metal_list, diamond_list) => {
+    const metal_price = metal_list.reduce((total, item) => total + item.price, 0)
+    const diamond_price = diamond_list.reduce((total, item) => total + item.price, 0)
+    const product_price = metal_price + diamond_price
+    return product_price
+}
+
+const total_calculator = (metal_list, diamond_list, profit_rate, production) => {
+    const metal_price = metal_list.reduce((total, item) => total + item.price, 0)
+    const diamond_price = diamond_list.reduce((total, item) => total + item.price, 0)
+    const product_price = metal_price + diamond_price
+    const profit_price = product_price * profit_rate / 100
+    const total_price = product_price + profit_price + production
+    return total_price
+}
 
 const CustomForm = ({ designInfo, onClose }) => {
     const dispatch = useDispatch();
@@ -80,6 +162,7 @@ const CustomForm = ({ designInfo, onClose }) => {
 
     //report
     const [note, setNote] = useState(null);
+    const [updatingProductPrice, setUpdatingProductPrice] = useState(null);
     const [profitRate, setProfitRate] = useState(null);
     const [productionPrice, setProductionPrice] = useState(null);
 
@@ -110,17 +193,47 @@ const CustomForm = ({ designInfo, onClose }) => {
             setDesignStaff(design_process.order.design_staff);
             setProductionStaff(design_process.order.production_staff);
 
-            setPreviousMetalList(design_process.order.product.product_metal.filter(item => item.status == 1))
-            setPreviousDiamondList(design_process.order.product.product_diamond.filter(item => item.status == 1))
+            
 
-            setUpdatingMetalList(design_process.order.product.product_metal.filter(item => item.status == 0))
-            setUpdatingDiamondList(design_process.order.product.product_diamond.filter(item => item.status == 0))
+            const metal_old = design_process.order.product.product_metal.filter(item => item.status == 3)
+            const metal_new = design_process.order.product.product_metal.filter(item => item.status == 1)
+
+            const diamond_old = design_process.order.product.product_diamond.filter(item => item.status == 3)
+            const diamond_new = design_process.order.product.product_diamond.filter(item => item.status == 1)
+
+            const metal_design = design_process.order.product.product_metal.filter(item => item.status == 0)
+            const diamond_design = design_process.order.product.product_diamond.filter(item => item.status == 0)
+
+            // setPreviousMetalList(design_process.order.product.product_metal.filter(item => item.status == 1))
+            // setPreviousDiamondList(design_process.order.product.product_diamond.filter(item => item.status == 1))
+
+            // setUpdatingMetalList(design_process.order.product.product_metal.filter(item => item.status == 0))
+            // setUpdatingDiamondList(design_process.order.product.product_diamond.filter(item => item.status == 0))
+
+            console.log('complete_metal_list_previous', complete_metal_list_previous(metal_old, metal_new))
+            console.log('complete_diamond_list_previous', complete_diamond_list_previous(diamond_old, diamond_new))
+            console.log('complete_metal_list_updating', complete_metal_list_updating(metal_old, metal_new, metal_design))
+            console.log('complete_diamond_list_updating', complete_diamond_list_updating(diamond_old, diamond_new, diamond_design))
+
+            const metal_previous = complete_metal_list_previous(metal_old, metal_new)
+            const diamond_previous = complete_diamond_list_previous(diamond_old, diamond_new)
+            const metal_updating = complete_metal_list_updating(metal_old, metal_new, metal_design)
+            const diamond_updating= complete_diamond_list_updating(diamond_old, diamond_new, diamond_design)
+            
+            setPreviousMetalList(metal_previous)
+            setPreviousDiamondList(diamond_previous)
+
+            setUpdatingMetalList(metal_updating)
+            setUpdatingDiamondList(diamond_updating)
 
 
             setProfitRate(design_process.profit_rate);
             setProductionPrice(design_process.production_price);
-            setTotalPrice(design_process.total_price)
 
+            setUpdatingProductPrice(product_price_calculator(metal_updating, diamond_updating))
+
+            //setTotalPrice(design_process.total_price)
+            setTotalPrice(total_calculator(metal_updating, diamond_updating, design_process.profit_rate, design_process.production_price))
 
 
             setLoading(false);
@@ -167,7 +280,9 @@ const CustomForm = ({ designInfo, onClose }) => {
     }
     useEffect(() => {
         if (!loading) {
-            setTotalPrice(productionPrice + designProcess.product_price * (100 + profitRate) / 100)
+
+            //setTotalPrice(productionPrice + designProcess.product_price * (100 + profitRate) / 100)
+            setTotalPrice(total_calculator(updatingMetalList, updatingDiamondList, profitRate, productionPrice))
         }
     }, [profitRate, productionPrice])
     return (
@@ -595,7 +710,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className="p-0 m-0 d-flex align-items-center text-nowrap">
                                                     <span className="text-secondary fs-6">
-                                                        <CurrencyFormatterLowercase value={order.product_price * (designProcess.profit_rate / 100)} />
+                                                        <CurrencyFormatterLowercase value={order.product_price * (order.profit_rate / 100)} />
                                                         &nbsp;({order.profit_rate}%)
                                                     </span>
 
@@ -630,7 +745,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className="p-0 m-0 d-flex align-items-center text-nowrap">
                                                     <span className="text-success fs-6">
-                                                        <CurrencyFormatterLowercase value={designProcess.product_price} />
+                                                        <CurrencyFormatterLowercase value={updatingProductPrice} />
                                                         {/* {designProcess.product_price} vnd */}
                                                     </span>
 
@@ -642,7 +757,7 @@ const CustomForm = ({ designInfo, onClose }) => {
                                                 </CCol>
                                                 <CCol lg={5} className="p-0 m-0 d-flex align-items-center ">
                                                     <span className="text-success fs-6 d-flex align-items-center text-nowrap">
-                                                        <CurrencyFormatterLowercase value={designProcess.product_price * (profitRate / 100)} />
+                                                        <CurrencyFormatterLowercase value={updatingProductPrice * (profitRate / 100)} />
                                                         &nbsp;({profitRate}%)
                                                         <div className="flex-grow-1">
                                                             <Modal_Button
