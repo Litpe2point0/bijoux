@@ -98,7 +98,7 @@ const state_creator = (table) => {
                 cellRenderer: (params) => {
                     const update_props = {
                         updateForm: <DiamondUpdate diamond={params.data} />,
-                        title: 'Update Metal [ID: #' + params.data.id + ']',
+                        title: 'Update Diamond [ID: #' + params.data.id + ']',
                         button: <IconButton color="light" aria-label="add an alarm">
                             <Gear size={20} color={'purple'} weight="duotone" />
                         </IconButton>,
