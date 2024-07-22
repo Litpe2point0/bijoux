@@ -23,7 +23,8 @@ class CorsMiddleware
         'https://customerss-7jmoqnvmm-hungs-projects-5beaef07.vercel.app',
         'https://bijoux-jewelry.netlify.app',
         'https://bijoux-management.netlify.app',
-        'http://127.0.0.1:8000'
+        'http://127.0.0.1:8000',
+        'https://fast-scorpion-strictly.ngrok-free.app'
     ];
     public function handle(Request $request, Closure $next): Response
     {
