@@ -18,7 +18,7 @@ Schedule::call(function () {
         'order_status_id' => 6
     ]);
     echo ('Đã xong rồi em');
-})->everyFiveMinutes();
+})->everyTwoMinutes();
 
 //->everyTwoMinutes();
 //->everyMinute();
