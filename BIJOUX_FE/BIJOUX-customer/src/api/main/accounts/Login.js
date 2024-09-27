@@ -17,20 +17,7 @@ export async function login(formData) {
 
 export async function login_with_google(formData) {
 
-  // const response = await axios.post(`${backend_url}/login_with_google`, formData);
-  // console.log("Responseeeeeeeeeeeeeeeeeeeeeeee", response)
-  // const token = response.data.token
-  // console.log("User from JWT", jwtDecode(token))
 
-  // return response.data;
-
-  // try {
-  //   const response = await axios.post(`${backend_url}/login_with_google`, formData);
-  //   return response.data;
-  // } catch (error) {
-  //   console.log("login_with_google" + " BIG ERROR", error)
-  //   return response.data;
-  // }
 
   try {
     const response = await axios.post(`${backend_url}/login_with_google`, formData);

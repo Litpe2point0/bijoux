@@ -16,7 +16,6 @@ root.render(
       <GoogleOAuthProvider  clientId={clientId}>
         <App />
       </GoogleOAuthProvider>
-
     </PersistGate>
   </Provider>
 );

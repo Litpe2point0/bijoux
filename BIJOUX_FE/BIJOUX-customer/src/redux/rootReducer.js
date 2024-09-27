@@ -8,8 +8,6 @@ import orebiSlice from './orebi/orebiSlice';
 const rootReducer = combineReducers({
   auth: authReducer,
   orebiReducer: orebiSlice,
-  //toast: toastSlice
-  // Các reducer khác
 });
 
 export default rootReducer;

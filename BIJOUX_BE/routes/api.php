@@ -10,6 +10,8 @@ use App\Http\Controllers\orders\QuoteController;
 use App\Http\Controllers\orders\OrderController;
 use App\Http\Middleware\checkDeactivate;
 
+
+
 Route::middleware('checkCors')->group(function () {
     //Admin--------------------------------------------------------------
     Route::group(['prefix' => 'admin'], function () {
@@ -17,6 +19,7 @@ Route::middleware('checkCors')->group(function () {
             Route::post('/get_dashboard ', [OrderController::class, 'get_dashboard']);
 
             Route::group(['prefix' => 'account'], function () {
+                Route::post('/get_account_role', [AccountController::class, 'get_account_role']);
                 Route::post('/update', [AccountController::class, 'update']);
                 Route::post('/get_staff_role_list', [AccountController::class, 'get_staff_role_list']);
                 Route::post('/get_staff_list', [AccountController::class, 'get_staff_list']);
@@ -159,6 +162,26 @@ Route::middleware('checkCors')->group(function () {
 
 //Webhook------------------------------------------------------------------------
 Route::post('/confirm_payment', [OrderController::class, 'confirm_payment']);
+
+
+Route::group(['prefix' => 'nhap'], function () {
+    Route::get('/get_account_role', [AccountController::class, 'get_account_role']);
+    Route::post('/update', [AccountController::class, 'update']);
+    Route::post('/get_staff_role_list', [AccountController::class, 'get_staff_role_list']);
+    Route::post('/get_staff_list', [AccountController::class, 'get_staff_list']);
+    Route::post('/get_account_list', [AccountController::class, 'get_account_list']);
+    Route::post('/set_deactivate', [AccountController::class, 'set_deactivate'])->middleware(checkDeactivate::class);
+});
+Route::get('/env', function () {
+    return response()->json([
+        'DB_HOST' => env('DB_HOST'),
+        'DB_PORT' => env('DB_PORT'),
+        'DB_DATABASE' => env('DB_DATABASE'),
+        'DB_USERNAME' => env('DB_USERNAME'),
+        'DB_PASSWORD' => env('DB_PASSWORD'),
+    ]);
+});
+
 
 //test------------------------------------------------------------------------
 // Route::get('/generate-pdf', [OrderController::class, 'generatePDF']);

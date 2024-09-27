@@ -5,9 +5,12 @@ import {
     CCardText,
 } from '@coreui/react'
 import AvatarInput from '../../component_items/Avatar/Avatar'
+import React from 'react'
 
 
 const AccountCard = ({ account, avatarSize, cardHeight }) => {
+    alert('RENDERING...IN ACCOUNT CARD')
+    console.log('RENDERING...IN ACCOUNT CARD ........................................................................................................................................')
     return (
         <CCard className="bg-light mb-3" style={{ height: `${cardHeight}` }}>
 
@@ -28,4 +31,4 @@ const AccountCard = ({ account, avatarSize, cardHeight }) => {
     )
 
 }
-export default  AccountCard
+export default  React.memo(AccountCard)

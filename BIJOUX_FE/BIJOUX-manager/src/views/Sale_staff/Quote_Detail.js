@@ -53,6 +53,9 @@ import { CurrencyFormatterLowercase } from "../component_items/Ag-grid/money_for
 
 
 const Quote_Detail = () => {
+    alert('RENDERING...')
+    console.log('RENDERING...........................................................................................................................................')
+
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const index = useParams();
@@ -104,9 +107,9 @@ const Quote_Detail = () => {
         setProductionPrice(production_price > 0 ? production_price : 0);
     }
 
-
-
+    
     useEffect(() => {
+        console.log('USE EFFECT')
         const setAttribute = async () => {
 
             const formData = new FormData();
@@ -144,6 +147,26 @@ const Quote_Detail = () => {
         setAttribute();
 
     }, [])
+
+    
+    const example_function_with_useMemo = () => {
+        console.log('////////////// EXAMPLE FUNCTION WITH USEMEMO //////////////')
+    }
+    
+    useMemo(() => {
+        
+    example_function_with_useMemo()
+    }, [])
+    
+    useMemo(() => {
+        console.log('PROFIT RATE USE MEMO', profitRate)
+    }, [profitRate])
+
+    useEffect(() => {
+        console.log('PROFIT RATE USE EFFECT', profitRate)
+    }, [profitRate])
+
+
     useEffect(() => {
         const total = (parseFloat(productionPrice) + (metalList.reduce((total, item) => total + item.price, 0) + diamondList.reduce((total, item) => total + item.price, 0)) * (profitRate + 100) / 100).toFixed(2);
         console.log('Total', total)

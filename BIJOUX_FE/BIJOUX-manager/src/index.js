@@ -22,7 +22,7 @@ import useSyncTabs from './useSyncTabs';
 
 const AppWithSync = () => {
   useSyncTabs(); // Sử dụng hook để đồng bộ hóa các tab
-
+  // alert('AppWithSync')
   return <App />;
 };
 

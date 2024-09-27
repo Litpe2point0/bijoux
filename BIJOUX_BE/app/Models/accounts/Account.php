@@ -2,6 +2,7 @@
 
 namespace App\Models\accounts;
 
+use App\Models\accounts\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,7 +15,7 @@ class Account extends Authenticatable implements JWTSubject
 
     public $timestamps = false;
     protected $table = 'account';
-    protected $primarykey = 'id';
+        protected $primaryKey = 'id';
     /**
      * The attributes that are mass assignable.
      *
@@ -62,5 +63,14 @@ class Account extends Authenticatable implements JWTSubject
             'phone' => $this->phone,
             'address' => $this->address
         ];
+    }
+
+    // public function role()
+    // {
+    //     return $this->belongsTo(Role::class);
+    // }
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'id');
     }
 }

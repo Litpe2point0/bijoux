@@ -13,6 +13,16 @@ function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
 
+export function AddNumbers(a, b) {
+    useEffect(() => {
+        console.log('Component did ADD NUMBERS');
+        return () => {
+            console.log('Component will ADD NUMBERS');
+        };
+    }, []);
+    return a + b;
+}
+
 export default function Template() {
 
     const query = useQuery();

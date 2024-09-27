@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\accounts;
 
 use App\Http\Controllers\Controller;
+use App\Models\accounts\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
@@ -78,6 +79,11 @@ class AccountController extends Controller
             'success' => 'Login successfully',
         ]);
     }
+    public function get_account_role(){
+        $accounts = Account::with('role')->get();
+        return response()->json(['account' => $accounts], 200);
+        //return response()->json(['role' => Role::get()], 200);
+    }
     public function login_with_google(Request $request)
     {
         $token = $request->input('token_id');
@@ -120,26 +126,17 @@ class AccountController extends Controller
                     }
                 }
 
-                // Tạo JWT token
-                // $payload = [
-                //     'iss' => "your-issuer", // Issuer of the token
-                //     'sub' => $account->id, // Subject of the token
-                //     'iat' => time(), // Time when JWT was issued.
-                //     'exp' => time() + 60*60, // Expiration time
-                //     'imageUrl' => $image,
-                // ];
 
                 $account = Account::where('email', $email)->orderBy('created', 'desc')->first();
                 $payload = [
-                    'id' => $account->id, // Subject of the token
-                    'exp' => Carbon::now()->addYears(100)->timestamp, // Expiration time
+                    'id' => $account->id, 
+                    'exp' => Carbon::now()->addYears(100)->timestamp, 
                     'email' => $account->email,
                     'fullname' => $account->fullname,
                     'role_id' => $account->role_id,
                     'imageUrl' => $account->imageUrl,
                     'phone' => $account->phone,
                     'address' => $account->address
-                    // Thêm các claims khác nếu cần
                 ];
 
                 $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
