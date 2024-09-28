@@ -26,7 +26,8 @@ class CorsMiddleware
         'http://127.0.0.1:8000',
         'https://fast-scorpion-strictly.ngrok-free.app',
         'https://bijoux.id.vn',
-        'https://management.bijoux.id.vn'
+        'https://bijoux.id.vn/management',
+        'https://management.bijoux.id.vn',
     ];
     public function handle(Request $request, Closure $next): Response
     {
