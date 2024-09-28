@@ -24,7 +24,9 @@ class CorsMiddleware
         'https://bijoux-jewelry.netlify.app',
         'https://bijoux-management.netlify.app',
         'http://127.0.0.1:8000',
-        'https://fast-scorpion-strictly.ngrok-free.app'
+        'https://fast-scorpion-strictly.ngrok-free.app',
+        'https://bijoux.id.vn',
+        'https://bijoux.id.vn/management'
     ];
     public function handle(Request $request, Closure $next): Response
     {
