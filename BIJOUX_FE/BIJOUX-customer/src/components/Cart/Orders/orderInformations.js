@@ -49,31 +49,39 @@ const getRightFormattedCreatedDate = (inputString) => {
     }
 };
 
+
 const complete_old_version_metal = (old_list, new_list) => {
 
     old_list.forEach(old_item => {
         const found = new_list.find(new_item => (old_item.metal.id === new_item.metal.id) && (old_item.volume === new_item.volume));
+
         if (!found) {
             old_list.splice(old_list.indexOf(old_item), 1);
         }
     });
     new_list.forEach(new_item => {
+
         const found = old_list.find(old_item => (old_item.metal.id === new_item.metal.id) && (old_item.volume === new_item.volume));
+
         if (!found) {
             old_list.push(new_item);
         }
     });
     return old_list;
 }
+
 const complete_old_version_diamond = (old_list, new_list) => {
     old_list.forEach(old_item => {
         const found = new_list.find(new_item => (old_item.diamond.id === new_item.diamond.id) && (old_item.count === new_item.count));
+
         if (!found) {
             old_list.splice(old_list.indexOf(old_item), 1);
         }
     });
     new_list.forEach(new_item => {
+
         const found = old_list.find(old_item => (old_item.diamond.id === new_item.diamond.id) && (old_item.count === new_item.count));
+
         if (!found) {
             old_list.push(new_item);
         }
