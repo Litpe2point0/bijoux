@@ -25,6 +25,7 @@ import UploadSingle from "./widget/UploadSingle";
 import PriceCard from "./widget/PriceCard";
 import InfoCard from "./widget/InfoCard";
 import { add_model, get_model_detail, update_model } from "../../../../api/main/items/Model_api";
+import { image_url } from "../../../../api/Back_End_Url";
 
 
 
@@ -140,7 +141,7 @@ const AddForm = ({ mounting_type, handleModelAdd, onClose }) => {
 
                                             <span className="text-dark fw-bold fs-5 text-center">Model Image</span>
 
-                                            <UploadSingle defaultImage={"https://fast-scorpion-strictly.ngrok-free.app/image/Mounting/mounting_model/unknown.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
+                                            <UploadSingle defaultImage={image_url+"/Mounting/Mounting_model/unknown.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
 
                                         </div>
                                     </CCol>
@@ -311,7 +312,7 @@ const UpdateForm = ({ modelInfo, mounting_type, onClose }) => {
 
                                             <span className="text-dark fw-bold fs-5 text-center">Model Image</span>
 
-                                            <UploadSingle defaultImage={model ? model.imageUrl : "https://fast-scorpion-strictly.ngrok-free.app/image/Metal/1/main.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
+                                            <UploadSingle defaultImage={model ? model.imageUrl : image_url+"/Metal/1/main.jpg"} disabled={false} handleSingleFileBase64={handleSingleFileBase64} />
 
                                         </div>
                                     </CCol>
