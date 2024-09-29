@@ -1847,7 +1847,7 @@ class OrderController extends Controller
             $imageUrl = "";
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                $destinationPath = public_path('image/Job/design_process/' . $id);
+                $destinationPath = public_path('image/Job/Design_process/' . $id);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
@@ -1855,14 +1855,14 @@ class OrderController extends Controller
                 file_put_contents($destinationPath . '/' . $fileName, $fileData);
                 $imageUrl = $fileName;
             } else {
-                $destinationPath = public_path('image/Job/design_process/' . $id);
+                $destinationPath = public_path('image/Job/Design_process/' . $id);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
                 $product = DB::table('product')->where('id', $order->product_id)->first();
                 $cpyfileName = $product->imageUrl;
                 $fileName = Carbon::now()->timestamp . '_' . $id . '.jpg';
-                $destinationFilePath = public_path('image/Job/design_process/' . $id . '/' . $fileName);
+                $destinationFilePath = public_path('image/Job/Design_process/' . $id . '/' . $fileName);
                 $sourceFilePath = public_path('image/Order/' . $order->product_id . '/' . $cpyfileName);
                 File::copy($sourceFilePath, $destinationFilePath);
                 $imageUrl = $fileName;
@@ -2250,10 +2250,10 @@ class OrderController extends Controller
                 if ($design_process->imageUrl != null) {
                     $fileName = 'main.jpg';
                     $destinationPath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
-                    $tempPath = public_path('image/Job/design_process/temp.jpg');
+                    $tempPath = public_path('image/Job/Design_process/temp.jpg');
                     File::copy($destinationPath, $tempPath);
                     File::delete($destinationPath);
-                    $sourceFilePath = public_path('image/Job/design_process/' . $design_process->id . '/' . $design_process->imageUrl);
+                    $sourceFilePath = public_path('image/Job/Design_process/' . $design_process->id . '/' . $design_process->imageUrl);
                     File::copy($sourceFilePath, $destinationPath);
                     File::delete($sourceFilePath);
                     File::copy($tempPath, $sourceFilePath);
@@ -2757,7 +2757,7 @@ class OrderController extends Controller
 
                 if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                     $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                    $destinationPath = public_path('image/Job/production_process/' . $input['order_id']);
+                    $destinationPath = public_path('image/Job/Production_process/' . $input['order_id']);
                     if (!file_exists($destinationPath)) {
                         mkdir($destinationPath, 0755, true);
                     }
@@ -2876,7 +2876,7 @@ class OrderController extends Controller
                 $destinationPath = public_path('image/Order/' . $order->product_id);
                 File::cleanDirectory($destinationPath);
                 $destinationFilePath = public_path('image/Order/' . $order->product_id . '/' . $fileName);
-                $sourceFilePath = public_path('image/Job/production_process/' . $order->id . '/' . $production_process->imageUrl);
+                $sourceFilePath = public_path('image/Job/Production_process/' . $order->id . '/' . $production_process->imageUrl);
                 File::copy($sourceFilePath, $destinationFilePath);
                 DB::table('product')->where('id', $order->product_id)->update([
                     'imageUrl' => $fileName

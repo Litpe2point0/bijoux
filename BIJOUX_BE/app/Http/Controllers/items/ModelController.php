@@ -184,7 +184,7 @@ class ModelController extends Controller
 
             if (isset($input['imageUrl']) && $input['imageUrl'] != null) {
                 $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $input['imageUrl']));
-                $destinationPath = public_path('image/Mounting/mounting_model/' . $modelId);
+                $destinationPath = public_path('image/Mounting/Mounting_model/' . $modelId);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
@@ -195,12 +195,12 @@ class ModelController extends Controller
                 $model->save();
             } else {
                 $fileName = Carbon::now()->timestamp . '_' . $modelId . '.jpg';
-                $destinationPath = public_path('image/Mounting/mounting_model/' . $modelId);
+                $destinationPath = public_path('image/Mounting/Mounting_model/' . $modelId);
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
                 }
-                $destinationFilePath = public_path('image/Mounting/mounting_model/' . $modelId . '/' . $fileName);
-                $sourceFilePath = public_path('image/Mounting/mounting_model/unknown.jpg');
+                $destinationFilePath = public_path('image/Mounting/Mounting_model/' . $modelId . '/' . $fileName);
+                $sourceFilePath = public_path('image/Mounting/Mounting_model/unknown.jpg');
                 File::copy($sourceFilePath, $destinationFilePath);
                 $model->imageUrl = $fileName;
                 $model->save();
